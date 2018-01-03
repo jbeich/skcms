@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42f56cf4_0458969a",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-03T22:39:40Z",
+      "side": 0,
+      "message": "Relative include path contains \"..\"",
+      "revId": "1cae09e4965002c702a1bfce0b00eb778e043e4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
