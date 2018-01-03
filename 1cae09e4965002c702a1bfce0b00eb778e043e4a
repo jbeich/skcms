@@ -34,6 +34,24 @@
       "revId": "1cae09e4965002c702a1bfce0b00eb778e043e4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8d28999_c34cf608",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-03T22:48:56Z",
+      "side": 0,
+      "message": "The MSVC version does compile like this - oddly. Hmm. Yeah, perhaps we just enforce the unity build.",
+      "parentUuid": "84643c43_097fee04",
+      "revId": "1cae09e4965002c702a1bfce0b00eb778e043e4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
