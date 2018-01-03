@@ -5,6 +5,8 @@ add_library(skcms skcms.c)
 
 if (${CMAKE_C_COMPILER_ID} MATCHES "Clang")
     target_compile_options(skcms PRIVATE -Weverything -Werror -fcolor-diagnostics)
+elseif (${CMAKE_C_COMPILER_ID} MATCHES "GNU")
+    target_compile_options(skcms PRIVATE -Wall -Wextra -Werror -fdiagnostics-color)
 endif()
 
 enable_testing()
