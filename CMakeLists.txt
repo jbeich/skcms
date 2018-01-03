@@ -7,6 +7,8 @@ if (${CMAKE_C_COMPILER_ID} MATCHES "Clang")
     target_compile_options(skcms PRIVATE -Weverything -Werror -fcolor-diagnostics)
 elseif (${CMAKE_C_COMPILER_ID} MATCHES "GNU")
     target_compile_options(skcms PRIVATE -Wall -Wextra -Werror -fdiagnostics-color)
+elseif (MSVC)
+    target_compile_options(skcms PRIVATE /Wall /WX)
 endif()
 
 enable_testing()

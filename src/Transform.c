@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "../skcms.h"
+#include "skcms.h"
 
 bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
                const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
