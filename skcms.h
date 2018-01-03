@@ -34,7 +34,7 @@ typedef struct {
 
 
 typedef struct {
-
+    void* placeholder;
 } skcms_ICCProfile;
 
 // Parse an ICC profile and return true if possible, otherwise return false.
