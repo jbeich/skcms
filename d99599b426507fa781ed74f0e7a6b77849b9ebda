@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c435902a_1593badd",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-03T22:05:12Z",
+      "side": 1,
+      "message": "Also, do we need rowBytes? (I don\u0027t think so).",
+      "revId": "d99599b426507fa781ed74f0e7a6b77849b9ebda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
