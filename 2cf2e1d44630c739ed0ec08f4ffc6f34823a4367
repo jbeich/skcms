@@ -16,6 +16,24 @@
       "revId": "2cf2e1d44630c739ed0ec08f4ffc6f34823a4367",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21ae28f5_8d0ee2ac",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-03T22:04:23Z",
+      "side": 1,
+      "message": "I am certainly not committed to this yet.  I could be convinced to store it diagonal major.  :)\n\n| 0 1 3 |\n| 2 4 6 |\n| 5 7 8 |",
+      "parentUuid": "f4647a65_295679e5",
+      "revId": "2cf2e1d44630c739ed0ec08f4ffc6f34823a4367",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
