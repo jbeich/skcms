@@ -52,6 +52,24 @@
       "revId": "1cae09e4965002c702a1bfce0b00eb778e043e4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f32b1c6_0d8ed008",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-03T22:50:05Z",
+      "side": 0,
+      "message": "Oh boy.  That does not bode well for preprocessor compatibility...",
+      "parentUuid": "a8d28999_c34cf608",
+      "revId": "1cae09e4965002c702a1bfce0b00eb778e043e4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
