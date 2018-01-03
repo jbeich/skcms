@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4647a65_295679e5",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-03T21:59:04Z",
+      "side": 1,
+      "message": "My only suggestion was going to be row-major, because tags that store complete matrices are row-major in ICC (eg, \u0027chad\u0027). However, XYZ matrices are stored as three separate 3-element tags, and those are each one column. So, yeah. lgmt.",
+      "revId": "2cf2e1d44630c739ed0ec08f4ffc6f34823a4367",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
