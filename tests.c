@@ -22,7 +22,20 @@ static void test_ICCProfile() {
     assert(!skcms_ICCProfile_getTransferFunction(&profile, &transferFunction));
 }
 
+static void test_Transform() {
+    // Nothing works yet.  :)
+    skcms_ICCProfile src, dst;
+    char buf[16];
+
+    for (skcms_PixelFormat fmt  = skcms_PixelFormat_RGB_565;
+                           fmt <= skcms_PixelFormat_BGRA_ffff; fmt++) {
+        assert(!skcms_Transform(buf,fmt,&dst,
+                                buf,fmt,&src, 1));
+    }
+}
+
 int main(void) {
     test_ICCProfile();
+    test_Transform();
     return 0;
 }

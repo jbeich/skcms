@@ -9,6 +9,10 @@
 
 // skcms.h contains the entire public API for skcms.
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -50,3 +54,35 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
 
 // TODO: read table-based transfer functions
+
+typedef enum {
+    skcms_PixelFormat_RGB_565,
+    skcms_PixelFormat_BGR_565,
+
+    skcms_PixelFormat_RGB_888,
+    skcms_PixelFormat_BGR_888,
+
+    skcms_PixelFormat_RGBA_8888,
+    skcms_PixelFormat_BGRA_8888,
+
+    skcms_PixelFormat_RGBA_16161616,  // Big-endian.
+    skcms_PixelFormat_BGRA_16161616,
+
+    skcms_PixelFormat_RGBA_hhhh,      // 1-5-10 half-precision float.
+    skcms_PixelFormat_BGRA_hhhh,
+
+    skcms_PixelFormat_RGBA_ffff,      // 1-8-23 single-precision float (the normal kind).
+    skcms_PixelFormat_BGRA_ffff,
+} skcms_PixelFormat;
+
+// TODO: do we want/need to support anything other than unpremul input, unpremul output?
+
+// Convert npixels pixels from src format and color profile to dst format and color profile
+// and return true, otherwise return false.  It is safe to alias dst == src if dstFmt == srcFmt.
+bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
+               const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
+                     int npixels);
+
+#ifdef __cplusplus
+}
+#endif

@@ -10,3 +10,4 @@
 // skcms.c is a unity build target for skcms, #including every other C source file.
 
 #include "src/ICCProfile.c"
+#include "src/Transform.c"
