@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "753a8342_2c443491",
+        "filename": "src/Transform.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-04T18:18:34Z",
+      "side": 1,
+      "message": "Maybe rewrite this as #if !defined(__clang__) \u0026\u0026 !defined(__GNUC__) at this point?",
+      "revId": "c754da4bd00b927eec9a69a240409caf60f826c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
