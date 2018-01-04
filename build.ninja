@@ -2,7 +2,7 @@ builddir = out
 
 clang  = ccache clang -fcolor-diagnostics -Weverything
 gcc    = ccache gcc-7 -fdiagnostics-color -Wall -Wextra
-cflags = -Werror -Os
+cflags = -g -Werror -Os
 
 rule clang
     command = $clang $cflags -MD -MF $out.d -c $in -o $out
