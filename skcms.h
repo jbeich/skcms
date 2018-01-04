@@ -9,12 +9,12 @@
 
 // skcms.h contains the entire public API for skcms.
 
+#include <stdbool.h>
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
-#include <stddef.h>
 
 // A column-major 3x3 matrix,
 // | vals[0] vals[3] vals[6] |
