@@ -1,0 +1,39 @@
+builddir = out
+
+clang  = ccache clang -fcolor-diagnostics -Weverything
+gcc    = ccache gcc-7 -fdiagnostics-color -Wall -Wextra
+cflags = -Werror -Os
+
+rule clang
+    command = $clang $cflags -MD -MF $out.d -c $in -o $out
+    depfile = $out.d
+    deps    = gcc
+
+rule gcc
+    command = $gcc $cflags -MD -MF $out.d -c $in -o $out
+    depfile = $out.d
+    deps    = gcc
+
+rule link
+    command = $clang $ldflags $in -o $out
+
+rule run
+    command = ./$in > $out
+
+build out/skcms.clang.o:  clang skcms.c
+build out/tests.clang.o:  clang tests.c
+build out/tests.clang:    link out/skcms.clang.o out/tests.clang.o
+build out/tests.clang.ok: run out/tests.clang
+
+build out/skcms.gcc.o:  gcc skcms.c
+build out/tests.gcc.o:  gcc tests.c
+build out/tests.gcc:    link out/skcms.gcc.o out/tests.gcc.o
+build out/tests.gcc.ok: run out/tests.gcc
+
+build out/skcms.san.o:  clang skcms.c
+    cflags = $cflags -fsanitize=address,undefined
+build out/tests.san.o:  clang tests.c
+    cflags = $cflags -fsanitize=address,undefined
+build out/tests.san:    link out/skcms.san.o out/tests.san.o
+    ldflags = -fsanitize=address,undefined
+build out/tests.san.ok: run out/tests.san

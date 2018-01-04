@@ -49,7 +49,7 @@ static void test_FormatConversions() {
     uint8_t src[256],
             dst[85*4];
     for (int i = 0; i < 256; i++) {
-        src[i] = i;
+        src[i] = (uint8_t)i;
     }
 
     // This should basically be a really complicated memcpy().
@@ -144,9 +144,9 @@ static void test_FormatConversions_565() {
     // This should hit all the unique values of each lane of 565.
     uint16_t src[64];
     for (int i = 0; i < 64; i++) {
-        src[i] = (i/2) <<  0
-               | (i/1) <<  5
-               | (i/2) << 11;
+        src[i] = (uint16_t)( (i/2) <<  0 )
+               | (uint16_t)( (i/1) <<  5 )
+               | (uint16_t)( (i/2) << 11 );
     }
     expect(src[ 0] == 0x0000);
     expect(src[63] == 0xffff);
