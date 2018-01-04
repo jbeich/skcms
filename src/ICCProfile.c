@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "../skcms.h"
-
 bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
                             const void* buf,
                             size_t len) {
