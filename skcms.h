@@ -81,7 +81,7 @@ typedef enum {
 // and return true, otherwise return false.  It is safe to alias dst == src if dstFmt == srcFmt.
 bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
                const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
-                     int npixels);
+                     size_t npixels);
 
 #ifdef __cplusplus
 }
