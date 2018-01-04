@@ -37,3 +37,17 @@ build out/tests.san.o:  clang tests.c
 build out/tests.san:    link out/skcms.san.o out/tests.san.o
     ldflags = -fsanitize=address,undefined
 build out/tests.san.ok: run out/tests.san
+
+build out/skcms.native.o:  clang skcms.c
+    cflags = $cflags -march=native -ffp-contract=fast
+build out/tests.native.o:  clang tests.c
+    cflags = $cflags -march=native -ffp-contract=fast
+build out/tests.native:    link out/skcms.native.o out/tests.native.o
+build out/tests.native.ok: run out/tests.native
+
+build out/skcms.portable.o:  clang skcms.c
+    cflags = $cflags -DSKCMS_PORTABLE
+build out/tests.portable.o:  clang tests.c
+    cflags = $cflags -DSKCMS_PORTABLE
+build out/tests.portable:    link out/skcms.portable.o out/tests.portable.o
+build out/tests.portable.ok: run out/tests.portable

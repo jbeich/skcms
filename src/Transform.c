@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#if 0 || (!defined(__clang__) && !defined(__GNUC__))
+#if defined(SKCMS_PORTABLE) || (!defined(__clang__) && !defined(__GNUC__))
     #define N 1
     #include <string.h>
     typedef float    F  ;
