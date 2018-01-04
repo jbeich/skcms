@@ -3,6 +3,7 @@ builddir = out
 clang  = ccache clang -fcolor-diagnostics -Weverything
 gcc    = ccache gcc-7 -fdiagnostics-color -Wall -Wextra
 cflags = -g -Werror -Os
+san    = -fsanitize=address,integer,undefined
 
 rule clang
     command = $clang $cflags -MD -MF $out.d -c $in -o $out
@@ -31,11 +32,11 @@ build out/tests.gcc:    link out/skcms.gcc.o out/tests.gcc.o
 build out/tests.gcc.ok: run out/tests.gcc
 
 build out/skcms.san.o:  clang skcms.c
-    cflags = $cflags -fsanitize=address,undefined
+    cflags = $cflags $san
 build out/tests.san.o:  clang tests.c
-    cflags = $cflags -fsanitize=address,undefined
+    cflags = $cflags $san
 build out/tests.san:    link out/skcms.san.o out/tests.san.o
-    ldflags = -fsanitize=address,undefined
+    ldflags = $san
 build out/tests.san.ok: run out/tests.san
 
 build out/skcms.native.o:  clang skcms.c
