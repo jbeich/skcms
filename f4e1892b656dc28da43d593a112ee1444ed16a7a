@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db57ce2d_bd856fda",
+        "filename": "src/Transform.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-04T17:26:58Z",
+      "side": 1,
+      "message": "Cute.",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 26
+      },
+      "revId": "f4e1892b656dc28da43d593a112ee1444ed16a7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
