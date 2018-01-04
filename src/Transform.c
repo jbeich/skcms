@@ -20,24 +20,41 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
     return false;
 }
 
-#if 0 || !defined(__clang__)
+#if 0 || !(defined(__clang__) || defined(__GNUC__))
     #define N 1
     #include <string.h>
     typedef float    F  ;
     typedef int32_t  I32;
     typedef uint32_t U32;
-#elif defined(__AVX__)
+    static const F F0 = 0;
+#elif defined(__clang__) && defined(__AVX__)
     #define N 8
     #define memcpy __builtin_memcpy
     typedef float    __attribute__((ext_vector_type(N))) F  ;
     typedef int32_t  __attribute__((ext_vector_type(N))) I32;
     typedef uint32_t __attribute__((ext_vector_type(N))) U32;
-#else
+    static const F F0 = {0,0,0,0, 0,0,0,0};
+#elif defined(__GNUC__) && defined(__AVX__)
+    #define N 8
+    #define memcpy __builtin_memcpy
+    typedef float    __attribute__((vector_size(32))) F  ;
+    typedef int32_t  __attribute__((vector_size(32))) I32;
+    typedef uint32_t __attribute__((vector_size(32))) U32;
+    static const F F0 = {0,0,0,0, 0,0,0,0};
+#elif defined(__clang__)
     #define N 4
     #define memcpy __builtin_memcpy
     typedef float    __attribute__((ext_vector_type(N))) F  ;
     typedef int32_t  __attribute__((ext_vector_type(N))) I32;
     typedef uint32_t __attribute__((ext_vector_type(N))) U32;
+    static const F F0 = {0,0,0,0};
+#elif defined(__GNUC__)
+    #define N 4
+    #define memcpy __builtin_memcpy
+    typedef float    __attribute__((vector_size(16))) F  ;
+    typedef int32_t  __attribute__((vector_size(16))) I32;
+    typedef uint32_t __attribute__((vector_size(16))) U32;
+    static const F F0 = {0,0,0,0};
 #endif
 
 typedef void (*Stage)(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a);
@@ -52,21 +69,40 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, F r, F g
     next(i,ip,dst,src, r,g,b,a);
 }
 
-#if N > 1
-    static inline F F_from_U32(U32 v) { return __builtin_convertvector((I32)v, F); }
-    static inline U32 U32_from_F(F v) { return (U32)__builtin_convertvector(v, I32); }
-#else
-    static inline F F_from_U32(U32 v) { return (F)v; }
-    static inline U32 U32_from_F(F v) { return (U32)v; }
+#if N == 1
+    static inline F F_from_U32(U32 u) { return (F)u; }
+    static inline U32 U32_from_F(F f) { return (U32)f; }
+#elif N == 4
+    static inline F F_from_U32(U32 u) {
+        I32 i = (I32)u;
+        F f = {(float)i[0], (float)i[1], (float)i[2], (float)i[3]};
+        return f;
+    }
+    static inline U32 U32_from_F(F f) {
+        I32 i = {(int)f[0], (int)f[1], (int)f[2], (int)f[3]};
+        return (U32)i;
+    }
+#elif N == 8
+    static inline F F_from_U32(U32 u) {
+        I32 i = (I32)u;
+        F f = {(float)i[0], (float)i[1], (float)i[2], (float)i[3],
+               (float)i[4], (float)i[5], (float)i[6], (float)i[7]};
+        return f;
+    }
+    static inline U32 U32_from_F(F f) {
+        I32 i = {(int)f[0], (int)f[1], (int)f[2], (int)f[3],
+                 (int)f[4], (int)f[5], (int)f[6], (int)f[7]};
+        return (U32)i;
+    }
 #endif
 
 static void load_4(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    r = 0;
+    r = F0;
     memcpy(&r, src + 4*i, 4);
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 static void load_4N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    r = 0;
+    r = F0;
     memcpy(&r, src + 4*i, 4*N);
     next_stage(i,ip,dst,src, r,g,b,a);
 }
@@ -140,13 +176,13 @@ bool run_pipeline(void* dst, const void* src, size_t n,
     size_t i = 0;
     while (n >= N) {
         Stage start = (Stage)program_N[0];
-        start(i,program_N+1,dst,src, 0,0,0,0);
+        start(i,program_N+1,dst,src, F0,F0,F0,F0);
         i += N;
         n -= N;
     }
     while (n > 0) {
         Stage start = (Stage)program_1[0];
-        start(i,program_1+1,dst,src, 0,0,0,0);
+        start(i,program_1+1,dst,src, F0,F0,F0,F0);
         i += 1;
         n -= 1;
     }
