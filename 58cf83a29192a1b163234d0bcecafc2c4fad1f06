@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d039e33d_5f2906e3",
+        "filename": "skcms.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T21:50:13Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m currently writing the tag table stuff, and I\u0027m still undecided. MY first version had what you\u0027re describing, but it wasn\u0027t clear where to draw the line. Our old code (in skia) did make a bswap\u0027d copy of the header, but then swapped everything else on demand. That certainly simplifies the code I\u0027ve written in this CL, although I think we will need to do on-demand swapping for everything after the header. And if we want to have the tag table pre-swapped (which would be really nice), we need to do a malloc. If we just go up through tagCount, we can have the fixed size profile struct.",
+      "parentUuid": "03bbfd4f_f4b396b8",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2542cc95_079e558d",
         "filename": "src/ICCProfile.c",
         "patchSetId": 4
@@ -76,6 +94,24 @@
     },
     {
       "key": {
+        "uuid": "72770720_ea1b7e25",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T21:50:13Z",
+      "side": 1,
+      "message": "It\u0027s really about making the structure map to an in-memory profile and making it easy to access the first byte of each field, although if we move all of this into the ICCProfile struct, that point becomes moot, as I\u0027ll just hard-code the header offsets during the field setup.",
+      "parentUuid": "dcd58611_84e2d3b5",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f665092e_20eb4348",
         "filename": "src/ICCProfile.c",
         "patchSetId": 4
@@ -116,6 +152,24 @@
     },
     {
       "key": {
+        "uuid": "662a0862_3d08035a",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T21:50:13Z",
+      "side": 1,
+      "message": "Again, as written - yeah. I went back and forth on several little things like this. I even pondered using goto to hoist the error handling out. :/",
+      "parentUuid": "3ff0c2af_8ba00d60",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad6c7b51_07983abe",
         "filename": "src/ICCProfile.c",
         "patchSetId": 4
@@ -127,6 +181,24 @@
       "writtenOn": "2018-01-05T21:26:12Z",
       "side": 1,
       "message": "Can we do an exact test, ideally of the fixed point values?",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b691a398_839fbde8",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T21:50:13Z",
+      "side": 1,
+      "message": "This is D50 (I had already added a comment in my follow-up CL). Unfortunately, I\u0027m pretty sure we can\u0027t test exactly - the spec lists the floating point values (to four digits, exactly as I\u0027ve written here), but given that, I can imagine various tools writing them out with slightly different rounding, etc... Pretty sure Matt said that there were profiles with some variance here.",
+      "parentUuid": "ad6c7b51_07983abe",
       "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
