@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "5dcf89f8_5e32be83",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T22:18:29Z",
+      "side": 1,
+      "message": "Done, and renaming it to ...make_signature, to match ICC\u0027s terminology.",
+      "parentUuid": "2542cc95_079e558d",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca94e184_667fd17c",
         "filename": "src/ICCProfile.c",
         "patchSetId": 4
@@ -92,6 +110,30 @@
       "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e53d9650_dfb2ab2c",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T22:18:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca94e184_667fd17c",
+      "range": {
+        "startLine": 32,
+        "startChar": 29,
+        "endLine": 32,
+        "endChar": 40
+      },
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -142,6 +184,24 @@
       "side": 1,
       "message": "Yeah, that makes sense.  Though I kind of like this as an internal implementaiton strategy even if we do copy into ICCProfile.  It lays out the offsets in a way that\u0027s easy to reference visually.",
       "parentUuid": "72770720_ea1b7e25",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37d8bb4d_0d0ba668",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T22:18:29Z",
+      "side": 1,
+      "message": "Yup. And I\u0027m re-formatting it in a way that I *think* you\u0027ll like.",
+      "parentUuid": "e7d8bc63_4a179b1c",
       "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -224,6 +284,24 @@
     },
     {
       "key": {
+        "uuid": "71e8b12c_aed04ef1",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T22:18:29Z",
+      "side": 1,
+      "message": "Yeah. In fact, I had just made that decision locally, as long as the buffer is big enough to have a header, the profile will get all the values, even if they\u0027re garbage and we return false.",
+      "parentUuid": "0fb3bb34_90d41905",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad6c7b51_07983abe",
         "filename": "src/ICCProfile.c",
         "patchSetId": 4
@@ -274,6 +352,24 @@
       "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe759f14_62408af6",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T22:18:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5c2e1ca3_5ce742ce",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
