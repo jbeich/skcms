@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85bd67ac_47202393",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-05T16:58:18Z",
+      "side": 1,
+      "message": "A couple more spaces after these short guys will make everything line up all pretty...",
+      "revId": "6555ded7d4d9496c59cdaa1c5846685d513e4b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1da324b_e14fad7a",
+        "filename": "iccdump.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-05T16:58:18Z",
+      "side": 1,
+      "message": "// Remind me what this does?  Which functions are warned about if we don\u0027t set it?",
+      "revId": "6555ded7d4d9496c59cdaa1c5846685d513e4b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1da01f92_fe828256",
+        "filename": "iccdump.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-05T16:58:18Z",
+      "side": 1,
+      "message": "static?",
+      "revId": "6555ded7d4d9496c59cdaa1c5846685d513e4b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cfd6a4b9_7e3a7e99",
+        "filename": "iccdump.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-05T16:58:18Z",
+      "side": 1,
+      "message": "fprintf(stderr, ?)",
+      "revId": "6555ded7d4d9496c59cdaa1c5846685d513e4b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee71287a_0d4f0f63",
+        "filename": "iccdump.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-05T16:58:18Z",
+      "side": 1,
+      "message": "Given the exit(1), might wanna s/error/fatal/g?",
+      "revId": "6555ded7d4d9496c59cdaa1c5846685d513e4b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "278ac29d_7c040715",
+        "filename": "iccdump.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-05T16:58:18Z",
+      "side": 1,
+      "message": "Is there any interesting difference between buf,1,len,fp and buf,len,1,fp?  Conceptually this seems more like buf,len,1,fp.",
+      "range": {
+        "startLine": 37,
+        "startChar": 33,
+        "endLine": 37,
+        "endChar": 40
+      },
+      "revId": "6555ded7d4d9496c59cdaa1c5846685d513e4b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c49964d_10a5a834",
+        "filename": "iccdump.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-05T16:58:18Z",
+      "side": 1,
+      "message": "Don\u0027t we want to error() if len !\u003d bytesRead?",
+      "revId": "6555ded7d4d9496c59cdaa1c5846685d513e4b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
