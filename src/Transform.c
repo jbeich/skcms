@@ -110,51 +110,9 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, F r, F g
     }
 #endif
 
-static void load_2(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    r = F0;
-    memcpy(&r, src + 2*i, 2);
-    next_stage(i,ip,dst,src, r,g,b,a);
-}
-static void load_2N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    r = F0;
-    memcpy(&r, src + 2*i, 2*N);
-    next_stage(i,ip,dst,src, r,g,b,a);
-}
-
-static void load_3(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    r = F0;
-    memcpy(&r, src + 3*i, 3);
-    next_stage(i,ip,dst,src, r,g,b,a);
-}
-static void load_3N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    r = F0;
-    memcpy(&r, src + 3*i, 3*N);
-    next_stage(i,ip,dst,src, r,g,b,a);
-}
-
-static void load_4(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    r = F0;
-    memcpy(&r, src + 4*i, 4);
-    next_stage(i,ip,dst,src, r,g,b,a);
-}
-static void load_4N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    r = F0;
-    memcpy(&r, src + 4*i, 4*N);
-    next_stage(i,ip,dst,src, r,g,b,a);
-}
-
-static void store_4(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    memcpy(dst + 4*i, &r, 4);
-    (void)ip; (void)src; (void)g; (void)b; (void)a;
-}
-static void store_4N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    memcpy(dst + 4*i, &r, 4*N);
-    (void)ip; (void)src; (void)g; (void)b; (void)a;
-}
-
-static void from_565(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void load_565_N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U16 rgb;
-    memcpy(&rgb, &r, sizeof(rgb));
+    memcpy(&rgb, src + 2*i, 2*N);
 
     U32 wide = U32_from_U16(rgb);
     r = F_from_U32(wide & (31<< 0)) * (1.0f / (31<< 0));
@@ -163,25 +121,30 @@ static void from_565(size_t i, void** ip, char* dst, const char* src, F r, F g, 
     a = F1;
     next_stage(i,ip,dst,src, r,g,b,a);
 }
+static void load_565_1(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+    char tmp[2*N] = {0};
+    memcpy(tmp, src + 2*i, 2);
+    load_565_N(i,ip,dst, (const char*)tmp - 2*i, r,g,b,a);
+}
 
-static void from_888(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void load_888_N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
 #if N == 1
-    U32 rgb;
-    memcpy(&rgb, &r, sizeof(rgb));
+    U32 rgb = 0;
+    memcpy(&rgb, src + 3*i, 3*N);
     r = F_from_U32((rgb >>  0) & 0xff) * (1/255.0f);
     g = F_from_U32((rgb >>  8) & 0xff) * (1/255.0f);
     b = F_from_U32((rgb >> 16) & 0xff) * (1/255.0f);
 #elif N == 4
-    RawBytes rgb;
-    memcpy(&rgb, &r, sizeof(rgb));
-    #define _ 15,15,15  // Lanes 24-31 are zero bytes.  Any will do.
+    RawBytes rgb = {0};
+    memcpy(&rgb, src + 3*i, 3*N);
+    #define _ 15,15,15  // Lanes 12-15 are zero bytes.  Any will do.
     r = F_from_U32( (U32)shuffle(rgb, 0,_, 3,_, 6,_,  9,_) ) * (1/255.0f);
     g = F_from_U32( (U32)shuffle(rgb, 1,_, 4,_, 7,_, 10,_) ) * (1/255.0f);
     b = F_from_U32( (U32)shuffle(rgb, 2,_, 5,_, 8,_, 11,_) ) * (1/255.0f);
     #undef _
 #elif N == 8
-    RawBytes rgb;
-    memcpy(&rgb, &r, sizeof(rgb));
+    RawBytes rgb = {0};
+    memcpy(&rgb, src + 3*i, 3*N);
     #define _ 31,31,31  // Lanes 24-31 are zero bytes.  Any will do.
     r = F_from_U32( (U32)shuffle(rgb, 0,_, 3,_, 6,_,  9,_, 12,_, 15,_, 18,_, 21,_) ) * (1/255.0f);
     g = F_from_U32( (U32)shuffle(rgb, 1,_, 4,_, 7,_, 10,_, 13,_, 16,_, 19,_, 22,_) ) * (1/255.0f);
@@ -192,10 +155,15 @@ static void from_888(size_t i, void** ip, char* dst, const char* src, F r, F g, 
     a = F1;
     next_stage(i,ip,dst,src, r,g,b,a);
 }
+static void load_888_1(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+    char tmp[3*N] = {0};
+    memcpy(tmp, src + 3*i, 3);
+    load_888_N(i,ip,dst, (const char*)tmp - 3*i, r,g,b,a);
+}
 
-static void from_8888(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void load_8888_N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U32 rgba;
-    memcpy(&rgba, &r, sizeof(rgba));
+    memcpy(&rgba, src + 4*i, 4*N);
 
     r = F_from_U32((rgba >>  0) & 0xff) * (1/255.0f);
     g = F_from_U32((rgba >>  8) & 0xff) * (1/255.0f);
@@ -203,13 +171,25 @@ static void from_8888(size_t i, void** ip, char* dst, const char* src, F r, F g,
     a = F_from_U32((rgba >> 24) & 0xff) * (1/255.0f);
     next_stage(i,ip,dst,src, r,g,b,a);
 }
-static void to_8888(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void load_8888_1(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+    char tmp[4*N] = {0};
+    memcpy(tmp, src + 4*i, 4);
+    load_8888_N(i,ip,dst, (const char*)tmp - 4*i, r,g,b,a);
+}
+
+static void store_8888_N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U32 rgba = U32_from_F(r * 255 + 0.5f) <<  0
              | U32_from_F(g * 255 + 0.5f) <<  8
              | U32_from_F(b * 255 + 0.5f) << 16
              | U32_from_F(a * 255 + 0.5f) << 24;
-    memcpy(&r, &rgba, sizeof(rgba));
-    next_stage(i,ip,dst,src, r,g,b,a);
+    memcpy(dst + 4*i, &rgba, 4*N);
+    (void)ip;
+    (void)src;
+}
+static void store_8888_1(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+    char tmp[4*N];
+    store_8888_N(i,ip,(char*)tmp - 4*i,src, r,g,b,a);
+    memcpy(dst + 4*i, tmp, 4);
 }
 
 static void swap_rb(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
@@ -235,14 +215,14 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
 
     switch (srcFmt >> 1) {
         default: return false;
-        case skcms_PixelFormat_RGB_565   >> 1: *ip_N++ = (void*)load_2N; *ip_N++ = (void*)from_565;
-                                               *ip_1++ = (void*)load_2 ; *ip_1++ = (void*)from_565;
+        case skcms_PixelFormat_RGB_565   >> 1: *ip_N++ = (void*)load_565_N;
+                                               *ip_1++ = (void*)load_565_1;
                                                break;
-        case skcms_PixelFormat_RGB_888   >> 1: *ip_N++ = (void*)load_3N; *ip_N++ = (void*)from_888;
-                                               *ip_1++ = (void*)load_3 ; *ip_1++ = (void*)from_888;
+        case skcms_PixelFormat_RGB_888   >> 1: *ip_N++ = (void*)load_888_N;
+                                               *ip_1++ = (void*)load_888_1;
                                                break;
-        case skcms_PixelFormat_RGBA_8888 >> 1: *ip_N++ = (void*)load_4N; *ip_N++ = (void*)from_8888;
-                                               *ip_1++ = (void*)load_4 ; *ip_1++ = (void*)from_8888;
+        case skcms_PixelFormat_RGBA_8888 >> 1: *ip_N++ = (void*)load_8888_N;
+                                               *ip_1++ = (void*)load_8888_1;
                                                break;
     }
     if (srcFmt & 1) {
@@ -261,8 +241,8 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
     }
     switch (dstFmt >> 1) {
         default: return false;
-        case skcms_PixelFormat_RGBA_8888 >> 1: *ip_N++ = (void*)to_8888; *ip_N++ = (void*)store_4N;
-                                               *ip_1++ = (void*)to_8888; *ip_1++ = (void*)store_4 ;
+        case skcms_PixelFormat_RGBA_8888 >> 1: *ip_N++ = (void*)store_8888_N;
+                                               *ip_1++ = (void*)store_8888_1;
                                                break;
     }
 

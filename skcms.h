@@ -65,6 +65,9 @@ typedef enum {
     skcms_PixelFormat_RGBA_8888,
     skcms_PixelFormat_BGRA_8888,
 
+    skcms_PixelFormat_RGB_161616,     // Big-endian.
+    skcms_PixelFormat_BGR_161616,
+
     skcms_PixelFormat_RGBA_16161616,  // Big-endian.
     skcms_PixelFormat_BGRA_16161616,
 
