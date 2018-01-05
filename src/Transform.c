@@ -12,6 +12,7 @@
     #include <string.h>
     typedef float    F  ;
     typedef int32_t  I32;
+    typedef uint64_t U64;
     typedef uint32_t U32;
     typedef uint16_t U16;
     static const F F0 = 0,
@@ -23,6 +24,7 @@
     typedef uint8_t  __attribute__((ext_vector_type(4*N))) RawBytes;
     typedef float    __attribute__((ext_vector_type(  N))) F  ;
     typedef int32_t  __attribute__((ext_vector_type(  N))) I32;
+    typedef uint64_t __attribute__((ext_vector_type(  N))) U64;
     typedef uint32_t __attribute__((ext_vector_type(  N))) U32;
     typedef uint16_t __attribute__((ext_vector_type(  N))) U16;
     static const F F0 = {0,0,0,0, 0,0,0,0},
@@ -34,6 +36,7 @@
     typedef uint8_t  __attribute__((vector_size(32))) RawBytes;
     typedef float    __attribute__((vector_size(32))) F  ;
     typedef int32_t  __attribute__((vector_size(32))) I32;
+    typedef uint64_t __attribute__((vector_size(64))) U64;
     typedef uint32_t __attribute__((vector_size(32))) U32;
     typedef uint16_t __attribute__((vector_size(16))) U16;
     static const F F0 = {0,0,0,0, 0,0,0,0},
@@ -45,6 +48,7 @@
     typedef uint8_t  __attribute__((ext_vector_type(4*N))) RawBytes;
     typedef float    __attribute__((ext_vector_type(  N))) F  ;
     typedef int32_t  __attribute__((ext_vector_type(  N))) I32;
+    typedef uint64_t __attribute__((ext_vector_type(  N))) U64;
     typedef uint32_t __attribute__((ext_vector_type(  N))) U32;
     typedef uint16_t __attribute__((ext_vector_type(  N))) U16;
     static const F F0 = {0,0,0,0},
@@ -56,8 +60,9 @@
     typedef uint8_t  __attribute__((vector_size(16))) RawBytes;
     typedef float    __attribute__((vector_size(16))) F  ;
     typedef int32_t  __attribute__((vector_size(16))) I32;
+    typedef uint64_t __attribute__((vector_size(32))) U64;
     typedef uint32_t __attribute__((vector_size(16))) U32;
-    typedef uint16_t __attribute__((vector_size(8)))  U16;
+    typedef uint16_t __attribute__((vector_size( 8))) U16;
     static const F F0 = {0,0,0,0},
                    F1 = {1,1,1,1};
 #endif
@@ -80,6 +85,7 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tm
     static inline F F_from_U32(U32 u)     { return (F)u; }
     static inline U32 U32_from_F(F f)     { return (U32)f; }
     static inline U32 U32_from_U16(U16 h) { return (U16)h; }
+    static inline U32 U32_from_U64(U64 w) { return (U32)w; }
 #elif N == 4
     static inline F F_from_U32(U32 u) {
         I32 i = (I32)u;
@@ -92,6 +98,10 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tm
     }
     static inline U32 U32_from_U16(U16 h) {
         U32 u = {h[0],h[1],h[2],h[3]};
+        return u;
+    }
+    static inline U32 U32_from_U64(U64 w) {
+        U32 u = {(uint32_t)w[0],(uint32_t)w[1],(uint32_t)w[2],(uint32_t)w[3]};
         return u;
     }
 #elif N == 8
@@ -108,6 +118,11 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tm
     }
     static inline U32 U32_from_U16(U16 h) {
         U32 u = {h[0],h[1],h[2],h[3], h[4],h[5],h[6],h[7]};
+        return u;
+    }
+    static inline U32 U32_from_U64(U64 w) {
+        U32 u = {(uint32_t)w[0],(uint32_t)w[1],(uint32_t)w[2],(uint32_t)w[3],
+                 (uint32_t)w[4],(uint32_t)w[5],(uint32_t)w[6],(uint32_t)w[7]};
         return u;
     }
 #endif
@@ -185,6 +200,37 @@ static void load_8888_1(size_t i, void** ip, char* dst, const char* src, char* t
     load_8888_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
+//TODO: load_161616_N
+//TODO: load_161616_1
+
+static void load_16161616_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                            F r, F g, F b, F a) {
+    U64 rgba;
+    memcpy(&rgba, src + 8*i, 8*N);
+
+    // Swap high and low bytes of 16-bit lanes, converting big-endian to little-endian.
+    rgba = (rgba & 0x00ff00ff00ff00ff) << 8
+         | (rgba & 0xff00ff00ff00ff00) >> 8;
+
+    r = F_from_U32( U32_from_U64((rgba >>  0) & 0xffff) ) * (1/65535.0f);
+    g = F_from_U32( U32_from_U64((rgba >> 16) & 0xffff) ) * (1/65535.0f);
+    b = F_from_U32( U32_from_U64((rgba >> 32) & 0xffff) ) * (1/65535.0f);
+    a = F_from_U32( U32_from_U64((rgba >> 48) & 0xffff) ) * (1/65535.0f);
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
+}
+static void load_16161616_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                            F r, F g, F b, F a) {
+    memcpy(tmp, src + 8*i, 8);
+    src = tmp - 8*i;
+    load_16161616_N(i,ip,dst,src,tmp, r,g,b,a);
+}
+
+//TODO: load_hhhh_N
+//TODO: load_hhhh_1
+//
+//TODO: load_ffff_N
+//TODO: load_ffff_1
+
 static void store_8888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                          F r, F g, F b, F a) {
     U32 rgba = U32_from_F(r * 255 + 0.5f) <<  0
@@ -226,15 +272,18 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
 
     switch (srcFmt >> 1) {
         default: return false;
-        case skcms_PixelFormat_RGB_565   >> 1: *ip_N++ = (void*)load_565_N;
-                                               *ip_1++ = (void*)load_565_1;
-                                               break;
-        case skcms_PixelFormat_RGB_888   >> 1: *ip_N++ = (void*)load_888_N;
-                                               *ip_1++ = (void*)load_888_1;
-                                               break;
-        case skcms_PixelFormat_RGBA_8888 >> 1: *ip_N++ = (void*)load_8888_N;
-                                               *ip_1++ = (void*)load_8888_1;
-                                               break;
+        case skcms_PixelFormat_RGB_565       >> 1: *ip_N++ = (void*)load_565_N;
+                                                   *ip_1++ = (void*)load_565_1;
+                                                   break;
+        case skcms_PixelFormat_RGB_888       >> 1: *ip_N++ = (void*)load_888_N;
+                                                   *ip_1++ = (void*)load_888_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_8888     >> 1: *ip_N++ = (void*)load_8888_N;
+                                                   *ip_1++ = (void*)load_8888_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_16161616 >> 1: *ip_N++ = (void*)load_16161616_N;
+                                                   *ip_1++ = (void*)load_16161616_1;
+                                                   break;
     }
     if (srcFmt & 1) {
         *ip_N++ = (void*)swap_rb;

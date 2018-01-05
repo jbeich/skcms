@@ -164,10 +164,41 @@ static void test_FormatConversions_565() {
     expect(dst[63] == 0xffffffff);  // 1 -> 1
 }
 
+static void test_FormatConversions_16161616() {
+    skcms_ICCProfile profile;
+
+    // We want to hit each 16-bit value, 4 per each of 16384 pixels.
+    uint64_t* src = malloc(8 * 16384);
+    for (int i = 0; i < 16384; i++) {
+        src[i] = (uint64_t)(4*i + 0) <<  0
+               | (uint64_t)(4*i + 1) << 16
+               | (uint64_t)(4*i + 2) << 32
+               | (uint64_t)(4*i + 3) << 48;
+    }
+    expect(src[    0] == 0x0003000200010000);
+    expect(src[ 8127] == 0x7eff7efe7efd7efc);  // This should demonstrate interesting rounding.
+    expect(src[16383] == 0xfffffffefffdfffc);
+
+    uint32_t* dst = malloc(4 * 16384);
+    expect(skcms_Transform(dst, skcms_PixelFormat_RGBA_8888    , &profile,
+                           src, skcms_PixelFormat_RGBA_16161616, &profile, 16384));
+
+    // skcms_Transform() will treat src as holding big-endian 16-bit values,
+    // so the low lanes are actually the most significant byte, and the high least.
+
+    expect(dst[    0] == 0x03020100);
+    expect(dst[ 8127] == 0xfefefdfc);  // 0x7eff rounds down to 0xfe, 0x7efe rounds up to 0xfe.
+    expect(dst[16383] == 0xfffefdfc);
+
+    free(src);
+    free(dst);
+}
+
 int main(void) {
     test_ICCProfile();
     test_Transform();
     test_FormatConversions();
     test_FormatConversions_565();
+    test_FormatConversions_16161616();
     return 0;
 }
