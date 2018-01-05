@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "dd4e4d02_150a1b49",
+        "filename": "skcms.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T22:14:03Z",
+      "side": 1,
+      "message": "I think that makes sense to me... the fixed size header+tagCount all pre-swapped and in a struct, and then tags on demand.\n\nI guess that means we will still require the (void*,size_t) live as long as the ICCProfile does, if we\u0027re going to be reading the tags out.",
+      "parentUuid": "d039e33d_5f2906e3",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2542cc95_079e558d",
         "filename": "src/ICCProfile.c",
         "patchSetId": 4
@@ -112,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "e7d8bc63_4a179b1c",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T22:14:03Z",
+      "side": 1,
+      "message": "Yeah, that makes sense.  Though I kind of like this as an internal implementaiton strategy even if we do copy into ICCProfile.  It lays out the offsets in a way that\u0027s easy to reference visually.",
+      "parentUuid": "72770720_ea1b7e25",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f665092e_20eb4348",
         "filename": "src/ICCProfile.c",
         "patchSetId": 4
@@ -170,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "0fb3bb34_90d41905",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T22:14:03Z",
+      "side": 1,
+      "message": "In terms of error handling, I think we can probably get away with leaving partial values in ICCProfile if we return false from _parse(), especially if we document it as // May write partial values if we return false.  or something like that.\n\nWe could also probably get a paranoid error handler down to one line we don\u0027t feel bad copy and pasting,\n\n   return memset(profile, 0, sizeof(*profile)), false;",
+      "parentUuid": "662a0862_3d08035a",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad6c7b51_07983abe",
         "filename": "src/ICCProfile.c",
         "patchSetId": 4
@@ -199,6 +253,24 @@
       "side": 1,
       "message": "This is D50 (I had already added a comment in my follow-up CL). Unfortunately, I\u0027m pretty sure we can\u0027t test exactly - the spec lists the floating point values (to four digits, exactly as I\u0027ve written here), but given that, I can imagine various tools writing them out with slightly different rounding, etc... Pretty sure Matt said that there were profiles with some variance here.",
       "parentUuid": "ad6c7b51_07983abe",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c2e1ca3_5ce742ce",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T22:14:03Z",
+      "side": 1,
+      "message": "Ah, gotcha.\n\nI think this may read clearer if we keep both the expected and threshold values visible,\nand all written to the same precision?\n\nif (!equal_within_tolerance(0.0100f, 0.9642f, IlluminantX) ||\n    !equal_within_tolerance(0.0100f, 1.0000f, IlluminantY) ||\n    !equal_within_tolerance(0.0100f, 0.8249f, IlluminantZ)) {\n   bail\n}\n\n0.01 is kind of generous isn\u0027t it?",
+      "parentUuid": "b691a398_839fbde8",
       "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
