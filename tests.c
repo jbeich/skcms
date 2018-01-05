@@ -164,10 +164,13 @@ static void test_FormatConversions_565() {
     expect(dst[63] == 0xffffffff);  // 1 -> 1
 }
 
-int main(void) {
-    test_ICCProfile();
-    test_Transform();
-    test_FormatConversions();
-    test_FormatConversions_565();
+int main(int argc, char** argv) {
+    int loops = argc > 1 ? atoi(argv[1]) : 1;
+    while (loops --> 0) {
+        test_ICCProfile();
+        test_Transform();
+        test_FormatConversions();
+        test_FormatConversions_565();
+    }
     return 0;
 }
