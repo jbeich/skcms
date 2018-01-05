@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b271443_f8a3e9f8",
+        "filename": "skcms.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T23:05:44Z",
+      "side": 1,
+      "message": "... for the tag table and tag data, too.",
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f80de84_841ec8a2",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T23:05:44Z",
+      "side": 1,
+      "message": "Adding all this support (type, etc...) for DateTime is kind of silly, but there are tags that store this type as well, and it wasn\u0027t that much more work than one-offing the header.",
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4e4e541_f76be01e",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-05T23:05:44Z",
+      "side": 1,
+      "message": "I have this code written, but need to rebase everything. :/",
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
