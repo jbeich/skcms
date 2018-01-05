@@ -45,5 +45,38 @@ int main(int argc, char** argv) {
         fatal("Unable to parse ICC profile");
     }
 
+#define DUMP_SIG_FIELD(field) do {                                            \
+        uint32_t val = skcms_ICCProfile_get ## field(&profile);               \
+        printf("%20s : 0x%08X : '%c%c%c%c'\n", #field, val,                   \
+               val >> 24, (val >> 16) & 0xFF, (val >> 8) & 0xFF, val & 0xFF); \
+    } while(0)
+
+#define DUMP_INT_FIELD(field) do {                                            \
+        uint32_t val = skcms_ICCProfile_get ## field(&profile);               \
+        printf("%20s : 0x%08X : %u\n", #field, val, val);                     \
+    } while(0)
+
+#define DUMP_VER_FIELD(field) do {                                            \
+        uint32_t val = skcms_ICCProfile_get ## field(&profile);               \
+        printf("%20s : 0x%08X : %u.%u.%u\n", #field, val,                     \
+               val >> 24, (val >> 20) & 0xF, (val >> 16) & 0xF);              \
+    } while(0)
+
+    DUMP_INT_FIELD(Size);
+    DUMP_SIG_FIELD(CMMType);
+    DUMP_VER_FIELD(Version);
+    DUMP_SIG_FIELD(ProfileClass);
+    DUMP_SIG_FIELD(DataColorSpace);
+    DUMP_SIG_FIELD(PCS);
+    DUMP_SIG_FIELD(Platform);
+    printf("%20s : 0x%08X\n", "Flags", skcms_ICCProfile_getFlags(&profile));
+    DUMP_SIG_FIELD(DeviceManufacturer);
+    DUMP_SIG_FIELD(DeviceModel);
+    uint64_t devAttr = skcms_ICCProfile_getDeviceAttributes(&profile);
+    printf("%20s : 0x%08X\n", "DeviceAttributes", (uint32_t)devAttr);
+    printf("%20s : 0x%08X\n", "", (uint32_t)(devAttr >> 32));
+    DUMP_INT_FIELD(RenderingIntent);
+    DUMP_SIG_FIELD(Creator);
+
     return 0;
 }
