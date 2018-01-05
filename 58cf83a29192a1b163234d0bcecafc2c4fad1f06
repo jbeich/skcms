@@ -1,0 +1,152 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03bbfd4f_f4b396b8",
+        "filename": "skcms.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T21:26:12Z",
+      "side": 1,
+      "message": "After reading this patch, and this caveat... I\u0027m not really quite sure what win we\u0027re getting out of doing things this way.  Isn\u0027t it just as easy for us to write\n\ntypedef struct {\n   uint32_t size;\n   uint32_t cmm_type;\n   ...\n   uint16_t year;\n   uint16_t month;\n   ...\n   uint64_t device_attributes;\n   ...\n} skcms_ICCProfile;\n\ni.e. have ICCProfile_parse() actually parse and bswap everything?  I\u0027m not sure I see how icc_profile-\u003esize is worse than skcms_ICCProfile_getSize(icc_profile).  There\u0027s an awful lot of boilerplate here.",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2542cc95_079e558d",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T21:26:12Z",
+      "side": 1,
+      "message": "This can probably be a function?",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca94e184_667fd17c",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T21:26:12Z",
+      "side": 1,
+      "message": "Might want to * (1/65536.0f)?",
+      "range": {
+        "startLine": 32,
+        "startChar": 29,
+        "endLine": 32,
+        "endChar": 40
+      },
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcd58611_84e2d3b5",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T21:26:12Z",
+      "side": 1,
+      "message": "// We use uint8_t exclusively here to not imply any sort of alignment.\n\n?",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f665092e_20eb4348",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T21:26:12Z",
+      "side": 1,
+      "message": "Probably nicer to read NULL.",
+      "range": {
+        "startLine": 73,
+        "startChar": 19,
+        "endLine": 73,
+        "endChar": 20
+      },
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ff0c2af_8ba00d60",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T21:26:12Z",
+      "side": 1,
+      "message": "What do you think of us dogfooding?\n\nprofile-\u003ebuf \u003d buf;\nprofile-\u003elen \u003d read_big_u32(buf);\n\nif (skcms_ICCProfile_getSize     (profile)      \u003c len    ||\n    skcms_ICCProfile_getSignature(profile)     !\u003d \u0027acsp\u0027 ||\n    skcms_ICCProfile_getVersion  (profile)\u003e\u003e24  \u003e 4) { \n    profile-\u003ebuf \u003d 0;\n    profile-\u003elen \u003d 0;\n    return false;\n}",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad6c7b51_07983abe",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T21:26:12Z",
+      "side": 1,
+      "message": "Can we do an exact test, ideally of the fixed point values?",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1827b5ee_11603dc0",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-05T21:26:12Z",
+      "side": 1,
+      "message": "Remind me, this is D50, or very close to it?\n\nThis makes it seem like it\u0027s close but not quite the same as D50.\n\nhttps://www.mathworks.com/help/images/ref/whitepoint.html?requestedDomain\u003dwww.mathworks.com",
+      "revId": "58cf83a29192a1b163234d0bcecafc2c4fad1f06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
