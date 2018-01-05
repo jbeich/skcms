@@ -11,6 +11,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,12 +37,23 @@ typedef struct {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
+typedef struct {
+    uint16_t year;
+    uint16_t month;
+    uint16_t day;
+    uint16_t hour;
+    uint16_t minute;
+    uint16_t second;
+} skcms_ICCDateTime;
 
 typedef struct {
-    void* placeholder;
+    const uint8_t* buf;
+    size_t         len;  // Length of profile, may be smaller than len passed to parse
 } skcms_ICCProfile;
 
 // Parse an ICC profile and return true if possible, otherwise return false.
+// The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
+// will be used.
 bool skcms_ICCProfile_parse(skcms_ICCProfile*, const void*, size_t);
 
 // If this profile's gamut can be represented by a 3x3 transform to XYZD50,
@@ -52,6 +64,22 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
 // identical and can be represented by a single skcms_TransferFunction, set it
 // (if non-NULL) and return true, otherwise return false.
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
+
+// Accessors for simple (non-prescribed) ICCProfile properties from the header
+uint32_t skcms_ICCProfile_getSize(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getCMMType(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getVersion(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getProfileClass(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getDataColorSpace(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getPCS(const skcms_ICCProfile*);
+void skcms_ICCProfile_getCreationDateTime(const skcms_ICCProfile*, skcms_ICCDateTime*);
+uint32_t skcms_ICCProfile_getPlatform(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getFlags(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getDeviceManufacturer(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getDeviceModel(const skcms_ICCProfile*);
+uint64_t skcms_ICCProfile_getDeviceAttributes(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getRenderingIntent(const skcms_ICCProfile*);
+uint32_t skcms_ICCProfile_getCreator(const skcms_ICCProfile*);
 
 // TODO: read table-based transfer functions
 
