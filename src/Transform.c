@@ -62,16 +62,18 @@
                    F1 = {1,1,1,1};
 #endif
 
-typedef void (*Stage)(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a);
+typedef void (*Stage)(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                      F r, F g, F b, F a);
 
-static void next_stage(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                      F r, F g, F b, F a) {
     Stage next;
 #if defined(__x86_64__)
     __asm__("lodsq" : "=a"(next), "+S"(ip));
 #else
     next = (Stage)*ip++;
 #endif
-    next(i,ip,dst,src, r,g,b,a);
+    next(i,ip,dst,src,tmp, r,g,b,a);
 }
 
 #if N == 1
@@ -110,7 +112,8 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, F r, F g
     }
 #endif
 
-static void load_565_N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void load_565_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                       F r, F g, F b, F a) {
     U16 rgb;
     memcpy(&rgb, src + 2*i, 2*N);
 
@@ -119,15 +122,17 @@ static void load_565_N(size_t i, void** ip, char* dst, const char* src, F r, F g
     g = F_from_U32(wide & (63<< 5)) * (1.0f / (63<< 5));
     b = F_from_U32(wide & (31<<11)) * (1.0f / (31<<11));
     a = F1;
-    next_stage(i,ip,dst,src, r,g,b,a);
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
-static void load_565_1(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    char tmp[2*N] = {0};
+static void load_565_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                       F r, F g, F b, F a) {
     memcpy(tmp, src + 2*i, 2);
-    load_565_N(i,ip,dst, (const char*)tmp - 2*i, r,g,b,a);
+    src = tmp - 2*i;
+    load_565_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
-static void load_888_N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void load_888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                       F r, F g, F b, F a) {
 #if N == 1
     U32 rgb = 0;
     memcpy(&rgb, src + 3*i, 3*N);
@@ -153,15 +158,17 @@ static void load_888_N(size_t i, void** ip, char* dst, const char* src, F r, F g
 #endif
 
     a = F1;
-    next_stage(i,ip,dst,src, r,g,b,a);
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
-static void load_888_1(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    char tmp[3*N] = {0};
+static void load_888_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                       F r, F g, F b, F a) {
     memcpy(tmp, src + 3*i, 3);
-    load_888_N(i,ip,dst, (const char*)tmp - 3*i, r,g,b,a);
+    src = tmp - 3*i;
+    load_888_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
-static void load_8888_N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void load_8888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                       F r, F g, F b, F a) {
     U32 rgba;
     memcpy(&rgba, src + 4*i, 4*N);
 
@@ -169,15 +176,17 @@ static void load_8888_N(size_t i, void** ip, char* dst, const char* src, F r, F 
     g = F_from_U32((rgba >>  8) & 0xff) * (1/255.0f);
     b = F_from_U32((rgba >> 16) & 0xff) * (1/255.0f);
     a = F_from_U32((rgba >> 24) & 0xff) * (1/255.0f);
-    next_stage(i,ip,dst,src, r,g,b,a);
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
-static void load_8888_1(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    char tmp[4*N] = {0};
+static void load_8888_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
     memcpy(tmp, src + 4*i, 4);
-    load_8888_N(i,ip,dst, (const char*)tmp - 4*i, r,g,b,a);
+    src = tmp - 4*i;
+    load_8888_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
-static void store_8888_N(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+static void store_8888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                         F r, F g, F b, F a) {
     U32 rgba = U32_from_F(r * 255 + 0.5f) <<  0
              | U32_from_F(g * 255 + 0.5f) <<  8
              | U32_from_F(b * 255 + 0.5f) << 16
@@ -185,15 +194,17 @@ static void store_8888_N(size_t i, void** ip, char* dst, const char* src, F r, F
     memcpy(dst + 4*i, &rgba, 4*N);
     (void)ip;
     (void)src;
+    (void)tmp;
 }
-static void store_8888_1(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    char tmp[4*N];
-    store_8888_N(i,ip,(char*)tmp - 4*i,src, r,g,b,a);
+static void store_8888_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                         F r, F g, F b, F a) {
+    store_8888_N(i,ip,tmp - 4*i,src,tmp, r,g,b,a);
     memcpy(dst + 4*i, tmp, 4);
 }
 
-static void swap_rb(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    next_stage(i,ip,dst,src, b,g,r,a);
+static void swap_rb(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                    F r, F g, F b, F a) {
+    next_stage(i,ip,dst,src,tmp, b,g,r,a);
 }
 
 
@@ -246,16 +257,19 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
                                                break;
     }
 
+    // Big enough to hold any of our skcms_PixelFormats (the largest is 4x 4-byte float.)
+    char tmp[16*N] = {0};
+
     size_t i = 0;
     while (n >= N) {
         Stage start = (Stage)program_N[0];
-        start(i,program_N+1,dst,src, F0,F0,F0,F0);
+        start(i,program_N+1,dst,src,tmp, F0,F0,F0,F0);
         i += N;
         n -= N;
     }
     while (n > 0) {
         Stage start = (Stage)program_1[0];
-        start(i,program_1+1,dst,src, F0,F0,F0,F0);
+        start(i,program_1+1,dst,src,tmp, F0,F0,F0,F0);
         i += 1;
         n -= 1;
     }
