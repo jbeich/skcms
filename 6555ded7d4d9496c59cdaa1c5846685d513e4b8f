@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "56fa4cca_2c2edac1",
+        "filename": "iccdump.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-05T17:10:54Z",
+      "side": 1,
+      "message": "For me the appeal would be _Static_assert, but I think I\u0027d still vote to stick to C99 for compatibility for now.",
+      "parentUuid": "05d2324d_1c8be1b1",
+      "revId": "6555ded7d4d9496c59cdaa1c5846685d513e4b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1da01f92_fe828256",
         "filename": "iccdump.c",
         "patchSetId": 1
