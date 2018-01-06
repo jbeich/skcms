@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ffd97f15_df464516",
+        "filename": "skcms.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "Is this const char*?  Like, meant to be a string?",
+      "range": {
+        "startLine": 70,
+        "startChar": 5,
+        "endLine": 70,
+        "endChar": 30
+      },
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3b271443_f8a3e9f8",
         "filename": "skcms.h",
         "patchSetId": 5
@@ -19,6 +42,23 @@
     },
     {
       "key": {
+        "uuid": "61c90d37_46def0f2",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "Given that this is static, it can probably drop skcms_.",
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0f80de84_841ec8a2",
         "filename": "src/ICCProfile.c",
         "patchSetId": 5
@@ -30,6 +70,161 @@
       "writtenOn": "2018-01-05T23:05:44Z",
       "side": 1,
       "message": "Adding all this support (type, etc...) for DateTime is kind of silly, but there are tags that store this type as well, and it wasn\u0027t that much more work than one-offing the header.",
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe7183c4_04ef432c",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "I think this one would be just fine to return by value (even if not inlined, but especially here where it will be).",
+      "range": {
+        "startLine": 38,
+        "startChar": 7,
+        "endLine": 38,
+        "endChar": 11
+      },
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e349c45c_7fb8cadc",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "Now that we\u0027ve done this, do you think reading\n\n equal_within_tolerance(tol, a, b)\n\nor\n\n  fabsf(a-b) \u003c tol\n\nis clearer?  I don\u0027t mean to color your answer and could honestly go either way.\n\n(Keeping in mind we\u0027re going to really write !equal_within_tolerance(...) or fabsf(a-b) \u003e tol.)",
+      "range": {
+        "startLine": 47,
+        "startChar": 12,
+        "endLine": 47,
+        "endChar": 34
+      },
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f385da93_9a728e07",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "Oh you spoil me.",
+      "range": {
+        "startLine": 54,
+        "startChar": 32,
+        "endLine": 54,
+        "endChar": 36
+      },
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76f6c5ec_9b5af405",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "My god, just look at how clearly that 12 stands out among the 4s...",
+      "range": {
+        "startLine": 60,
+        "startChar": 32,
+        "endLine": 60,
+        "endChar": 36
+      },
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98c981a3_4cd5537b",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "Ok, go on, _Static_assert().  We can always backfill it if we end up wanting to be \u003cC11.",
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4a8c902_08ed448d",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "ymmv, but if you write *profile here, it can never be wrong.",
+      "range": {
+        "startLine": 85,
+        "startChar": 30,
+        "endLine": 85,
+        "endChar": 46
+      },
+      "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a37c874a_7d61b95e",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-06T00:13:21Z",
+      "side": 1,
+      "message": "Is this null terminated?\n\nIf the header field is fixed size and we\u0027re trying to make a c string, seems like we want something like,\n\n  _Static_assert(sizeof(profile-\u003eprofile_id) \u003d\u003d sizeof(header-\u003eprofile_id));\n  memcpy(profile-\u003eprofile_id, header-\u003eprofile_id, sizeof(header-\u003eprofile_id));\n  profile-\u003eprofile_id[sizeof(profile-\u003eprofile_id)-1] \u003d \u0027\\0\u0027;",
+      "range": {
+        "startLine": 112,
+        "startChar": 35,
+        "endLine": 112,
+        "endChar": 54
+      },
       "revId": "b7d8959a1625dedbac9b34a8e242017615b930bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
