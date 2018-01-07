@@ -194,11 +194,30 @@ static void test_FormatConversions_16161616() {
     free(dst);
 }
 
+static void test_FormatConversions_161616() {
+    skcms_ICCProfile profile;
+
+    // We'll test the same cases as the _16161616() test, as if they were 4 RGB pixels.
+    uint16_t src[] = { 0x0000, 0x0001, 0x0002,
+                       0x0003, 0x7efc, 0x7efd,
+                       0x7efe, 0x7eff, 0xfffc,
+                       0xfffd, 0xfffe, 0xffff };
+    uint32_t dst[4];
+    expect(skcms_Transform(dst, skcms_PixelFormat_RGBA_8888 , &profile,
+                           src, skcms_PixelFormat_RGB_161616, &profile, 4));
+
+    expect(dst[0] == 0xff020100);
+    expect(dst[1] == 0xfffdfc03);
+    expect(dst[2] == 0xfffcfefe);
+    expect(dst[3] == 0xfffffefd);
+}
+
 int main(void) {
     test_ICCProfile();
     test_Transform();
     test_FormatConversions();
     test_FormatConversions_565();
     test_FormatConversions_16161616();
+    test_FormatConversions_161616();
     return 0;
 }
