@@ -85,7 +85,7 @@ typedef struct {
     uint8_t size      [4];
 } skcms_ICCTag_Layout;
 
-static const skcms_ICCTag_Layout* skcms_ICCProfile_getTagTable(const skcms_ICCProfile* profile) {
+static const skcms_ICCTag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
     return (const skcms_ICCTag_Layout*)(profile->buffer + sizeof(skcms_ICCHeader));
 }
 
@@ -145,7 +145,7 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
     }
 
     // Validate that all tag entries have sane offset + size
-    const skcms_ICCTag_Layout* tags = skcms_ICCProfile_getTagTable(profile);
+    const skcms_ICCTag_Layout* tags = get_tag_table(profile);
     for (uint32_t i = 0; i < profile->tag_count; ++i) {
         uint32_t tag_offset = read_big_u32(tags[i].offset);
         uint32_t tag_size   = read_big_u32(tags[i].size);
@@ -177,22 +177,24 @@ void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile* profile,
                                     skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
     if (index > profile->tag_count) { return; }
-    const skcms_ICCTag_Layout* tags = skcms_ICCProfile_getTagTable(profile);
+    const skcms_ICCTag_Layout* tags = get_tag_table(profile);
     tag->signature = read_big_u32(tags[index].signature);
     tag->size      = read_big_u32(tags[index].size);
     tag->buf       = read_big_u32(tags[index].offset) + profile->buffer;
+    tag->type      = read_big_u32((const uint8_t*)tag->buf);
 }
 
 bool skcms_ICCProfile_getTagBySignature(const skcms_ICCProfile* profile,
                                         uint32_t signature,
                                         skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return false; }
-    const skcms_ICCTag_Layout* tags = skcms_ICCProfile_getTagTable(profile);
+    const skcms_ICCTag_Layout* tags = get_tag_table(profile);
     for (uint32_t i = 0; i < profile->tag_count; ++i) {
         if (read_big_u32(tags[i].signature) == signature) {
             tag->signature = signature;
             tag->size      = read_big_u32(tags[i].size);
             tag->buf       = read_big_u32(tags[i].offset) + profile->buffer;
+            tag->type      = read_big_u32((const uint8_t*)tag->buf);
             return true;
         }
     }
