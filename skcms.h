@@ -11,6 +11,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,12 +37,43 @@ typedef struct {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
+typedef struct {
+    uint16_t year;
+    uint16_t month;
+    uint16_t day;
+    uint16_t hour;
+    uint16_t minute;
+    uint16_t second;
+} skcms_ICCDateTime;
 
 typedef struct {
-    void* placeholder;
+    const uint8_t* buffer;
+
+    uint32_t size;
+    uint32_t cmm_type;
+    uint32_t version;
+    uint32_t profile_class;
+    uint32_t data_color_space;
+    uint32_t pcs;
+    skcms_ICCDateTime creation_date_time;
+    uint32_t signature;
+    uint32_t platform;
+    uint32_t flags;
+    uint32_t device_manufacturer;
+    uint32_t device_model;
+    uint64_t device_attributes;
+    uint32_t rendering_intent;
+    float illuminant_X;
+    float illuminant_Y;
+    float illuminant_Z;
+    uint32_t creator;
+    uint8_t profile_id[16];
+    uint32_t tag_count;
 } skcms_ICCProfile;
 
 // Parse an ICC profile and return true if possible, otherwise return false.
+// The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
+// will be used.
 bool skcms_ICCProfile_parse(skcms_ICCProfile*, const void*, size_t);
 
 // If this profile's gamut can be represented by a 3x3 transform to XYZD50,
@@ -52,6 +84,15 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
 // identical and can be represented by a single skcms_TransferFunction, set it
 // (if non-NULL) and return true, otherwise return false.
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
+
+typedef struct {
+    uint32_t    signature;
+    uint32_t    size;
+    const void* buf;
+} skcms_ICCTag;
+
+void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile*, uint32_t, skcms_ICCTag*);
+bool skcms_ICCProfile_getTagBySignature(const skcms_ICCProfile*, uint32_t, skcms_ICCTag*);
 
 // TODO: read table-based transfer functions
 
