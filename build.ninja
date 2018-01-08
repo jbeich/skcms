@@ -1,6 +1,6 @@
 builddir = out
 
-clang  = ccache clang -fcolor-diagnostics -Weverything
+clang  = ccache clang -fcolor-diagnostics -Weverything -Wno-padded
 gcc    = ccache gcc-7 -fdiagnostics-color -Wall -Wextra -Wno-abi
 cflags = -g -Werror -Os
 san    = -fsanitize=address,integer,undefined
