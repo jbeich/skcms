@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9205137_8bcdb0fd",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-08T23:13:42Z",
+      "side": 1,
+      "message": "this is internal, can be static?\n\nMight be\n\n   static bool read_parametricCurveType(const skcms_ICCTag*, skcms_TransferFunction*)\n\n?",
+      "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b69b11_4114ddad",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-08T23:13:42Z",
+      "side": 1,
+      "message": "Think it\u0027s worth making a little struct to document the layout here?\n\nstruct parametricCurveType {\n    uint8_t type         [4];\n    uint8_t reservedA    [4];\n    uint8_t function_type[2];\n    uint8_t resevedB     [2];\n    uint8_t parameters   [ ];  // 1,3,4,5, or 7 s15.16 parameters, depending on function_type.\n}\n\nThat oughta let us use more names and sizeof() than magic constants.",
+      "range": {
+        "startLine": 175,
+        "startChar": 42,
+        "endLine": 175,
+        "endChar": 54
+      },
+      "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa630d19_417b9d02",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-08T23:13:42Z",
+      "side": 1,
+      "message": "It would be a lot more reassuring if the spec would get \u0027c\u0027 and \u0027e\u0027 straight, and not mix up \u0027\u003c\u0027 and \u0027\u003e\"...",
+      "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dfb9418_d5d63d4b",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-08T23:13:42Z",
+      "side": 1,
+      "message": "This big might read more clearly if we name them rPara, gPara, bPara and work with para inside getParametricCurve(), so as to leave the \u0027curv\u0027-y names to \u0027curv\u0027?",
+      "range": {
+        "startLine": 234,
+        "startChar": 5,
+        "endLine": 236,
+        "endChar": 55
+      },
+      "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
