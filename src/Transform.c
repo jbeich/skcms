@@ -7,10 +7,10 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 
 #if defined(SKCMS_PORTABLE) || (!defined(__clang__) && !defined(__GNUC__))
     #define N 1
-    #include <string.h>
     typedef float    F  ;
     typedef int32_t  I32;
     typedef uint64_t U64;
@@ -20,7 +20,6 @@
                    F1 = 1;
 #elif defined(__clang__) && defined(__AVX__)
     #define N 8
-    #define memcpy __builtin_memcpy
     typedef float    __attribute__((ext_vector_type(  N))) F  ;
     typedef int32_t  __attribute__((ext_vector_type(  N))) I32;
     typedef uint64_t __attribute__((ext_vector_type(  N))) U64;
@@ -30,7 +29,6 @@
                    F1 = {1,1,1,1, 1,1,1,1};
 #elif defined(__GNUC__) && defined(__AVX__)
     #define N 8
-    #define memcpy __builtin_memcpy
     typedef float    __attribute__((vector_size(32))) F  ;
     typedef int32_t  __attribute__((vector_size(32))) I32;
     typedef uint64_t __attribute__((vector_size(64))) U64;
@@ -40,7 +38,6 @@
                    F1 = {1,1,1,1, 1,1,1,1};
 #elif defined(__clang__)
     #define N 4
-    #define memcpy __builtin_memcpy
     typedef float    __attribute__((ext_vector_type(  N))) F  ;
     typedef int32_t  __attribute__((ext_vector_type(  N))) I32;
     typedef uint64_t __attribute__((ext_vector_type(  N))) U64;
@@ -50,7 +47,6 @@
                    F1 = {1,1,1,1};
 #elif defined(__GNUC__)
     #define N 4
-    #define memcpy __builtin_memcpy
     typedef float    __attribute__((vector_size(16))) F  ;
     typedef int32_t  __attribute__((vector_size(16))) I32;
     typedef uint64_t __attribute__((vector_size(32))) U64;
