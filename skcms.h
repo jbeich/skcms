@@ -87,6 +87,7 @@ bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_Transfe
 
 typedef struct {
     uint32_t    signature;
+    uint32_t    type;
     uint32_t    size;
     const void* buf;
 } skcms_ICCTag;
