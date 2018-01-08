@@ -18,9 +18,18 @@ static void fatal(const char* msg) {
     exit(1);
 }
 
+static void signature_to_string(uint32_t sig, char* str) {
+    str[0] = (sig >> 24) & 0xFF;
+    str[1] = (sig >> 16) & 0xFF;
+    str[2] = (sig >>  8) & 0xFF;
+    str[3] = (sig >>  0) & 0xFF;
+    str[4] = 0;
+}
+
 static void dump_sig_field(const char* name, uint32_t val) {
-    printf("%20s : 0x%08X : '%c%c%c%c'\n",
-           name, val, val >> 24, (val >> 16) & 0xFF, (val >> 8) & 0xFF, val & 0xFF);
+    char valStr[5];
+    signature_to_string(val, valStr);
+    printf("%20s : 0x%08X : '%s'\n", name, val, valStr);
 }
 
 int main(int argc, char** argv) {
@@ -74,15 +83,20 @@ int main(int argc, char** argv) {
     printf("%20s :            : %f\n", "Illuminant Y", profile.illuminant_Y);
     printf("%20s :            : %f\n", "Illuminant Z", profile.illuminant_Z);
     dump_sig_field("Creator", profile.creator);
+    printf("%20s : 0x%08X : %u\n", "Tag count", profile.tag_count, profile.tag_count);
 
     printf("\n");
 
-    printf("%20s : 0x%08X : %u\n", "Tag count", profile.tag_count, profile.tag_count);
+    printf(" Tag    : Type   : Size\n");
+    printf(" ------ : ------ : ------\n");
     for (uint32_t i = 0; i < profile.tag_count; ++i) {
         skcms_ICCTag tag;
         skcms_ICCProfile_getTagByIndex(&profile, i, &tag);
-        dump_sig_field("Signature", tag.signature);
-        printf("%20s : 0x%08X : %u\n", "Size", tag.size, tag.size);
+        char tagSig[5];
+        char typeSig[5];
+        signature_to_string(tag.signature, tagSig);
+        signature_to_string(tag.type, typeSig);
+        printf(" '%s' : '%s' : %6u\n", tagSig, typeSig, tag.size);
     }
 
     return 0;

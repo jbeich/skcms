@@ -174,6 +174,7 @@ void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile* profile,
     tag->signature = read_big_u32(tags[index].signature);
     tag->size      = read_big_u32(tags[index].size);
     tag->buf       = read_big_u32(tags[index].offset) + profile->buffer;
+    tag->type      = read_big_u32((const uint8_t*)tag->buf);
 }
 
 bool skcms_ICCProfile_getTagBySignature(const skcms_ICCProfile* profile,
@@ -186,6 +187,7 @@ bool skcms_ICCProfile_getTagBySignature(const skcms_ICCProfile* profile,
             tag->signature = signature;
             tag->size      = read_big_u32(tags[i].size);
             tag->buf       = read_big_u32(tags[i].offset) + profile->buffer;
+            tag->type      = read_big_u32((const uint8_t*)tag->buf);
             return true;
         }
     }
