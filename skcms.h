@@ -86,10 +86,10 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
 
 typedef struct {
-    uint32_t    signature;
-    uint32_t    type;
-    uint32_t    size;
-    const void* buf;
+    uint32_t       signature;
+    uint32_t       type;
+    uint32_t       size;
+    const uint8_t* buf;
 } skcms_ICCTag;
 
 void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile*, uint32_t, skcms_ICCTag*);

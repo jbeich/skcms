@@ -9,7 +9,7 @@
 #include <math.h>
 #include <string.h>
 
-static uint32_t skcms_make_signature(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
+static uint32_t make_signature(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
     return (uint32_t)(a << 24)
          | (uint32_t)(b << 16)
          | (uint32_t)(c <<  8)
@@ -130,7 +130,7 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
 
     // Validate signature, size (smaller than buffer, large enough to hold tag table),
     // and major version
-    if (profile->signature != skcms_make_signature('a', 'c', 's', 'p') ||
+    if (profile->signature != make_signature('a', 'c', 's', 'p') ||
         profile->size > len ||
         profile->size < sizeof(skcms_ICCHeader) + profile->tag_count*sizeof(skcms_ICCTag_Layout) ||
         (profile->version >> 24) > 4) {
@@ -165,11 +165,86 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile* profile,
     return false;
 }
 
+bool skcms_ICCTag_getParametricCurve(const skcms_ICCTag* tag,
+                                     skcms_TransferFunction* curve) {
+    if (!tag || tag->type != make_signature('p', 'a', 'r', 'a') || !curve) {
+        return false;
+    }
+
+    enum { kG = 0, kGAB = 1, kGABC = 2, kGABCD = 3, kGABCDEF = 4 };
+    uint16_t function_type = read_big_u16(tag->buf + 8);
+    if (function_type > kGABCDEF) {
+        return false;
+    }
+
+    static const uint32_t curve_bytes[] = { 4, 12, 16, 20, 28 };
+    if (tag->size < 12U + curve_bytes[function_type]) {
+        return false;
+    }
+
+    curve->a = 1.0f;
+    curve->b = 0.0f;
+    curve->c = 0.0f;
+    curve->d = 0.0f;
+    curve->e = 0.0f;
+    curve->f = 0.0f;
+    curve->g = read_big_fixed(tag->buf + 12);
+
+    switch (function_type) {
+        case kGAB:
+            curve->a = read_big_fixed(tag->buf + 16);
+            curve->b = read_big_fixed(tag->buf + 20);
+            curve->d = -curve->b / curve->a;
+            break;
+        case kGABC:
+            curve->a = read_big_fixed(tag->buf + 16);
+            curve->b = read_big_fixed(tag->buf + 20);
+            curve->e = read_big_fixed(tag->buf + 24);
+            curve->d = -curve->b / curve->a;
+            curve->f = curve->e;
+            break;
+        case kGABCD:
+            curve->a = read_big_fixed(tag->buf + 16);
+            curve->b = read_big_fixed(tag->buf + 20);
+            curve->c = read_big_fixed(tag->buf + 24);
+            curve->d = read_big_fixed(tag->buf + 28);
+            break;
+        case kGABCDEF:
+            curve->a = read_big_fixed(tag->buf + 16);
+            curve->b = read_big_fixed(tag->buf + 20);
+            curve->c = read_big_fixed(tag->buf + 24);
+            curve->e = read_big_fixed(tag->buf + 32);
+            curve->f = read_big_fixed(tag->buf + 36);
+            break;
+    }
+    return true;
+}
+
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile* profile,
                                           skcms_TransferFunction* transferFunction) {
-    (void)profile;
-    (void)transferFunction;
-    return false;
+    if (!profile || !transferFunction) { return false; }
+    skcms_ICCTag rTRC, gTRC, bTRC;
+    // TODO: Skia code supported some of these being missing, with fallback to others!?
+    if (!skcms_ICCProfile_getTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+        return false;
+    }
+
+    // TODO: Support 'curv' and do curve-fitting!
+    skcms_TransferFunction rCurve, gCurve, bCurve;
+    if (!skcms_ICCTag_getParametricCurve(&rTRC, &rCurve) ||
+        !skcms_ICCTag_getParametricCurve(&gTRC, &gCurve) ||
+        !skcms_ICCTag_getParametricCurve(&bTRC, &bCurve)) {
+        return false;
+    }
+
+    if (memcmp(&rCurve, &gCurve, sizeof(rCurve)) || memcmp(&rCurve, &bCurve, sizeof(rCurve))) {
+        return false;
+    }
+
+    *transferFunction = rCurve;
+    return true;
 }
 
 void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile* profile,
@@ -181,7 +256,7 @@ void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile* profile,
     tag->signature = read_big_u32(tags[index].signature);
     tag->size      = read_big_u32(tags[index].size);
     tag->buf       = read_big_u32(tags[index].offset) + profile->buffer;
-    tag->type      = read_big_u32((const uint8_t*)tag->buf);
+    tag->type      = read_big_u32(tag->buf);
 }
 
 bool skcms_ICCProfile_getTagBySignature(const skcms_ICCProfile* profile,
@@ -194,7 +269,7 @@ bool skcms_ICCProfile_getTagBySignature(const skcms_ICCProfile* profile,
             tag->signature = signature;
             tag->size      = read_big_u32(tags[i].size);
             tag->buf       = read_big_u32(tags[i].offset) + profile->buffer;
-            tag->type      = read_big_u32((const uint8_t*)tag->buf);
+            tag->type      = read_big_u32(tag->buf);
             return true;
         }
     }
