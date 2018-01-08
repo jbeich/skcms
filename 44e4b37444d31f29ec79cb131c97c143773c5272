@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1457fc8f_adfd9120",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-08T17:33:52Z",
+      "side": 1,
+      "message": "This being static can also probably drop the skcms_ prefix, even just be get_tag_table()?",
+      "range": {
+        "startLine": 81,
+        "startChar": 34,
+        "endLine": 81,
+        "endChar": 40
+      },
+      "revId": "44e4b37444d31f29ec79cb131c97c143773c5272",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
