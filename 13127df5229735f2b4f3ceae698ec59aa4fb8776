@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f874a99_b6cbac12",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-09T14:49:35Z",
+      "side": 1,
+      "message": "At W4, MSVC emits warnings about C99 features (eg flexible array members), calling them \"non-standard extensions\"",
+      "revId": "13127df5229735f2b4f3ceae698ec59aa4fb8776",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -60,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "ca71312d_d03e19e2",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-09T14:49:35Z",
+      "side": 1,
+      "message": "Doh. I went and started using that scheme, then copied our old code here. Definitely switching over.",
+      "parentUuid": "79b69b11_4114ddad",
+      "range": {
+        "startLine": 175,
+        "startChar": 42,
+        "endLine": 175,
+        "endChar": 54
+      },
+      "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa630d19_417b9d02",
         "filename": "src/ICCProfile.c",
         "patchSetId": 1
@@ -74,6 +98,24 @@
       "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8aab092b_4626231f",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-09T14:49:35Z",
+      "side": 1,
+      "message": "Yeah, the number of mistakes they managed to cram into a five row table is astounding.",
+      "parentUuid": "aa630d19_417b9d02",
+      "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -97,6 +139,30 @@
       "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1ce1475_c3ef2e6f",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-09T14:49:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1dfb9418_d5d63d4b",
+      "range": {
+        "startLine": 234,
+        "startChar": 5,
+        "endLine": 236,
+        "endChar": 55
+      },
+      "revId": "491e109a2062b7074fda43241b3056e9a287ce1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
