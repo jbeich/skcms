@@ -1,0 +1,3 @@
+cc  = ccache gcc-7 -fdiagnostics-color -Wall -Wextra -Wno-abi
+out = out/gcc$mode
+include build/common

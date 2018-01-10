@@ -1,0 +1,3 @@
+cc  = ccache clang -fcolor-diagnostics -Weverything -Wno-padded
+out = out/clang$mode
+include build/common
