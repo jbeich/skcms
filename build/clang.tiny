@@ -1,0 +1,3 @@
+mode   = .tiny
+cflags = -g0
+include build/clang

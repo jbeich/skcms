@@ -1,0 +1,3 @@
+mode   = .portable
+cflags = -DSKCMS_PORTABLE
+include build/clang
