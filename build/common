@@ -1,0 +1,17 @@
+builddir = $out
+
+rule compile
+    command = $cc -g -Werror -Os $cflags -MD -MF $out.d -c $in -o $out
+    depfile = $out.d
+    deps    = gcc
+
+rule link
+    command = $cc $ldflags $in -o $out
+
+rule run
+    command = ./$in > $out
+
+build $out/skcms.o:  compile skcms.c
+build $out/tests.o:  compile tests.c
+build $out/tests:    link $out/skcms.o $out/tests.o
+build $out/tests.ok: run  $out/tests

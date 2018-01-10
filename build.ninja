@@ -1,54 +1,18 @@
 builddir = out
 
-clang  = ccache clang -fcolor-diagnostics -Weverything -Wno-padded
-gcc    = ccache gcc-7 -fdiagnostics-color -Wall -Wextra -Wno-abi
-cflags = -g -Werror -Os
-san    = -fsanitize=address,integer,undefined
+subninja build/clang
+subninja build/clang.native
+subninja build/clang.portable
+subninja build/clang.tiny
+subninja build/clang.tsan
+subninja build/clang.xsan
 
-rule clang
-    command = $clang $cflags -MD -MF $out.d -c $in -o $out
-    depfile = $out.d
-    deps    = gcc
+subninja build/gcc
+subninja build/gcc.native
+subninja build/gcc.portable
+subninja build/gcc.tiny
+subninja build/gcc.xsan
 
-rule gcc
-    command = $gcc $cflags -MD -MF $out.d -c $in -o $out
-    depfile = $out.d
-    deps    = gcc
-
-rule link
-    command = $clang $ldflags $in -o $out
-
-rule run
-    command = ./$in > $out
-
-build out/skcms.clang.o:  clang skcms.c
-build out/tests.clang.o:  clang tests.c
-build out/tests.clang:    link out/skcms.clang.o out/tests.clang.o
-build out/tests.clang.ok: run out/tests.clang
-
-build out/skcms.gcc.o:  gcc skcms.c
-build out/tests.gcc.o:  gcc tests.c
-build out/tests.gcc:    link out/skcms.gcc.o out/tests.gcc.o
-build out/tests.gcc.ok: run out/tests.gcc
-
-build out/skcms.san.o:  clang skcms.c
-    cflags = $cflags $san
-build out/tests.san.o:  clang tests.c
-    cflags = $cflags $san
-build out/tests.san:    link out/skcms.san.o out/tests.san.o
-    ldflags = $san
-build out/tests.san.ok: run out/tests.san
-
-build out/skcms.native.o:  clang skcms.c
-    cflags = $cflags -march=native -ffp-contract=fast
-build out/tests.native.o:  clang tests.c
-    cflags = $cflags -march=native -ffp-contract=fast
-build out/tests.native:    link out/skcms.native.o out/tests.native.o
-build out/tests.native.ok: run out/tests.native
-
-build out/skcms.portable.o:  clang skcms.c
-    cflags = $cflags -DSKCMS_PORTABLE
-build out/tests.portable.o:  clang tests.c
-    cflags = $cflags -DSKCMS_PORTABLE
-build out/tests.portable:    link out/skcms.portable.o out/tests.portable.o
-build out/tests.portable.ok: run out/tests.portable
+#subninja build/clang.msan
+#subninja build/gcc.msan
+#subninja build/gcc.tsan

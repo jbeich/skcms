@@ -1,0 +1,5 @@
+mode    = .tsan
+cflags  = -fsanitize=thread
+ldflags = -fsanitize=thread
+include build/clang
+
