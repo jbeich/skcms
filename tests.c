@@ -230,6 +230,27 @@ static void test_FormatConversions_101010() {
     expect(dst == 0xff017fff);
 }
 
+static void test_FormatConversions_half() {
+    skcms_ICCProfile profile;
+
+    uint16_t src[] = {
+        0x3c00,  // 1.0
+        0x3800,  // 0.5
+        0x1805,  // Should round up to 0x01
+        0x1804,  // Should round down to 0x00
+    };
+
+    // TODO: test <0, >1
+    // TODO: test denorms explicitly?
+
+    uint32_t dst;
+    expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888, &profile,
+                           &src, skcms_PixelFormat_RGBA_hhhh, &profile, 1));
+    expect(dst == 0x000180ff);
+
+    // TODO RGB_hhh
+}
+
 static void test_FormatConversions_float() {
     skcms_ICCProfile profile;
 
@@ -254,6 +275,7 @@ int main(void) {
     test_FormatConversions_16161616();
     test_FormatConversions_161616();
     test_FormatConversions_101010();
+    test_FormatConversions_half();
     test_FormatConversions_float();
     return 0;
 }
