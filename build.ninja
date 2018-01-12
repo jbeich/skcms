@@ -1,6 +1,7 @@
 builddir = out
 
 subninja build/clang
+subninja build/clang.lsan
 subninja build/clang.native
 subninja build/clang.portable
 subninja build/clang.tiny
