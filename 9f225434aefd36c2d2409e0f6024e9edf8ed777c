@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "449b9847_072fa272",
+        "filename": "tests.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-12T19:30:10Z",
+      "side": 1,
+      "message": "might be nice to make it const too",
+      "revId": "9f225434aefd36c2d2409e0f6024e9edf8ed777c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
