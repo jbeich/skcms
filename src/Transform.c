@@ -408,10 +408,10 @@ static F max(F x, F y) { return if_then_else(x < y, y, x); }
 
 static void clamp(size_t i, void** ip, char* dst, const char* src, char* tmp,
                   F r, F g, F b, F a) {
-    r = max(0, min(r, 1));
-    g = max(0, min(g, 1));
-    b = max(0, min(b, 1));
-    a = max(0, min(a, 1));
+    r = max(F0, min(r, F1));
+    g = max(F0, min(g, F1));
+    b = max(F0, min(b, F1));
+    a = max(F0, min(a, F1));
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 
