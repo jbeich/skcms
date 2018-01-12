@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "skcms.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -267,6 +271,54 @@ static void test_FormatConversions_float() {
     expect(dst == 0xff0180ff);
 }
 
+static const struct {
+    const char* filename;
+    bool        expect_parse_success;
+} profile_test_cases[] = {
+    { "profiles/color.org/sRGB2014.icc",               true  },
+    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false }, // iccMAX
+    { "profiles/color.org/sRGB_D65_MAT.icc",           false }, // iccMAX
+    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true  },
+    { "profiles/color.org/sRGB_ISO22028.icc",          false }, // iccMAX
+    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true  },
+
+    { "profiles/color.org/Lower_Left.icc",             true },
+    { "profiles/color.org/Lower_Right.icc",            true },
+    { "profiles/color.org/Upper_Left.icc",             true },
+    { "profiles/color.org/Upper_Right.icc",            true },
+
+    { "profiles/sRGB_Facebook.icc",                    true  }, // FB 27 entry sRGB table
+};
+
+static void load_file(const char* filename, void** buf, size_t* len) {
+    FILE* fp = fopen(filename, "rb");
+    expect(fp);
+
+    expect(fseek(fp, 0L, SEEK_END) == 0);
+    *len = ftell(fp);
+    expect(*len != -1L);
+    rewind(fp);
+
+    *buf = malloc(*len);
+    expect(*buf);
+
+    size_t bytes_read = fread(*buf, 1, *len, fp);
+    expect(bytes_read == *len);
+}
+
+static void test_ICCProfile_parse() {
+    const int test_cases_count = sizeof(profile_test_cases) / sizeof(profile_test_cases[0]);
+    for (int i = 0; i < test_cases_count; ++i) {
+        void* buf = NULL;
+        size_t len = 0;
+        load_file(profile_test_cases[i].filename, &buf, &len);
+        skcms_ICCProfile profile;
+        bool result = skcms_ICCProfile_parse(&profile, buf, len);
+        expect(result == profile_test_cases[i].expect_parse_success);
+        free(buf);
+    }
+}
+
 int main(void) {
     test_ICCProfile();
     test_Transform();
@@ -277,5 +329,6 @@ int main(void) {
     test_FormatConversions_101010();
     test_FormatConversions_half();
     test_FormatConversions_float();
+    test_ICCProfile_parse();
     return 0;
 }
