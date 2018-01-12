@@ -131,6 +131,9 @@ typedef enum {
 
 // Convert npixels pixels from src format and color profile to dst format and color profile
 // and return true, otherwise return false.  It is safe to alias dst == src if dstFmt == srcFmt.
+//
+// Each dst or src pointer must be aligned for at least its single channel size,
+// but the _565 formats must be byte aligned, as it's hard to 5- or 6-bit align.
 bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
                const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
                      size_t npixels);
