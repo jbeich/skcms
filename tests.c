@@ -297,8 +297,9 @@ static void load_file(const char* filename, void** buf, size_t* len) {
     expect(fp);
 
     expect(fseek(fp, 0L, SEEK_END) == 0);
-    *len = ftell(fp);
-    expect(*len != -1L);
+    long size = ftell(fp);
+    expect(size > 0);
+    *len = (size_t)size;
     rewind(fp);
 
     *buf = malloc(*len);
