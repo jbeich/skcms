@@ -248,7 +248,9 @@ static void test_FormatConversions_half() {
                            &src, skcms_PixelFormat_RGBA_hhhh, &profile, 1));
     expect(dst == 0x000180ff);
 
-    // TODO RGB_hhh
+    expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888, &profile,
+                           &src, skcms_PixelFormat_RGB_hhh,   &profile, 1));
+    expect(dst == 0xff0180ff);
 }
 
 static void test_FormatConversions_float() {

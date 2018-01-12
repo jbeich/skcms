@@ -164,7 +164,7 @@ static void load_888_1(size_t i, void** ip, char* dst, const char* src, char* tm
 }
 
 static void load_8888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
-                       F r, F g, F b, F a) {
+                        F r, F g, F b, F a) {
     U32 rgba;
     memcpy(&rgba, src + 4*i, 4*N);
 
@@ -182,7 +182,7 @@ static void load_8888_1(size_t i, void** ip, char* dst, const char* src, char* t
 }
 
 static void load_101010x_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
-                            F r, F g, F b, F a) {
+                           F r, F g, F b, F a) {
     U32 rgbx;
     memcpy(&rgbx, src + 4*i, 4*N);
 
@@ -193,14 +193,14 @@ static void load_101010x_N(size_t i, void** ip, char* dst, const char* src, char
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_101010x_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
-                            F r, F g, F b, F a) {
+                           F r, F g, F b, F a) {
     memcpy(tmp, src + 4*i, 4);
     src = tmp - 4*i;
     load_101010x_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
 static void load_1010102_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
-                            F r, F g, F b, F a) {
+                           F r, F g, F b, F a) {
     U32 rgba;
     memcpy(&rgba, src + 4*i, 4*N);
 
@@ -233,7 +233,7 @@ static void load_161616_N(size_t i, void** ip, char* dst, const char* src, char*
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_161616_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
-                       F r, F g, F b, F a) {
+                          F r, F g, F b, F a) {
     memcpy(tmp, src + 6*i, 6);
     src = tmp - 6*i;
     load_161616_N(i,ip,dst,src,tmp, r,g,b,a);
@@ -283,6 +283,25 @@ static F F_from_Half(U32 half) {
     return if_then_else(em < 0x0400, F0, norm);
 }
 
+static void load_hhh_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                       F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(src + 6*i);
+    assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
+    const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
+
+    r = F_from_Half( (U32)LOAD_3(rgb+0) );
+    g = F_from_Half( (U32)LOAD_3(rgb+1) );
+    b = F_from_Half( (U32)LOAD_3(rgb+2) );
+    a = F1;
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
+}
+static void load_hhh_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                       F r, F g, F b, F a) {
+    memcpy(tmp, src + 6*i, 6);
+    src = tmp - 6*i;
+    load_hhh_N(i,ip,dst,src,tmp, r,g,b,a);
+}
+
 static void load_hhhh_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                         F r, F g, F b, F a) {
     U64 rgba;
@@ -301,9 +320,6 @@ static void load_hhhh_1(size_t i, void** ip, char* dst, const char* src, char* t
     load_hhhh_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
-//TODO: load_hhh_N
-//TODO: load_hhh_1
-
 static void load_fff_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                        F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(src + 12*i);
@@ -316,7 +332,7 @@ static void load_fff_N(size_t i, void** ip, char* dst, const char* src, char* tm
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_fff_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
-                            F r, F g, F b, F a) {
+                       F r, F g, F b, F a) {
     memcpy(tmp, src + 12*i, 12);
     src = tmp - 12*i;
     load_fff_N(i,ip,dst,src,tmp, r,g,b,a);
@@ -401,6 +417,9 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
                                                    break;
         case skcms_PixelFormat_RGBA_16161616 >> 1: *ip_N++ = (void*)load_16161616_N;
                                                    *ip_1++ = (void*)load_16161616_1;
+                                                   break;
+        case skcms_PixelFormat_RGB_hhh       >> 1: *ip_N++ = (void*)load_hhh_N;
+                                                   *ip_1++ = (void*)load_hhh_1;
                                                    break;
         case skcms_PixelFormat_RGBA_hhhh     >> 1: *ip_N++ = (void*)load_hhhh_N;
                                                    *ip_1++ = (void*)load_hhhh_1;
