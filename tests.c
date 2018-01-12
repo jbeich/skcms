@@ -230,6 +230,22 @@ static void test_FormatConversions_101010() {
     expect(dst == 0xff017fff);
 }
 
+static void test_FormatConversions_float() {
+    skcms_ICCProfile profile;
+
+    float src[] = { 1.0f, 0.5f, 1/255.0f, 1/512.0f };
+
+    uint32_t dst;
+    expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888, &profile,
+                           &src, skcms_PixelFormat_RGBA_ffff, &profile, 1));
+    expect(dst == 0x000180ff);
+
+    // Same as above, but we'll ignore the 1/512 alpha and fill in 1.0.
+    expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888, &profile,
+                           &src, skcms_PixelFormat_RGB_fff,   &profile, 1));
+    expect(dst == 0xff0180ff);
+}
+
 int main(void) {
     test_ICCProfile();
     test_Transform();
@@ -238,5 +254,6 @@ int main(void) {
     test_FormatConversions_16161616();
     test_FormatConversions_161616();
     test_FormatConversions_101010();
+    test_FormatConversions_float();
     return 0;
 }
