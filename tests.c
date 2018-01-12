@@ -17,6 +17,8 @@
 #define expect(cond) \
     if (!(cond)) (fprintf(stderr, "expect(" #cond ") failed at %s:%d\n",__FILE__,__LINE__),exit(1))
 
+// Compilers can be a little nervous about exact float equality comparisons.
+#define expect_eq(a, b) expect((a) <= (b) && (b) <= (a))
 
 static void test_ICCProfile() {
     // Nothing works yet.  :)
@@ -242,19 +244,34 @@ static void test_FormatConversions_half() {
         0x3800,  // 0.5
         0x1805,  // Should round up to 0x01
         0x1804,  // Should round down to 0x00
+        0x4000,  // 2.0
+        0x03ff,  // A denorm, flushed to zero.
+        0x83ff,  // A negative denorm, flushed to zero.
+        0xbc00,  // -1.0
     };
 
-    // TODO: test <0, >1
-    // TODO: test denorms explicitly?
-
-    uint32_t dst;
+    uint32_t dst[2];
     expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888, &profile,
-                           &src, skcms_PixelFormat_RGBA_hhhh, &profile, 1));
-    expect(dst == 0x000180ff);
+                           &src, skcms_PixelFormat_RGBA_hhhh, &profile, 2));
+    expect(dst[0] == 0x000180ff);
+    expect(dst[1] == 0x000000ff);  // Notice we've clamped 2.0 to 0xff and -1.0 to 0x00.
 
     expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888, &profile,
-                           &src, skcms_PixelFormat_RGB_hhh,   &profile, 1));
-    expect(dst == 0xff0180ff);
+                           &src, skcms_PixelFormat_RGB_hhh,   &profile, 2));
+    expect(dst[0] == 0xff0180ff);
+    expect(dst[1] == 0xff00ff00);  // Remember, this corresponds to src[3-5].
+
+    float fdst[8];
+    expect(skcms_Transform(&fdst, skcms_PixelFormat_RGBA_ffff, &profile,
+                            &src, skcms_PixelFormat_RGBA_hhhh, &profile, 2));
+    expect_eq(fdst[0],  1.0f);
+    expect_eq(fdst[1],  0.5f);
+    expect(fdst[2] > 1/510.0f);
+    expect(fdst[3] < 1/510.0f);
+    expect_eq(fdst[4],  2.0f);
+    expect_eq(fdst[5],  0.0f);
+    expect_eq(fdst[6],  0.0f);
+    expect_eq(fdst[7], -1.0f);
 }
 
 static void test_FormatConversions_float() {
@@ -271,6 +288,18 @@ static void test_FormatConversions_float() {
     expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888, &profile,
                            &src, skcms_PixelFormat_RGB_fff,   &profile, 1));
     expect(dst == 0xff0180ff);
+
+    // Let's make sure each byte converts to the float we expect.
+    uint32_t bytes[64];
+    float   fdst[4*64];
+    for (int i = 0; i < 64; i++) {
+        bytes[i] = 0x03020100 + 0x04040404 * (uint32_t)i;
+    }
+    expect(skcms_Transform(&fdst, skcms_PixelFormat_RGBA_ffff, &profile,
+                          &bytes, skcms_PixelFormat_RGBA_8888, &profile, 64));
+    for (int i = 0; i < 256; i++) {
+        expect_eq(fdst[i], i*(1/255.0f));
+    }
 }
 
 static const struct {
