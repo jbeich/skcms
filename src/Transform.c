@@ -261,10 +261,48 @@ static void load_16161616_1(size_t i, void** ip, char* dst, const char* src, cha
     load_16161616_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
+static F if_then_else(I32 cond, F t, F e) {
+#if N == 1
+    return cond ? t : e;
+#else
+    return (F)( (cond & (I32)t) | (~cond & (I32)e) );
+#endif
+}
+
+static F F_from_Half(U32 half) {
+    // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
+    U32 s  = half & 0x8000,
+        em = half ^ s;
+
+    // Constructing the float is easy if the half is not denormalized.
+    U32 norm_bits = (s<<16) + (em<<13) + ((127-15)<<23);
+    F norm;
+    memcpy(&norm, &norm_bits, sizeof(norm));
+
+    // Simply flush all denorm half floats to zero.
+    return if_then_else(em < 0x0400, F0, norm);
+}
+
+static void load_hhhh_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    U64 rgba;
+    memcpy(&rgba, src + 8*i, 8*N);
+
+    r = F_from_Half( U32_from_U64((rgba >>  0) & 0xffff) );
+    g = F_from_Half( U32_from_U64((rgba >> 16) & 0xffff) );
+    b = F_from_Half( U32_from_U64((rgba >> 32) & 0xffff) );
+    a = F_from_Half( U32_from_U64((rgba >> 48) & 0xffff) );
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
+}
+static void load_hhhh_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    memcpy(tmp, src + 8*i, 8);
+    src = tmp - 8*i;
+    load_hhhh_N(i,ip,dst,src,tmp, r,g,b,a);
+}
+
 //TODO: load_hhh_N
 //TODO: load_hhh_1
-//TODO: load_hhhh_N
-//TODO: load_hhhh_1
 
 static void load_fff_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                        F r, F g, F b, F a) {
@@ -363,6 +401,9 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
                                                    break;
         case skcms_PixelFormat_RGBA_16161616 >> 1: *ip_N++ = (void*)load_16161616_N;
                                                    *ip_1++ = (void*)load_16161616_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_hhhh     >> 1: *ip_N++ = (void*)load_hhhh_N;
+                                                   *ip_1++ = (void*)load_hhhh_1;
                                                    break;
         case skcms_PixelFormat_RGB_fff       >> 1: *ip_N++ = (void*)load_fff_N;
                                                    *ip_1++ = (void*)load_fff_1;
