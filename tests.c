@@ -212,6 +212,24 @@ static void test_FormatConversions_161616() {
     expect(dst[3] == 0xfffffefd);
 }
 
+static void test_FormatConversions_101010() {
+    skcms_ICCProfile profile;
+
+    uint32_t src = (uint32_t)1023 <<  0    // 1.0.
+                 | (uint32_t) 511 << 10    // About 1/2.
+                 | (uint32_t)   4 << 20    // Smallest 10-bit channel that's non-zero in 8-bit.
+                 | (uint32_t)   1 << 30;   // 1/3, smallest non-zero alpha.
+    uint32_t dst;
+    expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888   , &profile,
+                           &src, skcms_PixelFormat_RGBA_1010102, &profile, 1));
+    expect(dst == 0x55017fff);
+
+    // Same as above, but we'll ignore the 1/3 alpha and fill in 1.0.
+    expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888  , &profile,
+                           &src, skcms_PixelFormat_RGB_101010x, &profile, 1));
+    expect(dst == 0xff017fff);
+}
+
 int main(void) {
     test_ICCProfile();
     test_Transform();
@@ -219,5 +237,6 @@ int main(void) {
     test_FormatConversions_565();
     test_FormatConversions_16161616();
     test_FormatConversions_161616();
+    test_FormatConversions_101010();
     return 0;
 }

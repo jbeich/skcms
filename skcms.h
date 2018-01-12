@@ -103,20 +103,27 @@ typedef enum {
 
     skcms_PixelFormat_RGB_888,
     skcms_PixelFormat_BGR_888,
-
     skcms_PixelFormat_RGBA_8888,
     skcms_PixelFormat_BGRA_8888,
 
+    skcms_PixelFormat_RGB_101010x,
+    skcms_PixelFormat_BGR_101010x,
+    skcms_PixelFormat_RGBA_1010102,
+    skcms_PixelFormat_BGRA_1010102,
+
     skcms_PixelFormat_RGB_161616,     // Big-endian.
     skcms_PixelFormat_BGR_161616,
-
-    skcms_PixelFormat_RGBA_16161616,  // Big-endian.
+    skcms_PixelFormat_RGBA_16161616,
     skcms_PixelFormat_BGRA_16161616,
 
-    skcms_PixelFormat_RGBA_hhhh,      // 1-5-10 half-precision float.
+    skcms_PixelFormat_RGB_hhh,        // 1-5-10 half-precision float.
+    skcms_PixelFormat_BGR_hhh,
+    skcms_PixelFormat_RGBA_hhhh,
     skcms_PixelFormat_BGRA_hhhh,
 
-    skcms_PixelFormat_RGBA_ffff,      // 1-8-23 single-precision float (the normal kind).
+    skcms_PixelFormat_RGB_fff,        // 1-8-23 single-precision float (the normal kind).
+    skcms_PixelFormat_BGR_fff,
+    skcms_PixelFormat_RGBA_ffff,
     skcms_PixelFormat_BGRA_ffff,
 } skcms_PixelFormat;
 
