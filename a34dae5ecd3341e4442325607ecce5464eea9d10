@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1bdac766_f46b6b0a",
+        "filename": "skcms.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-12T18:05:48Z",
+      "side": 1,
+      "message": "The inconsistent formatting here is some kind of test, right?",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 86
+      },
+      "revId": "a34dae5ecd3341e4442325607ecce5464eea9d10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
