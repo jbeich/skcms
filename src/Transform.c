@@ -135,16 +135,22 @@ static void load_565_1(size_t i, void** ip, char* dst, const char* src, char* tm
     load_565_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
-// Strided loads of N values, starting from p.
+// Strided loads and stores of N values, starting from p.
 #if N == 1
     #define LOAD_3(p) (p)[0]
     #define LOAD_4(p) (p)[0]
+    #define STORE_3(p, v) (p)[0] = v
+    #define STORE_4(p, v) (p)[0] = v
 #elif N == 4
     #define LOAD_3(p) {(p)[0], (p)[3], (p)[6], (p)[ 9]}
     #define LOAD_4(p) {(p)[0], (p)[4], (p)[8], (p)[12]};
+    #define STORE_3(p, v) for (int k = 0; k < N; k++) (p)[3*k] = v[k]
+    #define STORE_4(p, v) for (int k = 0; k < N; k++) (p)[4*k] = v[k]
 #elif N == 8
     #define LOAD_3(p) {(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
     #define LOAD_4(p) {(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
+    #define STORE_3(p, v) for (int k = 0; k < N; k++) (p)[3*k] = v[k]
+    #define STORE_4(p, v) for (int k = 0; k < N; k++) (p)[4*k] = v[k]
 #endif
 
 static void load_888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -342,11 +348,11 @@ static void load_ffff_N(size_t i, void** ip, char* dst, const char* src, char* t
                         F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(src + 16*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
-    const float* rgb = (const float*)ptr;       // for this cast to const float* to be safe.
-    r = (F)LOAD_4(rgb+0);
-    g = (F)LOAD_4(rgb+1);
-    b = (F)LOAD_4(rgb+2);
-    a = (F)LOAD_4(rgb+3);
+    const float* rgba = (const float*)ptr;       // for this cast to const float* to be safe.
+    r = (F)LOAD_4(rgba+0);
+    g = (F)LOAD_4(rgba+1);
+    b = (F)LOAD_4(rgba+2);
+    a = (F)LOAD_4(rgba+3);
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_ffff_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -373,10 +379,42 @@ static void store_8888_1(size_t i, void** ip, char* dst, const char* src, char* 
     memcpy(dst + 4*i, tmp, 4);
 }
 
+static void store_ffff_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                         F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(dst + 16*i);
+    assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
+    float* rgba = (float*)ptr;                  // for this cast to float* to be safe.
+    STORE_4(rgba+0, r);
+    STORE_4(rgba+1, g);
+    STORE_4(rgba+2, b);
+    STORE_4(rgba+3, a);
+    (void)ip;
+    (void)src;
+    (void)tmp;
+}
+static void store_ffff_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                         F r, F g, F b, F a) {
+    store_ffff_N(i,ip,tmp - 16*i,src,tmp, r,g,b,a);
+    memcpy(dst + 16*i, tmp, 16);
+}
+
 static void swap_rb(size_t i, void** ip, char* dst, const char* src, char* tmp,
                     F r, F g, F b, F a) {
     next_stage(i,ip,dst,src,tmp, b,g,r,a);
 }
+
+static F min(F x, F y) { return if_then_else(x > y, y, x); }
+static F max(F x, F y) { return if_then_else(x < y, y, x); }
+
+static void clamp(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                  F r, F g, F b, F a) {
+    r = max(0, min(r, 1));
+    g = max(0, min(g, 1));
+    b = max(0, min(b, 1));
+    a = max(0, min(a, 1));
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
+}
+
 
 
 bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
@@ -445,10 +483,17 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
         *ip_N++ = (void*)swap_rb;
         *ip_1++ = (void*)swap_rb;
     }
+    if (dstFmt < skcms_PixelFormat_RGB_hhh) {
+        *ip_N++ = (void*)clamp;
+        *ip_1++ = (void*)clamp;
+    }
     switch (dstFmt >> 1) {
         default: return false;
         case skcms_PixelFormat_RGBA_8888 >> 1: *ip_N++ = (void*)store_8888_N;
                                                *ip_1++ = (void*)store_8888_1;
+                                               break;
+        case skcms_PixelFormat_RGBA_ffff >> 1: *ip_N++ = (void*)store_ffff_N;
+                                               *ip_1++ = (void*)store_ffff_1;
                                                break;
     }
 
