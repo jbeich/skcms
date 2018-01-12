@@ -135,25 +135,24 @@ static void load_565_1(size_t i, void** ip, char* dst, const char* src, char* tm
     load_565_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
+// Strided loads of N values, starting from p.
+#if N == 1
+    #define LOAD_3(p) (p)[0]
+    #define LOAD_4(p) (p)[0]
+#elif N == 4
+    #define LOAD_3(p) {(p)[0], (p)[3], (p)[6], (p)[ 9]}
+    #define LOAD_4(p) {(p)[0], (p)[4], (p)[8], (p)[12]};
+#elif N == 8
+    #define LOAD_3(p) {(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
+    #define LOAD_4(p) {(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
+#endif
+
 static void load_888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                        F r, F g, F b, F a) {
     const uint8_t* rgb = (const uint8_t*)(src + 3*i);
-#if N == 1
-    U32 R = rgb[0],
-        G = rgb[1],
-        B = rgb[2];
-#elif N == 4
-    U32 R = { rgb[0], rgb[3], rgb[6], rgb[ 9] },
-        G = { rgb[1], rgb[4], rgb[7], rgb[10] },
-        B = { rgb[2], rgb[5], rgb[8], rgb[11] };
-#elif N == 8
-    U32 R = { rgb[0], rgb[3], rgb[6], rgb[ 9],  rgb[12], rgb[15], rgb[18], rgb[21] },
-        G = { rgb[1], rgb[4], rgb[7], rgb[10],  rgb[13], rgb[16], rgb[19], rgb[22] },
-        B = { rgb[2], rgb[5], rgb[8], rgb[11],  rgb[14], rgb[17], rgb[20], rgb[23] };
-#endif
-    r = F_from_U32(R) * (1/255.0f);
-    g = F_from_U32(G) * (1/255.0f);
-    b = F_from_U32(B) * (1/255.0f);
+    r = F_from_U32( (U32)LOAD_3(rgb+0) ) * (1/255.0f);
+    g = F_from_U32( (U32)LOAD_3(rgb+1) ) * (1/255.0f);
+    b = F_from_U32( (U32)LOAD_3(rgb+2) ) * (1/255.0f);
     a = F1;
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
@@ -223,19 +222,9 @@ static void load_161616_N(size_t i, void** ip, char* dst, const char* src, char*
     uintptr_t ptr = (uintptr_t)(src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
-#if N == 1
-    U32 R = rgb[0],
-        G = rgb[1],
-        B = rgb[2];
-#elif N == 4
-    U32 R = { rgb[0], rgb[3], rgb[6], rgb[ 9] },
-        G = { rgb[1], rgb[4], rgb[7], rgb[10] },
-        B = { rgb[2], rgb[5], rgb[8], rgb[11] };
-#elif N == 8
-    U32 R = { rgb[0], rgb[3], rgb[6], rgb[ 9],  rgb[12], rgb[15], rgb[18], rgb[21] },
-        G = { rgb[1], rgb[4], rgb[7], rgb[10],  rgb[13], rgb[16], rgb[19], rgb[22] },
-        B = { rgb[2], rgb[5], rgb[8], rgb[11],  rgb[14], rgb[17], rgb[20], rgb[23] };
-#endif
+    U32 R = LOAD_3(rgb+0),
+        G = LOAD_3(rgb+1),
+        B = LOAD_3(rgb+2);
     // R,G,B are big-endian 16-bit, so byte swap them before converting to float.
     r = F_from_U32( (R & 0x00ff)<<8 | (R & 0xff00)>>8 ) * (1/65535.0f);
     g = F_from_U32( (G & 0x00ff)<<8 | (G & 0xff00)>>8 ) * (1/65535.0f);
@@ -276,11 +265,42 @@ static void load_16161616_1(size_t i, void** ip, char* dst, const char* src, cha
 //TODO: load_hhh_1
 //TODO: load_hhhh_N
 //TODO: load_hhhh_1
-//
-//TODO: load_fff_N
-//TODO: load_fff_1
-//TODO: load_ffff_N
-//TODO: load_ffff_1
+
+static void load_fff_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                       F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(src + 12*i);
+    assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
+    const float* rgb = (const float*)ptr;       // for this cast to const float* to be safe.
+    r = (F)LOAD_3(rgb+0);
+    g = (F)LOAD_3(rgb+1);
+    b = (F)LOAD_3(rgb+2);
+    a = F1;
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
+}
+static void load_fff_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                            F r, F g, F b, F a) {
+    memcpy(tmp, src + 12*i, 12);
+    src = tmp - 12*i;
+    load_fff_N(i,ip,dst,src,tmp, r,g,b,a);
+}
+
+static void load_ffff_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(src + 16*i);
+    assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
+    const float* rgb = (const float*)ptr;       // for this cast to const float* to be safe.
+    r = (F)LOAD_4(rgb+0);
+    g = (F)LOAD_4(rgb+1);
+    b = (F)LOAD_4(rgb+2);
+    a = (F)LOAD_4(rgb+3);
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
+}
+static void load_ffff_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    memcpy(tmp, src + 16*i, 16);
+    src = tmp - 16*i;
+    load_ffff_N(i,ip,dst,src,tmp, r,g,b,a);
+}
 
 static void store_8888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                          F r, F g, F b, F a) {
@@ -343,6 +363,12 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
                                                    break;
         case skcms_PixelFormat_RGBA_16161616 >> 1: *ip_N++ = (void*)load_16161616_N;
                                                    *ip_1++ = (void*)load_16161616_1;
+                                                   break;
+        case skcms_PixelFormat_RGB_fff       >> 1: *ip_N++ = (void*)load_fff_N;
+                                                   *ip_1++ = (void*)load_fff_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_ffff     >> 1: *ip_N++ = (void*)load_ffff_N;
+                                                   *ip_1++ = (void*)load_ffff_1;
                                                    break;
     }
     if (srcFmt & 1) {

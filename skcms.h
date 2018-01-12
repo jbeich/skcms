@@ -111,18 +111,18 @@ typedef enum {
     skcms_PixelFormat_RGBA_1010102,
     skcms_PixelFormat_BGRA_1010102,
 
-    skcms_PixelFormat_RGB_161616,     // Big-endian.
+    skcms_PixelFormat_RGB_161616,     // Big-endian.  Pointers must be 16-bit aligned.
     skcms_PixelFormat_BGR_161616,
     skcms_PixelFormat_RGBA_16161616,
     skcms_PixelFormat_BGRA_16161616,
 
     skcms_PixelFormat_RGB_hhh,        // 1-5-10 half-precision float.
-    skcms_PixelFormat_BGR_hhh,
+    skcms_PixelFormat_BGR_hhh,        // Pointers must be 16-bit aligned.
     skcms_PixelFormat_RGBA_hhhh,
     skcms_PixelFormat_BGRA_hhhh,
 
     skcms_PixelFormat_RGB_fff,        // 1-8-23 single-precision float (the normal kind).
-    skcms_PixelFormat_BGR_fff,
+    skcms_PixelFormat_BGR_fff,        // Pointers must be 32-bit aligned.
     skcms_PixelFormat_RGBA_ffff,
     skcms_PixelFormat_BGRA_ffff,
 } skcms_PixelFormat;
