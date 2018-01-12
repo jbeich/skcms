@@ -182,6 +182,42 @@ static void load_8888_1(size_t i, void** ip, char* dst, const char* src, char* t
     load_8888_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
+static void load_101010x_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                            F r, F g, F b, F a) {
+    U32 rgbx;
+    memcpy(&rgbx, src + 4*i, 4*N);
+
+    r = F_from_U32((rgbx >>  0) & 0x3ff) * (1/1023.0f);
+    g = F_from_U32((rgbx >> 10) & 0x3ff) * (1/1023.0f);
+    b = F_from_U32((rgbx >> 20) & 0x3ff) * (1/1023.0f);
+    a = F1;
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
+}
+static void load_101010x_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                            F r, F g, F b, F a) {
+    memcpy(tmp, src + 4*i, 4);
+    src = tmp - 4*i;
+    load_101010x_N(i,ip,dst,src,tmp, r,g,b,a);
+}
+
+static void load_1010102_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                            F r, F g, F b, F a) {
+    U32 rgba;
+    memcpy(&rgba, src + 4*i, 4*N);
+
+    r = F_from_U32((rgba >>  0) & 0x3ff) * (1/1023.0f);
+    g = F_from_U32((rgba >> 10) & 0x3ff) * (1/1023.0f);
+    b = F_from_U32((rgba >> 20) & 0x3ff) * (1/1023.0f);
+    a = F_from_U32((rgba >> 30) & 0x3  ) * (1/   3.0f);
+    next_stage(i,ip,dst,src,tmp, r,g,b,a);
+}
+static void load_1010102_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                            F r, F g, F b, F a) {
+    memcpy(tmp, src + 4*i, 4);
+    src = tmp - 4*i;
+    load_1010102_N(i,ip,dst,src,tmp, r,g,b,a);
+}
+
 static void load_161616_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                           F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(src + 6*i);
@@ -236,9 +272,13 @@ static void load_16161616_1(size_t i, void** ip, char* dst, const char* src, cha
     load_16161616_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
+//TODO: load_hhh_N
+//TODO: load_hhh_1
 //TODO: load_hhhh_N
 //TODO: load_hhhh_1
 //
+//TODO: load_fff_N
+//TODO: load_fff_1
 //TODO: load_ffff_N
 //TODO: load_ffff_1
 
@@ -288,6 +328,12 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
                                                    break;
         case skcms_PixelFormat_RGB_888       >> 1: *ip_N++ = (void*)load_888_N;
                                                    *ip_1++ = (void*)load_888_1;
+                                                   break;
+        case skcms_PixelFormat_RGB_101010x   >> 1: *ip_N++ = (void*)load_101010x_N;
+                                                   *ip_1++ = (void*)load_101010x_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_1010102  >> 1: *ip_N++ = (void*)load_1010102_N;
+                                                   *ip_1++ = (void*)load_1010102_1;
                                                    break;
         case skcms_PixelFormat_RGBA_8888     >> 1: *ip_N++ = (void*)load_8888_N;
                                                    *ip_1++ = (void*)load_8888_1;
