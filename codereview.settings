@@ -1,0 +1,5 @@
+BUG_PREFIX: skia:
+CC_LIST: reviews@skia.org
+GERRIT_HOST: True
+PROJECT: skcms
+VIEW_VC: https://skia.googlesource.com/skcms/+/
