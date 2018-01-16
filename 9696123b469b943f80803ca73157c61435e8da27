@@ -1,0 +1,226 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e755c6f7_de08d593",
+        "filename": "infra/bots/dummy.isolate",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "This is ../../** implicitly right?  It\u0027ll pick up skcms/* and skcms/*/*, etc?",
+      "range": {
+        "startLine": 4,
+        "startChar": 7,
+        "endLine": 4,
+        "endChar": 13
+      },
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8de7ca1e_e26afd34",
+        "filename": "infra/bots/dummy.isolate",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "We don\u0027t use a .gclient file so far.  What\u0027s this for?",
+      "range": {
+        "startLine": 5,
+        "startChar": 6,
+        "endLine": 5,
+        "endChar": 26
+      },
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc37357c_79067832",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "2018?",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 20
+      },
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "663a4837_4fa84180",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "What\u0027s this do?  I don\u0027t think we\u0027ll need recipes.",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da718290_5820da73",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "Can\u0027t we just hard code this?  There will only be one Linux bot.",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dca20c2d_0ad44fbf",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "Unused?",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a7713ea_d1c5b8be",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "Unused",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7c3a887_51b307ad",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "Is this where we write \"Linux\", \"Mac\", \"Windows\" ?",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1e48fb7_86196d38",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "Now that I\u0027ve seen it, it seems fine to shove this in the .isolate file.  Does it make a difference either way?",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c14b030_37b3d11d",
+        "filename": "infra/bots/infra_tests.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "unused?",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf826053_17f128f5",
+        "filename": "infra/bots/infra_tests.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "If all we\u0027re going to do is `go run gen_tasks.go`, can\u0027t we just drop this file and the Makefile?",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0635dcec_b335327f",
+        "filename": "infra/bots/infra_tests.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-16T20:30:43Z",
+      "side": 1,
+      "message": "What does passing --test to gen_tasks.go do?",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
