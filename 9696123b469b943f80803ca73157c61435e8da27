@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0af7692b_f92bbfde",
+        "filename": "infra/bots/dummy.isolate",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Yep.",
+      "parentUuid": "e755c6f7_de08d593",
+      "range": {
+        "startLine": 4,
+        "startChar": 7,
+        "endLine": 4,
+        "endChar": 13
+      },
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8de7ca1e_e26afd34",
         "filename": "infra/bots/dummy.isolate",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-16T20:30:43Z",
       "side": 1,
       "message": "We don\u0027t use a .gclient file so far.  What\u0027s this for?",
+      "range": {
+        "startLine": 5,
+        "startChar": 6,
+        "endLine": 5,
+        "endChar": 26
+      },
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e77c395b_a8f2c878",
+        "filename": "infra/bots/dummy.isolate",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Task Scheduler writes a dummy .gclient before isolating.  It\u0027s to ensure that we end up in a directory named \"skcms\" (or \"skia\" or whatever) rather than just having the files sitting right in the workdir.  Helps a lot with organization.",
+      "parentUuid": "8de7ca1e_e26afd34",
       "range": {
         "startLine": 5,
         "startChar": 6,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b8c952d0_104b2959",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Copypasta.",
+      "parentUuid": "dc37357c_79067832",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 20
+      },
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "663a4837_4fa84180",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 1
@@ -85,6 +157,24 @@
       "revId": "9696123b469b943f80803ca73157c61435e8da27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7f1f485_a2149ab9",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "663a4837_4fa84180",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "89d9459e_509723ea",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da718290_5820da73",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dca20c2d_0ad44fbf",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 1
@@ -119,6 +227,24 @@
       "revId": "9696123b469b943f80803ca73157c61435e8da27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad920658_ea6cd437",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dca20c2d_0ad44fbf",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "9627b67b_87948744",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a7713ea_d1c5b8be",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7c3a887_51b307ad",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 1
@@ -150,6 +294,24 @@
       "writtenOn": "2018-01-16T20:30:43Z",
       "side": 1,
       "message": "Is this where we write \"Linux\", \"Mac\", \"Windows\" ?",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db4e563d_6a3b5edb",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Yeah, whatever you want to call them.",
+      "parentUuid": "c7c3a887_51b307ad",
       "revId": "9696123b469b943f80803ca73157c61435e8da27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -173,6 +335,24 @@
     },
     {
       "key": {
+        "uuid": "0d4dc0e9_c274a35a",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Having it in the isolate file is deprecated.  There are some behavioral differences as well.  Having it in the isolate file results in the CWD of the task being the relative location of the isolate file within the checkout, rather than at the root of the workdir.  I don\u0027t know why.",
+      "parentUuid": "d1e48fb7_86196d38",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2c14b030_37b3d11d",
         "filename": "infra/bots/infra_tests.py",
         "patchSetId": 1
@@ -187,6 +367,24 @@
       "revId": "9696123b469b943f80803ca73157c61435e8da27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c181e1e_d1cb5cc4",
+        "filename": "infra/bots/infra_tests.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c14b030_37b3d11d",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -207,6 +405,24 @@
     },
     {
       "key": {
+        "uuid": "81877147_b3c057e1",
+        "filename": "infra/bots/infra_tests.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "Sure, but IMO it\u0027s much nicer to be able to \"make train\" regardless of what repo I\u0027m in.",
+      "parentUuid": "bf826053_17f128f5",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0635dcec_b335327f",
         "filename": "infra/bots/infra_tests.py",
         "patchSetId": 1
@@ -218,6 +434,24 @@
       "writtenOn": "2018-01-16T20:30:43Z",
       "side": 1,
       "message": "What does passing --test to gen_tasks.go do?",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9b3de5b_9d2da8f7",
+        "filename": "infra/bots/infra_tests.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-01-16T20:42:13Z",
+      "side": 1,
+      "message": "It verifies that the output it would\u0027ve written is the same as what\u0027s already in tasks.json.",
+      "parentUuid": "0635dcec_b335327f",
       "revId": "9696123b469b943f80803ca73157c61435e8da27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
