@@ -1,0 +1,74 @@
+{
+  "jobs": {
+    "Linux": {
+      "priority": 0.8,
+      "tasks": [
+        "Linux"
+      ]
+    },
+    "Mac": {
+      "priority": 0.8,
+      "tasks": [
+        "Mac"
+      ]
+    },
+    "Win": {
+      "priority": 0.8,
+      "tasks": [
+        "Win"
+      ]
+    }
+  },
+  "tasks": {
+    "Linux": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "os:Debian-9.2",
+        "pool:Skia"
+      ],
+      "isolate": "bot.isolate",
+      "priority": 0.8
+    },
+    "Mac": {
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "gpu:none",
+        "os:Mac-10.13.2",
+        "pool:Skia"
+      ],
+      "isolate": "bot.isolate",
+      "priority": 0.8
+    },
+    "Win": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/win_toolchain",
+          "path": "t",
+          "version": "version:7"
+        }
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-2016Server-14393",
+        "pool:Skia"
+      ],
+      "isolate": "bot.isolate",
+      "priority": 0.8
+    }
+  }
+}
