@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "bded1f29_a0edd477",
+        "filename": "infra/bots/dummy.isolate",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-16T20:48:57Z",
+      "side": 1,
+      "message": "Interesting.  So it\u0027s\n\nsome_dir\n    .gclient\n    skcms\n        src\n        profiles\n        ...\n\nAnd without that .gclient file there, isolate would skip all the singleton directories and we\u0027d just get the src,profiles,... directories?  Does it have to be called .gclient?",
+      "parentUuid": "e77c395b_a8f2c878",
+      "range": {
+        "startLine": 5,
+        "startChar": 6,
+        "endLine": 5,
+        "endChar": 26
+      },
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dc37357c_79067832",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 1
@@ -452,6 +476,24 @@
       "side": 1,
       "message": "It verifies that the output it would\u0027ve written is the same as what\u0027s already in tasks.json.",
       "parentUuid": "0635dcec_b335327f",
+      "revId": "9696123b469b943f80803ca73157c61435e8da27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b5a490b_2476aa6b",
+        "filename": "infra/bots/infra_tests.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-16T20:48:57Z",
+      "side": 1,
+      "message": "But if you just run it, so does Git...",
+      "parentUuid": "a9b3de5b_9d2da8f7",
       "revId": "9696123b469b943f80803ca73157c61435e8da27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
