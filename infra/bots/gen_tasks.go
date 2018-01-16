@@ -4,75 +4,47 @@
 
 package main
 
-/*
-	Generate the tasks.json file.
-*/
-
 import (
-	"strings"
-
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
 
 var (
-	// "Constants"
-
-	// Top-level list of all Jobs to run at each commit.
-	JOBS = []string{
-		"Dummy-Tests",
+	TASKS = []string{
+		"Linux",
+		"Mac",
 	}
 )
 
-// Dimensions for Linux GCE instances.
-func linuxGceDimensions() []string {
-	return []string{
-		"pool:Skia",
-		"os:Debian-9.2",
-		"gpu:none",
-		"cpu:x86-64-Haswell_GCE",
+func addTask(b *specs.TasksCfgBuilder, task string) {
+	dimensions := map[string][]string{
+		"Linux": []string{"cpu:x86-64-Haswell_GCE", "os:Debian-9.2"},
+		"Mac":   []string{"cpu:x86-64-E5-2697_v2", "os:Mac-10.13.2"},
 	}
-}
 
-// dummy creates a simple dummy task. Returns the name of the last Task in the
-// generated chain of Tasks, which the Job should add as a dependency.
-func dummy(b *specs.TasksCfgBuilder, name string) string {
-	task := &specs.TaskSpec{
+	b.MustAddTask(task, &specs.TaskSpec{
 		Command: []string{
-			"/bin/echo", "hello world",
+			"python", "bot.py",
 		},
-		Dimensions:  linuxGceDimensions(),
-		Isolate:     "dummy.isolate",
+		Dimensions:  append(dimensions[task], "gpu:none", "pool:Skia"),
+		Isolate:     "bot.isolate",
 		Priority:    0.8,
 		MaxAttempts: 1,
-	}
-	b.MustAddTask(name, task)
-	return name
-}
+	})
 
-// process generates Tasks and Jobs for the given Job name.
-func process(b *specs.TasksCfgBuilder, name string) {
-	deps := []string{}
-
-	// Dummy task.
-	if strings.Contains(name, "Dummy") {
-		deps = append(deps, dummy(b, name))
-	}
-
-	// Add the Job spec.
-	b.MustAddJob(name, &specs.JobSpec{
+	b.MustAddJob(task, &specs.JobSpec{
 		Priority:  0.8,
-		TaskSpecs: deps,
+		TaskSpecs: []string{task},
 	})
 }
 
-// Regenerate the tasks.json file.
 func main() {
 	b := specs.MustNewTasksCfgBuilder()
-
-	// Create Tasks and Jobs.
-	for _, name := range JOBS {
-		process(b, name)
+	for _, task := range TASKS {
+		addTask(b, task)
 	}
-
+	b.MustAddJob("All", &specs.JobSpec{
+		Priority:  0.8,
+		TaskSpecs: TASKS,
+	})
 	b.MustFinish()
 }

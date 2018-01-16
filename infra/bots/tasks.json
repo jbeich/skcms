@@ -1,25 +1,53 @@
 {
   "jobs": {
-    "Dummy-Tests": {
+    "All": {
       "priority": 0.8,
       "tasks": [
-        "Dummy-Tests"
+        "Linux",
+        "Mac"
+      ]
+    },
+    "Linux": {
+      "priority": 0.8,
+      "tasks": [
+        "Linux"
+      ]
+    },
+    "Mac": {
+      "priority": 0.8,
+      "tasks": [
+        "Mac"
       ]
     }
   },
   "tasks": {
-    "Dummy-Tests": {
+    "Linux": {
       "command": [
-        "/bin/echo",
-        "hello world"
+        "python",
+        "bot.py"
       ],
       "dimensions": [
-        "pool:Skia",
+        "cpu:x86-64-Haswell_GCE",
         "os:Debian-9.2",
         "gpu:none",
-        "cpu:x86-64-Haswell_GCE"
+        "pool:Skia"
       ],
-      "isolate": "dummy.isolate",
+      "isolate": "bot.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Mac": {
+      "command": [
+        "python",
+        "bot.py"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "os:Mac-10.13.2",
+        "gpu:none",
+        "pool:Skia"
+      ],
+      "isolate": "bot.isolate",
       "max_attempts": 1,
       "priority": 0.8
     }
