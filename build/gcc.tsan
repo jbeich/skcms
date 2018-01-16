@@ -2,3 +2,5 @@ mode    = .tsan
 cflags  = -fsanitize=thread
 ldflags = -fsanitize=thread
 include build/gcc
+
+disabled = (uname | grep -v Linux)
