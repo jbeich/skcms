@@ -12,6 +12,10 @@ rule run
     command = ./$in > $out
 
 build $out/skcms.o:  compile skcms.c
+
 build $out/tests.o:  compile tests.c
 build $out/tests:    link $out/skcms.o $out/tests.o
 build $out/tests.ok: run  $out/tests
+
+build $out/iccdump.o: compile iccdump.c
+build $out/iccdump:   link $out/skcms.o $out/iccdump.o

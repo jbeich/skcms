@@ -6,23 +6,27 @@
  */
 
 #ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
+    #define _CRT_SECURE_NO_WARNINGS
+    #define noreturn __declspec(noreturn)
+#else
+    #include <stdnoreturn.h>
 #endif
 
 #include "skcms.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+noreturn
 static void fatal(const char* msg) {
     fprintf(stderr, "ERROR: %s\n", msg);
     exit(1);
 }
 
 static void signature_to_string(uint32_t sig, char* str) {
-    str[0] = (sig >> 24) & 0xFF;
-    str[1] = (sig >> 16) & 0xFF;
-    str[2] = (sig >>  8) & 0xFF;
-    str[3] = (sig >>  0) & 0xFF;
+    str[0] = (char)(sig >> 24);
+    str[1] = (char)(sig >> 16);
+    str[2] = (char)(sig >>  8);
+    str[3] = (char)(sig >>  0);
     str[4] = 0;
 }
 
@@ -44,7 +48,11 @@ int main(int argc, char** argv) {
     }
 
     fseek(fp, 0L, SEEK_END);
-    size_t len = ftell(fp);
+    long slen = ftell(fp);
+    if (slen <= 0) {
+        fatal("ftell failed");
+    }
+    size_t len = (size_t)slen;
     rewind(fp);
 
     void* buf = malloc(len);
@@ -79,9 +87,9 @@ int main(int argc, char** argv) {
     printf("%20s : 0x%08X\n", "", (uint32_t)(profile.device_attributes >> 32));
     printf("%20s : 0x%08X : %u\n", "Rendering intent", profile.rendering_intent,
            profile.rendering_intent);
-    printf("%20s :            : %f\n", "Illuminant X", profile.illuminant_X);
-    printf("%20s :            : %f\n", "Illuminant Y", profile.illuminant_Y);
-    printf("%20s :            : %f\n", "Illuminant Z", profile.illuminant_Z);
+    printf("%20s :            : %f\n", "Illuminant X", (double)profile.illuminant_X);
+    printf("%20s :            : %f\n", "Illuminant Y", (double)profile.illuminant_Y);
+    printf("%20s :            : %f\n", "Illuminant Z", (double)profile.illuminant_Z);
     dump_sig_field("Creator", profile.creator);
     printf("%20s : 0x%08X : %u\n", "Tag count", profile.tag_count, profile.tag_count);
 
