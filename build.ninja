@@ -15,5 +15,4 @@ subninja build/gcc.tiny
 subninja build/gcc.xsan
 
 #subninja build/clang.msan
-#subninja build/gcc.msan
 #subninja build/gcc.tsan

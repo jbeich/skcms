@@ -1,5 +1,0 @@
-mode    = .msan
-cflags  = -fsanitize=memory
-ldflags = -fsanitize=memory
-include build/gcc
-
