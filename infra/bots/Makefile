@@ -1,5 +1,5 @@
 test:
-	python infra_tests.py
+	go run gen_tasks.go --test
 
 train:
-	python infra_tests.py --train
+	go run gen_tasks.go

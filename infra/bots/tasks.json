@@ -1,25 +1,61 @@
 {
   "jobs": {
-    "Dummy-Tests": {
+    "skcms": {
       "priority": 0.8,
       "tasks": [
-        "Dummy-Tests"
+        "skcms-Linux",
+        "skcms-Mac"
+      ]
+    },
+    "skcms-Linux": {
+      "priority": 0.8,
+      "tasks": [
+        "skcms-Linux"
+      ]
+    },
+    "skcms-Mac": {
+      "priority": 0.8,
+      "tasks": [
+        "skcms-Mac"
       ]
     }
   },
   "tasks": {
-    "Dummy-Tests": {
+    "skcms-Linux": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:10"
+        }
+      ],
       "command": [
-        "/bin/echo",
-        "hello world"
+        "python",
+        "skcms/infra/bots/bot.py",
+        "clang_linux"
       ],
       "dimensions": [
-        "pool:Skia",
+        "cpu:x86-64-Haswell_GCE",
         "os:Debian-9.2",
         "gpu:none",
-        "cpu:x86-64-Haswell_GCE"
+        "pool:Skia"
       ],
-      "isolate": "dummy.isolate",
+      "isolate": "bot.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "skcms-Mac": {
+      "command": [
+        "python",
+        "skcms/infra/bots/bot.py"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "os:Mac-10.13.2",
+        "gpu:none",
+        "pool:Skia"
+      ],
+      "isolate": "bot.isolate",
       "max_attempts": 1,
       "priority": 0.8
     }
