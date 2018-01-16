@@ -2,6 +2,7 @@ builddir = out
 
 subninja build/clang
 subninja build/clang.lsan
+subninja build/clang.msan
 subninja build/clang.native
 subninja build/clang.portable
 subninja build/clang.tiny
@@ -12,7 +13,5 @@ subninja build/gcc
 subninja build/gcc.native
 subninja build/gcc.portable
 subninja build/gcc.tiny
+subninja build/gcc.tsan
 subninja build/gcc.xsan
-
-#subninja build/clang.msan
-#subninja build/gcc.tsan

@@ -3,3 +3,4 @@ cflags  = -fsanitize=memory
 ldflags = -fsanitize=memory
 include build/clang
 
+disabled = (uname | grep -qv Linux)
