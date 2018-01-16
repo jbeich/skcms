@@ -1,0 +1,5 @@
+VIEW_VC: https://skia.googlesource.com/buildbot/+/
+CC_LIST: reviews@skia.org
+BUG_PREFIX: skia:
+PROJECT: skiabuildbot
+GERRIT_HOST: True

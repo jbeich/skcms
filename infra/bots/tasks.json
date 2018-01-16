@@ -1,0 +1,27 @@
+{
+  "jobs": {
+    "Dummy-Tests": {
+      "priority": 0.8,
+      "tasks": [
+        "Dummy-Tests"
+      ]
+    }
+  },
+  "tasks": {
+    "Dummy-Tests": {
+      "command": [
+        "/bin/echo",
+        "hello world"
+      ],
+      "dimensions": [
+        "pool:Skia",
+        "os:Debian-9.2",
+        "gpu:none",
+        "cpu:x86-64-Haswell_GCE"
+      ],
+      "isolate": "dummy.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    }
+  }
+}
