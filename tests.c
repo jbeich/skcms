@@ -140,6 +140,14 @@ static void test_FormatConversions() {
         expect(src[4*i+2] == 4*i+2);
         expect(src[4*i+3] == 4*i+3);
     }
+
+    uint32_t _8888[3] = { 0x03020100, 0x07060504, 0x0b0a0908 };
+    uint8_t _888[9];
+    expect(skcms_Transform(_888 , skcms_PixelFormat_RGB_888  , &profile,
+                           _8888, skcms_PixelFormat_RGBA_8888, &profile, 3));
+    expect(_888[0] == 0 && _888[1] == 1 && _888[2] ==  2);
+    expect(_888[3] == 4 && _888[4] == 5 && _888[5] ==  6);
+    expect(_888[6] == 8 && _888[7] == 9 && _888[8] == 10);
 }
 
 static void test_FormatConversions_565() {
@@ -300,6 +308,14 @@ static void test_FormatConversions_float() {
     for (int i = 0; i < 256; i++) {
         expect_eq(fdst[i], i*(1/255.0f));
     }
+
+    float ffff[12] = { 0,1,2,3, 4,5,6,7, 8,9,10,11 };
+    float  fff[ 9];
+    expect(skcms_Transform(fff , skcms_PixelFormat_RGB_fff  , &profile,
+                           ffff, skcms_PixelFormat_RGBA_ffff, &profile, 3));
+    expect_eq(fff[0], 0); expect_eq(fff[1], 1); expect_eq(fff[2],  2);
+    expect_eq(fff[3], 4); expect_eq(fff[4], 5); expect_eq(fff[5],  6);
+    expect_eq(fff[6], 8); expect_eq(fff[7], 9); expect_eq(fff[8], 10);
 }
 
 static const struct {
