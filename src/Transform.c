@@ -16,15 +16,17 @@
     typedef uint64_t U64;
     typedef uint32_t U32;
     typedef uint16_t U16;
+    typedef uint8_t  U8 ;
     static const F F0 = 0,
                    F1 = 1;
 #elif defined(__clang__) && defined(__AVX__)
     #define N 8
-    typedef float    __attribute__((ext_vector_type(  N))) F  ;
-    typedef int32_t  __attribute__((ext_vector_type(  N))) I32;
-    typedef uint64_t __attribute__((ext_vector_type(  N))) U64;
-    typedef uint32_t __attribute__((ext_vector_type(  N))) U32;
-    typedef uint16_t __attribute__((ext_vector_type(  N))) U16;
+    typedef float    __attribute__((ext_vector_type(N))) F  ;
+    typedef int32_t  __attribute__((ext_vector_type(N))) I32;
+    typedef uint64_t __attribute__((ext_vector_type(N))) U64;
+    typedef uint32_t __attribute__((ext_vector_type(N))) U32;
+    typedef uint16_t __attribute__((ext_vector_type(N))) U16;
+    typedef uint8_t  __attribute__((ext_vector_type(N))) U8 ;
     static const F F0 = {0,0,0,0, 0,0,0,0},
                    F1 = {1,1,1,1, 1,1,1,1};
 #elif defined(__GNUC__) && defined(__AVX__)
@@ -34,15 +36,17 @@
     typedef uint64_t __attribute__((vector_size(64))) U64;
     typedef uint32_t __attribute__((vector_size(32))) U32;
     typedef uint16_t __attribute__((vector_size(16))) U16;
+    typedef uint8_t  __attribute__((vector_size( 8))) U8 ;
     static const F F0 = {0,0,0,0, 0,0,0,0},
                    F1 = {1,1,1,1, 1,1,1,1};
 #elif defined(__clang__)
     #define N 4
-    typedef float    __attribute__((ext_vector_type(  N))) F  ;
-    typedef int32_t  __attribute__((ext_vector_type(  N))) I32;
-    typedef uint64_t __attribute__((ext_vector_type(  N))) U64;
-    typedef uint32_t __attribute__((ext_vector_type(  N))) U32;
-    typedef uint16_t __attribute__((ext_vector_type(  N))) U16;
+    typedef float    __attribute__((ext_vector_type(N))) F  ;
+    typedef int32_t  __attribute__((ext_vector_type(N))) I32;
+    typedef uint64_t __attribute__((ext_vector_type(N))) U64;
+    typedef uint32_t __attribute__((ext_vector_type(N))) U32;
+    typedef uint16_t __attribute__((ext_vector_type(N))) U16;
+    typedef uint8_t  __attribute__((ext_vector_type(N))) U8 ;
     static const F F0 = {0,0,0,0},
                    F1 = {1,1,1,1};
 #elif defined(__GNUC__)
@@ -52,6 +56,7 @@
     typedef uint64_t __attribute__((vector_size(32))) U64;
     typedef uint32_t __attribute__((vector_size(16))) U32;
     typedef uint16_t __attribute__((vector_size( 8))) U16;
+    typedef uint8_t  __attribute__((vector_size( 4))) U8 ;
     static const F F0 = {0,0,0,0},
                    F1 = {1,1,1,1};
 #endif
@@ -75,6 +80,7 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tm
     static inline U32 U32_from_F(F f)     { return (U32)f; }
     static inline U32 U32_from_U16(U16 h) { return (U16)h; }
     static inline U32 U32_from_U64(U64 w) { return (U32)w; }
+    static inline U8  U8_from_U32 (U32 u) { return (U8) u; }
 #elif N == 4
     static inline F F_from_U32(U32 u) {
         I32 i = (I32)u;
@@ -92,6 +98,10 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tm
     static inline U32 U32_from_U64(U64 w) {
         U32 u = {(uint32_t)w[0],(uint32_t)w[1],(uint32_t)w[2],(uint32_t)w[3]};
         return u;
+    }
+    static inline U8 U8_from_U32(U32 u) {
+        U8 b = {(uint8_t)u[0],(uint8_t)u[1],(uint8_t)u[2],(uint8_t)u[3]};
+        return b;
     }
 #elif N == 8
     static inline F F_from_U32(U32 u) {
@@ -113,6 +123,11 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tm
         U32 u = {(uint32_t)w[0],(uint32_t)w[1],(uint32_t)w[2],(uint32_t)w[3],
                  (uint32_t)w[4],(uint32_t)w[5],(uint32_t)w[6],(uint32_t)w[7]};
         return u;
+    }
+    static inline U8 U8_from_U32(U32 u) {
+        U8 b = {(uint8_t)u[0],(uint8_t)u[1],(uint8_t)u[2],(uint8_t)u[3],
+                (uint8_t)u[4],(uint8_t)u[5],(uint8_t)u[6],(uint8_t)u[7]};
+        return b;
     }
 #endif
 
@@ -362,6 +377,25 @@ static void load_ffff_1(size_t i, void** ip, char* dst, const char* src, char* t
     load_ffff_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
+// TODO: store_565_N,1
+
+static void store_888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    uint8_t* rgb = (uint8_t*)dst + 3*i;
+    STORE_3(rgb+0, U8_from_U32(U32_from_F(r * 255 + 0.5f)) );
+    STORE_3(rgb+1, U8_from_U32(U32_from_F(g * 255 + 0.5f)) );
+    STORE_3(rgb+2, U8_from_U32(U32_from_F(b * 255 + 0.5f)) );
+    (void)a;
+    (void)ip;
+    (void)src;
+    (void)tmp;
+}
+static void store_888_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    store_888_N(i,ip,tmp - 3*i,src,tmp, r,g,b,a);
+    memcpy(dst + 3*i, tmp, 3);
+}
+
 static void store_8888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                          F r, F g, F b, F a) {
     U32 rgba = U32_from_F(r * 255 + 0.5f) <<  0
@@ -377,6 +411,32 @@ static void store_8888_1(size_t i, void** ip, char* dst, const char* src, char* 
                          F r, F g, F b, F a) {
     store_8888_N(i,ip,tmp - 4*i,src,tmp, r,g,b,a);
     memcpy(dst + 4*i, tmp, 4);
+}
+
+// TODO: store_101010x_N,1
+// TODO: store_1010102_N,1
+// TODO: store_161616_N,1
+// TODO: store_16161616_N,1
+// TODO: store_hhh_N,1
+// TODO: store_hhhh_N,1
+
+static void store_fff_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(dst + 12*i);
+    assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
+    float* rgb = (float*)ptr;                   // for this cast to float* to be safe.
+    STORE_4(rgb+0, r);
+    STORE_4(rgb+1, g);
+    STORE_4(rgb+2, b);
+    (void)a;
+    (void)ip;
+    (void)src;
+    (void)tmp;
+}
+static void store_fff_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    store_fff_N(i,ip,tmp - 12*i,src,tmp, r,g,b,a);
+    memcpy(dst + 12*i, tmp, 12);
 }
 
 static void store_ffff_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -489,8 +549,14 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
     }
     switch (dstFmt >> 1) {
         default: return false;
+        case skcms_PixelFormat_RGB_888   >> 1: *ip_N++ = (void*)store_888_N;
+                                               *ip_1++ = (void*)store_888_1;
+                                               break;
         case skcms_PixelFormat_RGBA_8888 >> 1: *ip_N++ = (void*)store_8888_N;
                                                *ip_1++ = (void*)store_8888_1;
+                                               break;
+        case skcms_PixelFormat_RGB_fff   >> 1: *ip_N++ = (void*)store_fff_N;
+                                               *ip_1++ = (void*)store_fff_1;
                                                break;
         case skcms_PixelFormat_RGBA_ffff >> 1: *ip_N++ = (void*)store_ffff_N;
                                                *ip_1++ = (void*)store_ffff_1;
