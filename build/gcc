@@ -1,4 +1,6 @@
 cc       = gcc
 warnings = -fdiagnostics-color -Wall -Wextra -Wno-abi
 out      = out/gcc$mode
+
+include build/local
 include build/common

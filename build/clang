@@ -1,4 +1,6 @@
 cc       = clang
 warnings = -fcolor-diagnostics -Weverything -Wno-padded
 out      = out/clang$mode
+
+include build/local
 include build/common
