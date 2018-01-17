@@ -11,10 +11,6 @@ rule link
     command = $disabled && touch $out || $cc $ldflags $in -o $out
     description = link $out
 
-rule run
-    command = $disabled && touch $out || ./$in > $out
-    description = run $in
-
 build $out/skcms.o:  compile skcms.c
 
 build $out/tests.o:  compile tests.c

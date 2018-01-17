@@ -1,0 +1,4 @@
+mode   = .xsan
+cflags  = -fsanitize=address,integer,undefined
+ldflags = -fsanitize=address,integer,undefined
+include build/ios

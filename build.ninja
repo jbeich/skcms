@@ -15,3 +15,8 @@ subninja build/gcc.portable
 subninja build/gcc.tiny
 subninja build/gcc.tsan
 subninja build/gcc.xsan
+
+subninja build/ios
+subninja build/ios.portable
+subninja build/ios.tiny
+subninja build/ios.xsan

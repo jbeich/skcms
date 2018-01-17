@@ -1,0 +1,4 @@
+mode   = .tiny
+cflags = -g0 -DNDEBUG -fno-unwind-tables -fno-asynchronous-unwind-tables
+include build/ios
+
