@@ -108,5 +108,11 @@ int main(int argc, char** argv) {
         printf(" '%s' : '%s' : %6u\n", tagSig, typeSig, tag.size);
     }
 
+    skcms_TransferFunction tf;
+    if (skcms_ICCProfile_getTransferFunction(&profile, &tf)) {
+        printf("\nTRC : %f, %f, %f, %f, %f, %f, %f\n",
+               tf.g, tf.a, tf.b, tf.c, tf.d, tf.e, tf.f);
+    }
+
     return 0;
 }
