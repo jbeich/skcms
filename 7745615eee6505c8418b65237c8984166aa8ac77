@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bf6b40e1_ba97bd09",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-17T18:25:05Z",
+      "side": 1,
+      "message": "Yeah, they treat [] as if it were [0], then decide that it\u0027s a non-standard extension (like all of C99). Bonkers.",
+      "parentUuid": "2619d559_3f1e9adc",
+      "range": {
+        "startLine": 23,
+        "startChar": 54,
+        "endLine": 23,
+        "endChar": 58
+      },
+      "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e50bb346_2bb27384",
         "filename": "src/ICCProfile.c",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-17T17:57:57Z",
       "side": 1,
       "message": "Little endian unorm16?  Or is it big endian?",
+      "range": {
+        "startLine": 237,
+        "startChar": 69,
+        "endLine": 237,
+        "endChar": 85
+      },
+      "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1518ed2e_801d164d",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-17T18:25:05Z",
+      "side": 1,
+      "message": "Big endian u16, (unorm). (All multi-byte values are big-endian, actually).",
+      "parentUuid": "e50bb346_2bb27384",
       "range": {
         "startLine": 237,
         "startChar": 69,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "e2f7749b_6504bf89",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-17T18:25:05Z",
+      "side": 1,
+      "message": "Currently, just the curv case with N \u003d 1 (there are a couple profiles in there that are either Adobe or sRGB w/2.2 gamma). No coverage for N \u003d 0, or for any of the para cases. I\u0027m going to see what else I can dig up.\n\nThe Skia code also had a special case for N \u003d 2 with 0 -\u003e 0, 1 -\u003e 1, which also produced the linear TF. Comment claims that it\u0027s important for A2B profiles, because no table interpolation is performed!? I guess technically we can exactly fit N \u003d 2 or N \u003d 3 to the 7 parameter form, if we really want to.",
+      "parentUuid": "71ae5a9c_5650f709",
+      "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "daf61455_49fed9f4",
         "filename": "tests.c",
         "patchSetId": 6
@@ -76,6 +142,24 @@
       "writtenOn": "2018-01-17T17:57:57Z",
       "side": 1,
       "message": "Think it\u0027s worth testing the values themselves, or too foolproof?  Maybe just g?",
+      "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfffba62_77aec5e8",
+        "filename": "tests.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-17T18:25:05Z",
+      "side": 1,
+      "message": "I\u0027d like to do this. Thinking a follow-up CL that adds some more parametric cases, and expands the test coverage here.",
+      "parentUuid": "daf61455_49fed9f4",
       "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
