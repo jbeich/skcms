@@ -304,21 +304,22 @@ static void test_FormatConversions_float() {
 
 static const struct {
     const char* filename;
-    bool        expect_parse_success;
+    bool        expect_parse;
+    bool        expect_tf;
 } profile_test_cases[] = {
-    { "profiles/color.org/sRGB2014.icc",               true  },
-    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false }, // iccMAX
-    { "profiles/color.org/sRGB_D65_MAT.icc",           false }, // iccMAX
-    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true  },
-    { "profiles/color.org/sRGB_ISO22028.icc",          false }, // iccMAX
-    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true  },
+    { "profiles/color.org/sRGB2014.icc",               true,  false },
+    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, false }, // iccMAX
+    { "profiles/color.org/sRGB_D65_MAT.icc",           false, false }, // iccMAX
+    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true,  false },
+    { "profiles/color.org/sRGB_ISO22028.icc",          false, false }, // iccMAX
+    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true,  false },
 
-    { "profiles/color.org/Lower_Left.icc",             true },
-    { "profiles/color.org/Lower_Right.icc",            true },
-    { "profiles/color.org/Upper_Left.icc",             true },
-    { "profiles/color.org/Upper_Right.icc",            true },
+    { "profiles/color.org/Lower_Left.icc",             true,  true  },
+    { "profiles/color.org/Lower_Right.icc",            true,  true  },
+    { "profiles/color.org/Upper_Left.icc",             true,  false },
+    { "profiles/color.org/Upper_Right.icc",            true,  false },
 
-    { "profiles/sRGB_Facebook.icc",                    true  }, // FB 27 entry sRGB table
+    { "profiles/sRGB_Facebook.icc",                    true,  false }, // FB 27 entry sRGB table
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
@@ -346,7 +347,13 @@ static void test_ICCProfile_parse() {
         load_file(profile_test_cases[i].filename, &buf, &len);
         skcms_ICCProfile profile;
         bool result = skcms_ICCProfile_parse(&profile, buf, len);
-        expect(result == profile_test_cases[i].expect_parse_success);
+        expect(result == profile_test_cases[i].expect_parse);
+
+        skcms_TransferFunction transferFn;
+        bool tf_result = skcms_ICCProfile_getTransferFunction(&profile, &transferFn);
+        expect(profile_test_cases[i].expect_parse || !profile_test_cases[i].expect_tf);
+        expect(tf_result == profile_test_cases[i].expect_tf);
+
         free(buf);
     }
 }
