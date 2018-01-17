@@ -15,18 +15,14 @@ print "Hello from {platform} in {cwd}!".format(platform=sys.platform,
                                                cwd=os.getcwd())
 
 if 'darwin' in sys.platform:
-  # Our Mac bots don't have ccache or GCC installed.
-  append('skcms/build/clang', 'cc = clang')
-  append('skcms/build/gcc',   'disabled = true')
+  # Our Mac bots don't have a real GCC installed.
+  append('skcms/build/gcc', 'disabled = true')
 
   # Our Mac bot toolchains are too old for LSAN.
   append('skcms/build/clang.lsan', 'disabled = true')
 
 if 'linux' in sys.platform:
-  # Our Linux bots don't have ccache either.
-  append('skcms/build/gcc', 'cc = gcc')
-
-  # Point to clang in our clang_linux package, also skipping ccache.
+  # Point to clang in our clang_linux package.
   clang_linux = os.path.realpath(sys.argv[2])
   append('skcms/build/clang', 'cc = {}/bin/clang'.format(clang_linux))
 
