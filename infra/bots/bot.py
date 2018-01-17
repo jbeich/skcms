@@ -7,11 +7,9 @@ import sys
 def call(cmd):
   subprocess.check_call(cmd, shell=True)
 
-for pkg in sys.argv[1:]:
-  print 'Contents of', pkg
-  for root,dir,files in os.walk(pkg):
-    for file in files:
-      print os.path.join(root, file)
+def append(path, line):
+  with open(path, 'a') as f:
+    print >>f, line
 
 # TODO: temporary until I can figure out where our Ninja is...
 if not os.path.isdir('ninja'):
@@ -24,16 +22,23 @@ print "Hello from {platform} in {cwd}!".format(platform=sys.platform,
                                                cwd=os.getcwd())
 
 if 'darwin' in sys.platform:
-  # Most Mac systems don't have GCC installed.  Disable those builds.
-  with open('skcms/build/gcc', 'a') as f:
-    print >>f, 'disabled = true'
+  # Our Mac bots don't have ccache or GCC installed.
+  append('skcms/build/clang', 'cc = clang')
+  append('skcms/build/gcc',   'disabled = true')
 
   # Our Mac bot toolchains are too old for LSAN.
-  with open('skcms/build/clang.lsan', 'a') as f:
-    print >>f, 'disabled = true'
+  append('skcms/build/clang.lsan', 'disabled = true')
 
-  # Our Mac bots don't have ccache installed.
-  call("sed -i '' 's/ccache //g' skcms/build/*")
+if 'linux' in sys.platform:
+  # Our Linux bots don't have ccache either.
+  append('skcms/build/gcc', 'cc = gcc')
 
-  # Ninja will run the remaining Clang builds.
-  call('ninja/ninja -C skcms -k 0')
+  # Point to clang in our clang_linux package, also skipping ccache.
+  clang_linux = os.path.realpath(sys.argv[1])
+  append('skcms/build/clang', 'cc = {}/bin/clang'.format(clang_linux))
+
+  # We're seeing an unexpected error when running gcc.tsan/tests:
+  # FATAL: ThreadSanitizer: unexpected memory mapping 0x55e16e36c000-0x55e16e374000
+  append('skcms/build/gcc.tsan', 'disabled = true')
+
+call('ninja/ninja -C skcms -k 0')
