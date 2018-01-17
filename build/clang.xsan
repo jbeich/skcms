@@ -1,4 +1,4 @@
-mode    = .xsan
-cflags  = -fsanitize=address,integer,undefined
-ldflags = -fsanitize=address,integer,undefined
+mode          = .xsan
+extra_cflags  = -fsanitize=address,integer,undefined
+extra_ldflags = -fsanitize=address,integer,undefined
 include build/clang

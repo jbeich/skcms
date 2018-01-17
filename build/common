@@ -2,13 +2,14 @@ builddir = $out
 disabled = false
 
 rule compile
-    command = $disabled && touch $out || $cc -g -Werror -Os $warnings $cflags -MD -MF $out.d -c $in -o $out
+    command = $disabled && touch $out || $cc -g -Werror -Os $cflags $extra_cflags $
+             -MD -MF $out.d -c $in -o $out
     depfile = $out.d
     deps    = gcc
     description = compile $out
 
 rule link
-    command = $disabled && touch $out || $cc $ldflags $in -o $out
+    command = $disabled && touch $out || $cc $ldflags $extra_ldflags $in -o $out
     description = link $out
 
 build $out/skcms.o:  compile skcms.c

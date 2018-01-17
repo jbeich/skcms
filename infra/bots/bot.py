@@ -23,7 +23,7 @@ if 'darwin' in sys.platform:
 
 if 'linux' in sys.platform:
   # Point to clang in our clang_linux package.
-  clang_linux = os.path.realpath(sys.argv[2])
+  clang_linux = os.path.realpath(sys.argv[3])
   append('skcms/build/clang', 'cc = {}/bin/clang'.format(clang_linux))
 
   # We're seeing an unexpected error when running gcc.tsan/tests:
