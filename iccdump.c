@@ -7,16 +7,17 @@
 
 #ifdef _MSC_VER
     #define _CRT_SECURE_NO_WARNINGS
-    #define noreturn __declspec(noreturn)
+    #define SKCMS_NORETURN __declspec(noreturn)
 #else
     #include <stdnoreturn.h>
+    #define SKCMS_NORETURN noreturn
 #endif
 
 #include "skcms.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-noreturn
+SKCMS_NORETURN
 static void fatal(const char* msg) {
     fprintf(stderr, "ERROR: %s\n", msg);
     exit(1);
