@@ -23,12 +23,23 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 	packages := map[string][]*specs.CipdPackage{
 		"skcms-Linux": []*specs.CipdPackage{
 			&specs.CipdPackage{
+				Name:    "infra/ninja/linux-amd64",
+				Path:    "ninja",
+				Version: "version:1.8.2",
+			},
+			&specs.CipdPackage{
 				Name:    "skia/bots/clang_linux",
 				Path:    "clang_linux",
 				Version: "version:10",
 			},
 		},
-		"skcms-Mac": []*specs.CipdPackage{},
+		"skcms-Mac": []*specs.CipdPackage{
+			&specs.CipdPackage{
+				Name:    "infra/ninja/mac-amd64",
+				Path:    "ninja",
+				Version: "version:1.8.2",
+			},
+		},
 	}
 
 	command := []string{"python", "skcms/infra/bots/bot.py"}

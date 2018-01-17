@@ -24,6 +24,11 @@
     "skcms-Linux": {
       "cipd_packages": [
         {
+          "name": "infra/ninja/linux-amd64",
+          "path": "ninja",
+          "version": "version:1.8.2"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:10"
@@ -32,6 +37,7 @@
       "command": [
         "python",
         "skcms/infra/bots/bot.py",
+        "ninja",
         "clang_linux"
       ],
       "dimensions": [
@@ -45,9 +51,17 @@
       "priority": 0.8
     },
     "skcms-Mac": {
+      "cipd_packages": [
+        {
+          "name": "infra/ninja/mac-amd64",
+          "path": "ninja",
+          "version": "version:1.8.2"
+        }
+      ],
       "command": [
         "python",
-        "skcms/infra/bots/bot.py"
+        "skcms/infra/bots/bot.py",
+        "ninja"
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
