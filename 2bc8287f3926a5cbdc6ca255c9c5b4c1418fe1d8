@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec401546_8147dca7",
+        "filename": "iccdump.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-17T14:58:00Z",
+      "side": 1,
+      "message": "Given where this is defined, it probably doesn\u0027t need the SKCMS_ prefix.  It\u0027s compilation unit local.",
+      "range": {
+        "startLine": 10,
+        "startChar": 12,
+        "endLine": 10,
+        "endChar": 26
+      },
+      "revId": "2bc8287f3926a5cbdc6ca255c9c5b4c1418fe1d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
