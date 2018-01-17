@@ -29,6 +29,11 @@
           "version": "version:1.8.2"
         },
         {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "ndk",
+          "version": "version:10"
+        },
+        {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:10"
@@ -38,6 +43,7 @@
         "python",
         "skcms/infra/bots/bot.py",
         "ninja",
+        "ndk",
         "clang_linux"
       ],
       "dimensions": [
@@ -56,12 +62,18 @@
           "name": "infra/ninja/mac-amd64",
           "path": "ninja",
           "version": "version:1.8.2"
+        },
+        {
+          "name": "skia/bots/android_ndk_darwin",
+          "path": "ndk",
+          "version": "version:4"
         }
       ],
       "command": [
         "python",
         "skcms/infra/bots/bot.py",
-        "ninja"
+        "ninja",
+        "ndk"
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
