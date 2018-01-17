@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2619d559_3f1e9adc",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-17T17:57:57Z",
+      "side": 1,
+      "message": "It\u0027s warning you even for []?  Crazypants... I thought this warning was about their non-standard [0], but [] is standard.",
+      "range": {
+        "startLine": 23,
+        "startChar": 54,
+        "endLine": 23,
+        "endChar": 58
+      },
+      "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e50bb346_2bb27384",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-17T17:57:57Z",
+      "side": 1,
+      "message": "Little endian unorm16?  Or is it big endian?",
+      "range": {
+        "startLine": 237,
+        "startChar": 69,
+        "endLine": 237,
+        "endChar": 85
+      },
+      "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71ae5a9c_5650f709",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-17T17:57:57Z",
+      "side": 1,
+      "message": "Of para and all these curv cases, which do we have coverage for from the test profiles?",
+      "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daf61455_49fed9f4",
+        "filename": "tests.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-17T17:57:57Z",
+      "side": 1,
+      "message": "Think it\u0027s worth testing the values themselves, or too foolproof?  Maybe just g?",
+      "revId": "7745615eee6505c8418b65237c8984166aa8ac77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
