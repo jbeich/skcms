@@ -1,0 +1,19 @@
+ndk     = ../ndk
+target  = aarch64-linux-android
+arch    = arch-arm64
+ndk_api = 24
+
+cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang -target $target
+cflags  = -fcolor-diagnostics -Weverything -Wno-padded $
+          --sysroot $ndk/sysroot $
+          -I $ndk/sysroot/usr/include/$target
+ldflags = --sysroot $ndk/platforms/android-$ndk_api/$arch $
+          -B $ndk/toolchains/${target}-4.9/prebuilt/*/$target/bin $
+          -L $ndk/toolchains/${target}-4.9/prebuilt/*/lib/gcc/$target/4.9.x
+out     = out/android$mode
+
+# TODO: run if exactly 1 device is attached
+rule run
+    command = touch $out
+    description = skipping $in
+include build/common

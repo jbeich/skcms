@@ -28,6 +28,11 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 				Version: "version:1.8.2",
 			},
 			&specs.CipdPackage{
+				Name:    "skia/bots/android_ndk_linux",
+				Path:    "ndk",
+				Version: "version:10",
+			},
+			&specs.CipdPackage{
 				Name:    "skia/bots/clang_linux",
 				Path:    "clang_linux",
 				Version: "version:10",
@@ -38,6 +43,11 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 				Name:    "infra/ninja/mac-amd64",
 				Path:    "ninja",
 				Version: "version:1.8.2",
+			},
+			&specs.CipdPackage{
+				Name:    "skia/bots/android_ndk_darwin",
+				Path:    "ndk",
+				Version: "version:4",
 			},
 		},
 	}

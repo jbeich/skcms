@@ -1,4 +1,5 @@
 mode          = .lsan
 extra_cflags  = -fsanitize=leak
 extra_ldflags = -fsanitize=leak
-include build/clang
+include build/android
+
