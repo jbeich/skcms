@@ -86,6 +86,11 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tm
     #define CAST(T, v) (T){(v)[0],(v)[1],(v)[2],(v)[3], (v)[4],(v)[5],(v)[6],(v)[7]}
 #endif
 
+// When we convert from float to fixed point, it's very common to want to round,
+// and for some reason compilers generate better code when converting to int32_t.
+// To serve both those ends, we use this function to_fixed() instead of direct CASTs.
+static I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
+
 static void load_565_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                        F r, F g, F b, F a) {
     U16 rgb;
@@ -315,11 +320,9 @@ static void load_ffff_1(size_t i, void** ip, char* dst, const char* src, char* t
 
 static void store_565_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                         F r, F g, F b, F a) {
-    // The double CASTs are just to reassure portable build warnings that we're
-    // fine with int -> uint16_t after the shifts.
-    U16 rgb = CAST(U16, CAST(U16, r * 31 + 0.5f) <<  0 )
-            | CAST(U16, CAST(U16, g * 63 + 0.5f) <<  5 )
-            | CAST(U16, CAST(U16, b * 31 + 0.5f) << 11 );
+    U16 rgb = CAST(U16, to_fixed(r * 31) <<  0 )
+            | CAST(U16, to_fixed(g * 63) <<  5 )
+            | CAST(U16, to_fixed(b * 31) << 11 );
     memcpy(dst + 2*i, &rgb, 2*N);
     (void)a;
     (void)ip;
@@ -335,9 +338,9 @@ static void store_565_1(size_t i, void** ip, char* dst, const char* src, char* t
 static void store_888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                         F r, F g, F b, F a) {
     uint8_t* rgb = (uint8_t*)dst + 3*i;
-    STORE_3(rgb+0, CAST(U8, r * 255 + 0.5f) );
-    STORE_3(rgb+1, CAST(U8, g * 255 + 0.5f) );
-    STORE_3(rgb+2, CAST(U8, b * 255 + 0.5f) );
+    STORE_3(rgb+0, CAST(U8, to_fixed(r * 255)) );
+    STORE_3(rgb+1, CAST(U8, to_fixed(g * 255)) );
+    STORE_3(rgb+2, CAST(U8, to_fixed(b * 255)) );
     (void)a;
     (void)ip;
     (void)src;
@@ -351,10 +354,10 @@ static void store_888_1(size_t i, void** ip, char* dst, const char* src, char* t
 
 static void store_8888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                          F r, F g, F b, F a) {
-    U32 rgba = CAST(U32, r * 255 + 0.5f) <<  0
-             | CAST(U32, g * 255 + 0.5f) <<  8
-             | CAST(U32, b * 255 + 0.5f) << 16
-             | CAST(U32, a * 255 + 0.5f) << 24;
+    U32 rgba = CAST(U32, to_fixed(r * 255) <<  0)
+             | CAST(U32, to_fixed(g * 255) <<  8)
+             | CAST(U32, to_fixed(b * 255) << 16)
+             | CAST(U32, to_fixed(a * 255) << 24);
     memcpy(dst + 4*i, &rgba, 4*N);
     (void)ip;
     (void)src;
@@ -368,10 +371,10 @@ static void store_8888_1(size_t i, void** ip, char* dst, const char* src, char* 
 
 static void store_1010102_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                             F r, F g, F b, F a) {
-    U32 rgba = CAST(U32, r * 1023 + 0.5f) <<  0
-             | CAST(U32, g * 1023 + 0.5f) << 10
-             | CAST(U32, b * 1023 + 0.5f) << 20
-             | CAST(U32, a *    3 + 0.5f) << 30;
+    U32 rgba = CAST(U32, to_fixed(r * 1023) <<  0)
+             | CAST(U32, to_fixed(g * 1023) << 10)
+             | CAST(U32, to_fixed(b * 1023) << 20)
+             | CAST(U32, to_fixed(a *    3) << 30);
     memcpy(dst + 4*i, &rgba, 4*N);
     (void)ip;
     (void)src;
