@@ -367,9 +367,13 @@ static void test_ICCProfile_parse() {
         expect(tf_result == !!profile_test_cases[i].expect_tf);
 
         if (tf_result) {
-            // Our tolerance could be 0.001, except for the fairly non-standard D value
-            // in the iPhone profile (0.039 vs 0.04045).
-            const float kTol = 0.002f;
+            // V2 'curv' gamma values are 8.8 fixed point, so the maximum error is the value we
+            // use here: 0.5 / 256 (~= 0.002)
+            // V4 'para' curves are 1.15.16 fixed point, and should be precise to 5 digits, but
+            // vendors sometimes round strangely when writing values. Regardless, all of our test
+            // profiles are within 0.001, except for the odd version of sRGB used in the iPhone
+            // profile. It has a D value of .039 (2556 / 64k) rather than .04045 (2651 / 64k).
+            const float kTol = 0.5f / 256.0f;
             expect(fabsf(transferFn.g - profile_test_cases[i].expect_tf->g) < kTol);
             expect(fabsf(transferFn.a - profile_test_cases[i].expect_tf->a) < kTol);
             expect(fabsf(transferFn.b - profile_test_cases[i].expect_tf->b) < kTol);
