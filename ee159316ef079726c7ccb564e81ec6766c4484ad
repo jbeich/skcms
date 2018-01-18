@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "292272fc_c24ba9ec",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T14:09:53Z",
+      "side": 1,
+      "message": "Can we write these as static const values?\n\n  static const skcms_TransferFunction srgb_transfer_fn \u003d { ... };\n  static const skcms_TransferFunction gamma_2_2_transfer_fn \u003d { ... };",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41ff47bf_d167ea21",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T14:09:53Z",
+      "side": 1,
+      "message": "IIRC, you only need one f in these kind of expressions to get the same effect.\n\nI always find it nice to put the f on the denominator, so the fraction reads like a person would write.",
+      "range": {
+        "startLine": 306,
+        "startChar": 33,
+        "endLine": 306,
+        "endChar": 44
+      },
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2546fd3c_b1debb2d",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T14:09:53Z",
+      "side": 1,
+      "message": "Interesting!  That changes the threshold even for 8-bit content right, from 10-11 to 9-10?  Would you still say this is-sRGB?\n\n\u003e\u003e\u003e 0.04045 * 255\n10.31475\n\u003e\u003e\u003e 0.039 * 255\n9.945",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
