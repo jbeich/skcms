@@ -109,13 +109,15 @@ static void load_565(size_t i, void** ip, char* dst, const char* src, F r, F g, 
 #elif N == 4
     #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9]}
     #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12]};
-    #define STORE_3(p, v) for (int k = 0; k < N; k++) (p)[3*k] = v[k]
-    #define STORE_4(p, v) for (int k = 0; k < N; k++) (p)[4*k] = v[k]
+    #define STORE_3(p, v) (p)[0] = (v)[0]; (p)[3] = (v)[1]; (p)[6] = (v)[2]; (p)[ 9] = (v)[3]
+    #define STORE_4(p, v) (p)[0] = (v)[0]; (p)[4] = (v)[1]; (p)[8] = (v)[2]; (p)[12] = (v)[3]
 #elif N == 8
     #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
     #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
-    #define STORE_3(p, v) for (int k = 0; k < N; k++) (p)[3*k] = v[k]
-    #define STORE_4(p, v) for (int k = 0; k < N; k++) (p)[4*k] = v[k]
+    #define STORE_3(p, v) (p)[ 0] = (v)[0]; (p)[ 3] = (v)[1]; (p)[ 6] = (v)[2]; (p)[ 9] = (v)[3]; \
+                          (p)[12] = (v)[4]; (p)[15] = (v)[5]; (p)[18] = (v)[6]; (p)[21] = (v)[7]
+    #define STORE_4(p, v) (p)[ 0] = (v)[0]; (p)[ 4] = (v)[1]; (p)[ 8] = (v)[2]; (p)[12] = (v)[3]; \
+                          (p)[16] = (v)[4]; (p)[20] = (v)[5]; (p)[24] = (v)[6]; (p)[28] = (v)[7]
 #endif
 
 static void load_888(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
