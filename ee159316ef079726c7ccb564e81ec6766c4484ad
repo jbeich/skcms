@@ -102,6 +102,48 @@
     },
     {
       "key": {
+        "uuid": "8d1872e5_77579d37",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-18T15:04:13Z",
+      "side": 1,
+      "message": ":(",
+      "parentUuid": "677d82e6_02fa3fc9",
+      "range": {
+        "startLine": 306,
+        "startChar": 33,
+        "endLine": 306,
+        "endChar": 44
+      },
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33fc337b_385b6efc",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-18T15:04:13Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "0f4800b4_cf08673e",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2546fd3c_b1debb2d",
         "filename": "tests.c",
         "patchSetId": 1
@@ -137,6 +179,24 @@
     },
     {
       "key": {
+        "uuid": "649773cd_143cf026",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-18T15:04:13Z",
+      "side": 1,
+      "message": "Weird that they decided to be different then.",
+      "parentUuid": "7c33b41e_7d77259a",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "49e8bca3_47f461e2",
         "filename": "tests.c",
         "patchSetId": 1
@@ -166,6 +226,24 @@
       "side": 1,
       "message": "Perhaps, although they\u0027re stored as fixed point - so we could also just say they should be within some number of fixed point stops of the expected value. .002 ~\u003d .5 / 256, so for \u0027curv\u0027 encodings of gamma, it\u0027s actually the best we can do - maximum error is right around there. For \u0027para\u0027 curves, everything has 16 bits of fractional precision, so this is substantially larger than necessary, but happens to be the tolerance needed for the iOS sRGB curve.\n\n¯\\_(ツ)_/¯",
       "parentUuid": "49e8bca3_47f461e2",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0be39953_060d8d28",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-01-18T15:04:13Z",
+      "side": 1,
+      "message": "Ah, a note about 0.002 ≈ 0.5 / 256 would be useful here.  Or even using 0.5/256 directly as the tolerance?",
+      "parentUuid": "400fbe8c_4d5cadb6",
       "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
