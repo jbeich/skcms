@@ -9,6 +9,14 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
 #if defined(SKCMS_PORTABLE) || (!defined(__clang__) && !defined(__GNUC__))
     #define N 1
     typedef float    F  ;
