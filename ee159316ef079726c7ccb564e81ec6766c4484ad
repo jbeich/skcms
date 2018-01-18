@@ -60,6 +60,48 @@
     },
     {
       "key": {
+        "uuid": "0f4800b4_cf08673e",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-18T14:57:59Z",
+      "side": 1,
+      "message": "I originally attempted the static const values, but they still don\u0027t qualify as const for initializing the profile_test_cases array below. But I just realized I can instead put pointers to the TF structs in profile_test_cases, and that works. (And should fix the errors).",
+      "parentUuid": "292272fc_c24ba9ec",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "677d82e6_02fa3fc9",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-18T14:57:59Z",
+      "side": 1,
+      "message": "1 / 1.055f is okay. .055 / 1.055f is not: warns about truncation from double to float on initialization.",
+      "parentUuid": "41ff47bf_d167ea21",
+      "range": {
+        "startLine": 306,
+        "startChar": 33,
+        "endLine": 306,
+        "endChar": 44
+      },
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2546fd3c_b1debb2d",
         "filename": "tests.c",
         "patchSetId": 1
@@ -77,6 +119,24 @@
     },
     {
       "key": {
+        "uuid": "7c33b41e_7d77259a",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-18T14:57:59Z",
+      "side": 1,
+      "message": "Romain thought so (about a year ago). D is the linear -\u003e exponential cutoff, and they adjust the other parameters to compensate. If you evaluate theirs and the version of sRGB that\u0027s as close as you can get with ICC fixed point, the maximum difference over [0,1] is ~\u003d 6*10^-5 (0.0173/255).",
+      "parentUuid": "2546fd3c_b1debb2d",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "49e8bca3_47f461e2",
         "filename": "tests.c",
         "patchSetId": 1
@@ -88,6 +148,24 @@
       "writtenOn": "2018-01-18T14:14:04Z",
       "side": 1,
       "message": "Given how the values in the transfer function are in rather different regimes, think we should make these thresholds based on relative error instead of absolute?  Like, can we say within 1% of expected?",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "400fbe8c_4d5cadb6",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-18T14:57:59Z",
+      "side": 1,
+      "message": "Perhaps, although they\u0027re stored as fixed point - so we could also just say they should be within some number of fixed point stops of the expected value. .002 ~\u003d .5 / 256, so for \u0027curv\u0027 encodings of gamma, it\u0027s actually the best we can do - maximum error is right around there. For \u0027para\u0027 curves, everything has 16 bits of fractional precision, so this is substantially larger than necessary, but happens to be the tolerance needed for the iOS sRGB curve.\n\n¯\\_(ツ)_/¯",
+      "parentUuid": "49e8bca3_47f461e2",
       "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
