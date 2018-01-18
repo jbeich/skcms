@@ -10,6 +10,7 @@
 #endif
 
 #include "skcms.h"
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -302,24 +303,35 @@ static void test_FormatConversions_float() {
     }
 }
 
+static const skcms_TransferFunction srgb_transfer_fn =
+    { 2.4f, 1 / 1.055f, 0.055f / 1.055f, 1 / 12.92f, 0.04045f, 0.0f, 0.0f };
+static const skcms_TransferFunction gamma_2_2_transfer_fn =
+    { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
 static const struct {
-    const char* filename;
-    bool        expect_parse;
-    bool        expect_tf;
+    const char*                   filename;
+    bool                          expect_parse;
+    const skcms_TransferFunction* expect_tf;
 } profile_test_cases[] = {
-    { "profiles/color.org/sRGB2014.icc",               true,  false },
-    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, false }, // iccMAX
-    { "profiles/color.org/sRGB_D65_MAT.icc",           false, false }, // iccMAX
-    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true,  false },
-    { "profiles/color.org/sRGB_ISO22028.icc",          false, false }, // iccMAX
-    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true,  false },
+    { "profiles/color.org/sRGB2014.icc",               true,  NULL },
+    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, NULL }, // iccMAX
+    { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL }, // iccMAX
+    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true,  NULL },
+    { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL }, // iccMAX
+    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true,  NULL },
 
-    { "profiles/color.org/Lower_Left.icc",             true,  true  },
-    { "profiles/color.org/Lower_Right.icc",            true,  true  },
-    { "profiles/color.org/Upper_Left.icc",             true,  false },
-    { "profiles/color.org/Upper_Right.icc",            true,  false },
+    { "profiles/color.org/Lower_Left.icc",             true,  &gamma_2_2_transfer_fn },
+    { "profiles/color.org/Lower_Right.icc",            true,  &gamma_2_2_transfer_fn },
+    { "profiles/color.org/Upper_Left.icc",             true,  NULL },
+    { "profiles/color.org/Upper_Right.icc",            true,  NULL },
 
-    { "profiles/sRGB_Facebook.icc",                    true,  false }, // FB 27 entry sRGB table
+    { "profiles/mobile/Display_P3_LUT.icc",            true,  NULL },
+    { "profiles/mobile/Display_P3_parametric.icc",     true,  &srgb_transfer_fn },
+    { "profiles/mobile/iPhone7p.icc",                  true,  &srgb_transfer_fn },
+    { "profiles/mobile/sRGB_LUT.icc",                  true,  NULL },
+    { "profiles/mobile/sRGB_parametric.icc",           true,  &srgb_transfer_fn },
+
+    { "profiles/sRGB_Facebook.icc",                    true,  NULL }, // FB 27 entry sRGB table
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
@@ -352,8 +364,20 @@ static void test_ICCProfile_parse() {
         skcms_TransferFunction transferFn;
         bool tf_result = skcms_ICCProfile_getTransferFunction(&profile, &transferFn);
         expect(profile_test_cases[i].expect_parse || !profile_test_cases[i].expect_tf);
-        expect(tf_result == profile_test_cases[i].expect_tf);
+        expect(tf_result == !!profile_test_cases[i].expect_tf);
 
+        if (tf_result) {
+            // Our tolerance could be 0.001, except for the fairly non-standard D value
+            // in the iPhone profile (0.039 vs 0.04045).
+            const float kTol = 0.002f;
+            expect(fabsf(transferFn.g - profile_test_cases[i].expect_tf->g) < kTol);
+            expect(fabsf(transferFn.a - profile_test_cases[i].expect_tf->a) < kTol);
+            expect(fabsf(transferFn.b - profile_test_cases[i].expect_tf->b) < kTol);
+            expect(fabsf(transferFn.c - profile_test_cases[i].expect_tf->c) < kTol);
+            expect(fabsf(transferFn.d - profile_test_cases[i].expect_tf->d) < kTol);
+            expect(fabsf(transferFn.e - profile_test_cases[i].expect_tf->e) < kTol);
+            expect(fabsf(transferFn.f - profile_test_cases[i].expect_tf->f) < kTol);
+        }
         free(buf);
     }
 }
