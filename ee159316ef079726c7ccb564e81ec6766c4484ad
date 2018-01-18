@@ -74,6 +74,23 @@
       "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49e8bca3_47f461e2",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T14:14:04Z",
+      "side": 1,
+      "message": "Given how the values in the transfer function are in rather different regimes, think we should make these thresholds based on relative error instead of absolute?  Like, can we say within 1% of expected?",
+      "revId": "ee159316ef079726c7ccb564e81ec6766c4484ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
