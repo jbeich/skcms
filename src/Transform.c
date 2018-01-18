@@ -61,6 +61,13 @@
                    F1 = {1,1,1,1};
 #endif
 
+// It helps codegen to call __builtin_memcpy() when we know the byte count at compile time.
+#if defined(__clang__) || defined(__GNUC__)
+    #define small_memcpy __builtin_memcpy
+#else
+    #define small_memcpy memcpy
+#endif
+
 typedef void (*Stage)(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a);
 
 static void next_stage(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
@@ -91,7 +98,7 @@ static I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
 
 static void load_565(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U16 rgb;
-    memcpy(&rgb, src + 2*i, 2*N);
+    small_memcpy(&rgb, src + 2*i, 2*N);
 
     r = CAST(F, rgb & (31<< 0)) * (1.0f / (31<< 0));
     g = CAST(F, rgb & (63<< 5)) * (1.0f / (63<< 5));
@@ -131,7 +138,7 @@ static void load_888(size_t i, void** ip, char* dst, const char* src, F r, F g, 
 
 static void load_8888(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U32 rgba;
-    memcpy(&rgba, src + 4*i, 4*N);
+    small_memcpy(&rgba, src + 4*i, 4*N);
 
     r = CAST(F, (rgba >>  0) & 0xff) * (1/255.0f);
     g = CAST(F, (rgba >>  8) & 0xff) * (1/255.0f);
@@ -142,7 +149,7 @@ static void load_8888(size_t i, void** ip, char* dst, const char* src, F r, F g,
 
 static void load_1010102(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U32 rgba;
-    memcpy(&rgba, src + 4*i, 4*N);
+    small_memcpy(&rgba, src + 4*i, 4*N);
 
     r = CAST(F, (rgba >>  0) & 0x3ff) * (1/1023.0f);
     g = CAST(F, (rgba >> 10) & 0x3ff) * (1/1023.0f);
@@ -174,7 +181,7 @@ static U64 swap_endian_16bit(U64 rgba) {
 
 static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U64 rgba;
-    memcpy(&rgba, src + 8*i, 8*N);
+    small_memcpy(&rgba, src + 8*i, 8*N);
 
     rgba = swap_endian_16bit(rgba);
     r = CAST(F, (rgba >>  0) & 0xffff) * (1/65535.0f);
@@ -200,7 +207,7 @@ static F F_from_Half(U32 half) {
     // Constructing the float is easy if the half is not denormalized.
     U32 norm_bits = (s<<16) + (em<<13) + ((127-15)<<23);
     F norm;
-    memcpy(&norm, &norm_bits, sizeof(norm));
+    small_memcpy(&norm, &norm_bits, sizeof(norm));
 
     // Simply flush all denorm half floats to zero.
     return if_then_else(em < 0x0400, F0, norm);
@@ -220,7 +227,7 @@ static void load_hhh(size_t i, void** ip, char* dst, const char* src, F r, F g, 
 
 static void load_hhhh(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U64 rgba;
-    memcpy(&rgba, src + 8*i, 8*N);
+    small_memcpy(&rgba, src + 8*i, 8*N);
 
     r = F_from_Half( CAST(U32, (rgba >>  0) & 0xffff) );
     g = F_from_Half( CAST(U32, (rgba >> 16) & 0xffff) );
@@ -255,7 +262,7 @@ static void store_565(size_t i, void** ip, char* dst, const char* src, F r, F g,
     U16 rgb = CAST(U16, to_fixed(r * 31) <<  0 )
             | CAST(U16, to_fixed(g * 63) <<  5 )
             | CAST(U16, to_fixed(b * 31) << 11 );
-    memcpy(dst + 2*i, &rgb, 2*N);
+    small_memcpy(dst + 2*i, &rgb, 2*N);
     (void)a;
     (void)ip;
     (void)src;
@@ -276,7 +283,7 @@ static void store_8888(size_t i, void** ip, char* dst, const char* src, F r, F g
              | CAST(U32, to_fixed(g * 255) <<  8)
              | CAST(U32, to_fixed(b * 255) << 16)
              | CAST(U32, to_fixed(a * 255) << 24);
-    memcpy(dst + 4*i, &rgba, 4*N);
+    small_memcpy(dst + 4*i, &rgba, 4*N);
     (void)ip;
     (void)src;
 }
@@ -286,7 +293,7 @@ static void store_1010102(size_t i, void** ip, char* dst, const char* src, F r, 
              | CAST(U32, to_fixed(g * 1023) << 10)
              | CAST(U32, to_fixed(b * 1023) << 20)
              | CAST(U32, to_fixed(a *    3) << 30);
-    memcpy(dst + 4*i, &rgba, 4*N);
+    small_memcpy(dst + 4*i, &rgba, 4*N);
     (void)ip;
     (void)src;
 }
@@ -313,7 +320,7 @@ static void store_16161616(size_t i, void** ip, char* dst, const char* src, F r,
              | CAST(U64, to_fixed(b * 65535)) << 32
              | CAST(U64, to_fixed(a * 65535)) << 48;
     rgba = swap_endian_16bit(rgba);
-    memcpy(dst + 8*i, &rgba, 8*N);
+    small_memcpy(dst + 8*i, &rgba, 8*N);
     (void)ip;
     (void)src;
 }
