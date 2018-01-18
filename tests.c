@@ -164,6 +164,7 @@ static void test_FormatConversions_565() {
                | (uint16_t)( (i/2) << 11 );
     }
     expect(src[ 0] == 0x0000);
+    expect(src[31] == 0x7bef);
     expect(src[63] == 0xffff);
 
     uint32_t dst[64];
@@ -177,6 +178,14 @@ static void test_FormatConversions_565() {
     expect(dst[20] == 0xff525152);  // (10/31) ≈ (82/255) and (20/63) ≈ (81/255)
     expect(dst[62] == 0xfffffbff);  // (31/31) == (255/255) and (62/63) ≈ (251/255)
     expect(dst[63] == 0xffffffff);  // 1 -> 1
+
+    // Let's convert back the other way.
+    uint16_t back[64];
+    expect(skcms_Transform(back, skcms_PixelFormat_RGB_565  , &profile,
+                            dst, skcms_PixelFormat_RGBA_8888, &profile, 64));
+    for (int i = 0; i < 64; i++) {
+        expect(src[i] == back[i]);
+    }
 }
 
 static void test_FormatConversions_16161616() {
