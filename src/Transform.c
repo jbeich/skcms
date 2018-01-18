@@ -91,10 +91,9 @@ static void load_565_N(size_t i, void** ip, char* dst, const char* src, char* tm
     U16 rgb;
     memcpy(&rgb, src + 2*i, 2*N);
 
-    U32 wide = CAST(U32, rgb);
-    r = CAST(F, wide & (31<< 0)) * (1.0f / (31<< 0));
-    g = CAST(F, wide & (63<< 5)) * (1.0f / (63<< 5));
-    b = CAST(F, wide & (31<<11)) * (1.0f / (31<<11));
+    r = CAST(F, rgb & (31<< 0)) * (1.0f / (31<< 0));
+    g = CAST(F, rgb & (63<< 5)) * (1.0f / (63<< 5));
+    b = CAST(F, rgb & (31<<11)) * (1.0f / (31<<11));
     a = F1;
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
@@ -314,7 +313,24 @@ static void load_ffff_1(size_t i, void** ip, char* dst, const char* src, char* t
     load_ffff_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
-// TODO: store_565_N,1
+static void store_565_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    // The double CASTs are just to reassure portable build warnings that we're
+    // fine with int -> uint16_t after the shifts.
+    U16 rgb = CAST(U16, CAST(U16, r * 31 + 0.5f) <<  0 )
+            | CAST(U16, CAST(U16, g * 63 + 0.5f) <<  5 )
+            | CAST(U16, CAST(U16, b * 31 + 0.5f) << 11 );
+    memcpy(dst + 2*i, &rgb, 2*N);
+    (void)a;
+    (void)ip;
+    (void)src;
+    (void)tmp;
+}
+static void store_565_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                        F r, F g, F b, F a) {
+    store_565_N(i,ip,tmp - 2*i,src,tmp, r,g,b,a);
+    memcpy(dst + 2*i, tmp, 2);
+}
 
 static void store_888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                         F r, F g, F b, F a) {
@@ -507,6 +523,9 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
     }
     switch (dstFmt >> 1) {
         default: return false;
+        case skcms_PixelFormat_RGB_565      >> 1: *ip_N++ = (void*)store_565_N;
+                                                  *ip_1++ = (void*)store_565_1;
+                                                  break;
         case skcms_PixelFormat_RGB_888      >> 1: *ip_N++ = (void*)store_888_N;
                                                   *ip_1++ = (void*)store_888_1;
                                                   break;
