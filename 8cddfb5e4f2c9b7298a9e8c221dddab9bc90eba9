@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a4e5cf8_ff6de0f7",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T18:44:25Z",
+      "side": 1,
+      "message": "Those crazy ICC kids..",
+      "range": {
+        "startLine": 161,
+        "startChar": 65,
+        "endLine": 162,
+        "endChar": 60
+      },
+      "revId": "8cddfb5e4f2c9b7298a9e8c221dddab9bc90eba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cea52ef8_f71467fc",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T18:44:25Z",
+      "side": 1,
+      "message": "I bet you\u0027re glad I arbitrarily chose column-major!",
+      "revId": "8cddfb5e4f2c9b7298a9e8c221dddab9bc90eba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b13e21c0_1e1c6ec0",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T18:44:25Z",
+      "side": 1,
+      "message": "a.k.a.\n   toXYZD50-\u003evals + 0,\n   toXYZD50-\u003evals + 3,\n   toXYZD50-\u003evals + 6,\n:)",
+      "range": {
+        "startLine": 194,
+        "startChar": 31,
+        "endLine": 194,
+        "endChar": 49
+      },
+      "revId": "8cddfb5e4f2c9b7298a9e8c221dddab9bc90eba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a01d1cb_640a3d3f",
+        "filename": "tests.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-18T18:44:25Z",
+      "side": 1,
+      "message": "AHH.  This makes more sense, I guess.",
+      "range": {
+        "startLine": 348,
+        "startChar": 62,
+        "endLine": 348,
+        "endChar": 92
+      },
+      "revId": "8cddfb5e4f2c9b7298a9e8c221dddab9bc90eba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
