@@ -65,6 +65,24 @@
     },
     {
       "key": {
+        "uuid": "9ca26d5a_e8d756d7",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-18T18:50:48Z",
+      "side": 1,
+      "message": "Sort of. It makes initialized matrices look transposed in the source (in tests.c).",
+      "parentUuid": "cea52ef8_f71467fc",
+      "revId": "8cddfb5e4f2c9b7298a9e8c221dddab9bc90eba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4a01d1cb_640a3d3f",
         "filename": "tests.c",
         "patchSetId": 2
