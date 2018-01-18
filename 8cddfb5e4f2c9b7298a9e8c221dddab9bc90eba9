@@ -101,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "9ba6b4b1_a0b0307c",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-01-18T19:14:39Z",
+      "side": 1,
+      "message": "That works, but ties read_tag_xyz to this particular use-case. (There are a couple other tags of that type that store standalone XYZ triples - not part of a matrix). I\u0027ve changed it to just take three float*, so the transposing is really obvious at the call site in toXYZD50, and any future users won\u0027t trip over the strided writes.",
+      "parentUuid": "2aa312d0_49dcf9e4",
+      "revId": "8cddfb5e4f2c9b7298a9e8c221dddab9bc90eba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4a01d1cb_640a3d3f",
         "filename": "tests.c",
         "patchSetId": 2
