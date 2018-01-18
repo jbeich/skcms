@@ -243,6 +243,20 @@ static void test_FormatConversions_101010() {
     expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_8888  , &profile,
                            &src, skcms_PixelFormat_RGB_101010x, &profile, 1));
     expect(dst == 0xff017fff);
+
+    // Converting 101010x <-> 1010102 will force opaque in either direction.
+    expect(skcms_Transform(&dst, skcms_PixelFormat_RGB_101010x , &profile,
+                           &src, skcms_PixelFormat_RGBA_1010102, &profile, 1));
+    expect(dst == ( (uint32_t)1023 <<  0
+                  | (uint32_t) 511 << 10
+                  | (uint32_t)   4 << 20
+                  | (uint32_t)   3 << 30));
+    expect(skcms_Transform(&dst, skcms_PixelFormat_RGBA_1010102, &profile,
+                           &src, skcms_PixelFormat_RGB_101010x , &profile, 1));
+    expect(dst == ( (uint32_t)1023 <<  0
+                  | (uint32_t) 511 << 10
+                  | (uint32_t)   4 << 20
+                  | (uint32_t)   3 << 30));
 }
 
 static void test_FormatConversions_half() {
