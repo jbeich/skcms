@@ -22,10 +22,10 @@ static uint16_t read_big_u16(const uint8_t* ptr) {
 }
 
 static uint32_t read_big_u32(const uint8_t* ptr) {
-    return (uint32_t)(ptr[0] << 24)
-         | (uint32_t)(ptr[1] << 16)
-         | (uint32_t)(ptr[2] <<  8)
-         | (uint32_t)(ptr[3] <<  0);
+    return (uint32_t)ptr[0] << 24
+         | (uint32_t)ptr[1] << 16
+         | (uint32_t)ptr[2] <<  8
+         | (uint32_t)ptr[3] <<  0;
 }
 
 static int32_t read_big_i32(const uint8_t* ptr) {
