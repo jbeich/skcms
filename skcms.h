@@ -17,10 +17,10 @@
 extern "C" {
 #endif
 
-// A column-major 3x3 matrix,
-// | vals[0] vals[3] vals[6] |
-// | vals[1] vals[4] vals[7] |
-// | vals[2] vals[5] vals[8] |
+// A row-major 3x3 matrix,
+// | vals[0] vals[1] vals[2] |
+// | vals[3] vals[4] vals[5] |
+// | vals[6] vals[7] vals[8] |
 typedef struct {
     float vals[9];
 } skcms_Matrix3x3;
