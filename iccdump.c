@@ -108,12 +108,23 @@ int main(int argc, char** argv) {
         printf(" '%s' : '%s' : %6u\n", tagSig, typeSig, tag.size);
     }
 
+    printf("\n");
+
     skcms_TransferFunction tf;
     if (skcms_ICCProfile_getTransferFunction(&profile, &tf)) {
-        printf("\nTRC : %f, %f, %f, %f, %f, %f, %f\n",
+        printf("TRC : %f, %f, %f, %f, %f, %f, %f\n",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f);
     }
 
+    skcms_Matrix3x3 toXYZD50;
+    if (skcms_ICCProfile_toXYZD50(&profile, &toXYZD50)) {
+        printf("XYZ : | %.7f %.7f %.7f |\n"
+               "      | %.7f %.7f %.7f |\n"
+               "      | %.7f %.7f %.7f |\n",
+               (double)toXYZD50.vals[0], (double)toXYZD50.vals[3], (double)toXYZD50.vals[6],
+               (double)toXYZD50.vals[1], (double)toXYZD50.vals[4], (double)toXYZD50.vals[7],
+               (double)toXYZD50.vals[2], (double)toXYZD50.vals[5], (double)toXYZD50.vals[8]);
+    }
     return 0;
 }

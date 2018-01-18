@@ -308,30 +308,56 @@ static const skcms_TransferFunction srgb_transfer_fn =
 static const skcms_TransferFunction gamma_2_2_transfer_fn =
     { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
+// These are column-major
+static const skcms_Matrix3x3 srgb_to_xyz =  { 0.4360657f, 0.2224884f, 0.0139160f,
+                                              0.3851471f, 0.7168732f, 0.0970764f,
+                                              0.1430664f, 0.0606079f, 0.7140961f };
+
+static const skcms_Matrix3x3 sgbr_to_xyz =  { 0.3851471f, 0.7168732f, 0.0970764f,
+                                              0.1430664f, 0.0606079f, 0.7140961f,
+                                              0.4360657f, 0.2224884f, 0.0139160f };
+
+static const skcms_Matrix3x3 adobe_to_xyz = { 0.6097412f, 0.3111115f, 0.0194702f,
+                                              0.2052765f, 0.6256714f, 0.0608673f,
+                                              0.1491852f, 0.0632172f, 0.7445679f };
+
+static const skcms_Matrix3x3 p3_to_xyz = {    0.5151215f, 0.2411957f, -0.0010376f,
+                                              0.2919769f, 0.6922455f,  0.0418854f,
+                                              0.1571045f, 0.0665741f,  0.7840729f };
+
 static const struct {
     const char*                   filename;
     bool                          expect_parse;
     const skcms_TransferFunction* expect_tf;
+    const skcms_Matrix3x3*        expect_xyz;
 } profile_test_cases[] = {
-    { "profiles/color.org/sRGB2014.icc",               true,  NULL },
-    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, NULL }, // iccMAX
-    { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL }, // iccMAX
-    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true,  NULL },
-    { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL }, // iccMAX
-    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true,  NULL },
+    // iccMAX profiles that we can't parse at all
+    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, NULL, NULL },
+    { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL, NULL },
+    { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL, NULL },
 
-    { "profiles/color.org/Lower_Left.icc",             true,  &gamma_2_2_transfer_fn },
-    { "profiles/color.org/Lower_Right.icc",            true,  &gamma_2_2_transfer_fn },
-    { "profiles/color.org/Upper_Left.icc",             true,  NULL },
-    { "profiles/color.org/Upper_Right.icc",            true,  NULL },
+    // V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
+    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true,  NULL, NULL },
+    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true,  NULL, NULL },
+    { "profiles/color.org/Upper_Left.icc",             true,  NULL, NULL },
+    { "profiles/color.org/Upper_Right.icc",            true,  NULL, NULL },
 
-    { "profiles/mobile/Display_P3_LUT.icc",            true,  NULL },
-    { "profiles/mobile/Display_P3_parametric.icc",     true,  &srgb_transfer_fn },
-    { "profiles/mobile/iPhone7p.icc",                  true,  &srgb_transfer_fn },
-    { "profiles/mobile/sRGB_LUT.icc",                  true,  NULL },
-    { "profiles/mobile/sRGB_parametric.icc",           true,  &srgb_transfer_fn },
+    // V4 profiles with parametric TRC curves and XYZ
+    { "profiles/mobile/Display_P3_parametric.icc",     true,  &srgb_transfer_fn, &p3_to_xyz },
+    { "profiles/mobile/sRGB_parametric.icc",           true,  &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/mobile/iPhone7p.icc",                  true,  &srgb_transfer_fn, &p3_to_xyz },
 
-    { "profiles/sRGB_Facebook.icc",                    true,  NULL }, // FB 27 entry sRGB table
+    // V4 profiles with LUT TRC curves and XYZ
+    { "profiles/mobile/Display_P3_LUT.icc",            true,  NULL, &p3_to_xyz },
+    { "profiles/mobile/sRGB_LUT.icc",                  true,  NULL, &srgb_to_xyz },
+
+    // V2 profiles with gamma TRC and XYZ
+    { "profiles/color.org/Lower_Left.icc",             true,  &gamma_2_2_transfer_fn, &sgbr_to_xyz },
+    { "profiles/color.org/Lower_Right.icc",            true,  &gamma_2_2_transfer_fn, &adobe_to_xyz },
+
+    // V2 profiles with LUT TRC and XYZ
+    { "profiles/color.org/sRGB2014.icc",               true,  NULL, &srgb_to_xyz },
+    { "profiles/sRGB_Facebook.icc",                    true,  NULL, &srgb_to_xyz },
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
@@ -373,15 +399,31 @@ static void test_ICCProfile_parse() {
             // vendors sometimes round strangely when writing values. Regardless, all of our test
             // profiles are within 0.001, except for the odd version of sRGB used in the iPhone
             // profile. It has a D value of .039 (2556 / 64k) rather than .04045 (2651 / 64k).
-            const float kTol = 0.5f / 256.0f;
-            expect(fabsf(transferFn.g - profile_test_cases[i].expect_tf->g) < kTol);
-            expect(fabsf(transferFn.a - profile_test_cases[i].expect_tf->a) < kTol);
-            expect(fabsf(transferFn.b - profile_test_cases[i].expect_tf->b) < kTol);
-            expect(fabsf(transferFn.c - profile_test_cases[i].expect_tf->c) < kTol);
-            expect(fabsf(transferFn.d - profile_test_cases[i].expect_tf->d) < kTol);
-            expect(fabsf(transferFn.e - profile_test_cases[i].expect_tf->e) < kTol);
-            expect(fabsf(transferFn.f - profile_test_cases[i].expect_tf->f) < kTol);
+            const float kTRC_Tol = 0.5f / 256.0f;
+            expect(fabsf(transferFn.g - profile_test_cases[i].expect_tf->g) < kTRC_Tol);
+            expect(fabsf(transferFn.a - profile_test_cases[i].expect_tf->a) < kTRC_Tol);
+            expect(fabsf(transferFn.b - profile_test_cases[i].expect_tf->b) < kTRC_Tol);
+            expect(fabsf(transferFn.c - profile_test_cases[i].expect_tf->c) < kTRC_Tol);
+            expect(fabsf(transferFn.d - profile_test_cases[i].expect_tf->d) < kTRC_Tol);
+            expect(fabsf(transferFn.e - profile_test_cases[i].expect_tf->e) < kTRC_Tol);
+            expect(fabsf(transferFn.f - profile_test_cases[i].expect_tf->f) < kTRC_Tol);
         }
+
+        skcms_Matrix3x3 toXYZ;
+        bool xyz_result = skcms_ICCProfile_toXYZD50(&profile, &toXYZ);
+        expect(profile_test_cases[i].expect_parse || !profile_test_cases[i].expect_xyz);
+        expect(xyz_result == !!profile_test_cases[i].expect_xyz);
+
+        if (xyz_result) {
+            // XYZ values are 1.15.16 fixed point, but the precise values used by vendors vary
+            // quite a bit, especially depending on their implementation of D50 adaptation.
+            // This is still a pretty tight tolerance, and all of our test profiles pass.
+            const float kXYZ_Tol = 0.0002f;
+            for (int v = 0; v < 9; ++v) {
+                expect(fabsf(toXYZ.vals[v] - profile_test_cases[i].expect_xyz->vals[v]) < kXYZ_Tol);
+            }
+        }
+
         free(buf);
     }
 }

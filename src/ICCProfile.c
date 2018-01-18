@@ -158,11 +158,42 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
     return true;
 }
 
+// XYZType is technically variable sized, holding N XYZ triples. However, the only valid uses of
+// the type are for tags/data that store exactly one triple.
+typedef struct {
+    uint8_t type     [4];
+    uint8_t reserved [4];
+    uint8_t X        [4];
+    uint8_t Y        [4];
+    uint8_t Z        [4];
+} skcms_XYZType;
+
+static bool read_tag_xyz(const skcms_ICCTag* tag, float* values) {
+    if (!tag || tag->type != make_signature('X', 'Y', 'Z', ' ') || !values ||
+        tag->size < sizeof(skcms_XYZType)) {
+        return false;
+    }
+
+    const skcms_XYZType* xyzTag = (const skcms_XYZType*)tag->buf;
+    values[0] = read_big_fixed(xyzTag->X);
+    values[1] = read_big_fixed(xyzTag->Y);
+    values[2] = read_big_fixed(xyzTag->Z);
+    return true;
+}
+
 bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile* profile,
                                skcms_Matrix3x3* toXYZD50) {
-    (void)profile;
-    (void)toXYZD50;
-    return false;
+    if (!profile || !toXYZD50) { return false; }
+    skcms_ICCTag rXYZ, gXYZ, bXYZ;
+    if (!skcms_ICCProfile_getTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('b', 'X', 'Y', 'Z'), &bXYZ)) {
+        return false;
+    }
+
+    return read_tag_xyz(&rXYZ, &toXYZD50->vals[0]) &&
+           read_tag_xyz(&gXYZ, &toXYZD50->vals[3]) &&
+           read_tag_xyz(&bXYZ, &toXYZD50->vals[6]);
 }
 
 typedef struct {
