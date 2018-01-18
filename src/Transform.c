@@ -438,9 +438,9 @@ static void store_fff_N(size_t i, void** ip, char* dst, const char* src, char* t
     uintptr_t ptr = (uintptr_t)(dst + 12*i);
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgb = (float*)ptr;                   // for this cast to float* to be safe.
-    STORE_4(rgb+0, r);
-    STORE_4(rgb+1, g);
-    STORE_4(rgb+2, b);
+    STORE_3(rgb+0, r);
+    STORE_3(rgb+1, g);
+    STORE_3(rgb+2, b);
     (void)a;
     (void)ip;
     (void)src;

@@ -355,13 +355,18 @@ static void test_FormatConversions_float() {
         expect_eq(fdst[i], i*(1/255.0f));
     }
 
-    float ffff[12] = { 0,1,2,3, 4,5,6,7, 8,9,10,11 };
-    float  fff[ 9];
+    float ffff[16] = { 0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15 };
+    float  fff[12] = { 0,0,0, 0,0,0, 0,0,0, 0,0,0};
     expect(skcms_Transform(fff , skcms_PixelFormat_RGB_fff  , &profile,
-                           ffff, skcms_PixelFormat_RGBA_ffff, &profile, 3));
-    expect_eq(fff[0], 0); expect_eq(fff[1], 1); expect_eq(fff[2],  2);
-    expect_eq(fff[3], 4); expect_eq(fff[4], 5); expect_eq(fff[5],  6);
-    expect_eq(fff[6], 8); expect_eq(fff[7], 9); expect_eq(fff[8], 10);
+                           ffff, skcms_PixelFormat_RGBA_ffff, &profile, 1));
+    expect_eq(fff[0],  0); expect_eq(fff[ 1],  1); expect_eq(fff[ 2],  2);
+
+    expect(skcms_Transform(fff , skcms_PixelFormat_RGB_fff  , &profile,
+                           ffff, skcms_PixelFormat_RGBA_ffff, &profile, 4));
+    expect_eq(fff[0],  0); expect_eq(fff[ 1],  1); expect_eq(fff[ 2],  2);
+    expect_eq(fff[3],  4); expect_eq(fff[ 4],  5); expect_eq(fff[ 5],  6);
+    expect_eq(fff[6],  8); expect_eq(fff[ 7],  9); expect_eq(fff[ 8], 10);
+    expect_eq(fff[9], 12); expect_eq(fff[10], 13); expect_eq(fff[11], 14);
 }
 
 static const skcms_TransferFunction srgb_transfer_fn =
