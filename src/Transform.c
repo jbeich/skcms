@@ -201,15 +201,18 @@ static void load_161616_1(size_t i, void** ip, char* dst, const char* src, char*
     load_161616_N(i,ip,dst,src,tmp, r,g,b,a);
 }
 
+// Swap high and low bytes of 16-bit lanes, converting between big-endian and little-endian.
+static U64 swap_endian_16bit(U64 rgba) {
+    return (rgba & 0x00ff00ff00ff00ff) << 8
+         | (rgba & 0xff00ff00ff00ff00) >> 8;
+}
+
 static void load_16161616_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                             F r, F g, F b, F a) {
     U64 rgba;
     memcpy(&rgba, src + 8*i, 8*N);
 
-    // Swap high and low bytes of 16-bit lanes, converting big-endian to little-endian.
-    rgba = (rgba & 0x00ff00ff00ff00ff) << 8
-         | (rgba & 0xff00ff00ff00ff00) >> 8;
-
+    rgba = swap_endian_16bit(rgba);
     r = CAST(F, (rgba >>  0) & 0xffff) * (1/65535.0f);
     g = CAST(F, (rgba >> 16) & 0xffff) * (1/65535.0f);
     b = CAST(F, (rgba >> 32) & 0xffff) * (1/65535.0f);
@@ -386,8 +389,47 @@ static void store_1010102_1(size_t i, void** ip, char* dst, const char* src, cha
     memcpy(dst + 4*i, tmp, 4);
 }
 
-// TODO: store_161616_N,1
-// TODO: store_16161616_N,1
+static void store_161616_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                           F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(dst + 6*i);
+    assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
+    uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
+
+    I32 R = to_fixed(r * 65535),
+        G = to_fixed(g * 65535),
+        B = to_fixed(b * 65535);
+    STORE_3(rgb+0, CAST(U16, (R & 0x00ff) << 8 | (R & 0xff00) >> 8) );
+    STORE_3(rgb+1, CAST(U16, (G & 0x00ff) << 8 | (G & 0xff00) >> 8) );
+    STORE_3(rgb+2, CAST(U16, (B & 0x00ff) << 8 | (B & 0xff00) >> 8) );
+    (void)a;
+    (void)ip;
+    (void)src;
+    (void)tmp;
+}
+static void store_161616_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                           F r, F g, F b, F a) {
+    store_161616_N(i,ip,tmp - 6*i,src,tmp, r,g,b,a);
+    memcpy(dst + 6*i, tmp, 6);
+}
+
+static void store_16161616_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                             F r, F g, F b, F a) {
+    U64 rgba = CAST(U64, to_fixed(r * 65535)) <<  0
+             | CAST(U64, to_fixed(g * 65535)) << 16
+             | CAST(U64, to_fixed(b * 65535)) << 32
+             | CAST(U64, to_fixed(a * 65535)) << 48;
+    rgba = swap_endian_16bit(rgba);
+    memcpy(dst + 8*i, &rgba, 8*N);
+    (void)ip;
+    (void)src;
+    (void)tmp;
+}
+static void store_16161616_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
+                             F r, F g, F b, F a) {
+    store_16161616_N(i,ip,tmp - 8*i,src,tmp, r,g,b,a);
+    memcpy(dst + 8*i, tmp, 8);
+}
+
 // TODO: store_hhh_N,1
 // TODO: store_hhhh_N,1
 
@@ -526,29 +568,35 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
     }
     switch (dstFmt >> 1) {
         default: return false;
-        case skcms_PixelFormat_RGB_565      >> 1: *ip_N++ = (void*)store_565_N;
-                                                  *ip_1++ = (void*)store_565_1;
-                                                  break;
-        case skcms_PixelFormat_RGB_888      >> 1: *ip_N++ = (void*)store_888_N;
-                                                  *ip_1++ = (void*)store_888_1;
-                                                  break;
-        case skcms_PixelFormat_RGBA_8888    >> 1: *ip_N++ = (void*)store_8888_N;
-                                                  *ip_1++ = (void*)store_8888_1;
-                                                  break;
-        case skcms_PixelFormat_RGB_101010x  >> 1: *ip_N++ = (void*)force_opaque;
-                                                  *ip_N++ = (void*)store_1010102_N;
-                                                  *ip_1++ = (void*)force_opaque;
-                                                  *ip_1++ = (void*)store_1010102_1;
-                                                  break;
-        case skcms_PixelFormat_RGBA_1010102 >> 1: *ip_N++ = (void*)store_1010102_N;
-                                                  *ip_1++ = (void*)store_1010102_1;
-                                                  break;
-        case skcms_PixelFormat_RGB_fff      >> 1: *ip_N++ = (void*)store_fff_N;
-                                                  *ip_1++ = (void*)store_fff_1;
-                                                  break;
-        case skcms_PixelFormat_RGBA_ffff    >> 1: *ip_N++ = (void*)store_ffff_N;
-                                                  *ip_1++ = (void*)store_ffff_1;
-                                                  break;
+        case skcms_PixelFormat_RGB_565       >> 1: *ip_N++ = (void*)store_565_N;
+                                                   *ip_1++ = (void*)store_565_1;
+                                                   break;
+        case skcms_PixelFormat_RGB_888       >> 1: *ip_N++ = (void*)store_888_N;
+                                                   *ip_1++ = (void*)store_888_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_8888     >> 1: *ip_N++ = (void*)store_8888_N;
+                                                   *ip_1++ = (void*)store_8888_1;
+                                                   break;
+        case skcms_PixelFormat_RGB_101010x   >> 1: *ip_N++ = (void*)force_opaque;
+                                                   *ip_N++ = (void*)store_1010102_N;
+                                                   *ip_1++ = (void*)force_opaque;
+                                                   *ip_1++ = (void*)store_1010102_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_1010102  >> 1: *ip_N++ = (void*)store_1010102_N;
+                                                   *ip_1++ = (void*)store_1010102_1;
+                                                   break;
+        case skcms_PixelFormat_RGB_161616    >> 1: *ip_N++ = (void*)store_161616_N;
+                                                   *ip_1++ = (void*)store_161616_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_16161616 >> 1: *ip_N++ = (void*)store_16161616_N;
+                                                   *ip_1++ = (void*)store_16161616_1;
+                                                   break;
+        case skcms_PixelFormat_RGB_fff       >> 1: *ip_N++ = (void*)store_fff_N;
+                                                   *ip_1++ = (void*)store_fff_1;
+                                                   break;
+        case skcms_PixelFormat_RGBA_ffff     >> 1: *ip_N++ = (void*)store_ffff_N;
+                                                   *ip_1++ = (void*)store_ffff_1;
+                                                   break;
     }
 
     // Big enough to hold any of our skcms_PixelFormats (the largest is 4x 4-byte float.)

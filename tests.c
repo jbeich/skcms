@@ -214,8 +214,21 @@ static void test_FormatConversions_16161616() {
     expect(dst[ 8127] == 0xfefefdfc);  // 0x7eff rounds down to 0xfe, 0x7efe rounds up to 0xfe.
     expect(dst[16383] == 0xfffefdfc);
 
+    // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
+    // Instead we should see the 8-bit dst value byte-doubled, as 65535/255 = 257 = 0x0101.
+    uint64_t* back = malloc(8 * 16384);
+    expect(skcms_Transform(back, skcms_PixelFormat_RGBA_16161616, &profile,
+                           dst , skcms_PixelFormat_RGBA_8888    , &profile, 16384));
+    for (int i = 0; i < 16384; i++) {
+        expect( ((back[i] >>  0) & 0xffff) == ((dst[i] >>  0) & 0xff) * 0x0101);
+        expect( ((back[i] >> 16) & 0xffff) == ((dst[i] >>  8) & 0xff) * 0x0101);
+        expect( ((back[i] >> 32) & 0xffff) == ((dst[i] >> 16) & 0xff) * 0x0101);
+        expect( ((back[i] >> 48) & 0xffff) == ((dst[i] >> 24) & 0xff) * 0x0101);
+    }
+
     free(src);
     free(dst);
+    free(back);
 }
 
 static void test_FormatConversions_161616() {
@@ -234,6 +247,15 @@ static void test_FormatConversions_161616() {
     expect(dst[1] == 0xfffdfc03);
     expect(dst[2] == 0xfffcfefe);
     expect(dst[3] == 0xfffffefd);
+
+    // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
+    // Instead we should see the most signficant (low) byte doubled, as 65535/255 = 257 = 0x0101.
+    uint16_t back[12];
+    expect(skcms_Transform(back, skcms_PixelFormat_RGB_161616, &profile,
+                           dst , skcms_PixelFormat_RGBA_8888 , &profile, 4));
+    for (int i = 0; i < 12; i++) {
+        expect(back[0] == (src[0] & 0xff) * 0x0101);
+    }
 }
 
 static void test_FormatConversions_101010() {
