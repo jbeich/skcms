@@ -75,60 +75,15 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, char* tm
     next(i,ip,dst,src,tmp, r,g,b,a);
 }
 
+// (T)v is a cast when N == 1 and a bit-pun when N>1, so we must use CAST(T, v) to actually cast.
 #if N == 1
-    static inline F F_from_U32(U32 u)     { return (F)u; }
-    static inline U32 U32_from_F(F f)     { return (U32)f; }
-    static inline U32 U32_from_U16(U16 h) { return (U16)h; }
-    static inline U32 U32_from_U64(U64 w) { return (U32)w; }
-    static inline U8  U8_from_U32 (U32 u) { return (U8) u; }
+    #define CAST(T, v) (T)(v)
+#elif defined(__clang__)
+    #define CAST(T, v) __builtin_convertvector((v), T)
 #elif N == 4
-    static inline F F_from_U32(U32 u) {
-        I32 i = (I32)u;
-        F f = {(float)i[0], (float)i[1], (float)i[2], (float)i[3]};
-        return f;
-    }
-    static inline U32 U32_from_F(F f) {
-        I32 i = {(int)f[0], (int)f[1], (int)f[2], (int)f[3]};
-        return (U32)i;
-    }
-    static inline U32 U32_from_U16(U16 h) {
-        U32 u = {h[0],h[1],h[2],h[3]};
-        return u;
-    }
-    static inline U32 U32_from_U64(U64 w) {
-        U32 u = {(uint32_t)w[0],(uint32_t)w[1],(uint32_t)w[2],(uint32_t)w[3]};
-        return u;
-    }
-    static inline U8 U8_from_U32(U32 u) {
-        U8 b = {(uint8_t)u[0],(uint8_t)u[1],(uint8_t)u[2],(uint8_t)u[3]};
-        return b;
-    }
+    #define CAST(T, v) (T){(v)[0],(v)[1],(v)[2],(v)[3]}
 #elif N == 8
-    static inline F F_from_U32(U32 u) {
-        I32 i = (I32)u;
-        F f = {(float)i[0], (float)i[1], (float)i[2], (float)i[3],
-               (float)i[4], (float)i[5], (float)i[6], (float)i[7]};
-        return f;
-    }
-    static inline U32 U32_from_F(F f) {
-        I32 i = {(int)f[0], (int)f[1], (int)f[2], (int)f[3],
-                 (int)f[4], (int)f[5], (int)f[6], (int)f[7]};
-        return (U32)i;
-    }
-    static inline U32 U32_from_U16(U16 h) {
-        U32 u = {h[0],h[1],h[2],h[3], h[4],h[5],h[6],h[7]};
-        return u;
-    }
-    static inline U32 U32_from_U64(U64 w) {
-        U32 u = {(uint32_t)w[0],(uint32_t)w[1],(uint32_t)w[2],(uint32_t)w[3],
-                 (uint32_t)w[4],(uint32_t)w[5],(uint32_t)w[6],(uint32_t)w[7]};
-        return u;
-    }
-    static inline U8 U8_from_U32(U32 u) {
-        U8 b = {(uint8_t)u[0],(uint8_t)u[1],(uint8_t)u[2],(uint8_t)u[3],
-                (uint8_t)u[4],(uint8_t)u[5],(uint8_t)u[6],(uint8_t)u[7]};
-        return b;
-    }
+    #define CAST(T, v) (T){(v)[0],(v)[1],(v)[2],(v)[3], (v)[4],(v)[5],(v)[6],(v)[7]}
 #endif
 
 static void load_565_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -136,10 +91,10 @@ static void load_565_N(size_t i, void** ip, char* dst, const char* src, char* tm
     U16 rgb;
     memcpy(&rgb, src + 2*i, 2*N);
 
-    U32 wide = U32_from_U16(rgb);
-    r = F_from_U32(wide & (31<< 0)) * (1.0f / (31<< 0));
-    g = F_from_U32(wide & (63<< 5)) * (1.0f / (63<< 5));
-    b = F_from_U32(wide & (31<<11)) * (1.0f / (31<<11));
+    U32 wide = CAST(U32, rgb);
+    r = CAST(F, wide & (31<< 0)) * (1.0f / (31<< 0));
+    g = CAST(F, wide & (63<< 5)) * (1.0f / (63<< 5));
+    b = CAST(F, wide & (31<<11)) * (1.0f / (31<<11));
     a = F1;
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
@@ -152,18 +107,18 @@ static void load_565_1(size_t i, void** ip, char* dst, const char* src, char* tm
 
 // Strided loads and stores of N values, starting from p.
 #if N == 1
-    #define LOAD_3(p) (p)[0]
-    #define LOAD_4(p) (p)[0]
+    #define LOAD_3(T, p) (T)(p)[0]
+    #define LOAD_4(T, p) (T)(p)[0]
     #define STORE_3(p, v) (p)[0] = v
     #define STORE_4(p, v) (p)[0] = v
 #elif N == 4
-    #define LOAD_3(p) {(p)[0], (p)[3], (p)[6], (p)[ 9]}
-    #define LOAD_4(p) {(p)[0], (p)[4], (p)[8], (p)[12]};
+    #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9]}
+    #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12]};
     #define STORE_3(p, v) for (int k = 0; k < N; k++) (p)[3*k] = v[k]
     #define STORE_4(p, v) for (int k = 0; k < N; k++) (p)[4*k] = v[k]
 #elif N == 8
-    #define LOAD_3(p) {(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
-    #define LOAD_4(p) {(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
+    #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
+    #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
     #define STORE_3(p, v) for (int k = 0; k < N; k++) (p)[3*k] = v[k]
     #define STORE_4(p, v) for (int k = 0; k < N; k++) (p)[4*k] = v[k]
 #endif
@@ -171,9 +126,9 @@ static void load_565_1(size_t i, void** ip, char* dst, const char* src, char* tm
 static void load_888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                        F r, F g, F b, F a) {
     const uint8_t* rgb = (const uint8_t*)(src + 3*i);
-    r = F_from_U32( (U32)LOAD_3(rgb+0) ) * (1/255.0f);
-    g = F_from_U32( (U32)LOAD_3(rgb+1) ) * (1/255.0f);
-    b = F_from_U32( (U32)LOAD_3(rgb+2) ) * (1/255.0f);
+    r = CAST(F, LOAD_3(U32, rgb+0) ) * (1/255.0f);
+    g = CAST(F, LOAD_3(U32, rgb+1) ) * (1/255.0f);
+    b = CAST(F, LOAD_3(U32, rgb+2) ) * (1/255.0f);
     a = F1;
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
@@ -189,10 +144,10 @@ static void load_8888_N(size_t i, void** ip, char* dst, const char* src, char* t
     U32 rgba;
     memcpy(&rgba, src + 4*i, 4*N);
 
-    r = F_from_U32((rgba >>  0) & 0xff) * (1/255.0f);
-    g = F_from_U32((rgba >>  8) & 0xff) * (1/255.0f);
-    b = F_from_U32((rgba >> 16) & 0xff) * (1/255.0f);
-    a = F_from_U32((rgba >> 24) & 0xff) * (1/255.0f);
+    r = CAST(F, (rgba >>  0) & 0xff) * (1/255.0f);
+    g = CAST(F, (rgba >>  8) & 0xff) * (1/255.0f);
+    b = CAST(F, (rgba >> 16) & 0xff) * (1/255.0f);
+    a = CAST(F, (rgba >> 24) & 0xff) * (1/255.0f);
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_8888_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -207,9 +162,9 @@ static void load_101010x_N(size_t i, void** ip, char* dst, const char* src, char
     U32 rgbx;
     memcpy(&rgbx, src + 4*i, 4*N);
 
-    r = F_from_U32((rgbx >>  0) & 0x3ff) * (1/1023.0f);
-    g = F_from_U32((rgbx >> 10) & 0x3ff) * (1/1023.0f);
-    b = F_from_U32((rgbx >> 20) & 0x3ff) * (1/1023.0f);
+    r = CAST(F, (rgbx >>  0) & 0x3ff) * (1/1023.0f);
+    g = CAST(F, (rgbx >> 10) & 0x3ff) * (1/1023.0f);
+    b = CAST(F, (rgbx >> 20) & 0x3ff) * (1/1023.0f);
     a = F1;
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
@@ -225,10 +180,10 @@ static void load_1010102_N(size_t i, void** ip, char* dst, const char* src, char
     U32 rgba;
     memcpy(&rgba, src + 4*i, 4*N);
 
-    r = F_from_U32((rgba >>  0) & 0x3ff) * (1/1023.0f);
-    g = F_from_U32((rgba >> 10) & 0x3ff) * (1/1023.0f);
-    b = F_from_U32((rgba >> 20) & 0x3ff) * (1/1023.0f);
-    a = F_from_U32((rgba >> 30) & 0x3  ) * (1/   3.0f);
+    r = CAST(F, (rgba >>  0) & 0x3ff) * (1/1023.0f);
+    g = CAST(F, (rgba >> 10) & 0x3ff) * (1/1023.0f);
+    b = CAST(F, (rgba >> 20) & 0x3ff) * (1/1023.0f);
+    a = CAST(F, (rgba >> 30) & 0x3  ) * (1/   3.0f);
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_1010102_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -243,13 +198,13 @@ static void load_161616_N(size_t i, void** ip, char* dst, const char* src, char*
     uintptr_t ptr = (uintptr_t)(src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
-    U32 R = LOAD_3(rgb+0),
-        G = LOAD_3(rgb+1),
-        B = LOAD_3(rgb+2);
+    U32 R = LOAD_3(U32, rgb+0),
+        G = LOAD_3(U32, rgb+1),
+        B = LOAD_3(U32, rgb+2);
     // R,G,B are big-endian 16-bit, so byte swap them before converting to float.
-    r = F_from_U32( (R & 0x00ff)<<8 | (R & 0xff00)>>8 ) * (1/65535.0f);
-    g = F_from_U32( (G & 0x00ff)<<8 | (G & 0xff00)>>8 ) * (1/65535.0f);
-    b = F_from_U32( (B & 0x00ff)<<8 | (B & 0xff00)>>8 ) * (1/65535.0f);
+    r = CAST(F, (R & 0x00ff)<<8 | (R & 0xff00)>>8) * (1/65535.0f);
+    g = CAST(F, (G & 0x00ff)<<8 | (G & 0xff00)>>8) * (1/65535.0f);
+    b = CAST(F, (B & 0x00ff)<<8 | (B & 0xff00)>>8) * (1/65535.0f);
     a = F1;
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
@@ -269,10 +224,10 @@ static void load_16161616_N(size_t i, void** ip, char* dst, const char* src, cha
     rgba = (rgba & 0x00ff00ff00ff00ff) << 8
          | (rgba & 0xff00ff00ff00ff00) >> 8;
 
-    r = F_from_U32( U32_from_U64((rgba >>  0) & 0xffff) ) * (1/65535.0f);
-    g = F_from_U32( U32_from_U64((rgba >> 16) & 0xffff) ) * (1/65535.0f);
-    b = F_from_U32( U32_from_U64((rgba >> 32) & 0xffff) ) * (1/65535.0f);
-    a = F_from_U32( U32_from_U64((rgba >> 48) & 0xffff) ) * (1/65535.0f);
+    r = CAST(F, (rgba >>  0) & 0xffff) * (1/65535.0f);
+    g = CAST(F, (rgba >> 16) & 0xffff) * (1/65535.0f);
+    b = CAST(F, (rgba >> 32) & 0xffff) * (1/65535.0f);
+    a = CAST(F, (rgba >> 48) & 0xffff) * (1/65535.0f);
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_16161616_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -310,9 +265,9 @@ static void load_hhh_N(size_t i, void** ip, char* dst, const char* src, char* tm
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
 
-    r = F_from_Half( (U32)LOAD_3(rgb+0) );
-    g = F_from_Half( (U32)LOAD_3(rgb+1) );
-    b = F_from_Half( (U32)LOAD_3(rgb+2) );
+    r = F_from_Half( LOAD_3(U32, rgb+0) );
+    g = F_from_Half( LOAD_3(U32, rgb+1) );
+    b = F_from_Half( LOAD_3(U32, rgb+2) );
     a = F1;
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
@@ -328,10 +283,10 @@ static void load_hhhh_N(size_t i, void** ip, char* dst, const char* src, char* t
     U64 rgba;
     memcpy(&rgba, src + 8*i, 8*N);
 
-    r = F_from_Half( U32_from_U64((rgba >>  0) & 0xffff) );
-    g = F_from_Half( U32_from_U64((rgba >> 16) & 0xffff) );
-    b = F_from_Half( U32_from_U64((rgba >> 32) & 0xffff) );
-    a = F_from_Half( U32_from_U64((rgba >> 48) & 0xffff) );
+    r = F_from_Half( CAST(U32, (rgba >>  0) & 0xffff) );
+    g = F_from_Half( CAST(U32, (rgba >> 16) & 0xffff) );
+    b = F_from_Half( CAST(U32, (rgba >> 32) & 0xffff) );
+    a = F_from_Half( CAST(U32, (rgba >> 48) & 0xffff) );
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_hhhh_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -346,9 +301,9 @@ static void load_fff_N(size_t i, void** ip, char* dst, const char* src, char* tm
     uintptr_t ptr = (uintptr_t)(src + 12*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
     const float* rgb = (const float*)ptr;       // for this cast to const float* to be safe.
-    r = (F)LOAD_3(rgb+0);
-    g = (F)LOAD_3(rgb+1);
-    b = (F)LOAD_3(rgb+2);
+    r = LOAD_3(F, rgb+0);
+    g = LOAD_3(F, rgb+1);
+    b = LOAD_3(F, rgb+2);
     a = F1;
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
@@ -363,11 +318,11 @@ static void load_ffff_N(size_t i, void** ip, char* dst, const char* src, char* t
                         F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(src + 16*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
-    const float* rgba = (const float*)ptr;       // for this cast to const float* to be safe.
-    r = (F)LOAD_4(rgba+0);
-    g = (F)LOAD_4(rgba+1);
-    b = (F)LOAD_4(rgba+2);
-    a = (F)LOAD_4(rgba+3);
+    const float* rgba = (const float*)ptr;      // for this cast to const float* to be safe.
+    r = LOAD_4(F, rgba+0);
+    g = LOAD_4(F, rgba+1);
+    b = LOAD_4(F, rgba+2);
+    a = LOAD_4(F, rgba+3);
     next_stage(i,ip,dst,src,tmp, r,g,b,a);
 }
 static void load_ffff_1(size_t i, void** ip, char* dst, const char* src, char* tmp,
@@ -382,9 +337,9 @@ static void load_ffff_1(size_t i, void** ip, char* dst, const char* src, char* t
 static void store_888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                         F r, F g, F b, F a) {
     uint8_t* rgb = (uint8_t*)dst + 3*i;
-    STORE_3(rgb+0, U8_from_U32(U32_from_F(r * 255 + 0.5f)) );
-    STORE_3(rgb+1, U8_from_U32(U32_from_F(g * 255 + 0.5f)) );
-    STORE_3(rgb+2, U8_from_U32(U32_from_F(b * 255 + 0.5f)) );
+    STORE_3(rgb+0, CAST(U8, r * 255 + 0.5f) );
+    STORE_3(rgb+1, CAST(U8, g * 255 + 0.5f) );
+    STORE_3(rgb+2, CAST(U8, b * 255 + 0.5f) );
     (void)a;
     (void)ip;
     (void)src;
@@ -398,10 +353,10 @@ static void store_888_1(size_t i, void** ip, char* dst, const char* src, char* t
 
 static void store_8888_N(size_t i, void** ip, char* dst, const char* src, char* tmp,
                          F r, F g, F b, F a) {
-    U32 rgba = U32_from_F(r * 255 + 0.5f) <<  0
-             | U32_from_F(g * 255 + 0.5f) <<  8
-             | U32_from_F(b * 255 + 0.5f) << 16
-             | U32_from_F(a * 255 + 0.5f) << 24;
+    U32 rgba = CAST(U32, r * 255 + 0.5f) <<  0
+             | CAST(U32, g * 255 + 0.5f) <<  8
+             | CAST(U32, b * 255 + 0.5f) << 16
+             | CAST(U32, a * 255 + 0.5f) << 24;
     memcpy(dst + 4*i, &rgba, 4*N);
     (void)ip;
     (void)src;
