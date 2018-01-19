@@ -67,6 +67,12 @@
     #if __ARM_FP & 2
         #define USING_NEON_F16C
     #endif
+#elif N == 8 && defined(__AVX__)
+    #include <immintrin.h>
+    #define USING_AVX
+    #if defined(__F16C__)
+        #define USING_AVX_F16C
+    #endif
 #endif
 
 // It helps codegen to call __builtin_memcpy() when we know the byte count at compile time.
@@ -228,11 +234,19 @@ static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, 
     #define if_then_else(c,t,e) ( ((c) & (I32)(t)) | (~(c) & (I32)(e)) )
 #endif
 
-#if !defined(USING_NEON_F16C)
-    static F F_from_Half(U32 half) {
+#if defined(USING_NEON_F16C)
+    static F F_from_Half(U16 half) { return vcvt_f32_f16(half); }
+    static U16 Half_from_F(F f)    { return vcvt_f16_f32(f   ); }
+#elif defined(USING_AVX_F16C)
+    static F F_from_Half(U16 half) { return (F)  _mm256_cvtph_ps((__m128i)half); }
+    static U16 Half_from_F(F f)    { return (U16)_mm256_cvtps_ph((__m256 )f,
+                                                                 _MM_FROUND_CUR_DIRECTION ); }
+#else
+    static F F_from_Half(U16 half) {
+        U32 wide = CAST(U32, half);
         // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
-        U32 s  = half & 0x8000,
-            em = half ^ s;
+        U32 s  = wide & 0x8000,
+            em = wide ^ s;
 
         // Constructing the float is easy if the half is not denormalized.
         U32 norm_bits = (s<<16) + (em<<13) + ((127-15)<<23);
@@ -243,7 +257,7 @@ static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, 
         return (F)if_then_else(em < 0x0400, F0, norm);
     }
 
-    static U32 Half_from_F(F f) {
+    static U16 Half_from_F(F f) {
         // A float is 1-8-23 sign-exponent-mantissa, with 127 exponent bias.
         U32 sem;
         small_memcpy(&sem, &f, sizeof(sem));
@@ -252,8 +266,8 @@ static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, 
             em = sem ^ s;
 
         // For simplicity we flush denorm half floats (including all denorm floats) to zero.
-        return (U32)if_then_else(em < 0x38800000, (U32)F0
-                                                , (s>>16) + (em>>13) - ((127-15)<<10));
+        return CAST(U16, (U32)if_then_else(em < 0x38800000, (U32)F0
+                                                          , (s>>16) + (em>>13) - ((127-15)<<10)));
     }
 #endif
 
@@ -261,38 +275,45 @@ static void load_hhh(size_t i, void** ip, char* dst, const char* src, F r, F g, 
     uintptr_t ptr = (uintptr_t)(src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
-#if defined(USING_NEON_F16C)
+#if defined(USING_NEON)
     uint16x4x3_t v = vld3_u16(rgb);
-    r = vcvt_f32_f16(v.val[0]);
-    g = vcvt_f32_f16(v.val[1]);
-    b = vcvt_f32_f16(v.val[2]);
+    U16 R = v.val[0],
+        G = v.val[1],
+        B = v.val[2];
 #else
-    r = F_from_Half( LOAD_3(U32, rgb+0) );
-    g = F_from_Half( LOAD_3(U32, rgb+1) );
-    b = F_from_Half( LOAD_3(U32, rgb+2) );
+    U16 R = LOAD_3(U16, rgb+0),
+        G = LOAD_3(U16, rgb+1),
+        B = LOAD_3(U16, rgb+2);
 #endif
+    r = F_from_Half(R);
+    g = F_from_Half(G);
+    b = F_from_Half(B);
     a = F1;
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
 static void load_hhhh(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(src + 8*i);
-    assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
-    const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
-#if defined(USING_NEON_F16C)
-    uint16x4x4_t v = vld4_u16(rgb);
-    r = vcvt_f32_f16(v.val[0]);
-    g = vcvt_f32_f16(v.val[1]);
-    b = vcvt_f32_f16(v.val[2]);
-    a = vcvt_f32_f16(v.val[3]);
+    assert( (ptr & 1) == 0 );                    // The src pointer must be 2-byte aligned
+    const uint16_t* rgba = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
+#if defined(USING_NEON)
+    uint16x4x4_t v = vld4_u16(rgba);
+    U16 R = v.val[0],
+        G = v.val[1],
+        B = v.val[2],
+        A = v.val[3];
 #else
-    U64 rgba;
-    small_memcpy(&rgba, rgb, 8*N);
-    r = F_from_Half( CAST(U32, (rgba >>  0) & 0xffff) );
-    g = F_from_Half( CAST(U32, (rgba >> 16) & 0xffff) );
-    b = F_from_Half( CAST(U32, (rgba >> 32) & 0xffff) );
-    a = F_from_Half( CAST(U32, (rgba >> 48) & 0xffff) );
+    U64 px;
+    small_memcpy(&px, rgba, 8*N);
+    U16 R = CAST(U16, (px >>  0) & 0xffff),
+        G = CAST(U16, (px >> 16) & 0xffff),
+        B = CAST(U16, (px >> 32) & 0xffff),
+        A = CAST(U16, (px >> 48) & 0xffff);
 #endif
+    r = F_from_Half(R);
+    g = F_from_Half(G);
+    b = F_from_Half(B);
+    a = F_from_Half(A);
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
@@ -423,16 +444,16 @@ static void store_hhh(size_t i, void** ip, char* dst, const char* src, F r, F g,
     uintptr_t ptr = (uintptr_t)(dst + 6*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
-#if defined(USING_NEON_F16C)
-    vst3_u16(rgb, ((uint16x4x3_t){{
-        vcvt_f16_f32(r),
-        vcvt_f16_f32(g),
-        vcvt_f16_f32(b),
-    }}));
+
+    U16 R = Half_from_F(r),
+        G = Half_from_F(g),
+        B = Half_from_F(b);
+#if defined(USING_NEON)
+    vst3_u16(rgb, ((uint16x4x3_t){{R,G,B}}));
 #else
-    STORE_3(rgb+0, CAST(U16, Half_from_F(r)));
-    STORE_3(rgb+1, CAST(U16, Half_from_F(g)));
-    STORE_3(rgb+2, CAST(U16, Half_from_F(b)));
+    STORE_3(rgb+0, R);
+    STORE_3(rgb+1, G);
+    STORE_3(rgb+2, B);
 #endif
     (void)a;
     (void)ip;
@@ -443,18 +464,18 @@ static void store_hhhh(size_t i, void** ip, char* dst, const char* src, F r, F g
     uintptr_t ptr = (uintptr_t)(dst + 8*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgba = (uint16_t*)ptr;            // for this cast to uint16_t* to be safe.
-#if defined(USING_NEON_F16C)
-    vst4_u16(rgba, ((uint16x4x4_t){{
-        vcvt_f16_f32(r),
-        vcvt_f16_f32(g),
-        vcvt_f16_f32(b),
-        vcvt_f16_f32(a),
-    }}));
+
+    U16 R = Half_from_F(r),
+        G = Half_from_F(g),
+        B = Half_from_F(b),
+        A = Half_from_F(a);
+#if defined(USING_NEON)
+    vst4_u16(rgba, ((uint16x4x4_t){{R,G,B,A}}));
 #else
-    U64 px = CAST(U64, Half_from_F(r)) <<  0
-           | CAST(U64, Half_from_F(g)) << 16
-           | CAST(U64, Half_from_F(b)) << 32
-           | CAST(U64, Half_from_F(a)) << 48;
+    U64 px = CAST(U64, R) <<  0
+           | CAST(U64, G) << 16
+           | CAST(U64, B) << 32
+           | CAST(U64, A) << 48;
     small_memcpy(rgba, &px, 8*N);
 #endif
     (void)ip;
