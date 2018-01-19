@@ -327,6 +327,28 @@ static void test_FormatConversions_half() {
     expect_eq2(fdst[5], +0.00006097555f, 0.0f);  // may have been flushed to zero
     expect_eq2(fdst[6], -0.00006097555f, 0.0f);
     expect_eq(fdst[7], -1.0f);
+
+    // Now convert back, first to RGBA halfs, then RGB halfs.
+    uint16_t back[8];
+    expect(skcms_Transform(&back, skcms_PixelFormat_RGBA_hhhh, &profile,
+                           &fdst, skcms_PixelFormat_RGBA_ffff, &profile, 2));
+    expect_eq (back[0], src[0]);
+    expect_eq (back[1], src[1]);
+    expect_eq (back[2], src[2]);
+    expect_eq (back[3], src[3]);
+    expect_eq (back[4], src[4]);
+    expect_eq2(back[5], src[5], 0x0000);
+    expect_eq2(back[6], src[6], 0x0000);
+    expect_eq (back[7], src[7]);
+
+    expect(skcms_Transform(&back, skcms_PixelFormat_RGB_hhh  , &profile,
+                           &fdst, skcms_PixelFormat_RGBA_ffff, &profile, 2));
+    expect_eq (back[0], src[0]);
+    expect_eq (back[1], src[1]);
+    expect_eq (back[2], src[2]);
+    expect_eq (back[3], src[4]);
+    expect_eq2(back[4], src[5], 0x0000);
+    expect_eq2(back[5], src[6], 0x0000);
 }
 
 static void test_FormatConversions_float() {
