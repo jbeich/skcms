@@ -15,7 +15,7 @@ ldflags = -pie -fuse-ld=gold $
 out     = out/android-arm$mode
 
 rule run
-    command = if which -s adb && adb get-state >/dev/null 2>/dev/null; $
+    command = if which adb >/dev/null && adb get-state >/dev/null 2>/dev/null; $
               then $
                   adb push $in /data/local/tmp/$in >/dev/null; $
                   adb shell "cd /data/local/tmp; ./$in" > $out; $
