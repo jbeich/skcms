@@ -20,6 +20,7 @@
 
 // Compilers can be a little nervous about exact float equality comparisons.
 #define expect_eq(a, b) expect((a) <= (b) && (b) <= (a))
+#define expect_eq2(a, b, c) expect( ((a) <= (b) && (b) <= (a)) || ((a) <= (c) && (c) <= (a)) )
 
 static void test_ICCProfile() {
     // Nothing works yet.  :)
@@ -299,8 +300,8 @@ static void test_FormatConversions_half() {
         0x1805,  // Should round up to 0x01
         0x1804,  // Should round down to 0x00
         0x4000,  // 2.0
-        0x03ff,  // A denorm, flushed to zero.
-        0x83ff,  // A negative denorm, flushed to zero.
+        0x03ff,  // A denorm, may be flushed to zero.
+        0x83ff,  // A negative denorm, may be flushed to zero.
         0xbc00,  // -1.0
     };
 
@@ -323,8 +324,8 @@ static void test_FormatConversions_half() {
     expect(fdst[2] > 1/510.0f);
     expect(fdst[3] < 1/510.0f);
     expect_eq(fdst[4],  2.0f);
-    expect_eq(fdst[5],  0.0f);
-    expect_eq(fdst[6],  0.0f);
+    expect_eq2(fdst[5], +0.00006097555f, 0.0f);  // may have been flushed to zero
+    expect_eq2(fdst[6], -0.00006097555f, 0.0f);
     expect_eq(fdst[7], -1.0f);
 }
 

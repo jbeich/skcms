@@ -61,6 +61,14 @@
                    F1 = {1,1,1,1};
 #endif
 
+#if N == 4 && defined(__ARM_NEON)
+    #include <arm_neon.h>
+    #define USING_NEON
+    #if __ARM_FP & 2
+        #define USING_NEON_F16C
+    #endif
+#endif
+
 // It helps codegen to call __builtin_memcpy() when we know the byte count at compile time.
 #if defined(__clang__) || defined(__GNUC__)
     #define small_memcpy __builtin_memcpy
@@ -162,6 +170,12 @@ static void load_161616(size_t i, void** ip, char* dst, const char* src, F r, F 
     uintptr_t ptr = (uintptr_t)(src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
+#if defined(USING_NEON)
+    uint16x4x3_t v = vld3_u16(rgb);
+    r = CAST(F, (U16)vrev16_u8(v.val[0])) * (1/65535.0f);
+    g = CAST(F, (U16)vrev16_u8(v.val[1])) * (1/65535.0f);
+    b = CAST(F, (U16)vrev16_u8(v.val[2])) * (1/65535.0f);
+#else
     U32 R = LOAD_3(U32, rgb+0),
         G = LOAD_3(U32, rgb+1),
         B = LOAD_3(U32, rgb+2);
@@ -169,70 +183,102 @@ static void load_161616(size_t i, void** ip, char* dst, const char* src, F r, F 
     r = CAST(F, (R & 0x00ff)<<8 | (R & 0xff00)>>8) * (1/65535.0f);
     g = CAST(F, (G & 0x00ff)<<8 | (G & 0xff00)>>8) * (1/65535.0f);
     b = CAST(F, (B & 0x00ff)<<8 | (B & 0xff00)>>8) * (1/65535.0f);
+#endif
     a = F1;
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
-// Swap high and low bytes of 16-bit lanes, converting between big-endian and little-endian.
-static U64 swap_endian_16bit(U64 rgba) {
-    return (rgba & 0x00ff00ff00ff00ff) << 8
-         | (rgba & 0xff00ff00ff00ff00) >> 8;
-}
+#if !defined(USING_NEON)
+    // Swap high and low bytes of 16-bit lanes, converting between big-endian and little-endian.
+    static U64 swap_endian_16bit(U64 rgba) {
+        return (rgba & 0x00ff00ff00ff00ff) << 8
+             | (rgba & 0xff00ff00ff00ff00) >> 8;
+    }
+#endif
 
 static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    U64 rgba;
-    small_memcpy(&rgba, src + 8*i, 8*N);
+    uintptr_t ptr = (uintptr_t)(src + 8*i);
+    assert( (ptr & 1) == 0 );                    // The src pointer must be 2-byte aligned
+    const uint16_t* rgba = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
+#if defined(USING_NEON)
+    uint16x4x4_t v = vld4_u16(rgba);
+    r = CAST(F, (U16)vrev16_u8(v.val[0])) * (1/65535.0f);
+    g = CAST(F, (U16)vrev16_u8(v.val[1])) * (1/65535.0f);
+    b = CAST(F, (U16)vrev16_u8(v.val[2])) * (1/65535.0f);
+    a = CAST(F, (U16)vrev16_u8(v.val[3])) * (1/65535.0f);
+#else
+    U64 px;
+    small_memcpy(&px, rgba, 8*N);
 
-    rgba = swap_endian_16bit(rgba);
-    r = CAST(F, (rgba >>  0) & 0xffff) * (1/65535.0f);
-    g = CAST(F, (rgba >> 16) & 0xffff) * (1/65535.0f);
-    b = CAST(F, (rgba >> 32) & 0xffff) * (1/65535.0f);
-    a = CAST(F, (rgba >> 48) & 0xffff) * (1/65535.0f);
+    px = swap_endian_16bit(px);
+    r = CAST(F, (px >>  0) & 0xffff) * (1/65535.0f);
+    g = CAST(F, (px >> 16) & 0xffff) * (1/65535.0f);
+    b = CAST(F, (px >> 32) & 0xffff) * (1/65535.0f);
+    a = CAST(F, (px >> 48) & 0xffff) * (1/65535.0f);
+#endif
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
-static F if_then_else(I32 cond, F t, F e) {
-#if N == 1
-    return cond ? t : e;
-#else
-    return (F)( (cond & (I32)t) | (~cond & (I32)e) );
+#if !defined(USING_NEON_F16C)
+    static F if_then_else(I32 cond, F t, F e) {
+    #if N == 1
+        return cond ? t : e;
+    #else
+        return (F)( (cond & (I32)t) | (~cond & (I32)e) );
+    #endif
+    }
+
+    static F F_from_Half(U32 half) {
+        // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
+        U32 s  = half & 0x8000,
+            em = half ^ s;
+
+        // Constructing the float is easy if the half is not denormalized.
+        U32 norm_bits = (s<<16) + (em<<13) + ((127-15)<<23);
+        F norm;
+        small_memcpy(&norm, &norm_bits, sizeof(norm));
+
+        // Simply flush all denorm half floats to zero.
+        return if_then_else(em < 0x0400, F0, norm);
+    }
 #endif
-}
-
-static F F_from_Half(U32 half) {
-    // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
-    U32 s  = half & 0x8000,
-        em = half ^ s;
-
-    // Constructing the float is easy if the half is not denormalized.
-    U32 norm_bits = (s<<16) + (em<<13) + ((127-15)<<23);
-    F norm;
-    small_memcpy(&norm, &norm_bits, sizeof(norm));
-
-    // Simply flush all denorm half floats to zero.
-    return if_then_else(em < 0x0400, F0, norm);
-}
 
 static void load_hhh(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
-
+#if defined(USING_NEON_F16C)
+    uint16x4x3_t v = vld3_u16(rgb);
+    r = vcvt_f32_f16(v.val[0]);
+    g = vcvt_f32_f16(v.val[1]);
+    b = vcvt_f32_f16(v.val[2]);
+#else
     r = F_from_Half( LOAD_3(U32, rgb+0) );
     g = F_from_Half( LOAD_3(U32, rgb+1) );
     b = F_from_Half( LOAD_3(U32, rgb+2) );
+#endif
     a = F1;
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
 static void load_hhhh(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(src + 8*i);
+    assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
+    const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
+#if defined(USING_NEON_F16C)
+    uint16x4x4_t v = vld4_u16(rgb);
+    r = vcvt_f32_f16(v.val[0]);
+    g = vcvt_f32_f16(v.val[1]);
+    b = vcvt_f32_f16(v.val[2]);
+    a = vcvt_f32_f16(v.val[3]);
+#else
     U64 rgba;
-    small_memcpy(&rgba, src + 8*i, 8*N);
-
+    small_memcpy(&rgba, rgb, 8*N);
     r = F_from_Half( CAST(U32, (rgba >>  0) & 0xffff) );
     g = F_from_Half( CAST(U32, (rgba >> 16) & 0xffff) );
     b = F_from_Half( CAST(U32, (rgba >> 32) & 0xffff) );
     a = F_from_Half( CAST(U32, (rgba >> 48) & 0xffff) );
+#endif
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
@@ -240,9 +286,16 @@ static void load_fff(size_t i, void** ip, char* dst, const char* src, F r, F g, 
     uintptr_t ptr = (uintptr_t)(src + 12*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
     const float* rgb = (const float*)ptr;       // for this cast to const float* to be safe.
+#if defined(USING_NEON)
+    float32x4x3_t v = vld3q_f32(rgb);
+    r = v.val[0];
+    g = v.val[1];
+    b = v.val[2];
+#else
     r = LOAD_3(F, rgb+0);
     g = LOAD_3(F, rgb+1);
     b = LOAD_3(F, rgb+2);
+#endif
     a = F1;
     next_stage(i,ip,dst,src, r,g,b,a);
 }
@@ -251,10 +304,18 @@ static void load_ffff(size_t i, void** ip, char* dst, const char* src, F r, F g,
     uintptr_t ptr = (uintptr_t)(src + 16*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
     const float* rgba = (const float*)ptr;      // for this cast to const float* to be safe.
+#if defined(USING_NEON)
+    float32x4x4_t v = vld4q_f32(rgba);
+    r = v.val[0];
+    g = v.val[1];
+    b = v.val[2];
+    a = v.val[3];
+#else
     r = LOAD_4(F, rgba+0);
     g = LOAD_4(F, rgba+1);
     b = LOAD_4(F, rgba+2);
     a = LOAD_4(F, rgba+3);
+#endif
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
@@ -302,25 +363,46 @@ static void store_161616(size_t i, void** ip, char* dst, const char* src, F r, F
     uintptr_t ptr = (uintptr_t)(dst + 6*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
-
+#if defined(USING_NEON)
+    uint16x4x3_t v = {{
+        (U16)vrev16_u8(CAST(U16, to_fixed(r * 65535))),
+        (U16)vrev16_u8(CAST(U16, to_fixed(g * 65535))),
+        (U16)vrev16_u8(CAST(U16, to_fixed(b * 65535))),
+    }};
+    vst3_u16(rgb, v);
+#else
     I32 R = to_fixed(r * 65535),
         G = to_fixed(g * 65535),
         B = to_fixed(b * 65535);
     STORE_3(rgb+0, CAST(U16, (R & 0x00ff) << 8 | (R & 0xff00) >> 8) );
     STORE_3(rgb+1, CAST(U16, (G & 0x00ff) << 8 | (G & 0xff00) >> 8) );
     STORE_3(rgb+2, CAST(U16, (B & 0x00ff) << 8 | (B & 0xff00) >> 8) );
+#endif
     (void)a;
     (void)ip;
     (void)src;
 }
 
 static void store_16161616(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    U64 rgba = CAST(U64, to_fixed(r * 65535)) <<  0
-             | CAST(U64, to_fixed(g * 65535)) << 16
-             | CAST(U64, to_fixed(b * 65535)) << 32
-             | CAST(U64, to_fixed(a * 65535)) << 48;
-    rgba = swap_endian_16bit(rgba);
-    small_memcpy(dst + 8*i, &rgba, 8*N);
+    uintptr_t ptr = (uintptr_t)(dst + 8*i);
+    assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
+    uint16_t* rgba = (uint16_t*)ptr;            // for this cast to uint16_t* to be safe.
+#if defined(USING_NEON)
+    uint16x4x4_t v = {{
+        (U16)vrev16_u8(CAST(U16, to_fixed(r * 65535))),
+        (U16)vrev16_u8(CAST(U16, to_fixed(g * 65535))),
+        (U16)vrev16_u8(CAST(U16, to_fixed(b * 65535))),
+        (U16)vrev16_u8(CAST(U16, to_fixed(a * 65535))),
+    }};
+    vst4_u16(rgba, v);
+#else
+    U64 px = CAST(U64, to_fixed(r * 65535)) <<  0
+           | CAST(U64, to_fixed(g * 65535)) << 16
+           | CAST(U64, to_fixed(b * 65535)) << 32
+           | CAST(U64, to_fixed(a * 65535)) << 48;
+    px = swap_endian_16bit(px);
+    small_memcpy(rgba, &px, 8*N);
+#endif
     (void)ip;
     (void)src;
 }
@@ -332,9 +414,13 @@ static void store_fff(size_t i, void** ip, char* dst, const char* src, F r, F g,
     uintptr_t ptr = (uintptr_t)(dst + 12*i);
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgb = (float*)ptr;                   // for this cast to float* to be safe.
+#if defined(USING_NEON)
+    vst3q_f32(rgb, ((float32x4x3_t){{r,g,b}}) );
+#else
     STORE_3(rgb+0, r);
     STORE_3(rgb+1, g);
     STORE_3(rgb+2, b);
+#endif
     (void)a;
     (void)ip;
     (void)src;
@@ -344,10 +430,14 @@ static void store_ffff(size_t i, void** ip, char* dst, const char* src, F r, F g
     uintptr_t ptr = (uintptr_t)(dst + 16*i);
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgba = (float*)ptr;                  // for this cast to float* to be safe.
+#if defined(USING_NEON)
+    vst4q_f32(rgba, ((float32x4x4_t){{r,g,b,a}}) );
+#else
     STORE_4(rgba+0, r);
     STORE_4(rgba+1, g);
     STORE_4(rgba+2, b);
     STORE_4(rgba+3, a);
+#endif
     (void)ip;
     (void)src;
 }
@@ -356,8 +446,13 @@ static void swap_rb(size_t i, void** ip, char* dst, const char* src, F r, F g, F
     next_stage(i,ip,dst,src, b,g,r,a);
 }
 
-static F min(F x, F y) { return if_then_else(x > y, y, x); }
-static F max(F x, F y) { return if_then_else(x < y, y, x); }
+#if defined(USING_NEON)
+    static F min(F x, F y) { return vminq_f32(x,y); }
+    static F max(F x, F y) { return vmaxq_f32(x,y); }
+#else
+    static F min(F x, F y) { return if_then_else(x > y, y, x); }
+    static F max(F x, F y) { return if_then_else(x < y, y, x); }
+#endif
 
 static void clamp(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     r = max(F0, min(r, F1));
