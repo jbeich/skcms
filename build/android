@@ -7,13 +7,17 @@ cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang -target $target
 cflags  = -fcolor-diagnostics -Weverything -Wno-padded $
           --sysroot $ndk/sysroot $
           -I $ndk/sysroot/usr/include/$target
-ldflags = --sysroot $ndk/platforms/android-$ndk_api/$arch $
+ldflags = -pie -fuse-ld=gold $
+          --sysroot $ndk/platforms/android-$ndk_api/$arch $
           -B $ndk/toolchains/${target}-4.9/prebuilt/*/$target/bin $
           -L $ndk/toolchains/${target}-4.9/prebuilt/*/lib/gcc/$target/4.9.x
 out     = out/android$mode
 
-# TODO: run if exactly 1 device is attached
 rule run
-    command = touch $out
-    description = skipping $in
+    command = if which -s adb && adb get-state >/dev/null 2>/dev/null; $
+              then $
+                  adb push $in /data/local/tmp/$in >/dev/null; $
+                  adb shell "cd /data/local/tmp; ./$in" > $out; $
+              else touch $out; fi
+    description = run $in
 include build/common
