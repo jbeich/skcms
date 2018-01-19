@@ -219,15 +219,16 @@ static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, 
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
-#if !defined(USING_NEON_F16C)
-    static F if_then_else(I32 cond, F t, F e) {
-    #if N == 1
-        return cond ? t : e;
-    #else
-        return (F)( (cond & (I32)t) | (~cond & (I32)e) );
-    #endif
-    }
+// Comparisons result in bool when N == 1, in an I32 mask when N > 1.
+// We've made this a macro so it can be type-generic...
+// always (T) cast the result to the type you expect the result to be.
+#if N == 1
+    #define if_then_else(c,t,e) ( (c) ? (t) : (e) )
+#else
+    #define if_then_else(c,t,e) ( ((c) & (I32)(t)) | (~(c) & (I32)(e)) )
+#endif
 
+#if !defined(USING_NEON_F16C)
     static F F_from_Half(U32 half) {
         // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
         U32 s  = half & 0x8000,
@@ -239,7 +240,20 @@ static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, 
         small_memcpy(&norm, &norm_bits, sizeof(norm));
 
         // Simply flush all denorm half floats to zero.
-        return if_then_else(em < 0x0400, F0, norm);
+        return (F)if_then_else(em < 0x0400, F0, norm);
+    }
+
+    static U32 Half_from_F(F f) {
+        // A float is 1-8-23 sign-exponent-mantissa, with 127 exponent bias.
+        U32 sem;
+        small_memcpy(&sem, &f, sizeof(sem));
+
+        U32 s  = sem & 0x80000000,
+            em = sem ^ s;
+
+        // For simplicity we flush denorm half floats (including all denorm floats) to zero.
+        return (U32)if_then_else(em < 0x38800000, (U32)F0
+                                                , (s>>16) + (em>>13) - ((127-15)<<10));
     }
 #endif
 
@@ -405,8 +419,47 @@ static void store_16161616(size_t i, void** ip, char* dst, const char* src, F r,
     (void)src;
 }
 
-// TODO: store_hhh
-// TODO: store_hhhh
+static void store_hhh(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(dst + 6*i);
+    assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
+    uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
+#if defined(USING_NEON_F16C)
+    vst3_u16(rgb, ((uint16x4x3_t){{
+        vcvt_f16_f32(r),
+        vcvt_f16_f32(g),
+        vcvt_f16_f32(b),
+    }}));
+#else
+    STORE_3(rgb+0, CAST(U16, Half_from_F(r)));
+    STORE_3(rgb+1, CAST(U16, Half_from_F(g)));
+    STORE_3(rgb+2, CAST(U16, Half_from_F(b)));
+#endif
+    (void)a;
+    (void)ip;
+    (void)src;
+}
+
+static void store_hhhh(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+    uintptr_t ptr = (uintptr_t)(dst + 8*i);
+    assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
+    uint16_t* rgba = (uint16_t*)ptr;            // for this cast to uint16_t* to be safe.
+#if defined(USING_NEON_F16C)
+    vst4_u16(rgba, ((uint16x4x4_t){{
+        vcvt_f16_f32(r),
+        vcvt_f16_f32(g),
+        vcvt_f16_f32(b),
+        vcvt_f16_f32(a),
+    }}));
+#else
+    U64 px = CAST(U64, Half_from_F(r)) <<  0
+           | CAST(U64, Half_from_F(g)) << 16
+           | CAST(U64, Half_from_F(b)) << 32
+           | CAST(U64, Half_from_F(a)) << 48;
+    small_memcpy(rgba, &px, 8*N);
+#endif
+    (void)ip;
+    (void)src;
+}
 
 static void store_fff(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(dst + 12*i);
@@ -448,8 +501,8 @@ static void swap_rb(size_t i, void** ip, char* dst, const char* src, F r, F g, F
     static F min(F x, F y) { return vminq_f32(x,y); }
     static F max(F x, F y) { return vmaxq_f32(x,y); }
 #else
-    static F min(F x, F y) { return if_then_else(x > y, y, x); }
-    static F max(F x, F y) { return if_then_else(x < y, y, x); }
+    static F min(F x, F y) { return (F)if_then_else(x > y, y, x); }
+    static F max(F x, F y) { return (F)if_then_else(x < y, y, x); }
 #endif
 
 static void clamp(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
@@ -536,6 +589,8 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
         case skcms_PixelFormat_RGBA_1010102  >> 1: *ip++ = (void*)store_1010102;  break;
         case skcms_PixelFormat_RGB_161616    >> 1: *ip++ = (void*)store_161616;   break;
         case skcms_PixelFormat_RGBA_16161616 >> 1: *ip++ = (void*)store_16161616; break;
+        case skcms_PixelFormat_RGB_hhh       >> 1: *ip++ = (void*)store_hhh;      break;
+        case skcms_PixelFormat_RGBA_hhhh     >> 1: *ip++ = (void*)store_hhhh;     break;
         case skcms_PixelFormat_RGB_fff       >> 1: *ip++ = (void*)store_fff;      break;
         case skcms_PixelFormat_RGBA_ffff     >> 1: *ip++ = (void*)store_ffff;     break;
     }
