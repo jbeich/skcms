@@ -16,6 +16,24 @@
       "revId": "d5554359a3d5b4ec0f8db655ef305586fbce1a0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44a13e57_547e9c8e",
+        "filename": "src/Transform.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-19T14:43:18Z",
+      "side": 1,
+      "message": "It\u0027ll be used by F_from_Half() just below.\n\nI just hacked together 32-bit builds without NEON, with NEON+VFPv3 (no F16) and with NEON+VFPv4 (F16).  They\u0027re all building and running ok.",
+      "parentUuid": "e3dd15a8_7ac46ced",
+      "revId": "d5554359a3d5b4ec0f8db655ef305586fbce1a0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
