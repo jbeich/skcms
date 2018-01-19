@@ -436,16 +436,16 @@ static const struct {
     { "profiles/mobile/iPhone7p.icc",                  true,  &srgb_transfer_fn, &p3_to_xyz },
 
     // V4 profiles with LUT TRC curves and XYZ
-    { "profiles/mobile/Display_P3_LUT.icc",            true,  NULL, &p3_to_xyz },
-    { "profiles/mobile/sRGB_LUT.icc",                  true,  NULL, &srgb_to_xyz },
+    { "profiles/mobile/Display_P3_LUT.icc",            true,  &srgb_transfer_fn, &p3_to_xyz },
+    { "profiles/mobile/sRGB_LUT.icc",                  true,  &srgb_transfer_fn, &srgb_to_xyz },
 
     // V2 profiles with gamma TRC and XYZ
     { "profiles/color.org/Lower_Left.icc",             true,  &gamma_2_2_transfer_fn, &sgbr_to_xyz },
     { "profiles/color.org/Lower_Right.icc",            true,  &gamma_2_2_transfer_fn, &adobe_to_xyz },
 
     // V2 profiles with LUT TRC and XYZ
-    { "profiles/color.org/sRGB2014.icc",               true,  NULL, &srgb_to_xyz },
-    { "profiles/sRGB_Facebook.icc",                    true,  NULL, &srgb_to_xyz },
+    { "profiles/color.org/sRGB2014.icc",               true,  &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/sRGB_Facebook.icc",                    true,  &srgb_transfer_fn, &srgb_to_xyz },
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
@@ -465,6 +465,17 @@ static void load_file(const char* filename, void** buf, size_t* len) {
     expect(bytes_read == *len);
 }
 
+static float tf_eval_unclamped(const skcms_TransferFunction* fn, float x) {
+    if (x < fn->d)
+        return fn->c * x + fn->f;
+    return powf(fn->a * x + fn->b, fn->g) + fn->e;
+}
+
+static float tf_eval(const skcms_TransferFunction* fn, float x) {
+    float fn_at_x_unclamped = tf_eval_unclamped(fn, x);
+    return fminf(fmaxf(fn_at_x_unclamped, 0.f), 1.f);
+}
+
 static void test_ICCProfile_parse() {
     const int test_cases_count = sizeof(profile_test_cases) / sizeof(profile_test_cases[0]);
     for (int i = 0; i < test_cases_count; ++i) {
@@ -475,6 +486,37 @@ static void test_ICCProfile_parse() {
         bool result = skcms_ICCProfile_parse(&profile, buf, len);
         expect(result == profile_test_cases[i].expect_parse);
 
+        if (!result) {
+            continue;
+        }
+
+        skcms_TransferFunction tf;
+        float max_error;
+        if (skcms_ICCProfile_approximateTransferFunction(&profile, &tf, &max_error)) {
+            expect(profile_test_cases[i].expect_tf);
+            const float* a = &tf.g;
+            const float* b = &profile_test_cases[i].expect_tf->g;
+            printf("%s (%.7f)\n", profile_test_cases[i].filename, (double)max_error);
+            for (int j = 0; j < 7; ++j) {
+                printf("%.7f : %.7f : %.7f : %.3f\n",
+                    (double)a[j], (double)b[j], (double)fabsf(a[j] - b[j]),
+                    (double)(100.0f * fabsf(a[j] - b[j])/b[j]));
+            }
+            float m = 0.0f;
+            int v = 0;
+            for (int j = 0; j < 256; ++j) {
+                float t = j / 255.0f;
+                float xa = tf_eval(&tf, t);
+                float xb = tf_eval(profile_test_cases[i].expect_tf, t);
+                float err = fabsf(xa - xb);
+                if (err > m) {
+                    m = err;
+                    v = j;
+                }
+            }
+            printf("Worst: %d -> %.7f\n\n", v, (double)m);
+        }
+/*
         skcms_TransferFunction transferFn;
         bool tf_result = skcms_ICCProfile_getTransferFunction(&profile, &transferFn);
         expect(profile_test_cases[i].expect_parse || !profile_test_cases[i].expect_tf);
@@ -511,7 +553,7 @@ static void test_ICCProfile_parse() {
                 expect(fabsf(toXYZ.vals[v] - profile_test_cases[i].expect_xyz->vals[v]) < kXYZ_Tol);
             }
         }
-
+*/
         free(buf);
     }
 }

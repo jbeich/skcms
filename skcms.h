@@ -85,6 +85,10 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
 // (if non-NULL) and return true, otherwise return false.
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
 
+bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile*,
+                                                  skcms_TransferFunction*,
+                                                  float* max_error);
+
 typedef struct {
     uint32_t       signature;
     uint32_t       type;
