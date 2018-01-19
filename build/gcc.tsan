@@ -1,6 +1,0 @@
-mode          = .tsan
-extra_cflags  = -fsanitize=thread
-extra_ldflags = -fsanitize=thread
-include build/gcc
-
-disabled = (uname | grep -qv Linux)

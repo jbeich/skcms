@@ -15,7 +15,6 @@ subninja build/gcc.m32
 subninja build/gcc.native
 subninja build/gcc.portable
 subninja build/gcc.tiny
-subninja build/gcc.tsan
 subninja build/gcc.xsan
 
 subninja build/android

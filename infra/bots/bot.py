@@ -26,8 +26,4 @@ if 'linux' in sys.platform:
   clang_linux = os.path.realpath(sys.argv[3])
   append('skcms/build/clang', 'cc = {}/bin/clang'.format(clang_linux))
 
-  # We're seeing an unexpected error when running gcc.tsan/tests:
-  # FATAL: ThreadSanitizer: unexpected memory mapping 0x55e16e36c000-0x55e16e374000
-  append('skcms/build/gcc.tsan', 'disabled = true')
-
 call('{ninja}/ninja -C skcms -k 0'.format(ninja=sys.argv[1]))
