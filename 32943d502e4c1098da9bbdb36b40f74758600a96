@@ -52,6 +52,24 @@
       "revId": "32943d502e4c1098da9bbdb36b40f74758600a96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b13c564c_5ad0b290",
+        "filename": "afl-fuzz.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-01-22T18:36:51Z",
+      "side": 1,
+      "message": "Sorry, I misread everything.  No, don\u0027t export AFL_USE_ASAN, leave that up to the caller",
+      "parentUuid": "9bca43c0_1d382104",
+      "revId": "32943d502e4c1098da9bbdb36b40f74758600a96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
