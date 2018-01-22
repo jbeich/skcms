@@ -9,7 +9,7 @@ rule compile
     description = compile $out
 
 rule link
-    command = $disabled && touch $out || $cc $ldflags $extra_ldflags $in -o $out
+    command = $disabled && touch $out || $cc $ldflags $extra_ldflags -lm $in -o $out
     description = link $out
 
 build $out/skcms.o:  compile skcms.c
