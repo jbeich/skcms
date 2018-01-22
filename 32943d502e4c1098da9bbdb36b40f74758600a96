@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b65d35a_ca8bfe5b",
+        "filename": "afl-fuzz.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-22T16:49:13Z",
+      "side": 1,
+      "message": "Should I also export AFL_USE_ASAN\u003d1 ?",
+      "revId": "32943d502e4c1098da9bbdb36b40f74758600a96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
