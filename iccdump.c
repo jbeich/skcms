@@ -111,20 +111,26 @@ int main(int argc, char** argv) {
     printf("\n");
 
     skcms_TransferFunction tf;
+    float max_error;
     if (skcms_ICCProfile_getTransferFunction(&profile, &tf)) {
         printf("TRC : %f, %f, %f, %f, %f, %f, %f\n",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f);
+    } else if (skcms_ICCProfile_approximateTransferFunction(&profile, &tf, &max_error)) {
+        printf("~TRC: %f, %f, %f, %f, %f, %f, %f  (Max error: %f)\n",
+               (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
+               (double)tf.d, (double)tf.e, (double)tf.f, (double)max_error);
+
     }
 
-    skcms_Matrix3x3 toXYZD50;
-    if (skcms_ICCProfile_toXYZD50(&profile, &toXYZD50)) {
+    skcms_Matrix3x3 toXYZ;
+    if (skcms_ICCProfile_toXYZD50(&profile, &toXYZ)) {
         printf("XYZ : | %.7f %.7f %.7f |\n"
                "      | %.7f %.7f %.7f |\n"
                "      | %.7f %.7f %.7f |\n",
-               (double)toXYZD50.vals[0], (double)toXYZD50.vals[1], (double)toXYZD50.vals[2],
-               (double)toXYZD50.vals[3], (double)toXYZD50.vals[4], (double)toXYZD50.vals[5],
-               (double)toXYZD50.vals[6], (double)toXYZD50.vals[7], (double)toXYZD50.vals[8]);
+               (double)toXYZ.vals[0][0], (double)toXYZ.vals[0][1], (double)toXYZ.vals[0][2],
+               (double)toXYZ.vals[1][0], (double)toXYZ.vals[1][1], (double)toXYZ.vals[1][2],
+               (double)toXYZ.vals[2][0], (double)toXYZ.vals[2][1], (double)toXYZ.vals[2][2]);
     }
     return 0;
 }
