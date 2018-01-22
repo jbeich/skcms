@@ -34,6 +34,24 @@
       "revId": "32943d502e4c1098da9bbdb36b40f74758600a96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bca43c0_1d382104",
+        "filename": "afl-fuzz.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-22T18:32:47Z",
+      "side": 1,
+      "message": "What\u0027s the connection between ASAN and the script being called afl-fuzz.sh?",
+      "parentUuid": "d3027a73_253cdea7",
+      "revId": "32943d502e4c1098da9bbdb36b40f74758600a96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
