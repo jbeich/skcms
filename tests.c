@@ -413,39 +413,48 @@ static const skcms_Matrix3x3 p3_to_xyz    = { { 0.5151215f, 0.2919769f, 0.157104
                                                 0.2411957f, 0.6922455f, 0.0665741f,
                                                 -0.0010376f, 0.0418854f, 0.7840729f } };
 
-static const struct {
+typedef enum {
+    kInvalid,           // Too new (iccMAX) or otherwise not parsable
+    kA2B,               // No TRC or XYZ, just A2B/B2A tags
+    kLUT_XYZ,           // LUT based TRC, XYZ tags
+    kParametric_XYZ,    // Parametric TRC curves, and XYZ tags
+} ProfileType;
+
+typedef struct {
     const char*                   filename;
-    bool                          expect_parse;
+    ProfileType                   type;
     const skcms_TransferFunction* expect_tf;
     const skcms_Matrix3x3*        expect_xyz;
-} profile_test_cases[] = {
+} ProfileTestCase;
+
+static const ProfileTestCase profile_test_cases[] = {
     // iccMAX profiles that we can't parse at all
-    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, NULL, NULL },
-    { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL, NULL },
-    { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL, NULL },
+    { "profiles/color.org/sRGB_D65_colorimetric.icc",  kInvalid, NULL, NULL },
+    { "profiles/color.org/sRGB_D65_MAT.icc",           kInvalid, NULL, NULL },
+    { "profiles/color.org/sRGB_ISO22028.icc",          kInvalid, NULL, NULL },
 
     // V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
-    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true,  NULL, NULL },
-    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true,  NULL, NULL },
-    { "profiles/color.org/Upper_Left.icc",             true,  NULL, NULL },
-    { "profiles/color.org/Upper_Right.icc",            true,  NULL, NULL },
+    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", kA2B,  NULL, NULL },
+    { "profiles/color.org/sRGB_v4_ICC_preference.icc", kA2B,  NULL, NULL },
+    { "profiles/color.org/Upper_Left.icc",             kA2B,  NULL, NULL },
+    { "profiles/color.org/Upper_Right.icc",            kA2B,  NULL, NULL },
 
     // V4 profiles with parametric TRC curves and XYZ
-    { "profiles/mobile/Display_P3_parametric.icc",     true,  &srgb_transfer_fn, &p3_to_xyz },
-    { "profiles/mobile/sRGB_parametric.icc",           true,  &srgb_transfer_fn, &srgb_to_xyz },
-    { "profiles/mobile/iPhone7p.icc",                  true,  &srgb_transfer_fn, &p3_to_xyz },
+    { "profiles/mobile/Display_P3_parametric.icc",     kParametric_XYZ,  &srgb_transfer_fn, &p3_to_xyz },
+    { "profiles/mobile/sRGB_parametric.icc",           kParametric_XYZ,  &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/mobile/iPhone7p.icc",                  kParametric_XYZ,  &srgb_transfer_fn, &p3_to_xyz },
 
     // V4 profiles with LUT TRC curves and XYZ
-    { "profiles/mobile/Display_P3_LUT.icc",            true,  NULL, &p3_to_xyz },
-    { "profiles/mobile/sRGB_LUT.icc",                  true,  NULL, &srgb_to_xyz },
+    { "profiles/mobile/Display_P3_LUT.icc",            kLUT_XYZ,  &srgb_transfer_fn, &p3_to_xyz },
+    { "profiles/mobile/sRGB_LUT.icc",                  kLUT_XYZ,  &srgb_transfer_fn, &srgb_to_xyz },
 
     // V2 profiles with gamma TRC and XYZ
-    { "profiles/color.org/Lower_Left.icc",             true,  &gamma_2_2_transfer_fn, &sgbr_to_xyz },
-    { "profiles/color.org/Lower_Right.icc",            true,  &gamma_2_2_transfer_fn, &adobe_to_xyz },
+    { "profiles/color.org/Lower_Left.icc",             kParametric_XYZ,  &gamma_2_2_transfer_fn, &sgbr_to_xyz },
+    { "profiles/color.org/Lower_Right.icc",            kParametric_XYZ,  &gamma_2_2_transfer_fn, &adobe_to_xyz },
 
     // V2 profiles with LUT TRC and XYZ
-    { "profiles/color.org/sRGB2014.icc",               true,  NULL, &srgb_to_xyz },
-    { "profiles/sRGB_Facebook.icc",                    true,  NULL, &srgb_to_xyz },
+    { "profiles/color.org/sRGB2014.icc",               kLUT_XYZ,  &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/sRGB_Facebook.icc",                    kLUT_XYZ,  &srgb_transfer_fn, &srgb_to_xyz },
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
@@ -465,50 +474,133 @@ static void load_file(const char* filename, void** buf, size_t* len) {
     expect(bytes_read == *len);
 }
 
+static float tf_eval_unclamped(const skcms_TransferFunction* fn, float x) {
+    if (x < fn->d)
+        return fn->c * x + fn->f;
+    return powf(fn->a * x + fn->b, fn->g) + fn->e;
+}
+
+static float tf_eval(const skcms_TransferFunction* fn, float x) {
+    float fn_at_x_unclamped = tf_eval_unclamped(fn, x);
+    return fminf(fmaxf(fn_at_x_unclamped, 0.f), 1.f);
+}
+
+static void check_transfer_function(const skcms_TransferFunction* fn_a,
+                                    const skcms_TransferFunction* fn_b,
+                                    float tol) {
+    expect(fabsf(fn_a->g - fn_b->g) < tol);
+    expect(fabsf(fn_a->a - fn_b->a) < tol);
+    expect(fabsf(fn_a->b - fn_b->b) < tol);
+    expect(fabsf(fn_a->c - fn_b->c) < tol);
+    expect(fabsf(fn_a->d - fn_b->d) < tol);
+    expect(fabsf(fn_a->e - fn_b->e) < tol);
+    expect(fabsf(fn_a->f - fn_b->f) < tol);
+}
+
+static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd,
+                                               const skcms_TransferFunction* rev,
+                                               float tol) {
+    for (int i = 0; i < 256; ++i) {
+        float t = i / 255.0f;
+        float x = tf_eval(rev, tf_eval(fwd, t));
+        expect((int)(x * 255.0f + 0.5f) == i);
+        expect(fabsf(x - t) < tol);
+    }
+}
+
+static void invert_tf(const skcms_TransferFunction* src, skcms_TransferFunction* dst) {
+    skcms_TransferFunction fn_inv = { 0 };
+    if (src->a > 0 && src->g > 0) {
+        double a_to_the_g = pow((double)src->a, (double)src->g);
+        fn_inv.a = 1.f / (float)a_to_the_g;
+        fn_inv.b = -src->e / (float)a_to_the_g;
+        fn_inv.g = 1.f / src->g;
+    }
+    fn_inv.d = src->c * src->d + src->f;
+    fn_inv.e = -src->b / src->a;
+    if (src->c != 0) {
+        fn_inv.c = 1.f / src->c;
+        fn_inv.f = -src->f / src->c;
+    }
+    *dst = fn_inv;
+}
+
 static void test_ICCProfile_parse() {
     const int test_cases_count = sizeof(profile_test_cases) / sizeof(profile_test_cases[0]);
     for (int i = 0; i < test_cases_count; ++i) {
+        const ProfileTestCase* test = profile_test_cases + i;
+
+        // Make sure the test parameters are internally consistent
+        if (test->type == kLUT_XYZ || test->type == kParametric_XYZ) {
+            expect(test->expect_tf && test->expect_xyz);
+        } else {
+            expect(!test->expect_tf && !test->expect_xyz);
+        }
+
         void* buf = NULL;
         size_t len = 0;
-        load_file(profile_test_cases[i].filename, &buf, &len);
+        load_file(test->filename, &buf, &len);
         skcms_ICCProfile profile;
         bool result = skcms_ICCProfile_parse(&profile, buf, len);
-        expect(result == profile_test_cases[i].expect_parse);
+        expect(result == (test->type != kInvalid));
 
-        skcms_TransferFunction transferFn;
-        bool tf_result = skcms_ICCProfile_getTransferFunction(&profile, &transferFn);
-        expect(profile_test_cases[i].expect_parse || !profile_test_cases[i].expect_tf);
-        expect(tf_result == !!profile_test_cases[i].expect_tf);
+        if (!result) {
+            free(buf);
+            continue;
+        }
 
-        if (tf_result) {
+        skcms_TransferFunction exact_tf;
+        skcms_TransferFunction approx_tf;
+        float max_error;
+        bool exact_tf_result = skcms_ICCProfile_getTransferFunction(&profile, &exact_tf);
+        bool approx_tf_result = skcms_ICCProfile_approximateTransferFunction(&profile, &approx_tf,
+                                                                             &max_error);
+        expect(exact_tf_result == (test->type == kParametric_XYZ));
+        expect(approx_tf_result == (test->type == kLUT_XYZ));
+
+        if (exact_tf_result) {
             // V2 'curv' gamma values are 8.8 fixed point, so the maximum error is the value we
             // use here: 0.5 / 256 (~= 0.002)
             // V4 'para' curves are 1.15.16 fixed point, and should be precise to 5 digits, but
             // vendors sometimes round strangely when writing values. Regardless, all of our test
             // profiles are within 0.001, except for the odd version of sRGB used in the iPhone
             // profile. It has a D value of .039 (2556 / 64k) rather than .04045 (2651 / 64k).
-            const float kTRC_Tol = 0.5f / 256.0f;
-            expect(fabsf(transferFn.g - profile_test_cases[i].expect_tf->g) < kTRC_Tol);
-            expect(fabsf(transferFn.a - profile_test_cases[i].expect_tf->a) < kTRC_Tol);
-            expect(fabsf(transferFn.b - profile_test_cases[i].expect_tf->b) < kTRC_Tol);
-            expect(fabsf(transferFn.c - profile_test_cases[i].expect_tf->c) < kTRC_Tol);
-            expect(fabsf(transferFn.d - profile_test_cases[i].expect_tf->d) < kTRC_Tol);
-            expect(fabsf(transferFn.e - profile_test_cases[i].expect_tf->e) < kTRC_Tol);
-            expect(fabsf(transferFn.f - profile_test_cases[i].expect_tf->f) < kTRC_Tol);
+            check_transfer_function(test->expect_tf, &exact_tf, 0.5f / 256.0f);
+        }
+
+        if (approx_tf_result) {
+            // Our approximate curves can vary pretty significantly from the reference curves,
+            // so this needs to be fairly tolerant. The more important thing is how the overall
+            // curve behaves - which is tested with the byte round-tripping below.
+            check_transfer_function(test->expect_tf, &approx_tf, 0.01f);
+
+            // For this check, run every byte value through the forward version of one TF, and
+            // the inverse of the other, and make sure it round-trips (using both combinations).
+            skcms_TransferFunction approx_inverse_tf;
+            skcms_TransferFunction expect_inverse_tf;
+            invert_tf(&approx_tf, &approx_inverse_tf);
+            invert_tf(test->expect_tf, &expect_inverse_tf);
+
+            // This function verifies that all bytes round-trip perfectly, but also takes a
+            // tolerance to further limit the error after round-trip. We can currently get this
+            // within ~30% of a byte (0.0011).
+            check_roundtrip_transfer_functions(&approx_tf, &expect_inverse_tf, 0.02f);
+            check_roundtrip_transfer_functions(test->expect_tf, &approx_inverse_tf, 0.02f);
         }
 
         skcms_Matrix3x3 toXYZ;
         bool xyz_result = skcms_ICCProfile_toXYZD50(&profile, &toXYZ);
-        expect(profile_test_cases[i].expect_parse || !profile_test_cases[i].expect_xyz);
-        expect(xyz_result == !!profile_test_cases[i].expect_xyz);
+        expect(xyz_result == !!test->expect_xyz);
 
         if (xyz_result) {
             // XYZ values are 1.15.16 fixed point, but the precise values used by vendors vary
             // quite a bit, especially depending on their implementation of D50 adaptation.
             // This is still a pretty tight tolerance, and all of our test profiles pass.
             const float kXYZ_Tol = 0.0002f;
-            for (int v = 0; v < 9; ++v) {
-                expect(fabsf(toXYZ.vals[v] - profile_test_cases[i].expect_xyz->vals[v]) < kXYZ_Tol);
+            for (int r = 0; r < 3; ++r) {
+                for (int c = 0; c < 3; ++c) {
+                    expect(fabsf(toXYZ.vals[r][c] - test->expect_xyz->vals[r][c]) < kXYZ_Tol);
+                }
             }
         }
 
