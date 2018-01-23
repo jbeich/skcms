@@ -397,21 +397,21 @@ static const skcms_TransferFunction srgb_transfer_fn =
 static const skcms_TransferFunction gamma_2_2_transfer_fn =
     { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-static const skcms_Matrix3x3 srgb_to_xyz  = { { 0.4360657f, 0.3851471f, 0.1430664f,
-                                                0.2224884f, 0.7168732f, 0.0606079f,
-                                                0.0139160f, 0.0970764f, 0.7140961f } };
+static const skcms_Matrix3x3 srgb_to_xyz  = { { { 0.4360657f, 0.3851471f, 0.1430664f },
+                                                { 0.2224884f, 0.7168732f, 0.0606079f },
+                                                { 0.0139160f, 0.0970764f, 0.7140961f } } };
 
-static const skcms_Matrix3x3 sgbr_to_xyz  = { { 0.3851471f, 0.1430664f, 0.4360657f,
-                                                0.7168732f, 0.0606079f, 0.2224884f,
-                                                0.0970764f, 0.7140961f, 0.0139160f } };
+static const skcms_Matrix3x3 sgbr_to_xyz  = { { { 0.3851471f, 0.1430664f, 0.4360657f },
+                                                { 0.7168732f, 0.0606079f, 0.2224884f },
+                                                { 0.0970764f, 0.7140961f, 0.0139160f } } };
 
-static const skcms_Matrix3x3 adobe_to_xyz = { { 0.6097412f, 0.2052765f, 0.1491852f,
-                                                0.3111115f, 0.6256714f, 0.0632172f,
-                                                0.0194702f, 0.0608673f, 0.7445679f } };
+static const skcms_Matrix3x3 adobe_to_xyz = { { { 0.6097412f, 0.2052765f, 0.1491852f },
+                                                { 0.3111115f, 0.6256714f, 0.0632172f },
+                                                { 0.0194702f, 0.0608673f, 0.7445679f } } };
 
-static const skcms_Matrix3x3 p3_to_xyz    = { { 0.5151215f, 0.2919769f, 0.1571045f,
-                                                0.2411957f, 0.6922455f, 0.0665741f,
-                                                -0.0010376f, 0.0418854f, 0.7840729f } };
+static const skcms_Matrix3x3 p3_to_xyz    = { { { 0.5151215f, 0.2919769f, 0.1571045f },
+                                                { 0.2411957f, 0.6922455f, 0.0665741f },
+                                                { -0.0010376f, 0.0418854f, 0.7840729f } } };
 
 static const struct {
     const char*                   filename;
@@ -507,8 +507,11 @@ static void test_ICCProfile_parse() {
             // quite a bit, especially depending on their implementation of D50 adaptation.
             // This is still a pretty tight tolerance, and all of our test profiles pass.
             const float kXYZ_Tol = 0.0002f;
-            for (int v = 0; v < 9; ++v) {
-                expect(fabsf(toXYZ.vals[v] - profile_test_cases[i].expect_xyz->vals[v]) < kXYZ_Tol);
+            for (int r = 0; r < 3; ++r) {
+                for (int c = 0; c < 3; ++c) {
+                    expect(fabsf(toXYZ.vals[r][c] - profile_test_cases[i].expect_xyz->vals[r][c]) <
+                                 kXYZ_Tol);
+                }
             }
         }
 
