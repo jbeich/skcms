@@ -182,8 +182,8 @@ static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) 
 }
 
 bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile* profile,
-                               skcms_Matrix3x3* toXYZD50) {
-    if (!profile || !toXYZD50) { return false; }
+                               skcms_Matrix3x3* toXYZ) {
+    if (!profile || !toXYZ) { return false; }
     skcms_ICCTag rXYZ, gXYZ, bXYZ;
     if (!skcms_ICCProfile_getTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) ||
         !skcms_ICCProfile_getTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) ||
@@ -191,9 +191,9 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile* profile,
         return false;
     }
 
-    return read_tag_xyz(&rXYZ, toXYZD50->vals + 0, toXYZD50->vals + 3, toXYZD50->vals + 6) &&
-           read_tag_xyz(&gXYZ, toXYZD50->vals + 1, toXYZD50->vals + 4, toXYZD50->vals + 7) &&
-           read_tag_xyz(&bXYZ, toXYZD50->vals + 2, toXYZD50->vals + 5, toXYZD50->vals + 8);
+    return read_tag_xyz(&rXYZ, &toXYZ->vals[0][0], &toXYZ->vals[1][0], &toXYZ->vals[2][0]) &&
+           read_tag_xyz(&gXYZ, &toXYZ->vals[0][1], &toXYZ->vals[1][1], &toXYZ->vals[2][1]) &&
+           read_tag_xyz(&bXYZ, &toXYZ->vals[0][2], &toXYZ->vals[1][2], &toXYZ->vals[2][2]);
 }
 
 typedef struct {
