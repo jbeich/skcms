@@ -1,5 +1,5 @@
 mode          = .m32
-extra_cflags  = -m32
+extra_cflags  = -m32 -w
 extra_ldflags = -m32
 include build/clang
 

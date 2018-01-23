@@ -1,4 +1,4 @@
 mode          = .m32
-extra_cflags  = -m32 -msse2 -mfpmath=sse
+extra_cflags  = -m32 -msse2 -mfpmath=sse -fno-strict-aliasing
 extra_ldflags = -m32
 include build/gcc

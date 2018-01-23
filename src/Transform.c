@@ -7,7 +7,16 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
 
 #if defined(SKCMS_PORTABLE) || (!defined(__clang__) && !defined(__GNUC__))
     #define N 1
@@ -310,10 +319,11 @@ static void load_hhhh(size_t i, void** ip, char* dst, const char* src, F r, F g,
         B = CAST(U16, (px >> 32) & 0xffff),
         A = CAST(U16, (px >> 48) & 0xffff);
 #endif
+        (void)R; (void)G; (void)B; (void)A;
     r = F_from_Half(R);
-    g = F_from_Half(G);
+/*    g = F_from_Half(G);
     b = F_from_Half(B);
-    a = F_from_Half(A);
+    a = F_from_Half(A);*/
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
@@ -375,11 +385,13 @@ static void store_888(size_t i, void** ip, char* dst, const char* src, F r, F g,
 }
 
 static void store_8888(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
-    U32 rgba = CAST(U32, to_fixed(r * 255) <<  0)
+/*    U32 rgba = CAST(U32, to_fixed(r * 255) <<  0)
              | CAST(U32, to_fixed(g * 255) <<  8)
              | CAST(U32, to_fixed(b * 255) << 16)
-             | CAST(U32, to_fixed(a * 255) << 24);
-    small_memcpy(dst + 4*i, &rgba, 4*N);
+             | CAST(U32, to_fixed(a * 255) << 24);*/
+//    small_memcpy(dst + 4*i, &rgba, 4*N);
+ (void)i; (void)dst;
+    (void)r; (void)g; (void)b; (void)a;
     (void)ip;
     (void)src;
 }
@@ -476,6 +488,7 @@ static void store_hhhh(size_t i, void** ip, char* dst, const char* src, F r, F g
            | CAST(U64, G) << 16
            | CAST(U64, B) << 32
            | CAST(U64, A) << 48;
+    fprintf(stderr, "memcpy(%p, %p, %u)\n", rgba, &px, 8*N);
     small_memcpy(rgba, &px, 8*N);
 #endif
     (void)ip;
@@ -586,6 +599,7 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
         case skcms_PixelFormat_RGBA_ffff     >> 1: *ip++ = (void*)load_ffff;     break;
     }
     if (srcFmt & 1) {
+        fprintf(stderr, "Swap source\n");
         *ip++ = (void*)swap_rb;
     }
 
@@ -595,9 +609,11 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
     }
 
     if (dstFmt & 1) {
+        fprintf(stderr, "Swap dst\n");
         *ip++ = (void*)swap_rb;
     }
-    if (dstFmt < skcms_PixelFormat_RGB_hhh) {
+    if (dstFmt < skcms_PixelFormat_RGB_hhh && false) {
+        fprintf(stderr, "Clamp\n");
         *ip++ = (void*)clamp;
     }
     switch (dstFmt >> 1) {
@@ -618,6 +634,7 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
 
     size_t i = 0;
     while (n >= N) {
+        fprintf(stderr, "N = %d\n", N);
         Stage start = (Stage)program[0];
         start(i,program+1,dst,src, F0,F0,F0,F0);
         i += N;
