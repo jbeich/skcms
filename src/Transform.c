@@ -82,9 +82,22 @@
     #define small_memcpy memcpy
 #endif
 
+// We tag all non-stage helper functions as SI, to enforce good code generation
+// but also work around what we think is a bug in GCC: when targeting 32-bit
+// x86, GCC tends to pass U16 (4x uint16_t vector) function arguments in the
+// MMX mm0 register, which seems to mess with unrelated code that later uses
+// x87 FP instructions (MMX's mm0 is an alias for x87's st0 register).
+//
+// (Stage functions should be simply marked as static.)
+#if defined(__clang__) || defined(__GNUC__)
+    #define SI static inline __attribute__((always_inline))
+#else
+    #define SI static inline
+#endif
+
 typedef void (*Stage)(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a);
 
-static void next_stage(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
+SI void next_stage(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     Stage next;
 #if defined(__x86_64__)
     __asm__("lodsq" : "=a"(next), "+S"(ip));
@@ -108,7 +121,7 @@ static void next_stage(size_t i, void** ip, char* dst, const char* src, F r, F g
 // When we convert from float to fixed point, it's very common to want to round,
 // and for some reason compilers generate better code when converting to int32_t.
 // To serve both those ends, we use this function to_fixed() instead of direct CASTs.
-static I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
+SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
 
 static void load_565(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     U16 rgb;
@@ -196,7 +209,7 @@ static void load_161616(size_t i, void** ip, char* dst, const char* src, F r, F 
 
 #if !defined(USING_NEON)
     // Swap high and low bytes of 16-bit lanes, converting between big-endian and little-endian.
-    static U64 swap_endian_16bit(U64 rgba) {
+    SI U64 swap_endian_16bit(U64 rgba) {
         return (rgba & 0x00ff00ff00ff00ff) << 8
              | (rgba & 0xff00ff00ff00ff00) >> 8;
     }
@@ -235,14 +248,14 @@ static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, 
 #endif
 
 #if defined(USING_NEON_F16C)
-    static F F_from_Half(U16 half) { return vcvt_f32_f16(half); }
-    static U16 Half_from_F(F f)    { return vcvt_f16_f32(f   ); }
+    SI F F_from_Half(U16 half) { return vcvt_f32_f16(half); }
+    SI U16 Half_from_F(F f)    { return vcvt_f16_f32(f   ); }
 #elif defined(USING_AVX_F16C)
-    static F F_from_Half(U16 half) { return (F)  _mm256_cvtph_ps((__m128i)half); }
-    static U16 Half_from_F(F f)    { return (U16)_mm256_cvtps_ph((__m256 )f,
-                                                                 _MM_FROUND_CUR_DIRECTION ); }
+    SI F F_from_Half(U16 half) { return (F)  _mm256_cvtph_ps((__m128i)half); }
+    SI U16 Half_from_F(F f)    { return (U16)_mm256_cvtps_ph((__m256 )f,
+                                                             _MM_FROUND_CUR_DIRECTION ); }
 #else
-    static F F_from_Half(U16 half) {
+    SI F F_from_Half(U16 half) {
         U32 wide = CAST(U32, half);
         // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
         U32 s  = wide & 0x8000,
@@ -257,7 +270,7 @@ static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, 
         return (F)if_then_else(em < 0x0400, F0, norm);
     }
 
-    static U16 Half_from_F(F f) {
+    SI U16 Half_from_F(F f) {
         // A float is 1-8-23 sign-exponent-mantissa, with 127 exponent bias.
         U32 sem;
         small_memcpy(&sem, &f, sizeof(sem));
@@ -519,11 +532,11 @@ static void swap_rb(size_t i, void** ip, char* dst, const char* src, F r, F g, F
 }
 
 #if defined(USING_NEON)
-    static F min(F x, F y) { return vminq_f32(x,y); }
-    static F max(F x, F y) { return vmaxq_f32(x,y); }
+    SI F min(F x, F y) { return vminq_f32(x,y); }
+    SI F max(F x, F y) { return vmaxq_f32(x,y); }
 #else
-    static F min(F x, F y) { return (F)if_then_else(x > y, y, x); }
-    static F max(F x, F y) { return (F)if_then_else(x < y, y, x); }
+    SI F min(F x, F y) { return (F)if_then_else(x > y, y, x); }
+    SI F max(F x, F y) { return (F)if_then_else(x < y, y, x); }
 #endif
 
 static void clamp(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
@@ -539,7 +552,7 @@ static void force_opaque(size_t i, void** ip, char* dst, const char* src, F r, F
     next_stage(i,ip,dst,src, r,g,b,a);
 }
 
-static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
+SI size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     switch (fmt >> 1) {   // ignore rgb/bgr
         case skcms_PixelFormat_RGB_565       >> 1: return  2;
         case skcms_PixelFormat_RGB_888       >> 1: return  3;
