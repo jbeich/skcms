@@ -1,6 +1,0 @@
-cc     = clang
-cflags = -fcolor-diagnostics -Weverything -Wno-padded
-out    = out/clang$mode
-
-include build/local
-include build/common

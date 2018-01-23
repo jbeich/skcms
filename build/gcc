@@ -1,6 +1,0 @@
-cc     = gcc
-cflags = -fdiagnostics-color -Wall -Wextra -Wno-abi
-out    = out/gcc$mode
-
-include build/local
-include build/common
