@@ -445,16 +445,16 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/mobile/iPhone7p.icc",                  kParametric_XYZ, &srgb_transfer_fn, &p3_to_xyz },
 
     // V4 profiles with LUT TRC curves and XYZ
-    { "profiles/mobile/Display_P3_LUT.icc",            kLUT_XYZ, NULL, &p3_to_xyz },
-    { "profiles/mobile/sRGB_LUT.icc",                  kLUT_XYZ, NULL, &srgb_to_xyz },
+    { "profiles/mobile/Display_P3_LUT.icc",            kLUT_XYZ, &srgb_transfer_fn, &p3_to_xyz },
+    { "profiles/mobile/sRGB_LUT.icc",                  kLUT_XYZ, &srgb_transfer_fn, &srgb_to_xyz },
 
     // V2 profiles with gamma TRC and XYZ
     { "profiles/color.org/Lower_Left.icc",             kParametric_XYZ, &gamma_2_2_transfer_fn, &sgbr_to_xyz },
     { "profiles/color.org/Lower_Right.icc",            kParametric_XYZ, &gamma_2_2_transfer_fn, &adobe_to_xyz },
 
     // V2 profiles with LUT TRC and XYZ
-    { "profiles/color.org/sRGB2014.icc",               kLUT_XYZ, NULL, &srgb_to_xyz },
-    { "profiles/sRGB_Facebook.icc",                    kLUT_XYZ, NULL, &srgb_to_xyz },
+    { "profiles/color.org/sRGB2014.icc",               kLUT_XYZ, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/sRGB_Facebook.icc",                    kLUT_XYZ, &srgb_transfer_fn, &srgb_to_xyz },
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
@@ -486,6 +486,45 @@ static void check_transfer_function(skcms_TransferFunction fn_a,
     expect(fabsf(fn_a.f - fn_b.f) < tol);
 }
 
+static float tf_eval_unclamped(const skcms_TransferFunction* fn, float x) {
+    if (x < fn->d)
+        return fn->c * x + fn->f;
+    return powf(fn->a * x + fn->b, fn->g) + fn->e;
+}
+
+static float tf_eval(const skcms_TransferFunction* fn, float x) {
+    float fn_at_x_unclamped = tf_eval_unclamped(fn, x);
+    return fminf(fmaxf(fn_at_x_unclamped, 0.f), 1.f);
+}
+
+static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd,
+                                               const skcms_TransferFunction* rev,
+                                               float tol) {
+    for (int i = 0; i < 256; ++i) {
+        float t = i / 255.0f;
+        float x = tf_eval(rev, tf_eval(fwd, t));
+        expect((int)(x * 255.0f + 0.5f) == i);
+        expect(fabsf(x - t) < tol);
+    }
+}
+
+static void invert_tf(const skcms_TransferFunction* src, skcms_TransferFunction* dst) {
+    skcms_TransferFunction fn_inv = { 0, 0, 0, 0, 0, 0, 0 };
+    if (src->a > 0 && src->g > 0) {
+        double a_to_the_g = pow((double)src->a, (double)src->g);
+        fn_inv.a = 1.f / (float)a_to_the_g;
+        fn_inv.b = -src->e / (float)a_to_the_g;
+        fn_inv.g = 1.f / src->g;
+    }
+    fn_inv.d = src->c * src->d + src->f;
+    fn_inv.e = -src->b / src->a;
+    if (fabsf(src->c) > 0) {
+        fn_inv.c = 1.f / src->c;
+        fn_inv.f = -src->f / src->c;
+    }
+    *dst = fn_inv;
+}
+
 static void test_ICCProfile_parse() {
     const int test_cases_count = sizeof(profile_test_cases) / sizeof(profile_test_cases[0]);
     for (int i = 0; i < test_cases_count; ++i) {
@@ -498,8 +537,6 @@ static void test_ICCProfile_parse() {
                 expect(!test->expect_tf && !test->expect_xyz);
                 break;
             case kLUT_XYZ:
-                expect(!test->expect_tf && test->expect_xyz);
-                break;
             case kParametric_XYZ:
                 expect(test->expect_tf && test->expect_xyz);
                 break;
@@ -521,6 +558,12 @@ static void test_ICCProfile_parse() {
         bool exact_tf_result = skcms_ICCProfile_getTransferFunction(&profile, &exact_tf);
         expect(exact_tf_result == (test->type == kParametric_XYZ));
 
+        skcms_TransferFunction approx_tf;
+        float max_error;
+        bool approx_tf_result = skcms_ICCProfile_approximateTransferFunction(&profile, &approx_tf,
+                                                                             &max_error);
+        expect(approx_tf_result == (test->type == kLUT_XYZ));
+
         if (exact_tf_result) {
             // V2 'curv' gamma values are 8.8 fixed point, so the maximum error is the value we
             // use here: 0.5 / 256 (~= 0.002)
@@ -529,6 +572,26 @@ static void test_ICCProfile_parse() {
             // profiles are within 0.001, except for the odd version of sRGB used in the iPhone
             // profile. It has a D value of .039 (2556 / 64k) rather than .04045 (2651 / 64k).
             check_transfer_function(*test->expect_tf, exact_tf, 0.5f / 256.0f);
+        }
+
+        if (approx_tf_result) {
+            // Our approximate curves can vary pretty significantly from the reference curves,
+            // so this needs to be fairly tolerant. The more important thing is how the overall
+            // curve behaves - which is tested with the byte round-tripping below.
+            check_transfer_function(*test->expect_tf, approx_tf, 0.01f);
+
+            // For this check, run every byte value through the forward version of one TF, and
+            // the inverse of the other, and make sure it round-trips (using both combinations).
+            skcms_TransferFunction approx_inverse_tf;
+            skcms_TransferFunction expect_inverse_tf;
+            invert_tf(&approx_tf, &approx_inverse_tf);
+            invert_tf(test->expect_tf, &expect_inverse_tf);
+
+            // This function verifies that all bytes round-trip perfectly, but also takes a
+            // tolerance to further limit the error after round-trip. We can currently get this
+            // within ~30% of a byte (0.0011).
+            check_roundtrip_transfer_functions(&approx_tf, &expect_inverse_tf, 0.02f);
+            check_roundtrip_transfer_functions(test->expect_tf, &approx_inverse_tf, 0.02f);
         }
 
         skcms_Matrix3x3 toXYZ;
