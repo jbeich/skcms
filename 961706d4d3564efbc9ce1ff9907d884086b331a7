@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9adbc33f_51bec04d",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-23T21:41:34Z",
+      "side": 1,
+      "message": "Might just want to pass skcms_TransferFunctions by value?  That way there\u0027s no question at the call site about whether this mutates \u0026exact_tf.",
+      "range": {
+        "startLine": 477,
+        "startChar": 36,
+        "endLine": 477,
+        "endChar": 65
+      },
+      "revId": "961706d4d3564efbc9ce1ff9907d884086b331a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
