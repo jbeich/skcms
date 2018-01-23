@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c0b0a02_6a12ffb9",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-23T20:40:03Z",
+      "side": 1,
+      "message": "Ah ha, you ran over 100 columns below didn\u0027t you?",
+      "range": {
+        "startLine": 185,
+        "startChar": 48,
+        "endLine": 185,
+        "endChar": 53
+      },
+      "revId": "09cd6c90b9a48a999e61d2f9d0a1cb9031bfa0d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c83190a_d9c868ad",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-23T20:40:03Z",
+      "side": 1,
+      "message": "Your taste may vary, but I do sometimes find this sort of thing can make a good exception to the always-use-braces rule,\n\n  for (int r \u003d 0; r \u003c 3; ++r)\n  for (int c \u003d 0; c \u003c 3; ++c) {\n    expect(...);\n  }",
+      "range": {
+        "startLine": 510,
+        "startChar": 12,
+        "endLine": 511,
+        "endChar": 45
+      },
+      "revId": "09cd6c90b9a48a999e61d2f9d0a1cb9031bfa0d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
