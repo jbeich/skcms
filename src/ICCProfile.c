@@ -7,7 +7,10 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include "TransferFunction.c"
 
 static uint32_t make_signature(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
     return (uint32_t)(a << 24)
@@ -182,8 +185,8 @@ static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) 
 }
 
 bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile* profile,
-                               skcms_Matrix3x3* toXYZD50) {
-    if (!profile || !toXYZD50) { return false; }
+                               skcms_Matrix3x3* toXYZ) {
+    if (!profile || !toXYZ) { return false; }
     skcms_ICCTag rXYZ, gXYZ, bXYZ;
     if (!skcms_ICCProfile_getTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) ||
         !skcms_ICCProfile_getTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) ||
@@ -191,9 +194,9 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile* profile,
         return false;
     }
 
-    return read_tag_xyz(&rXYZ, toXYZD50->vals + 0, toXYZD50->vals + 3, toXYZD50->vals + 6) &&
-           read_tag_xyz(&gXYZ, toXYZD50->vals + 1, toXYZD50->vals + 4, toXYZD50->vals + 7) &&
-           read_tag_xyz(&bXYZ, toXYZD50->vals + 2, toXYZD50->vals + 5, toXYZD50->vals + 8);
+    return read_tag_xyz(&rXYZ, toXYZ->vals[0] + 0, toXYZ->vals[1] + 0, toXYZ->vals[2] + 0) &&
+           read_tag_xyz(&gXYZ, toXYZ->vals[0] + 1, toXYZ->vals[1] + 1, toXYZ->vals[2] + 1) &&
+           read_tag_xyz(&bXYZ, toXYZ->vals[0] + 2, toXYZ->vals[1] + 2, toXYZ->vals[2] + 2);
 }
 
 typedef struct {
@@ -299,6 +302,23 @@ static bool read_tag_curv_gamma(const skcms_ICCTag* tag, skcms_TransferFunction*
     return true;
 }
 
+static bool read_tag_curv_table(const skcms_ICCTag* tag, const uint8_t** table, uint32_t* count) {
+    if (!tag || tag->type != make_signature('c', 'u', 'r', 'v') || !table || !count) {
+        return false;
+    }
+
+    const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
+
+    uint32_t value_count = read_big_u32(curvTag->value_count);
+    if (value_count < 2 || tag->size < sizeof(skcms_curveType) + value_count * 2) {
+        return false;
+    }
+
+    *count = value_count;
+    *table = curvTag->parameters;
+    return true;
+}
+
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile* profile,
                                           skcms_TransferFunction* transferFunction) {
     if (!profile || !transferFunction) { return false; }
@@ -324,6 +344,58 @@ bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile* profile,
     }
 
     *transferFunction = rPara;
+    return true;
+}
+
+bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profile,
+                                                  skcms_TransferFunction* fn,
+                                                  float* max_error) {
+    if (!profile || !fn || !max_error) { return false; }
+    skcms_ICCTag rTRC, gTRC, bTRC;
+    if (!skcms_ICCProfile_getTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+        return false;
+    }
+
+    const uint8_t* table[3];
+    uint32_t count[3];
+    if (!read_tag_curv_table(&rTRC, &table[0], &count[0]) ||
+        !read_tag_curv_table(&gTRC, &table[1], &count[1]) ||
+        !read_tag_curv_table(&bTRC, &table[2], &count[2])) {
+        return false;
+    }
+
+    uint32_t sum_count = count[0] + count[1] + count[2];
+    float* data = malloc(sum_count * 2 * sizeof(float));
+    float* x = data;
+    float* t = data + sum_count;
+
+    // Merge all channels' tables into a single array.
+    for (int c = 0; c < 3; ++c) {
+        for (uint32_t i = 0; i < count[c]; ++i) {
+            *x++ = i / (count[c] - 1.0f);
+            *t++ = read_big_u16(table[c] + 2 * i) * (1 / 65535.0f);
+        }
+    }
+
+    x = data;
+    t = data + sum_count;
+
+    // Approximate the transfer function.
+    if (!tf_approximate_internal(x, t, sum_count, fn)) {
+        free(data);
+        return false;
+    }
+
+    // Compute the error among all channels.
+    *max_error = 0;
+    for (size_t i = 0; i < sum_count; ++i) {
+        float fn_of_xi = tf_eval(fn, x[i]);
+        float error_at_xi = fabsf(t[i] - fn_of_xi);
+        *max_error = fmaxf(*max_error, error_at_xi);
+    }
+    free(data);
     return true;
 }
 

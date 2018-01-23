@@ -17,14 +17,10 @@
 extern "C" {
 #endif
 
-// A row-major 3x3 matrix,
-// | vals[0] vals[1] vals[2] |
-// | vals[3] vals[4] vals[5] |
-// | vals[6] vals[7] vals[8] |
+// A row-major 3x3 matrix (ie vals[row][col])
 typedef struct {
-    float vals[9];
+    float vals[3][3];
 } skcms_Matrix3x3;
-
 
 // A transfer function mapping encoded values to linear values,
 // represented by this 7-parameter piecewise function:
@@ -84,6 +80,10 @@ bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
 // identical and can be represented by a single skcms_TransferFunction, set it
 // (if non-NULL) and return true, otherwise return false.
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
+
+bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile*,
+                                                  skcms_TransferFunction*,
+                                                  float* max_error);
 
 typedef struct {
     uint32_t       signature;
