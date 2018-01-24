@@ -111,10 +111,16 @@ int main(int argc, char** argv) {
     printf("\n");
 
     skcms_TransferFunction tf;
+    float max_error;
     if (skcms_ICCProfile_getTransferFunction(&profile, &tf)) {
         printf("TRC : %f, %f, %f, %f, %f, %f, %f\n",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f);
+    } else if (skcms_ICCProfile_approximateTransferFunction(&profile, &tf, &max_error)) {
+        printf("~TRC: %f, %f, %f, %f, %f, %f, %f  (Max error: %f)\n",
+               (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
+               (double)tf.d, (double)tf.e, (double)tf.f, (double)max_error);
+
     }
 
     skcms_Matrix3x3 toXYZ;
