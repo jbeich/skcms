@@ -6,8 +6,10 @@
  */
 
 #include "skcms.h"
+#include "src/skcms_internal.h"
 
-// skcms.c is a unity build target for skcms, #including every other C source file.
+ // skcms.c is a unity build target for skcms, #including every other C source file.
 
 #include "src/ICCProfile.c"
+#include "src/TransferFunction.c"
 #include "src/Transform.c"
