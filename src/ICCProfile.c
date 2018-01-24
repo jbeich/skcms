@@ -7,6 +7,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 #include <string.h>
 
 static uint32_t make_signature(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
@@ -299,6 +300,23 @@ static bool read_tag_curv_gamma(const skcms_ICCTag* tag, skcms_TransferFunction*
     return true;
 }
 
+static bool read_tag_curv_table(const skcms_ICCTag* tag, const uint8_t** table, uint32_t* count) {
+    if (!tag || tag->type != make_signature('c', 'u', 'r', 'v') || !table || !count) {
+        return false;
+    }
+
+    const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
+
+    uint32_t value_count = read_big_u32(curvTag->value_count);
+    if (value_count < 2 || tag->size < sizeof(skcms_curveType) + value_count * 2) {
+        return false;
+    }
+
+    *count = value_count;
+    *table = curvTag->parameters;
+    return true;
+}
+
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile* profile,
                                           skcms_TransferFunction* transferFunction) {
     if (!profile || !transferFunction) { return false; }
@@ -324,6 +342,58 @@ bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile* profile,
     }
 
     *transferFunction = rPara;
+    return true;
+}
+
+bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profile,
+                                                  skcms_TransferFunction* fn,
+                                                  float* max_error) {
+    if (!profile || !fn || !max_error) { return false; }
+    skcms_ICCTag rTRC, gTRC, bTRC;
+    if (!skcms_ICCProfile_getTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+        return false;
+    }
+
+    const uint8_t* table[3];
+    uint32_t count[3];
+    if (!read_tag_curv_table(&rTRC, &table[0], &count[0]) ||
+        !read_tag_curv_table(&gTRC, &table[1], &count[1]) ||
+        !read_tag_curv_table(&bTRC, &table[2], &count[2])) {
+        return false;
+    }
+
+    uint32_t sum_count = count[0] + count[1] + count[2];
+    float* data = malloc(sum_count * 2 * sizeof(float));
+    float* x = data;
+    float* t = data + sum_count;
+
+    // Merge all channels' tables into a single array.
+    for (int c = 0; c < 3; ++c) {
+        for (uint32_t i = 0; i < count[c]; ++i) {
+            *x++ = i / (count[c] - 1.0f);
+            *t++ = read_big_u16(table[c] + 2 * i) * (1 / 65535.0f);
+        }
+    }
+
+    x = data;
+    t = data + sum_count;
+
+    // Approximate the transfer function.
+    if (!skcms_TransferFunction_approximate(fn, x, t, sum_count)) {
+        free(data);
+        return false;
+    }
+
+    // Compute the error among all channels.
+    *max_error = 0;
+    for (size_t i = 0; i < sum_count; ++i) {
+        float fn_of_xi = skcms_TransferFunction_eval(fn, x[i]);
+        float error_at_xi = fabsf(t[i] - fn_of_xi);
+        *max_error = fmaxf(*max_error, error_at_xi);
+    }
+    free(data);
     return true;
 }
 
