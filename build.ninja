@@ -29,6 +29,8 @@ subninja build/android-arm.portable
 subninja build/android-arm.tiny
 subninja build/android-arm.vfpv2
 
+subninja build/android-arm-gcc
+
 subninja build/ios
 subninja build/ios.portable
 subninja build/ios.tiny

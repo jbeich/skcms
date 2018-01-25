@@ -429,9 +429,9 @@ static void store_161616(size_t i, void** ip, char* dst, const char* src, F r, F
     uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
 #if defined(USING_NEON)
     uint16x4x3_t v = {{
-        swap_endian_16(CAST(U16, to_fixed(r * 65535))),
-        swap_endian_16(CAST(U16, to_fixed(g * 65535))),
-        swap_endian_16(CAST(U16, to_fixed(b * 65535))),
+        (uint16x4_t)swap_endian_16(CAST(U16, to_fixed(r * 65535))),
+        (uint16x4_t)swap_endian_16(CAST(U16, to_fixed(g * 65535))),
+        (uint16x4_t)swap_endian_16(CAST(U16, to_fixed(b * 65535))),
     }};
     vst3_u16(rgb, v);
 #else
@@ -453,10 +453,10 @@ static void store_16161616(size_t i, void** ip, char* dst, const char* src, F r,
     uint16_t* rgba = (uint16_t*)ptr;            // for this cast to uint16_t* to be safe.
 #if defined(USING_NEON)
     uint16x4x4_t v = {{
-        swap_endian_16(CAST(U16, to_fixed(r * 65535))),
-        swap_endian_16(CAST(U16, to_fixed(g * 65535))),
-        swap_endian_16(CAST(U16, to_fixed(b * 65535))),
-        swap_endian_16(CAST(U16, to_fixed(a * 65535))),
+        (uint16x4_t)swap_endian_16(CAST(U16, to_fixed(r * 65535))),
+        (uint16x4_t)swap_endian_16(CAST(U16, to_fixed(g * 65535))),
+        (uint16x4_t)swap_endian_16(CAST(U16, to_fixed(b * 65535))),
+        (uint16x4_t)swap_endian_16(CAST(U16, to_fixed(a * 65535))),
     }};
     vst4_u16(rgba, v);
 #else
@@ -480,7 +480,11 @@ static void store_hhh(size_t i, void** ip, char* dst, const char* src, F r, F g,
         G = Half_from_F(g),
         B = Half_from_F(b);
 #if defined(USING_NEON)
-    uint16x4x3_t v = {{ R,G,B }};
+    uint16x4x3_t v = {{
+        (uint16x4_t)R,
+        (uint16x4_t)G,
+        (uint16x4_t)B,
+    }};
     vst3_u16(rgb, v);
 #else
     STORE_3(rgb+0, R);
@@ -502,7 +506,12 @@ static void store_hhhh(size_t i, void** ip, char* dst, const char* src, F r, F g
         B = Half_from_F(b),
         A = Half_from_F(a);
 #if defined(USING_NEON)
-    uint16x4x4_t v = {{ R,G,B,A }};
+    uint16x4x4_t v = {{
+        (uint16x4_t)R,
+        (uint16x4_t)G,
+        (uint16x4_t)B,
+        (uint16x4_t)A,
+    }};
     vst4_u16(rgba, v);
 #else
     U64 px = CAST(U64, R) <<  0
@@ -520,7 +529,11 @@ static void store_fff(size_t i, void** ip, char* dst, const char* src, F r, F g,
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgb = (float*)ptr;                   // for this cast to float* to be safe.
 #if defined(USING_NEON)
-    float32x4x3_t v = {{r,g,b}};
+    float32x4x3_t v = {{
+        (float32x4_t)r,
+        (float32x4_t)g,
+        (float32x4_t)b,
+    }};
     vst3q_f32(rgb, v);
 #else
     STORE_3(rgb+0, r);
@@ -537,7 +550,12 @@ static void store_ffff(size_t i, void** ip, char* dst, const char* src, F r, F g
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgba = (float*)ptr;                  // for this cast to float* to be safe.
 #if defined(USING_NEON)
-    float32x4x4_t v = {{r,g,b,a}};
+    float32x4x4_t v = {{
+        (float32x4_t)r,
+        (float32x4_t)g,
+        (float32x4_t)b,
+        (float32x4_t)a,
+    }};
     vst4q_f32(rgba, v);
 #else
     STORE_4(rgba+0, r);
