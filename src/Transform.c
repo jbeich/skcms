@@ -166,9 +166,10 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
     SI U16 swap_endian_16(U16 v) {
         return (U16)( (v & 0x00ff) << 8 | (v & 0xff00) >> 8 );
     }
-    SI U64 swap_endian_16x4(U64 rgba) {
-        return (rgba & 0x00ff00ff00ff00ff) << 8
-             | (rgba & 0xff00ff00ff00ff00) >> 8;
+    // Passing by U64* instead of U64 avoids ABI warnings.  It's all moot when inlined.
+    SI void swap_endian_16x4(U64* rgba) {
+        *rgba = (*rgba & 0x00ff00ff00ff00ff) << 8
+              | (*rgba & 0xff00ff00ff00ff00) >> 8;
     }
 #endif
 
@@ -291,7 +292,7 @@ static void load_16161616(size_t i, void** ip, char* dst, const char* src, F r, 
     U64 px;
     small_memcpy(&px, rgba, 8*N);
 
-    px = swap_endian_16x4(px);
+    swap_endian_16x4(&px);
     r = CAST(F, (px >>  0) & 0xffff) * (1/65535.0f);
     g = CAST(F, (px >> 16) & 0xffff) * (1/65535.0f);
     b = CAST(F, (px >> 32) & 0xffff) * (1/65535.0f);
@@ -464,7 +465,7 @@ static void store_16161616(size_t i, void** ip, char* dst, const char* src, F r,
            | CAST(U64, to_fixed(g * 65535)) << 16
            | CAST(U64, to_fixed(b * 65535)) << 32
            | CAST(U64, to_fixed(a * 65535)) << 48;
-    px = swap_endian_16x4(px);
+    swap_endian_16x4(&px);
     small_memcpy(rgba, &px, 8*N);
 #endif
     (void)ip;
