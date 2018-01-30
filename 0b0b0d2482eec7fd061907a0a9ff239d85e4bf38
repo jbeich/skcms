@@ -304,6 +304,23 @@
     },
     {
       "key": {
+        "uuid": "114856d0_83c47905",
+        "filename": "src/skcms_internal.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:19:17Z",
+      "side": 1,
+      "message": "Let\u0027s note // Safe to invert in-place. ?",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9acd4304_abbdc5d1",
         "filename": "src/skcms_internal.h",
         "patchSetId": 20
