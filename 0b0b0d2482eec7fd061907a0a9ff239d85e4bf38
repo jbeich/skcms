@@ -224,6 +224,23 @@
     },
     {
       "key": {
+        "uuid": "d5ff5a14_6f9d42fb",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2018-01-30T20:25:48Z",
+      "side": 1,
+      "message": "Btw, I never did UMA how often we take these early-out paths -- it may be easier to just keep the \"Stop if our error is tiny\" path and ignore the rest.\n\nIf you\u0027d like me to UMA this stuff, I can do that.",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "94e4d8b7_9f453df8",
         "filename": "src/TransferFunction.c",
         "patchSetId": 20
