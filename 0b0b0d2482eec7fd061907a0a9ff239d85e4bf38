@@ -1,0 +1,409 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0032d28_ec91e931",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "I think we can clean this up, right?  We determined the issue was the mm register use, fixed by force-inlining?  IIRC powf and logf were fine.",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fce2de31_4eb522bc",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "We need some absf() and copysignf() in here right?",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d9d0345_2992f17d",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "This might actually read more clearly as \u0027t\u0027, if that\u0027s what we\u0027re going with for the output of transfer functions?",
+      "range": {
+        "startLine": 37,
+        "startChar": 10,
+        "endLine": 37,
+        "endChar": 27
+      },
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8909a68_a00f5bbf",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Just bikeshedding.... what do you think about\n\n(const skcms_TransferFunction* Fn,\n float x,\n float* dFn_da,\n float* dFn_db,\n ...\n\nJust trying to keep it tight and keep the a,b,e,g terms as close to their struct names as possible.",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f22cc8c_fe5d44ac",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Let\u0027s leave a note about why we check this?  Is it that the math goes complex when base \u003c\u003d 0?",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ff3447e_2a6e9700",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "I think I might prefer to read \n\n  for()\n    for()\n      if (!isfinite(...)) { return false; }\n  return true\n\nuntil we know this is something we want to optimize.",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d44b4ee6_a4236769",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "I think this line especially would read a bit more clearly if we group */ tighter than +-.\n\n  double det \u003d b00*b11 - b01*b10 + b02*b09 ...\n\nOr break it up so that each product is on its own line?\n\n  double det \u003d b00 * b11\n             - b01 * b10\n             + b02 * b09\n             ...",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "925469b8_97f22fbc",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Here too probably?\n\n  dst-\u003evals[0][0] \u003d (float)( a11*b11 - a12*b10 + a13*b09 );\n\n?",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae66106a_72c05ee0",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "The pluses just _want_ to go here.  :)",
+      "range": {
+        "startLine": 151,
+        "startChar": 23,
+        "endLine": 151,
+        "endChar": 24
+      },
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baa8e853_1bafbcc9",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "I think we might want to spend a few more letters on this part.\n\nL_infinity_error?  The \"after\" is kind of implicit right?",
+      "range": {
+        "startLine": 159,
+        "startChar": 56,
+        "endLine": 159,
+        "endChar": 62
+      },
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fd646f0_a7dd350f",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Interesting... if this were static const int kNumSteps \u003d 16, in C that\u0027d still technically be a variable length array!",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78b69da9_12582c38",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Seems like we only need two of these, the current and previous?",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94e4d8b7_9f453df8",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Are these written so that they\u0027re exact floats?  Kind of funny values otherwise, right?",
+      "range": {
+        "startLine": 287,
+        "startChar": 12,
+        "endLine": 288,
+        "endChar": 60
+      },
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b40b6ff4_7f33b685",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "This seems weird.  Don\u0027t we want to do something like \n\n  float initial_gammas[] \u003d { 2.2f, 1.0f, 3.0f, 0.5f };\n  for (size_t i \u003d 0; i \u003c sizeof(initial_gammas) / sizeof(*initial_gammas); i++) {\n    ...\n  }",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ea744b9_f3decda8",
+        "filename": "src/skcms_internal.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "I don\u0027t think we need this protection if we\u0027re only using it from within our .c files.  Removing it will also help discourage \"accidental\" uses of this header from C++ clients.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 6
+      },
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4cfcd71_837fd013",
+        "filename": "src/skcms_internal.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Maybe even swap these to evalClamped() and eval() ?",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9acd4304_abbdc5d1",
+        "filename": "src/skcms_internal.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "I could use a bit of a comment here on what x, t, and n are.  Is it\n\n// Try to match an skcms_TransferFunction to a table with n (x,t) entries, setting max_error on success.\n\n?",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edd6fca5_02cb9501",
+        "filename": "tests.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "This is a little counter intuitive, right?  approximateTransferFunction() returns false if getTransferFunction() returns true?",
+      "range": {
+        "startLine": 552,
+        "startChar": 8,
+        "endLine": 552,
+        "endChar": 61
+      },
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca0d695e_d081cfbd",
+        "filename": "tests.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Why do we pass 0.02 then?",
+      "range": {
+        "startLine": 579,
+        "startChar": 37,
+        "endLine": 579,
+        "endChar": 45
+      },
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58005aff_1e720ea0",
+        "filename": "tests.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "Might be nice to wrap these at 8 per line?  That should be ~90 columns?",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07597d48_cff9f951",
+        "filename": "tests.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T16:15:04Z",
+      "side": 1,
+      "message": "What do we mean by clamped in the comments above?  Looks like this is the only 1.0?",
+      "range": {
+        "startLine": 692,
+        "startChar": 41,
+        "endLine": 692,
+        "endChar": 50
+      },
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
