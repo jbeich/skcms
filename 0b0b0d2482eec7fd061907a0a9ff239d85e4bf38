@@ -241,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "ecc57b39_06845448",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 20
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-01-30T20:27:01Z",
+      "side": 1,
+      "message": "Sure, if it\u0027s easy that\u0027d be interesting.  Our plan was to run over a bunch of profiles from our test images and see what that distribution covers, but that obviously doesn\u0027t have any displays.",
+      "parentUuid": "d5ff5a14_6f9d42fb",
+      "revId": "0b0b0d2482eec7fd061907a0a9ff239d85e4bf38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "94e4d8b7_9f453df8",
         "filename": "src/TransferFunction.c",
         "patchSetId": 20
