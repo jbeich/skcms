@@ -191,9 +191,11 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
     #define LOAD_4(T, p) (T)(p)[0]
     #define STORE_3(p, v) (p)[0] = v
     #define STORE_4(p, v) (p)[0] = v
-#elif N == 4
+#elif N == 4 && !defined(USING_NEON)
     #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9]}
+    #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12]};
     #define STORE_3(p, v) (p)[0] = (v)[0]; (p)[3] = (v)[1]; (p)[6] = (v)[2]; (p)[ 9] = (v)[3]
+    #define STORE_4(p, v) (p)[0] = (v)[0]; (p)[4] = (v)[1]; (p)[8] = (v)[2]; (p)[12] = (v)[3]
 #elif N == 8
     #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
     #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
@@ -202,13 +204,6 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
     #define STORE_4(p, v) (p)[ 0] = (v)[0]; (p)[ 4] = (v)[1]; (p)[ 8] = (v)[2]; (p)[12] = (v)[3]; \
                           (p)[16] = (v)[4]; (p)[20] = (v)[5]; (p)[24] = (v)[6]; (p)[28] = (v)[7]
 #endif
-
-// As above, but never used in a NEON build.
-#if N == 4 && !defined(USING_NEON)
-    #define  LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12]};
-    #define STORE_4(p, v) (p)[0] = (v)[0]; (p)[4] = (v)[1]; (p)[8] = (v)[2]; (p)[12] = (v)[3]
-#endif
-
 
 typedef void (*Stage)(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a);
 
@@ -235,9 +230,26 @@ static void load_565(size_t i, void** ip, char* dst, const char* src, F r, F g, 
 
 static void load_888(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     const uint8_t* rgb = (const uint8_t*)(src + 3*i);
+#if defined(USING_NEON)
+    // There's no uint8x4x3_t or vld3 load for it, so we'll load each rgb pixel one at at time.
+    // Since we're doing that, we might as well load them into 16-bit lanes.
+    // (We'd even load into 32-bit lanes, but that's not possible on ARMv7.)
+    uint8x8x3_t v = {{ vdup_n_u8(0), vdup_n_u8(0), vdup_n_u8(0) }};
+    v = vld3_lane_u8(rgb+0, v, 0);
+    v = vld3_lane_u8(rgb+3, v, 2);
+    v = vld3_lane_u8(rgb+6, v, 4);
+    v = vld3_lane_u8(rgb+9, v, 6);
+
+    // Now if we squint, those 3 uint8x8_t we constructed are really U16s, easy to convert to F.
+    // (Again, U32 would be even better here if drop ARMv7 or split ARMv7 and ARMv8 impls.)
+    r = CAST(F, (U16)v.val[0]) * (1/255.0f);
+    g = CAST(F, (U16)v.val[1]) * (1/255.0f);
+    b = CAST(F, (U16)v.val[2]) * (1/255.0f);
+#else
     r = CAST(F, LOAD_3(U32, rgb+0) ) * (1/255.0f);
     g = CAST(F, LOAD_3(U32, rgb+1) ) * (1/255.0f);
     b = CAST(F, LOAD_3(U32, rgb+2) ) * (1/255.0f);
+#endif
     a = F1;
     next_stage(i,ip,dst,src, r,g,b,a);
 }
@@ -404,9 +416,24 @@ static void store_565(size_t i, void** ip, char* dst, const char* src, F r, F g,
 
 static void store_888(size_t i, void** ip, char* dst, const char* src, F r, F g, F b, F a) {
     uint8_t* rgb = (uint8_t*)dst + 3*i;
+#if defined(USING_NEON)
+    // Same deal as load_888 but in reverse... we'll store using uint8x8x3_t, but
+    // get there via U16 to save some instructions converting to float.  And just
+    // like load_888, we'd prefer to go via U32 but for ARMv7 support.
+    U16 R = CAST(U16, to_fixed(r * 255)),
+        G = CAST(U16, to_fixed(g * 255)),
+        B = CAST(U16, to_fixed(b * 255));
+
+    uint8x8x3_t v = {{ (uint8x8_t)R, (uint8x8_t)G, (uint8x8_t)B }};
+    vst3_lane_u8(rgb+0, v, 0);
+    vst3_lane_u8(rgb+3, v, 2);
+    vst3_lane_u8(rgb+6, v, 4);
+    vst3_lane_u8(rgb+9, v, 6);
+#else
     STORE_3(rgb+0, CAST(U8, to_fixed(r * 255)) );
     STORE_3(rgb+1, CAST(U8, to_fixed(g * 255)) );
     STORE_3(rgb+2, CAST(U8, to_fixed(b * 255)) );
+#endif
     (void)a;
     (void)ip;
     (void)src;
