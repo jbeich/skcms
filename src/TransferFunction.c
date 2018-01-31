@@ -5,37 +5,24 @@
  * found in the LICENSE file.
  */
 
+#include "LinearAlgebra.h"
+#include "TransferFunction.h"
+#include <assert.h>
 #include <math.h>
-#include <stdio.h>
-
-#define USE_DOUBLE
-
-static float sk_pow(float b, float e) {
-#ifdef USE_DOUBLE
-    return (float)pow((double)b, (double)e);
-#else
-    return powf(b, e);
-#endif
-}
-
-static float sk_log(float x) {
-#ifdef USE_DOUBLE
-    return (float)log((double)x);
-#else
-    return logf(x);
-#endif
-}
 
 float skcms_TransferFunction_evalUnclamped(const skcms_TransferFunction* fn, float x) {
+    // TODO: absf() and copysignf() to allow negative x?
+    assert (x >= 0);
+
     if (x < fn->d) {
         return fn->c * x + fn->f;
     }
-    return sk_pow(fn->a * x + fn->b, fn->g) + fn->e;
+    return powf(fn->a * x + fn->b, fn->g) + fn->e;
 }
 
 float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
-    float fn_at_x_unclamped = skcms_TransferFunction_evalUnclamped(fn, x);
-    return fminf(fmaxf(fn_at_x_unclamped, 0.f), 1.f);
+    float t = skcms_TransferFunction_evalUnclamped(fn, x);
+    return fminf(fmaxf(t, 0.0f), 1.0f);
 }
 
 // Evaluate the gradient of the nonlinear component of fn
@@ -46,111 +33,16 @@ static void tf_eval_gradient_nonlinear(const skcms_TransferFunction* fn,
                                        float* d_fn_d_E_at_x,
                                        float* d_fn_d_G_at_x) {
     float base = fn->a * x + fn->b;
-    if (base > 0.f) {
-        *d_fn_d_A_at_x = fn->g * x * sk_pow(base, fn->g - 1.f);
-        *d_fn_d_B_at_x = fn->g * sk_pow(base, fn->g - 1.f);
-        *d_fn_d_E_at_x = 1.f;
-        *d_fn_d_G_at_x = sk_pow(base, fn->g) * sk_log(base);
+    if (base > 0.0f) {
+        *d_fn_d_A_at_x = fn->g * x * powf(base, fn->g - 1.0f);
+        *d_fn_d_B_at_x = fn->g * powf(base, fn->g - 1.0f);
+        *d_fn_d_E_at_x = 1.0f;
+        *d_fn_d_G_at_x = powf(base, fn->g) * logf(base);
     } else {
-        *d_fn_d_A_at_x = 0.f;
-        *d_fn_d_B_at_x = 0.f;
-        *d_fn_d_E_at_x = 0.f;
-        *d_fn_d_G_at_x = 0.f;
-    }
-}
-
-static bool is_matrix_finite(const skcms_Matrix4x4* mtx) {
-    float accumulator = 0;
-    for (int r = 0; r < 4; ++r) {
-        for (int c = 0; c < 4; ++c) {
-            accumulator *= mtx->vals[r][c];
-        }
-    }
-    return isfinite(accumulator);
-}
-
-static bool invert_matrix(skcms_Matrix4x4* dst, const skcms_Matrix4x4* src) {
-    double a00 = (double)src->vals[0][0],
-           a01 = (double)src->vals[1][0],
-           a02 = (double)src->vals[2][0],
-           a03 = (double)src->vals[3][0],
-           a10 = (double)src->vals[0][1],
-           a11 = (double)src->vals[1][1],
-           a12 = (double)src->vals[2][1],
-           a13 = (double)src->vals[3][1],
-           a20 = (double)src->vals[0][2],
-           a21 = (double)src->vals[1][2],
-           a22 = (double)src->vals[2][2],
-           a23 = (double)src->vals[3][2],
-           a30 = (double)src->vals[0][3],
-           a31 = (double)src->vals[1][3],
-           a32 = (double)src->vals[2][3],
-           a33 = (double)src->vals[3][3];
-
-    double b00 = a00 * a11 - a01 * a10,
-           b01 = a00 * a12 - a02 * a10,
-           b02 = a00 * a13 - a03 * a10,
-           b03 = a01 * a12 - a02 * a11,
-           b04 = a01 * a13 - a03 * a11,
-           b05 = a02 * a13 - a03 * a12,
-           b06 = a20 * a31 - a21 * a30,
-           b07 = a20 * a32 - a22 * a30,
-           b08 = a20 * a33 - a23 * a30,
-           b09 = a21 * a32 - a22 * a31,
-           b10 = a21 * a33 - a23 * a31,
-           b11 = a22 * a33 - a23 * a32;
-
-    // Calculate the determinant
-    double det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-    if (det >= 0 && det <= 0) {
-        return false;
-    }
-
-    double invdet = 1.0 / det;
-    if (!isfinite(invdet)) {
-        return false;
-    }
-
-    b00 *= invdet;
-    b01 *= invdet;
-    b02 *= invdet;
-    b03 *= invdet;
-    b04 *= invdet;
-    b05 *= invdet;
-    b06 *= invdet;
-    b07 *= invdet;
-    b08 *= invdet;
-    b09 *= invdet;
-    b10 *= invdet;
-    b11 *= invdet;
-
-    dst->vals[0][0] = (float)(a11 * b11 - a12 * b10 + a13 * b09);
-    dst->vals[1][0] = (float)(a02 * b10 - a01 * b11 - a03 * b09);
-    dst->vals[2][0] = (float)(a31 * b05 - a32 * b04 + a33 * b03);
-    dst->vals[3][0] = (float)(a22 * b04 - a21 * b05 - a23 * b03);
-    dst->vals[0][1] = (float)(a12 * b08 - a10 * b11 - a13 * b07);
-    dst->vals[1][1] = (float)(a00 * b11 - a02 * b08 + a03 * b07);
-    dst->vals[2][1] = (float)(a32 * b02 - a30 * b05 - a33 * b01);
-    dst->vals[3][1] = (float)(a20 * b05 - a22 * b02 + a23 * b01);
-    dst->vals[0][2] = (float)(a10 * b10 - a11 * b08 + a13 * b06);
-    dst->vals[1][2] = (float)(a01 * b08 - a00 * b10 - a03 * b06);
-    dst->vals[2][2] = (float)(a30 * b04 - a31 * b02 + a33 * b00);
-    dst->vals[3][2] = (float)(a21 * b02 - a20 * b04 - a23 * b00);
-    dst->vals[0][3] = (float)(a11 * b07 - a10 * b09 - a12 * b06);
-    dst->vals[1][3] = (float)(a00 * b09 - a01 * b07 + a02 * b06);
-    dst->vals[2][3] = (float)(a31 * b01 - a30 * b03 - a32 * b00);
-    dst->vals[3][3] = (float)(a20 * b03 - a21 * b01 + a22 * b00);
-
-    return is_matrix_finite(dst);
-}
-
-static void mul_matrix_vec(skcms_Vector4* dst, const skcms_Matrix4x4* m, const skcms_Vector4* v) {
-    for (int row = 0; row < 4; ++row) {
-        dst->vals[row] = m->vals[row][0] * v->vals[0] +
-                         m->vals[row][1] * v->vals[1] +
-                         m->vals[row][2] * v->vals[2] +
-                         m->vals[row][3] * v->vals[3];
+        *d_fn_d_A_at_x = 0.0f;
+        *d_fn_d_B_at_x = 0.0f;
+        *d_fn_d_E_at_x = 0.0f;
+        *d_fn_d_G_at_x = 0.0f;
     }
 }
 
@@ -201,23 +93,22 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
     // Note that if G = 1, then the normal equations will be singular
     // (because when G = 1, B and E are equivalent parameters).
     // To avoid problems, fix E (row/column 3) in these circumstances.
-    float kEpsilonForG = 1.f / 1024.f;
-    if (fabsf(fn->g - 1.f) < kEpsilonForG) {
+    float kEpsilonForG = 1.0f / 1024.0f;
+    if (fabsf(fn->g - 1.0f) < kEpsilonForG) {
         for (int row = 0; row < 4; ++row) {
-            float value = (row == 2) ? 1.f : 0.f;
+            float value = (row == 2) ? 1.0f : 0.0f;
             ne_lhs.vals[row][2] = value;
             ne_lhs.vals[2][row] = value;
         }
-        ne_rhs.vals[2] = 0.f;
+        ne_rhs.vals[2] = 0.0f;
     }
 
     // Solve the normal equations.
     skcms_Matrix4x4 ne_lhs_inv;
-    if (!invert_matrix(&ne_lhs_inv, &ne_lhs)) {
+    if (!skcms_Matrix4x4_invert(&ne_lhs, &ne_lhs_inv)) {
         return false;
     }
-    skcms_Vector4 step;
-    mul_matrix_vec(&step, &ne_lhs_inv, &ne_rhs);
+    skcms_Vector4 step = skcms_Matrix4x4_Vector4_mul(&ne_lhs_inv, &ne_rhs);
 
     // Update the transfer function.
     fn->a += step.vals[0];
@@ -226,10 +117,10 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
     fn->g += step.vals[3];
 
     // A should always be positive.
-    fn->a = fmaxf(fn->a, 0.f);
+    fn->a = fmaxf(fn->a, 0.0f);
 
     // Ensure that fn be defined at D.
-    if (fn->a * fn->d + fn->b < 0.f) {
+    if (fn->a * fn->d + fn->b < 0.0f) {
         fn->b = -fn->a * fn->d;
     }
 
@@ -269,7 +160,7 @@ static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
         }
 
         // Stop if our error is tiny.
-        float kEarlyOutTinyErrorThreshold = (1.f / 16.f) / 256.f;
+        float kEarlyOutTinyErrorThreshold = (1.0f / 16.0f) / 256.0f;
         if (step_error[step] < kEarlyOutTinyErrorThreshold) {
             break;
         }
@@ -278,14 +169,14 @@ static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
         if (step > 1) {
             // If our error is is huge for two iterations, we're probably not in the
             // region of convergence.
-            if (step_error[step] > 1.f && step_error[step - 1] > 1.f) {
+            if (step_error[step] > 1.0f && step_error[step - 1] > 1.0f) {
                 return false;
             }
 
             // If our error didn't change by ~1%, assume we've converged as much as we
             // are going to.
-            const float kEarlyOutByPercentChangeThreshold = 32.f / 256.f;
-            const float kMinimumPercentChange = 1.f / 128.f;
+            const float kEarlyOutByPercentChangeThreshold = 32.0f / 256.0f;
+            const float kMinimumPercentChange = 1.0f / 128.0f;
             float percent_change =
                 fabsf(step_error[step] - step_error[step - 1]) / step_error[step];
             if (percent_change < kMinimumPercentChange &&
@@ -299,16 +190,16 @@ static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
     }
 
     // Declare failure if our error is obviously too high.
-    float kDidNotConvergeThreshold = 64.f / 256.f;
+    float kDidNotConvergeThreshold = 64.0f / 256.0f;
     if (step_error[step] > kDidNotConvergeThreshold) {
         return false;
     }
 
     // We've converged to a reasonable solution. If some of the parameters are
     // extremely close to 0 or 1, set them to 0 or 1.
-    const float kRoundEpsilon = 1.f / 1024.f;
-    if (fabsf(fn->a - 1.f) < kRoundEpsilon) {
-        fn->a = 1.f;
+    const float kRoundEpsilon = 1.0f / 1024.0f;
+    if (fabsf(fn->a - 1.0f) < kRoundEpsilon) {
+        fn->a = 1.0f;
     }
     if (fabsf(fn->b) < kRoundEpsilon) {
         fn->b = 0;
@@ -316,8 +207,8 @@ static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
     if (fabsf(fn->e) < kRoundEpsilon) {
         fn->e = 0;
     }
-    if (fabsf(fn->g - 1.f) < kRoundEpsilon) {
-        fn->g = 1.f;
+    if (fabsf(fn->g - 1.0f) < kRoundEpsilon) {
+        fn->g = 1.0f;
     }
     return true;
 }
@@ -338,7 +229,7 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
     bool nonlinear_fit_converged = false;
     {
         enum { kNumInitialGammas = 4 };
-        float initial_gammas[kNumInitialGammas] = { 2.2f, 1.f, 3.f, 0.5f };
+        float initial_gammas[kNumInitialGammas] = { 2.2f, 1.0f, 3.0f, 0.5f };
         for (size_t i = 0; i < kNumInitialGammas; ++i) {
             fn->g = initial_gammas[i];
             fn->a = 1;
@@ -371,8 +262,8 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
 
         // Now find the maximum x value where this nonlinear fit is no longer
         // accurate, no longer defined, or no longer nonnegative.
-        fn->d = 0.f;
-        float max_x_where_nonlinear_does_not_fit = -1.f;
+        fn->d = 0.0f;
+        float max_x_where_nonlinear_does_not_fit = -1.0f;
         for (size_t i = 0; i < n; ++i) {
             if (x[i] >= kLinearSegmentMaximum) {
                 continue;
@@ -408,7 +299,7 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
 
         // Now let D be the highest sample of x that is above the threshold where
         // the nonlinear segment does not fit.
-        fn->d = 1.f;
+        fn->d = 1.0f;
         for (size_t i = 0; i < n; ++i) {
             if (x[i] > max_x_where_nonlinear_does_not_fit) {
                 fn->d = fminf(fn->d, x[i]);
@@ -480,7 +371,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // If both segments are present, they need to line up
     if (has_linear && has_nonlinear) {
         float l_at_d = src->c * src->d + src->f;
-        float n_at_d = sk_pow(src->a * src->d + src->b, src->g) + src->e;
+        float n_at_d = powf(src->a * src->d + src->b, src->g) + src->e;
         if (fabsf(l_at_d - n_at_d) > 0.0001f) {
             return false;
         }
@@ -488,14 +379,14 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 
     // Invert linear segment
     if (has_linear) {
-        fn_inv.c = 1.f / src->c;
+        fn_inv.c = 1.0f / src->c;
         fn_inv.f = -src->f / src->c;
     }
 
     // Invert nonlinear segment
     if (has_nonlinear) {
-        fn_inv.g = 1.f / src->g;
-        fn_inv.a = sk_pow(1.f / src->a, src->g);
+        fn_inv.g = 1.0f / src->g;
+        fn_inv.a = powf(1.0f / src->a, src->g);
         fn_inv.b = -fn_inv.a * src->e;
         fn_inv.e = -src->b / src->a;
     }
@@ -504,7 +395,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
         fn_inv.d = 0;
     } else if (!has_nonlinear) {
         // Any value larger than 1 works
-        fn_inv.d = 2.f;
+        fn_inv.d = 2.0f;
     } else {
         fn_inv.d = src->c * src->d + src->f;
     }
