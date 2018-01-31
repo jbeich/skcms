@@ -10,8 +10,7 @@
 #endif
 
 #include "skcms.h"
-#include "src/skcms_internal.h"
-
+#include "src/TransferFunction.h"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
