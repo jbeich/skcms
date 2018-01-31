@@ -77,7 +77,6 @@
     #endif
 #elif N == 8 && defined(__AVX__)
     #include <immintrin.h>
-    #define USING_AVX
     #if defined(__F16C__)
         #define USING_AVX_F16C
     #endif
@@ -124,7 +123,7 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
 // always (T) cast the result to the type you expect the result to be.
 #if N == 1
     #define if_then_else(c,t,e) ( (c) ? (t) : (e) )
-#else
+#elif !defined(USING_NEON_F16C)
     #define if_then_else(c,t,e) ( ((c) & (I32)(t)) | (~(c) & (I32)(e)) )
 #endif
 
@@ -171,9 +170,6 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
         return (U16)vrev16_u8((uint8x8_t) v);
     }
 #else
-    SI U16 swap_endian_16(U16 v) {
-        return (U16)( (v & 0x00ff) << 8 | (v & 0xff00) >> 8 );
-    }
     // Passing by U64* instead of U64 avoids ABI warnings.  It's all moot when inlined.
     SI void swap_endian_16x4(U64* rgba) {
         *rgba = (*rgba & 0x00ff00ff00ff00ff) << 8
@@ -197,9 +193,7 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
     #define STORE_4(p, v) (p)[0] = v
 #elif N == 4
     #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9]}
-    #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12]};
     #define STORE_3(p, v) (p)[0] = (v)[0]; (p)[3] = (v)[1]; (p)[6] = (v)[2]; (p)[ 9] = (v)[3]
-    #define STORE_4(p, v) (p)[0] = (v)[0]; (p)[4] = (v)[1]; (p)[8] = (v)[2]; (p)[12] = (v)[3]
 #elif N == 8
     #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
     #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
@@ -207,6 +201,12 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
                           (p)[12] = (v)[4]; (p)[15] = (v)[5]; (p)[18] = (v)[6]; (p)[21] = (v)[7]
     #define STORE_4(p, v) (p)[ 0] = (v)[0]; (p)[ 4] = (v)[1]; (p)[ 8] = (v)[2]; (p)[12] = (v)[3]; \
                           (p)[16] = (v)[4]; (p)[20] = (v)[5]; (p)[24] = (v)[6]; (p)[28] = (v)[7]
+#endif
+
+// As above, but never used in a NEON build.
+#if N == 4 && !defined(USING_NEON)
+    #define  LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12]};
+    #define STORE_4(p, v) (p)[0] = (v)[0]; (p)[4] = (v)[1]; (p)[8] = (v)[2]; (p)[12] = (v)[3]
 #endif
 
 

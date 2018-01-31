@@ -20,3 +20,12 @@ build $out/tests.ok: run  $out/tests
 
 build $out/iccdump.o: compile iccdump.c
 build $out/iccdump:   link $out/skcms.o $out/iccdump.o
+
+build $out/src/ICCProfile.o:       compile src/ICCProfile.c
+    cflags = $cflags --include skcms.h
+build $out/src/LinearAlgebra.o:    compile src/LinearAlgebra.c
+    cflags = $cflags --include skcms.h
+build $out/src/TransferFunction.o: compile src/TransferFunction.c
+    cflags = $cflags --include skcms.h
+build $out/src/Transform.o:        compile src/Transform.c
+    cflags = $cflags --include skcms.h
