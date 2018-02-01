@@ -10,6 +10,7 @@
 #endif
 
 #include "skcms.h"
+#include "src/LinearAlgebra.h"
 #include "src/TransferFunction.h"
 #include <math.h>
 #include <stdint.h>
@@ -742,6 +743,51 @@ static void test_TransferFunction_approximate_badMatch() {
     free(t);
 }
 
+static void expect_eq_Matrix3x3(skcms_Matrix3x3 a, skcms_Matrix3x3 b) {
+    for (int r = 0; r < 3; r++)
+    for (int c = 0; c < 3; c++) {
+        expect_eq(a.vals[r][c], b.vals[r][c]);
+    }
+}
+
+static void test_Matrix3x3_invert() {
+    skcms_Matrix3x3 inv;
+
+    skcms_Matrix3x3 I = {{
+        { 1.0f, 0.0f, 0.0f },
+        { 0.0f, 1.0f, 0.0f },
+        { 0.0f, 0.0f, 1.0f },
+    }};
+    inv = (skcms_Matrix3x3){{ {0,0,0}, {0,0,0}, {0,0,0} }};
+    expect(skcms_Matrix3x3_invert(&I, &inv));
+    expect_eq_Matrix3x3(inv, I);
+
+    skcms_Matrix3x3 T = {{
+        { 1.0f, 0.0f, 3.0f },
+        { 0.0f, 1.0f, 4.0f },
+        { 0.0f, 0.0f, 1.0f },
+    }};
+    inv = (skcms_Matrix3x3){{ {0,0,0}, {0,0,0}, {0,0,0} }};
+    expect(skcms_Matrix3x3_invert(&T, &inv));
+    expect_eq_Matrix3x3(inv, (skcms_Matrix3x3){{
+        { 1.0f, 0.0f, -3.0f },
+        { 0.0f, 1.0f, -4.0f },
+        { 0.0f, 0.0f,  1.0f },
+    }});
+
+    skcms_Matrix3x3 S = {{
+        { 2.0f, 0.0f, 0.0f },
+        { 0.0f, 4.0f, 0.0f },
+        { 0.0f, 0.0f, 8.0f },
+    }};
+    inv = (skcms_Matrix3x3){{ {0,0,0}, {0,0,0}, {0,0,0} }};
+    expect(skcms_Matrix3x3_invert(&S, &inv));
+    expect_eq_Matrix3x3(inv, (skcms_Matrix3x3){{
+        { 0.500f, 0.000f,  0.000f },
+        { 0.000f, 0.250f,  0.000f },
+        { 0.000f, 0.000f,  0.125f },
+    }});
+}
 
 int main(void) {
     test_ICCProfile();
@@ -757,5 +803,6 @@ int main(void) {
     test_TransferFunction_approximate();
     test_TransferFunction_approximate_clamped();
     test_TransferFunction_approximate_badMatch();
+    test_Matrix3x3_invert();
     return 0;
 }

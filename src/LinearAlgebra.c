@@ -18,6 +18,16 @@ static bool Matrix4x4_isfinite(const skcms_Matrix4x4* m) {
     return true;
 }
 
+static bool Matrix3x3_isfinite(const skcms_Matrix3x3* m) {
+    for (int r = 0; r < 3; ++r)
+    for (int c = 0; c < 3; ++c) {
+        if (!isfinite(m->vals[r][c])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
     double a00 = (double)src->vals[0][0],
            a01 = (double)src->vals[1][0],
@@ -96,6 +106,28 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
     dst->vals[3][3] = (float)( a20*b03 - a21*b01 + a22*b00 );
 
     return Matrix4x4_isfinite(dst);
+}
+
+bool skcms_Matrix3x3_invert(const skcms_Matrix3x3* src, skcms_Matrix3x3* dst) {
+    // TODO: I am being _very_ lazy.
+    skcms_Matrix4x4 m = {{
+        { src->vals[0][0], src->vals[0][1], src->vals[0][2], 0.0f },
+        { src->vals[1][0], src->vals[1][1], src->vals[1][2], 0.0f },
+        { src->vals[2][0], src->vals[2][1], src->vals[2][2], 0.0f },
+        {            0.0f,            0.0f,            0.0f, 1.0f },
+    }};
+
+    skcms_Matrix4x4 inv;
+    if (!skcms_Matrix4x4_invert(&m, &inv)) {
+        return false;
+    }
+
+    *dst = (skcms_Matrix3x3){{
+        { inv.vals[0][0], inv.vals[0][1], inv.vals[0][2] },
+        { inv.vals[1][0], inv.vals[1][1], inv.vals[1][2] },
+        { inv.vals[2][0], inv.vals[2][1], inv.vals[2][2] },
+        }};
+    return Matrix3x3_isfinite(dst);
 }
 
 skcms_Vector4 skcms_Matrix4x4_Vector4_mul(const skcms_Matrix4x4* m, const skcms_Vector4* v) {
