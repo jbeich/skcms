@@ -121,7 +121,19 @@ int main(int argc, char** argv) {
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f, (double)max_error);
 
+    } else {
+        skcms_TransferFunction tfs[3];
+        float max_errors[3];
+        char channels[3] = { 'r', 'g', 'b' };
+        if (skcms_ICCProfile_approximateTransferFunction3(&profile, tfs, max_errors)) {
+            for (int c = 0; c < 3; ++c) {
+                printf("%cTRC: %f, %f, %f, %f, %f, %f, %f  (Max error: %f)\n",
+                       channels[c], (double)tfs[c].g, (double)tfs[c].a, tfs[c].b, tfs[c].c, tfs[c].d, tfs[c].e, tfs[c].f, max_errors[c]);
+            }
+        }
     }
+
+    // XXX: Why doesn't PhaseOne converge? Plot table, it looks monotonic!
 
     skcms_Matrix3x3 toXYZ;
     if (skcms_ICCProfile_toXYZD50(&profile, &toXYZ)) {

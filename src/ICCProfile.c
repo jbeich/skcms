@@ -386,6 +386,47 @@ bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profil
     return result;
 }
 
+bool skcms_ICCProfile_approximateTransferFunction3(const skcms_ICCProfile* profile,
+                                                  skcms_TransferFunction* fn,
+                                                  float* max_error) {
+    if (!profile || !fn) { return false; }
+    skcms_ICCTag rTRC, gTRC, bTRC;
+    if (!skcms_ICCProfile_getTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) ||
+        !skcms_ICCProfile_getTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+        return false;
+    }
+
+    const uint8_t* table[3];
+    uint32_t count[3];
+    if (!read_tag_curv_table(&rTRC, &table[0], &count[0]) ||
+        !read_tag_curv_table(&gTRC, &table[1], &count[1]) ||
+        !read_tag_curv_table(&bTRC, &table[2], &count[2])) {
+        return false;
+    }
+
+    bool result = true;
+
+    for (int c = 0; c < 3; ++c) {
+        float* data = malloc(count[c] * 2 * sizeof(float));
+        float* x = data;
+        float* t = data + count[c];
+
+        for (uint32_t i = 0; i < count[c]; ++i) {
+            *x++ = i / (count[c] - 1.0f);
+            *t++ = read_big_u16(table[c] + 2 * i) * (1 / 65535.0f);
+        }
+
+        x = data;
+        t = data + count[c];
+
+        result = skcms_TransferFunction_approximate(fn + c, x, t, count[c], max_error + c) && result;
+        free(data);
+    }
+
+    return result;
+}
+
 void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile* profile,
                                     uint32_t index,
                                     skcms_ICCTag* tag) {
