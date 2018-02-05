@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "../skcms.h"
+#include "TransferFunction.h"
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include "TransferFunction.h"
 
 static uint32_t make_signature(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
     return (uint32_t)(a << 24)

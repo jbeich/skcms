@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "../skcms.h"
 #include "LinearAlgebra.h"
 #include "TransferFunction.h"
 #include <assert.h>
