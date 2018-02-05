@@ -84,6 +84,9 @@ bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_Transfe
 bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile*,
                                                   skcms_TransferFunction*,
                                                   float* max_error);
+bool skcms_ICCProfile_approximateTransferFunction3(const skcms_ICCProfile*,
+                                                   skcms_TransferFunction*,
+                                                   float* max_error);
 
 typedef struct {
     uint32_t       signature;
