@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "../skcms.h"
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
