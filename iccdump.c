@@ -96,8 +96,8 @@ int main(int argc, char** argv) {
 
     printf("\n");
 
-    printf(" Tag    : Type   : Size\n");
-    printf(" ------ : ------ : ------\n");
+    printf(" Tag    : Type   : Size   : Data\n");
+    printf(" ------ : ------ : ------ : --------\n");
     for (uint32_t i = 0; i < profile.tag_count; ++i) {
         skcms_ICCTag tag;
         skcms_ICCProfile_getTagByIndex(&profile, i, &tag);
@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
         char typeSig[5];
         signature_to_string(tag.signature, tagSig);
         signature_to_string(tag.type, typeSig);
-        printf(" '%s' : '%s' : %6u\n", tagSig, typeSig, tag.size);
+        printf(" '%s' : '%s' : %6u : %p\n", tagSig, typeSig, tag.size, (void*)tag.buf);
     }
 
     printf("\n");
