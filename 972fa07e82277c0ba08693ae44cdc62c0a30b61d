@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "430a0028_dd0cf1b3",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:04:11Z",
+      "side": 1,
+      "message": "This one\u0027s really inv_dst_tf, right?\n\nMaybe\n\n  skcms_TransferFunction     src_tf;  // encoded -\u003e linear\n  skcms_TransferFunction inv_dst_tf;  // linear  -\u003e encoded",
+      "range": {
+        "startLine": 213,
+        "startChar": 27,
+        "endLine": 213,
+        "endChar": 33
+      },
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4effed4_18046ac3",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:04:11Z",
+      "side": 1,
+      "message": "Let\u0027s concat these two in skcms_Transform() and call one 3x3 matrix stage?",
+      "range": {
+        "startLine": 214,
+        "startChar": 4,
+        "endLine": 215,
+        "endChar": 29
+      },
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9121900_2b3fbf61",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:04:11Z",
+      "side": 1,
+      "message": "I\u0027m fine to start with this const, but I wouldn\u0027t rule out mutating ctx as a way to play tricks later.  Something to keep in mind.",
+      "range": {
+        "startLine": 219,
+        "startChar": 22,
+        "endLine": 219,
+        "endChar": 28
+      },
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa4f9883_8963bde2",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:04:11Z",
+      "side": 1,
+      "message": "On some platforms, it\u0027d be slightly helpful to pass Context* earlier than the F\u0027s.  \n\n  (i,ip,ctx, r,g,b,a)?",
+      "range": {
+        "startLine": 390,
+        "startChar": 21,
+        "endLine": 390,
+        "endChar": 68
+      },
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14a3ad91_f1d55a1a",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:04:11Z",
+      "side": 1,
+      "message": "I think so far I\u0027ve actually always passed pointers to the same, non-null uninitialized profile.  I\u0027m happy to just bail on either being null... it\u0027s one extra line to make one on the stack.",
+      "range": {
+        "startLine": 713,
+        "startChar": 0,
+        "endLine": 716,
+        "endChar": 5
+      },
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20762654_414abfd8",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:04:11Z",
+      "side": 1,
+      "message": "Does this seem like the right long-term structure?\n\n  if src has a to_xyz\n     try to linearize src to rgb with a single transfer function\n     try to linearize src to rgb with tables, or fail\n  else\n     try to linearize src to xyz with a2b and possibly lab-\u003exyz, or fail\n     set to_xyz to I\n\n  // src is now either linear rgb or linear xyz, and its to_xyz will take us uniformly to xyz\n\n  if dst does not have a to_xyz, or we can\u0027t invert it into from_xyz, fail\n  concat to_xyz and from_xyz, add that matrix stage if that\u0027s not I\n  try to encode dst to rgb using a single transfer function\n  try to encode dst to rgb using a table, or fail",
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
