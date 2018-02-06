@@ -239,6 +239,24 @@
       "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24074cd4_04c7f864",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-06T17:21:34Z",
+      "side": 1,
+      "message": "Yes. In particular, I think we ought to follow the ICC recommendation, up to the limit of the tags that we\u0027re going to support:\n\n---\n\na) Use the BToD0Tag, BToD1Tag, BToD2Tag, BToD3Tag, DToB0Tag, DToB1Tag, DToB2Tag, or DToB3Tag designated for the rendering intent if the tag is present, except where this tag is not needed or supported by the CMM (if a particular processing element within the tag is not supported the tag is not supported).\nb) Use the BToA0Tag, BToA1Tag, BToA2Tag, AToB0Tag, AToB1Tag, or AToB2Tag designated for the rendering intent if present, when the tag in a) is not used.\nc) Use the BToA0Tag or AToB0Tag if present, when the tags in a) and b) are not used.\nd) Use TRCs (redTRCTag, greenTRCTag, blueTRCTag, or grayTRCTag) and colorants (redMatrixColumnTag, greenMatrixColumnTag, blueMatrixColumnTag) when tags in a), b), and c) are not used.",
+      "parentUuid": "fb217e94_d9bc4166",
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
