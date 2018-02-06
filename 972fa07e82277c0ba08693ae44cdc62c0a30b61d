@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "3146cd42_da897099",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-06T17:15:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a9121900_2b3fbf61",
+      "range": {
+        "startLine": 219,
+        "startChar": 22,
+        "endLine": 219,
+        "endChar": 28
+      },
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa4f9883_8963bde2",
         "filename": "src/Transform.c",
         "patchSetId": 2
@@ -82,6 +106,30 @@
       "writtenOn": "2018-02-06T17:04:11Z",
       "side": 1,
       "message": "On some platforms, it\u0027d be slightly helpful to pass Context* earlier than the F\u0027s.  \n\n  (i,ip,ctx, r,g,b,a)?",
+      "range": {
+        "startLine": 390,
+        "startChar": 21,
+        "endLine": 390,
+        "endChar": 68
+      },
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbb28b4f_13a87ee4",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-06T17:15:36Z",
+      "side": 1,
+      "message": "Yeah, I was hoisting it there as part of merging src/dst anyway.",
+      "parentUuid": "aa4f9883_8963bde2",
       "range": {
         "startLine": 390,
         "startChar": 21,
@@ -117,6 +165,30 @@
     },
     {
       "key": {
+        "uuid": "0653f443_771fcd7e",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-06T17:15:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "14a3ad91_f1d55a1a",
+      "range": {
+        "startLine": 713,
+        "startChar": 0,
+        "endLine": 716,
+        "endChar": 5
+      },
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20762654_414abfd8",
         "filename": "src/Transform.c",
         "patchSetId": 2
@@ -128,6 +200,24 @@
       "writtenOn": "2018-02-06T17:04:11Z",
       "side": 1,
       "message": "Does this seem like the right long-term structure?\n\n  if src has a to_xyz\n     try to linearize src to rgb with a single transfer function\n     try to linearize src to rgb with tables, or fail\n  else\n     try to linearize src to xyz with a2b and possibly lab-\u003exyz, or fail\n     set to_xyz to I\n\n  // src is now either linear rgb or linear xyz, and its to_xyz will take us uniformly to xyz\n\n  if dst does not have a to_xyz, or we can\u0027t invert it into from_xyz, fail\n  concat to_xyz and from_xyz, add that matrix stage if that\u0027s not I\n  try to encode dst to rgb using a single transfer function\n  try to encode dst to rgb using a table, or fail",
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06593f37_e6871d2e",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-06T17:15:36Z",
+      "side": 1,
+      "message": "I think long term, we should prefer to use A2B (and maybe even B2A) over XYZ. Otherwise, yes. (Although this also skips over B2D and D2B, which are even more generic than A2B/B2A).",
+      "parentUuid": "20762654_414abfd8",
       "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
