@@ -275,6 +275,24 @@
       "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50bae34c_9472dc43",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-06T17:39:16Z",
+      "side": 1,
+      "message": "Yes, I think c, d is a good start. And if we can support c, we can support b (though we need a way to decide which rendering intent to implement - user option?). More interesting/relevant: According to the spec, the TRC/XYZ tags implement Colorimetric, while A2B0/B2A0 is Perceptual. A2B1/B2A1 is Colorimetric - seems odd that we get a different intent based on the order of picking tags. :/\n\nD2B/B2D is similar to A2B/B2A, but with an arbitrarily long list of xform elements, where each element can be a set of 1D curves, a matrix + offset, or a CLUT.",
+      "parentUuid": "ca7ff724_10a21e73",
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
