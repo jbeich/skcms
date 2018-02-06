@@ -221,6 +221,24 @@
       "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb217e94_d9bc4166",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:17:38Z",
+      "side": 1,
+      "message": "Ah, so\n\n  if src is a2b\n     try to linearize src to xyz with a2b and possibly lab-\u003exyz, or fail\n     set to_xyz to I\n  else if src has to_xyz\n     try to linearize src to rgb with a single transfer function\n     try to linearize src to rgb with tables, or fail\n  else\n     fail\n  \n  .. ibid ..\n\n?",
+      "parentUuid": "06593f37_e6871d2e",
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
