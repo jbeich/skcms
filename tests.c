@@ -38,18 +38,6 @@ static void test_ICCProfile() {
     expect(!skcms_ICCProfile_getTransferFunction(&profile, &transferFunction));
 }
 
-static void test_Transform() {
-    // Nothing works yet.  :)
-    skcms_ICCProfile src, dst;
-    uint8_t buf[16];
-
-    for (skcms_PixelFormat fmt  = skcms_PixelFormat_RGB_565;
-                           fmt <= skcms_PixelFormat_BGRA_ffff; fmt++) {
-        expect(!skcms_Transform(buf,fmt,&dst,
-                                buf,fmt,&src, 1));
-    }
-}
-
 static void test_FormatConversions() {
     // If we use a single skcms_ICCProfile, we should be able to use skcms_Transform()
     // to do skcms_PixelFormat conversions.
@@ -791,7 +779,6 @@ static void test_Matrix3x3_invert() {
 
 int main(void) {
     test_ICCProfile();
-    test_Transform();
     test_FormatConversions();
     test_FormatConversions_565();
     test_FormatConversions_16161616();
