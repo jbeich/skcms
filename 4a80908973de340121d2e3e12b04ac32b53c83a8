@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "daea2e05_f5048233",
+        "filename": "src/Transform.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:30:50Z",
+      "side": 1,
+      "message": "I think you can drop these in the stores.  :)",
+      "revId": "4a80908973de340121d2e3e12b04ac32b53c83a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

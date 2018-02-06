@@ -257,6 +257,24 @@
       "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca7ff724_10a21e73",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-06T17:30:50Z",
+      "side": 1,
+      "message": "Today Skia is d),c), and we\u0027re proposing here to start with c),d), then perhaps expand to b) and a) from there?  Dare I ask how D2B/B2D work?",
+      "parentUuid": "24074cd4_04c7f864",
+      "revId": "972fa07e82277c0ba08693ae44cdc62c0a30b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
