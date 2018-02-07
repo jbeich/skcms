@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "174bc8ed_e700a98f",
+        "filename": "fuzz/fuzz_iccprofile_transform.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-07T17:41:54Z",
+      "side": 1,
+      "message": "Should only need to do this once, right? (if transform modifies src, something has gone wrong).",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 35
+      },
+      "revId": "2d012326931991b42ee562788a453bc06a82f249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "573ac3a9_8dba655c",
+        "filename": "fuzz/fuzz_iccprofile_transform.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-07T17:41:54Z",
+      "side": 1,
+      "message": "Maybe some comments explaining that we\u0027re treating the 256 (255) bytes as 85 three byte pixels here - which is why we need the 85*4 output bytes. In that same vein, might be nice if the dst array for the first two cases was only 256 bytes, so we catch writing off the end?",
+      "revId": "2d012326931991b42ee562788a453bc06a82f249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
