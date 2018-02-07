@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "184e34a4_26144611",
+        "filename": "build/common",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T17:42:35Z",
+      "side": 1,
+      "message": "You\u0027re killing me here with your indent. :P",
+      "range": {
+        "startLine": 38,
+        "startChar": 43,
+        "endLine": 38,
+        "endChar": 66
+      },
+      "revId": "64e88a1cac07997c0470822ca80d7d02eb055727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4063b63c_92f5a3f0",
+        "filename": "fuzz/fuzz_iccprofile_transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T17:42:35Z",
+      "side": 1,
+      "message": "// This is profiles/sRGB_Facebook.icc, copied here (xxd -i ...) so that this binary does not need any files as input.\n\n?",
+      "revId": "64e88a1cac07997c0470822ca80d7d02eb055727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d0e9386_714405d4",
+        "filename": "fuzz/fuzz_iccprofile_transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T17:42:35Z",
+      "side": 1,
+      "message": "src will stay unchanged through all this, so we can drop these next couple src[i] \u003d i loops.  \n\nIf you like, you can even enforce this by making it a static const uint8_t[]... if you do that the linker will place it in read-only memory, and we\u0027d crash if anyone ever changes it.  Of course, if you do that you\u0027re going to have to write out all the bytes in its initializer.  :)",
+      "revId": "64e88a1cac07997c0470822ca80d7d02eb055727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fced5e7f_5856114b",
+        "filename": "fuzz/fuzz_iccprofile_transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T17:42:35Z",
+      "side": 1,
+      "message": "For now let\u0027s drop this one and just start with RGBA_8888 -\u003e RGBA_8888.  The most interesting parts of what we\u0027ll want to fuzz here, I think, are going to be the parts that are common to all skcms_PixelFormats.  That\u0027ll make the setup for this a bit clearer too, just\n\nuint8_t src[256],\n        dst[256];\n\nand no having to remember how 85 and 255 relate. :)",
+      "revId": "64e88a1cac07997c0470822ca80d7d02eb055727",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
