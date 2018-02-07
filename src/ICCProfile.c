@@ -133,9 +133,10 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
 
     // Validate signature, size (smaller than buffer, large enough to hold tag table),
     // and major version
+    uint64_t tag_table_size = (uint64_t)profile->tag_count * sizeof(skcms_ICCTag_Layout);
     if (profile->signature != make_signature('a', 'c', 's', 'p') ||
         profile->size > len ||
-        profile->size < sizeof(skcms_ICCHeader) + profile->tag_count*sizeof(skcms_ICCTag_Layout) ||
+        profile->size < sizeof(skcms_ICCHeader) + tag_table_size ||
         (profile->version >> 24) > 4) {
         return false;
     }
@@ -279,7 +280,7 @@ static bool read_tag_curv_gamma(const skcms_ICCTag* tag, skcms_TransferFunction*
     const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (tag->size < sizeof(skcms_curveType) + value_count * 2) {
+    if (tag->size < sizeof(skcms_curveType) + (uint64_t)value_count * 2) {
         return false;
     }
 
@@ -310,7 +311,7 @@ static bool read_tag_curv_table(const skcms_ICCTag* tag, const uint8_t** table, 
     const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (value_count < 2 || tag->size < sizeof(skcms_curveType) + value_count * 2) {
+    if (value_count < 2 || tag->size < sizeof(skcms_curveType) + (uint64_t)value_count * 2) {
         return false;
     }
 
@@ -366,8 +367,16 @@ bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profil
         return false;
     }
 
-    uint32_t sum_count = count[0] + count[1] + count[2];
-    float* data = malloc(sum_count * 2 * sizeof(float));
+    uint64_t sum_count = (uint64_t)count[0] + (uint64_t)count[1] + (uint64_t)count[2];
+    if ((uint32_t)sum_count != sum_count) {
+        return false;
+    }
+
+    uint64_t buf_size = sum_count * 2 * sizeof(float);
+    if ((uint32_t)buf_size != buf_size) {
+        return false;
+    }
+    float* data = malloc((size_t)buf_size);
     float* x = data;
     float* t = data + sum_count;
 
@@ -382,7 +391,7 @@ bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profil
     x = data;
     t = data + sum_count;
 
-    bool result = skcms_TransferFunction_approximate(fn, x, t, sum_count, max_error);
+    bool result = skcms_TransferFunction_approximate(fn, x, t, (size_t)sum_count, max_error);
     free(data);
     return result;
 }
