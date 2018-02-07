@@ -33,6 +33,13 @@ typedef struct {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
+// Unified representation of any 'curv' or 'para' tag data
+typedef struct {
+    skcms_TransferFunction parametric;
+    const uint8_t*         table;
+    uint32_t               table_size;
+} skcms_Curve;
+
 typedef struct {
     uint16_t year;
     uint16_t month;
