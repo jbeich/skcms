@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6cf83aa_25c4f367",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T22:06:34Z",
+      "side": 1,
+      "message": "Might be easier to see the parallel with read_curve_curv() if this too passes skcms_Curve*?  That way you can also explicitly zero the table parts, rather than getting it kind of before-the-fact from the memset(0).",
+      "range": {
+        "startLine": 211,
+        "startChar": 63,
+        "endLine": 211,
+        "endChar": 92
+      },
+      "revId": "3edea083b3ff799a147eb31c182cefa59c990f36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec427021_7d24c6d6",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T22:06:34Z",
+      "side": 1,
+      "message": "Can we add // i.e. linear",
+      "revId": "3edea083b3ff799a147eb31c182cefa59c990f36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faf48007_1ad5cab4",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T22:06:34Z",
+      "side": 1,
+      "message": "// i.e. just a simple gamma",
+      "revId": "3edea083b3ff799a147eb31c182cefa59c990f36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
