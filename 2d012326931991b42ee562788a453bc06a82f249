@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "06e0baff_ee2d41a6",
+        "filename": "fuzz/fuzz_iccprofile_transform.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-07T17:55:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "174bc8ed_e700a98f",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 35
+      },
+      "revId": "2d012326931991b42ee562788a453bc06a82f249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "573ac3a9_8dba655c",
         "filename": "fuzz/fuzz_iccprofile_transform.c",
         "patchSetId": 3
@@ -39,6 +63,24 @@
       "revId": "2d012326931991b42ee562788a453bc06a82f249",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ea44b49_0acbb988",
+        "filename": "fuzz/fuzz_iccprofile_transform.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-07T17:55:33Z",
+      "side": 1,
+      "message": "Removed, as per Mike\u0027s suggestion",
+      "parentUuid": "573ac3a9_8dba655c",
+      "revId": "2d012326931991b42ee562788a453bc06a82f249",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
