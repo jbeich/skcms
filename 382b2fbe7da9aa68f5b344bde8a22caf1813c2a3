@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e9925b1_51854780",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T19:37:39Z",
+      "side": 1,
+      "message": "This could also overflow when size_t is 32-bit, right?",
+      "range": {
+        "startLine": 138,
+        "startChar": 49,
+        "endLine": 138,
+        "endChar": 69
+      },
+      "revId": "382b2fbe7da9aa68f5b344bde8a22caf1813c2a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74f8aa57_ce000dad",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T19:37:39Z",
+      "side": 1,
+      "message": "If this had been written (size_t)2 or sizeof(uint16_t), we might not have seen this issue, but the overflow would still be possible on 32-bit machines.  Seems like we need to be running 32-bit fuzzers too. :/",
+      "range": {
+        "startLine": 282,
+        "startChar": 70,
+        "endLine": 282,
+        "endChar": 71
+      },
+      "revId": "382b2fbe7da9aa68f5b344bde8a22caf1813c2a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb39bb02_9b19929d",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T19:37:39Z",
+      "side": 1,
+      "message": "32-bit overflow possible here too?",
+      "range": {
+        "startLine": 370,
+        "startChar": 25,
+        "endLine": 370,
+        "endChar": 54
+      },
+      "revId": "382b2fbe7da9aa68f5b344bde8a22caf1813c2a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
