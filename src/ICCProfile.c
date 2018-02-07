@@ -153,7 +153,7 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
         uint32_t tag_offset = read_big_u32(tags[i].offset);
         uint32_t tag_size   = read_big_u32(tags[i].size);
         uint64_t tag_end    = (uint64_t)tag_offset + (uint64_t)tag_size;
-        if (tag_end > profile->size) {
+        if (tag_size < 4 || tag_end > profile->size) {
             return false;
         }
     }
