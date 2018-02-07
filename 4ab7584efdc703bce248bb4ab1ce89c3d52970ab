@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e649e69_cfac5b24",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-07T17:07:31Z",
+      "side": 1,
+      "message": "Think we should add a regression test?\n\n  // This profile claims to have a 3-byte tag, which is nonsense.\n  uint8_t short_tag[] \u003d { ... };\n  skcms_ICCProfile p;\n  expect(!skcms_ICCProfileParse(\u0026p, short_tag, sizeof(short_tag)));\n\nOr keep a growing directory of bad profile files from the fuzzer?",
+      "revId": "4ab7584efdc703bce248bb4ab1ce89c3d52970ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
