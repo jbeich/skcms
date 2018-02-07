@@ -458,6 +458,10 @@ static const ProfileTestCase profile_test_cases[] = {
     // V2 profiles with LUT TRC and XYZ
     { "profiles/color.org/sRGB2014.icc",               kLUT_XYZ, &srgb_transfer_fn, &srgb_to_xyz },
     { "profiles/sRGB_Facebook.icc",                    kLUT_XYZ, &srgb_transfer_fn, &srgb_to_xyz },
+
+    // fuzzer generated profiles that found parsing bugs
+    { "profiles/fuzz/last_tag_too_small.icc",          kInvalid, NULL, NULL }, // skbug.com/7592
+    { "profiles/fuzz/named_tag_too_small.icc",         kInvalid, NULL, NULL }, // skbug.com/7592
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
