@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16fa0c2e_7c62c647",
+        "filename": "fuzz/fuzz_iccprofile_info.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-07T16:57:59Z",
+      "side": 1,
+      "message": "This is only partly true - the tags don\u0027t need to be stored in the same order as the data in the blob, even though they typically are. In either case, I think this is ok - the fuzzer can manufacture the problems it needs with these inputs.",
+      "revId": "e09ebdac79ba824647942f827c72335b5af59f49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
