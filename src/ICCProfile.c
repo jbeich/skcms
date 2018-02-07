@@ -279,7 +279,7 @@ static bool read_tag_curv_gamma(const skcms_ICCTag* tag, skcms_TransferFunction*
     const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (tag->size < sizeof(skcms_curveType) + value_count * 2) {
+    if (tag->size < sizeof(skcms_curveType) + (uint64_t)value_count * 2) {
         return false;
     }
 
@@ -310,7 +310,7 @@ static bool read_tag_curv_table(const skcms_ICCTag* tag, const uint8_t** table, 
     const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (value_count < 2 || tag->size < sizeof(skcms_curveType) + value_count * 2) {
+    if (value_count < 2 || tag->size < sizeof(skcms_curveType) + (uint64_t)value_count * 2) {
         return false;
     }
 
