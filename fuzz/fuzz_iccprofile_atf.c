@@ -10,15 +10,18 @@
 // because it is a much more time-consuming function call.
 
 #include "../skcms.h"
-#include "fuzz.h"
 
-DEF_FUZZ_MAIN(data, size)
+int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
+int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     skcms_ICCProfile p;
     if (!skcms_ICCProfile_parse(&p, data, size)) {
         return 0;
     }
+
     skcms_TransferFunction tf;
-    float f = 0.05f;
-    skcms_ICCProfile_approximateTransferFunction(&p, &tf, &f);
+    float max_error;
+    (void)skcms_ICCProfile_approximateTransferFunction(&p, &tf, &max_error);
+    (void)max_error;
+
     return 0;
 }

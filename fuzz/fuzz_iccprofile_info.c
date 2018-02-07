@@ -9,21 +9,28 @@
 // of info from it.
 
 #include "../skcms.h"
-#include "fuzz.h"
 
-DEF_FUZZ_MAIN(data, size)
+int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
+int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     skcms_ICCProfile p;
     if (!skcms_ICCProfile_parse(&p, data, size)) {
         return 0;
     }
-    skcms_Matrix3x3 m;
-    skcms_ICCProfile_toXYZD50(&p, &m);
-    skcms_TransferFunction tf;
-    skcms_ICCProfile_getTransferFunction(&p, &tf);
 
+    // These should always be safe to call if ICCProfile_parse() succeeds.
+
+    skcms_Matrix3x3 m;
+    (void)skcms_ICCProfile_toXYZD50(&p, &m);
+
+    skcms_TransferFunction tf;
+    (void)skcms_ICCProfile_getTransferFunction(&p, &tf);
+
+    // Instead of testing all tags, just test that we can read the first and last.
+    // This does _not_ imply all the middle will work fine, but these calls should
+    // be enough for the fuzzer to find a way to break us.
     if (p.tag_count > 0) {
         skcms_ICCTag tag;
-        skcms_ICCProfile_getTagByIndex(&p, 0, &tag);
+        skcms_ICCProfile_getTagByIndex(&p,               0, &tag);
         skcms_ICCProfile_getTagByIndex(&p, p.tag_count - 1, &tag);
     }
     return 0;
