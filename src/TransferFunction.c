@@ -7,6 +7,7 @@
 
 #include "../skcms.h"
 #include "LinearAlgebra.h"
+#include "Macros.h"
 #include "TransferFunction.h"
 #include <assert.h>
 #include <math.h>
@@ -52,7 +53,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
                                            float* error_Linfty_after,
                                            const float* x,
                                            const float* t,
-                                           size_t n) {
+                                           int n) {
     // Let ne_lhs be the left hand side of the normal equations, and let ne_rhs
     // be the right hand side. Zero the diagonal [sic] of |ne_lhs| and all of |ne_rhs|.
     skcms_Matrix4x4 ne_lhs;
@@ -65,7 +66,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
     }
 
     // Add the contributions from each sample to the normal equations.
-    for (size_t i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i) {
         // Ignore points in the linear segment.
         if (x[i] < fn->d) {
             continue;
@@ -127,7 +128,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
 
     // Compute the Linfinity error.
     *error_Linfty_after = 0;
-    for (size_t i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i) {
         if (x[i] >= fn->d) {
             float error = fabsf(t[i] - skcms_TransferFunction_eval(fn, x[i]));
             *error_Linfty_after = fmaxf(error, *error_Linfty_after);
@@ -142,13 +143,13 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
 static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
                                const float* x,
                                const float* t,
-                               size_t n) {
+                               int n) {
     // Take a maximum of 16 Gauss-Newton steps.
     enum { kNumSteps = 16 };
 
     // The L-infinity error after each step.
     float step_error[kNumSteps] = { 0 };
-    size_t step = 0;
+    int step = 0;
     for (;; ++step) {
         // If the normal equations are singular, we can't continue.
         if (!tf_gauss_newton_step_nonlinear(fn, &step_error[step], x, t, n)) {
@@ -217,7 +218,7 @@ static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
 bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
                                         const float* x,
                                         const float* t,
-                                        size_t n,
+                                        int n,
                                         float* max_error) {
     // First, guess at a value of D. Assume that the nonlinear segment applies
     // to all x >= 0.15. This is generally a safe assumption (D is usually less
@@ -229,9 +230,8 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
     // for the initial value of G, because not all values will converge.
     bool nonlinear_fit_converged = false;
     {
-        enum { kNumInitialGammas = 4 };
-        float initial_gammas[kNumInitialGammas] = { 2.2f, 1.0f, 3.0f, 0.5f };
-        for (size_t i = 0; i < kNumInitialGammas; ++i) {
+        float initial_gammas[] = { 2.2f, 1.0f, 3.0f, 0.5f };
+        for (int i = 0; i < ARRAY_COUNT(initial_gammas); ++i) {
             fn->g = initial_gammas[i];
             fn->a = 1;
             fn->b = 0;
@@ -253,7 +253,7 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
     {
         // Find the L-infinity error of this nonlinear fit (using our old D value).
         float max_error_in_nonlinear_fit = 0;
-        for (size_t i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             if (x[i] < fn->d) {
                 continue;
             }
@@ -265,7 +265,7 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
         // accurate, no longer defined, or no longer nonnegative.
         fn->d = 0.0f;
         float max_x_where_nonlinear_does_not_fit = -1.0f;
-        for (size_t i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             if (x[i] >= kLinearSegmentMaximum) {
                 continue;
             }
@@ -301,7 +301,7 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
         // Now let D be the highest sample of x that is above the threshold where
         // the nonlinear segment does not fit.
         fn->d = 1.0f;
-        for (size_t i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             if (x[i] > max_x_where_nonlinear_does_not_fit) {
                 fn->d = fminf(fn->d, x[i]);
             }
@@ -323,7 +323,7 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
 
     if (max_error) {
         *max_error = 0;
-        for (size_t i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             float fn_of_xi = skcms_TransferFunction_eval(fn, x[i]);
             float error_at_xi = fabsf(t[i] - fn_of_xi);
             *max_error = fmaxf(*max_error, error_at_xi);

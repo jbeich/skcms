@@ -6,11 +6,14 @@
  */
 
 #include "../skcms.h"
+#include "Macros.h"
 #include "TransferFunction.h"
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 static uint32_t make_signature(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
     return (uint32_t)(a << 24)
@@ -89,20 +92,20 @@ typedef struct {
 } skcms_ICCTag_Layout;
 
 static const skcms_ICCTag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
-    return (const skcms_ICCTag_Layout*)(profile->buffer + sizeof(skcms_ICCHeader));
+    return (const skcms_ICCTag_Layout*)(profile->buffer + SAFE_SIZEOF(skcms_ICCHeader));
 }
 
 bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
                             const void* buf,
                             size_t len) {
-    static_assert(sizeof(skcms_ICCHeader) == 132, "ICC header size");
+    static_assert(SAFE_SIZEOF(skcms_ICCHeader) == 132, "ICC header size");
 
     if (!profile) {
         return false;
     }
-    memset(profile, 0, sizeof(*profile));
+    memset(profile, 0, SAFE_SIZEOF(*profile));
 
-    if (len < sizeof(skcms_ICCHeader)) {
+    if (len < SAFE_SIZEOF(skcms_ICCHeader)) {
         return false;
     }
 
@@ -127,16 +130,17 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
     profile->illuminant_Y        = read_big_fixed(header->illuminant_Y);
     profile->illuminant_Z        = read_big_fixed(header->illuminant_Z);
     profile->creator             = read_big_u32(header->creator);
-    static_assert(sizeof(profile->profile_id) == sizeof(header->profile_id), "profile_id size");
-    memcpy(profile->profile_id, header->profile_id, sizeof(header->profile_id));
+    static_assert(SAFE_SIZEOF(profile->profile_id) == SAFE_SIZEOF(header->profile_id),
+                  "profile_id size");
+    memcpy(profile->profile_id, header->profile_id, SAFE_SIZEOF(header->profile_id));
     profile->tag_count           = read_big_u32(header->tag_count);
 
     // Validate signature, size (smaller than buffer, large enough to hold tag table),
     // and major version
-    uint64_t tag_table_size = (uint64_t)profile->tag_count * sizeof(skcms_ICCTag_Layout);
+    uint64_t tag_table_size = profile->tag_count * SAFE_SIZEOF(skcms_ICCTag_Layout);
     if (profile->signature != make_signature('a', 'c', 's', 'p') ||
         profile->size > len ||
-        profile->size < sizeof(skcms_ICCHeader) + tag_table_size ||
+        profile->size < SAFE_SIZEOF(skcms_ICCHeader) + tag_table_size ||
         (profile->version >> 24) > 4) {
         return false;
     }
@@ -174,7 +178,7 @@ typedef struct {
 
 static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) {
     if (!tag || tag->type != make_signature('X', 'Y', 'Z', ' ') || !x || !y || !z ||
-        tag->size < sizeof(skcms_XYZType)) {
+        tag->size < SAFE_SIZEOF(skcms_XYZType)) {
         return false;
     }
 
@@ -222,7 +226,7 @@ static bool read_tag_para(const skcms_ICCTag* tag, skcms_TransferFunction* para)
     }
 
     static const uint32_t curve_bytes[] = { 4, 12, 16, 20, 28 };
-    if (tag->size < sizeof(skcms_parametricCurveType) + curve_bytes[function_type]) {
+    if (tag->size < SAFE_SIZEOF(skcms_parametricCurveType) + curve_bytes[function_type]) {
         return false;
     }
 
@@ -280,7 +284,7 @@ static bool read_tag_curv_gamma(const skcms_ICCTag* tag, skcms_TransferFunction*
     const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (tag->size < sizeof(skcms_curveType) + (uint64_t)value_count * 2) {
+    if (tag->size < SAFE_SIZEOF(skcms_curveType) + value_count * SAFE_SIZEOF(uint16_t)) {
         return false;
     }
 
@@ -311,7 +315,10 @@ static bool read_tag_curv_table(const skcms_ICCTag* tag, const uint8_t** table, 
     const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (value_count < 2 || tag->size < sizeof(skcms_curveType) + (uint64_t)value_count * 2) {
+    if (value_count < 2) {
+        return false;
+    }
+    if (tag->size < SAFE_SIZEOF(skcms_curveType) + value_count * SAFE_SIZEOF(uint16_t)) {
         return false;
     }
 
@@ -340,7 +347,8 @@ bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile* profile,
         return false;
     }
 
-    if (memcmp(&rPara, &gPara, sizeof(rPara)) || memcmp(&rPara, &bPara, sizeof(rPara))) {
+    if (0 != memcmp(&rPara, &gPara, SAFE_SIZEOF(rPara)) ||
+        0 != memcmp(&rPara, &bPara, SAFE_SIZEOF(rPara))) {
         return false;
     }
 
@@ -367,16 +375,20 @@ bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profil
         return false;
     }
 
-    uint64_t sum_count = (uint64_t)count[0] + (uint64_t)count[1] + (uint64_t)count[2];
-    if ((uint32_t)sum_count != sum_count) {
+    uint64_t sum_count = (uint64_t)count[0]
+                       + (uint64_t)count[1]
+                       + (uint64_t)count[2];
+    if (sum_count > INT_MAX) {
         return false;
     }
 
-    uint64_t buf_size = sum_count * 2 * sizeof(float);
-    if ((uint32_t)buf_size != buf_size) {
+    uint64_t buf_size = 2 * sum_count * SAFE_SIZEOF(float);
+
+    if (buf_size != (size_t)buf_size) {
         return false;
     }
     float* data = malloc((size_t)buf_size);
+
     float* x = data;
     float* t = data + sum_count;
 
@@ -391,7 +403,7 @@ bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profil
     x = data;
     t = data + sum_count;
 
-    bool result = skcms_TransferFunction_approximate(fn, x, t, (size_t)sum_count, max_error);
+    bool result = skcms_TransferFunction_approximate(fn, x, t, (int)sum_count, max_error);
     free(data);
     return result;
 }

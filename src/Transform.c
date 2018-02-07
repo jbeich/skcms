@@ -9,6 +9,7 @@
 #include "LinearAlgebra.h"
 #include "TransferFunction.h"
 #include <assert.h>
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -217,9 +218,9 @@ typedef struct {
     skcms_Matrix3x3 from_xyz;
 } Context;
 
-typedef void (*Stage)(size_t i, void** ip, Context* ctx, F r, F g, F b, F a);
+typedef void (*Stage)(int i, void** ip, Context* ctx, F r, F g, F b, F a);
 
-SI void next_stage(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+SI void next_stage(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     Stage next;
 #if defined(__x86_64__)
     __asm__("lodsq" : "=a"(next), "+S"(ip));
@@ -229,7 +230,7 @@ SI void next_stage(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next(i,ip,ctx, r,g,b,a);
 }
 
-static void load_565(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_565(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U16 rgb;
     small_memcpy(&rgb, ctx->src + 2*i, 2*N);
 
@@ -240,7 +241,7 @@ static void load_565(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_888(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const uint8_t* rgb = (const uint8_t*)(ctx->src + 3*i);
 #if defined(USING_NEON)
     // There's no uint8x4x3_t or vld3 load for it, so we'll load each rgb pixel one at at time.
@@ -266,7 +267,7 @@ static void load_888(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_8888(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_8888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U32 rgba;
     small_memcpy(&rgba, ctx->src + 4*i, 4*N);
 
@@ -277,7 +278,7 @@ static void load_8888(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_1010102(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_1010102(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U32 rgba;
     small_memcpy(&rgba, ctx->src + 4*i, 4*N);
 
@@ -288,7 +289,7 @@ static void load_1010102(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) 
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_161616(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
@@ -310,7 +311,7 @@ static void load_161616(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_16161616(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_16161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 8*i);
     assert( (ptr & 1) == 0 );                    // The src pointer must be 2-byte aligned
     const uint16_t* rgba = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
@@ -333,7 +334,7 @@ static void load_16161616(size_t i, void** ip, Context* ctx, F r, F g, F b, F a)
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_hhh(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_hhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
@@ -354,7 +355,7 @@ static void load_hhh(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_hhhh(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_hhhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 8*i);
     assert( (ptr & 1) == 0 );                    // The src pointer must be 2-byte aligned
     const uint16_t* rgba = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
@@ -379,7 +380,7 @@ static void load_hhhh(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_fff(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_fff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 12*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
     const float* rgb = (const float*)ptr;       // for this cast to const float* to be safe.
@@ -397,7 +398,7 @@ static void load_fff(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_ffff(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void load_ffff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 16*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
     const float* rgba = (const float*)ptr;      // for this cast to const float* to be safe.
@@ -416,7 +417,7 @@ static void load_ffff(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void store_565(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_565(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U16 rgb = CAST(U16, to_fixed(r * 31) <<  0 )
             | CAST(U16, to_fixed(g * 63) <<  5 )
             | CAST(U16, to_fixed(b * 31) << 11 );
@@ -425,7 +426,7 @@ static void store_565(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_888(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uint8_t* rgb = (uint8_t*)ctx->dst + 3*i;
 #if defined(USING_NEON)
     // Same deal as load_888 but in reverse... we'll store using uint8x8x3_t, but
@@ -449,7 +450,7 @@ static void store_888(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_8888(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_8888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U32 rgba = CAST(U32, to_fixed(r * 255) <<  0)
              | CAST(U32, to_fixed(g * 255) <<  8)
              | CAST(U32, to_fixed(b * 255) << 16)
@@ -458,7 +459,7 @@ static void store_8888(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_1010102(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_1010102(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U32 rgba = CAST(U32, to_fixed(r * 1023) <<  0)
              | CAST(U32, to_fixed(g * 1023) << 10)
              | CAST(U32, to_fixed(b * 1023) << 20)
@@ -467,7 +468,7 @@ static void store_1010102(size_t i, void** ip, Context* ctx, F r, F g, F b, F a)
     (void)ip;
 }
 
-static void store_161616(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 6*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
@@ -490,7 +491,7 @@ static void store_161616(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) 
     (void)ip;
 }
 
-static void store_16161616(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_16161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 8*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgba = (uint16_t*)ptr;            // for this cast to uint16_t* to be safe.
@@ -513,7 +514,7 @@ static void store_16161616(size_t i, void** ip, Context* ctx, F r, F g, F b, F a
     (void)ip;
 }
 
-static void store_hhh(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_hhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 6*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
@@ -537,7 +538,7 @@ static void store_hhh(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_hhhh(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_hhhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 8*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgba = (uint16_t*)ptr;            // for this cast to uint16_t* to be safe.
@@ -564,7 +565,7 @@ static void store_hhhh(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_fff(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_fff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 12*i);
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgb = (float*)ptr;                   // for this cast to float* to be safe.
@@ -584,7 +585,7 @@ static void store_fff(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_ffff(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void store_ffff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 16*i);
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgba = (float*)ptr;                  // for this cast to float* to be safe.
@@ -605,11 +606,11 @@ static void store_ffff(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void swap_rb(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void swap_rb(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, b,g,r,a);
 }
 
-static void clamp(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void clamp(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     r = max(F0, min(r, F1));
     g = max(F0, min(g, F1));
     b = max(F0, min(b, F1));
@@ -617,27 +618,27 @@ static void clamp(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void force_opaque(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void force_opaque(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     a = F1;
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void src_tf(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void src_tf(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     // TODO: Math
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void dst_tf(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void dst_tf(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     // TODO: Math
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void to_xyz(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void to_xyz(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     // TODO: Math
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void from_xyz(size_t i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void from_xyz(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     // TODO: Math
     next_stage(i,ip,ctx, r,g,b,a);
 }
@@ -662,7 +663,15 @@ SI size_t bytes_per_pixel(skcms_PixelFormat fmt) {
 
 bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
                const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
-                     size_t n) {
+                     size_t nz) {
+    const size_t dst_bpp = bytes_per_pixel(dstFmt),
+                 src_bpp = bytes_per_pixel(srcFmt);
+    // Let's just refuse if the request is absurdly big.
+    if (nz * dst_bpp > INT_MAX || nz * src_bpp > INT_MAX) {
+        return false;
+    }
+    int n = (int)nz;
+
     // Both profiles can be null if we're just doing format conversion, otherwise both are needed
     if (!dstProfile != !srcProfile) {
         return false;
@@ -748,7 +757,7 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
         case skcms_PixelFormat_RGBA_ffff     >> 1: *ip++ = (void*)store_ffff;     break;
     }
 
-    size_t i = 0;
+    int i = 0;
     while (n >= N) {
         Stage start = (Stage)program[0];
         start(i,program+1,&ctx, F0,F0,F0,F0);
@@ -763,14 +772,12 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
         ctx.src = tmp_src;
         ctx.dst = tmp_dst;
 
-        size_t src_bpp = bytes_per_pixel(srcFmt);
-        memcpy(tmp_src, (const char*)src + i*src_bpp, n*src_bpp);
+        memcpy(tmp_src, (const char*)src + (size_t)i*src_bpp, (size_t)n*src_bpp);
 
         Stage start = (Stage)program[0];
         start(0,program+1,&ctx, F0,F0,F0,F0);
 
-        size_t dst_bpp = bytes_per_pixel(dstFmt);
-        memcpy((char*)dst + i*dst_bpp, tmp_dst, n*dst_bpp);
+        memcpy((char*)dst + (size_t)i*dst_bpp, tmp_dst, (size_t)n*dst_bpp);
     }
     return true;
 }
