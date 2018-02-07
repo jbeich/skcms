@@ -7,6 +7,10 @@
 
 // This main() can be used to run libfuzzer targets as standalone binaries.
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
