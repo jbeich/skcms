@@ -11,6 +11,7 @@
 
 #include "skcms.h"
 #include "src/LinearAlgebra.h"
+#include "src/Macros.h"
 #include "src/TransferFunction.h"
 #include <math.h>
 #include <stdint.h>
@@ -504,7 +505,7 @@ static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd
 }
 
 static void test_ICCProfile_parse() {
-    const int test_cases_count = sizeof(profile_test_cases) / sizeof(profile_test_cases[0]);
+    const int test_cases_count = SKCMS_ARRAY_COUNT(profile_test_cases);
     for (int i = 0; i < test_cases_count; ++i) {
         const ProfileTestCase* test = profile_test_cases + i;
 
@@ -597,20 +598,20 @@ static void test_TransferFunction_approximate() {
         &gamma_1_transfer_fn,
         &linear_transfer_fn,
     };
-    const int num_transfer_fns = sizeof(transfer_fns) / sizeof(transfer_fns[0]);
+    const int num_transfer_fns = SKCMS_ARRAY_COUNT(transfer_fns);
 
-    size_t table_sizes[] = { 512, 256, 128, 64, 16, 11, 8, 7, 6, 5, 4 };
-    const int num_table_sizes = sizeof(table_sizes) / sizeof(table_sizes[0]);
+    int table_sizes[] = { 512, 256, 128, 64, 16, 11, 8, 7, 6, 5, 4 };
+    const int num_table_sizes = SKCMS_ARRAY_COUNT(table_sizes);
 
     for (int ts = 0; ts < num_table_sizes; ++ts) {
-        float* x = malloc(table_sizes[ts] * sizeof(float));
-        for (size_t i = 0; i < table_sizes[ts]; ++i) {
+        float* x = malloc((size_t)table_sizes[ts] * sizeof(float));
+        for (int i = 0; i < table_sizes[ts]; ++i) {
             x[i] = (float)i / (table_sizes[ts] - 1);
         }
 
-        float* t = malloc(table_sizes[ts] * sizeof(float));
+        float* t = malloc((size_t)table_sizes[ts] * sizeof(float));
         for (int tf = 0; tf < num_transfer_fns; ++tf) {
-            for (size_t i = 0; i < table_sizes[ts]; ++i) {
+            for (int i = 0; i < table_sizes[ts]; ++i) {
                 t[i] = skcms_TransferFunction_eval(transfer_fns[tf], x[i]);
             }
 
@@ -690,7 +691,7 @@ static void test_TransferFunction_approximate_clamped() {
 }
 
 static void test_TransferFunction_approximate_badMatch() {
-    const size_t kTableSize = 512;
+    const int kTableSize = 512;
     const skcms_TransferFunction* transfer_fns[3] = {
         &srgb_transfer_fn,
         &gamma_2_2_transfer_fn,
@@ -701,8 +702,8 @@ static void test_TransferFunction_approximate_badMatch() {
     float* t = malloc(kTableSize * 3 * sizeof(float));
 
     // Create a table containing each of these functions
-    for (size_t tf = 0; tf < 3; ++tf) {
-        for (size_t i = 0; i < kTableSize; ++i) {
+    for (int tf = 0; tf < 3; ++tf) {
+        for (int i = 0; i < kTableSize; ++i) {
             x[kTableSize * tf + i] = i / (kTableSize - 1.f);
             t[kTableSize * tf + i] = skcms_TransferFunction_eval(transfer_fns[tf], x[i]);
         }
@@ -711,7 +712,7 @@ static void test_TransferFunction_approximate_badMatch() {
     // Now, try to fit a curve to just the first set of data, then the first & second (together),
     // and finally all three sets. The first will have a perfect match. The second will be very
     // close. The third will converge, but with an error of ~7/256.
-    for (size_t transfers_to_use = 1; transfers_to_use <= 3; ++transfers_to_use) {
+    for (int transfers_to_use = 1; transfers_to_use <= 3; ++transfers_to_use) {
         skcms_TransferFunction fn_approx;
         float max_error;
         expect(skcms_TransferFunction_approximate(&fn_approx, x, t, kTableSize * transfers_to_use,

@@ -10,7 +10,6 @@
 // TransferFunction.h contains skcms-private APIs for working with skcms_TransferFunction.
 
 #include <stdbool.h>
-#include <stddef.h>
 
 float skcms_TransferFunction_eval(const skcms_TransferFunction*, float);
 float skcms_TransferFunction_evalUnclamped(const skcms_TransferFunction*, float);
@@ -18,5 +17,5 @@ float skcms_TransferFunction_evalUnclamped(const skcms_TransferFunction*, float)
 bool skcms_TransferFunction_invert(const skcms_TransferFunction*, skcms_TransferFunction*);
 
 bool skcms_TransferFunction_approximate(skcms_TransferFunction*,
-                                        const float* x, const float* t, size_t n,
+                                        const float* x, const float* t, int n,
                                         float* max_error);
