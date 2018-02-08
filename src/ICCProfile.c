@@ -217,13 +217,12 @@ typedef struct {
     uint8_t parameters    [ ];  // 1, 3, 4, 5, or 7 s15.16 parameters, depending on function_type
 } skcms_parametricCurveType;
 
-static bool read_tag_para(const skcms_ICCTag* tag, skcms_TransferFunction* para) {
-    const skcms_parametricCurveType* paraTag =
-        TAG_CAST(skcms_parametricCurveType, ('p','a','r','a'), tag);
-
-    if (!paraTag || !para) {
+static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
+    if (size < SAFE_SIZEOF(skcms_parametricCurveType)) {
         return false;
     }
+
+    const skcms_parametricCurveType* paraTag = (const skcms_parametricCurveType*)buf;
 
     enum { kG = 0, kGAB = 1, kGABC = 2, kGABCD = 3, kGABCDEF = 4 };
     uint16_t function_type = read_big_u16(paraTag->function_type);
@@ -232,44 +231,46 @@ static bool read_tag_para(const skcms_ICCTag* tag, skcms_TransferFunction* para)
     }
 
     static const uint32_t curve_bytes[] = { 4, 12, 16, 20, 28 };
-    if (tag->size < SAFE_SIZEOF(skcms_parametricCurveType) + curve_bytes[function_type]) {
+    if (size < SAFE_SIZEOF(skcms_parametricCurveType) + curve_bytes[function_type]) {
         return false;
     }
 
-    para->a = 1.0f;
-    para->b = 0.0f;
-    para->c = 0.0f;
-    para->d = 0.0f;
-    para->e = 0.0f;
-    para->f = 0.0f;
-    para->g = read_big_fixed(paraTag->parameters);
+    curve->table = NULL;
+    curve->table_size = 0;
+    curve->parametric.a = 1.0f;
+    curve->parametric.b = 0.0f;
+    curve->parametric.c = 0.0f;
+    curve->parametric.d = 0.0f;
+    curve->parametric.e = 0.0f;
+    curve->parametric.f = 0.0f;
+    curve->parametric.g = read_big_fixed(paraTag->parameters);
 
     switch (function_type) {
         case kGAB:
-            para->a = read_big_fixed(paraTag->parameters + 4);
-            para->b = read_big_fixed(paraTag->parameters + 8);
-            para->d = -para->b / para->a;
+            curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
+            curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
+            curve->parametric.d = -curve->parametric.b / curve->parametric.a;
             break;
         case kGABC:
-            para->a = read_big_fixed(paraTag->parameters + 4);
-            para->b = read_big_fixed(paraTag->parameters + 8);
-            para->e = read_big_fixed(paraTag->parameters + 12);
-            para->d = -para->b / para->a;
-            para->f = para->e;
+            curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
+            curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
+            curve->parametric.e = read_big_fixed(paraTag->parameters + 12);
+            curve->parametric.d = -curve->parametric.b / curve->parametric.a;
+            curve->parametric.f = curve->parametric.e;
             break;
         case kGABCD:
-            para->a = read_big_fixed(paraTag->parameters + 4);
-            para->b = read_big_fixed(paraTag->parameters + 8);
-            para->c = read_big_fixed(paraTag->parameters + 12);
-            para->d = read_big_fixed(paraTag->parameters + 16);
+            curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
+            curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
+            curve->parametric.c = read_big_fixed(paraTag->parameters + 12);
+            curve->parametric.d = read_big_fixed(paraTag->parameters + 16);
             break;
         case kGABCDEF:
-            para->a = read_big_fixed(paraTag->parameters + 4);
-            para->b = read_big_fixed(paraTag->parameters + 8);
-            para->c = read_big_fixed(paraTag->parameters + 12);
-            para->d = read_big_fixed(paraTag->parameters + 16);
-            para->e = read_big_fixed(paraTag->parameters + 20);
-            para->f = read_big_fixed(paraTag->parameters + 24);
+            curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
+            curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
+            curve->parametric.c = read_big_fixed(paraTag->parameters + 12);
+            curve->parametric.d = read_big_fixed(paraTag->parameters + 16);
+            curve->parametric.e = read_big_fixed(paraTag->parameters + 20);
+            curve->parametric.f = read_big_fixed(paraTag->parameters + 24);
             break;
     }
     return true;
@@ -282,55 +283,57 @@ typedef struct {
     uint8_t parameters    [ ];  // value_count parameters (8.8 if 1, uint16 (n*65535) if > 1)
 } skcms_curveType;
 
-static bool read_tag_curv_gamma(const skcms_ICCTag* tag, skcms_TransferFunction* para) {
-    const skcms_curveType* curvTag = TAG_CAST(skcms_curveType, ('c','u','r','v'), tag);
-
-    if (!curvTag || !para) {
+static bool read_curve_curv(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
+    if (size < SAFE_SIZEOF(skcms_curveType)) {
         return false;
     }
+
+    const skcms_curveType* curvTag = (const skcms_curveType*)buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (tag->size < SAFE_SIZEOF(skcms_curveType) + value_count * SAFE_SIZEOF(uint16_t)) {
+    if (size < SAFE_SIZEOF(skcms_curveType) + value_count * SAFE_SIZEOF(uint16_t)) {
         return false;
     }
 
-    if (value_count == 0) {
-        para->g = 1.0f;
-    } else if (value_count == 1) {
-        para->g = read_big_u16(curvTag->parameters) * (1.0f / 256.0f);
+    if (value_count < 2) {
+        curve->table = NULL;
+        curve->table_size = 0;
+        curve->parametric.a = 1.0f;
+        curve->parametric.b = 0.0f;
+        curve->parametric.c = 0.0f;
+        curve->parametric.d = 0.0f;
+        curve->parametric.e = 0.0f;
+        curve->parametric.f = 0.0f;
+        if (value_count == 0) {
+            // Empty tables are a shorthand for linear
+            curve->parametric.g = 1.0f;
+        } else {
+            // Single entry tables are a shorthand for simple gamma
+            curve->parametric.g = read_big_u16(curvTag->parameters) * (1.0f / 256.0f);
+        }
     } else {
-        // TODO: Handle table-based curves, do curve-fitting?
-        return false;
+        memset(&curve->parametric, 0, SAFE_SIZEOF(curve->parametric));
+        curve->table_size = value_count;
+        curve->table = curvTag->parameters;
     }
-
-    para->a = 1.0f;
-    para->b = 0.0f;
-    para->c = 0.0f;
-    para->d = 0.0f;
-    para->e = 0.0f;
-    para->f = 0.0f;
 
     return true;
 }
 
-static bool read_tag_curv_table(const skcms_ICCTag* tag, const uint8_t** table, uint32_t* count) {
-    if (!tag || tag->type != make_signature('c', 'u', 'r', 'v') || !table || !count) {
+// Parses both curveType and parametricCurveType data
+static bool read_curve(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
+    if (!buf || size < 4 || !curve) {
         return false;
     }
 
-    const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
-
-    uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (value_count < 2) {
-        return false;
-    }
-    if (tag->size < SAFE_SIZEOF(skcms_curveType) + value_count * SAFE_SIZEOF(uint16_t)) {
-        return false;
+    uint32_t type = read_big_u32(buf);
+    if (type == make_signature('p', 'a', 'r', 'a')) {
+        return read_curve_para(buf, size, curve);
+    } else if (type == make_signature('c', 'u', 'r', 'v')) {
+        return read_curve_curv(buf, size, curve);
     }
 
-    *count = value_count;
-    *table = curvTag->parameters;
-    return true;
+    return false;
 }
 
 bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile* profile,
@@ -346,19 +349,19 @@ bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile* profile,
 
     // For each TRC tag, check for either V4 parametric curve data, or special cases of
     // V2 curve data that encode a numerical gamma curve.
-    skcms_TransferFunction rPara, gPara, bPara;
-    if (!(read_tag_para(&rTRC, &rPara) || read_tag_curv_gamma(&rTRC, &rPara)) ||
-        !(read_tag_para(&gTRC, &gPara) || read_tag_curv_gamma(&gTRC, &gPara)) ||
-        !(read_tag_para(&bTRC, &bPara) || read_tag_curv_gamma(&bTRC, &bPara))) {
+    skcms_Curve rCurve, gCurve, bCurve;
+    if (!read_curve(rTRC.buf, rTRC.size, &rCurve) || rCurve.table ||
+        !read_curve(gTRC.buf, gTRC.size, &gCurve) || gCurve.table ||
+        !read_curve(bTRC.buf, bTRC.size, &bCurve) || bCurve.table) {
         return false;
     }
 
-    if (0 != memcmp(&rPara, &gPara, SAFE_SIZEOF(rPara)) ||
-        0 != memcmp(&rPara, &bPara, SAFE_SIZEOF(rPara))) {
+    if (0 != memcmp(&rCurve.parametric, &gCurve.parametric, SAFE_SIZEOF(rCurve.parametric)) ||
+        0 != memcmp(&rCurve.parametric, &bCurve.parametric, SAFE_SIZEOF(rCurve.parametric))) {
         return false;
     }
 
-    *transferFunction = rPara;
+    *transferFunction = rCurve.parametric;
     return true;
 }
 
@@ -373,17 +376,16 @@ bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profil
         return false;
     }
 
-    const uint8_t* table[3];
-    uint32_t count[3];
-    if (!read_tag_curv_table(&rTRC, &table[0], &count[0]) ||
-        !read_tag_curv_table(&gTRC, &table[1], &count[1]) ||
-        !read_tag_curv_table(&bTRC, &table[2], &count[2])) {
+    skcms_Curve curves[3];
+    if (!read_curve(rTRC.buf, rTRC.size, &curves[0]) || !curves[0].table ||
+        !read_curve(gTRC.buf, gTRC.size, &curves[1]) || !curves[1].table ||
+        !read_curve(bTRC.buf, bTRC.size, &curves[2]) || !curves[2].table) {
         return false;
     }
 
-    uint64_t sum_count = (uint64_t)count[0]
-                       + (uint64_t)count[1]
-                       + (uint64_t)count[2];
+    uint64_t sum_count = (uint64_t)curves[0].table_size
+                       + (uint64_t)curves[1].table_size
+                       + (uint64_t)curves[2].table_size;
     if (sum_count > INT_MAX) {
         return false;
     }
@@ -400,9 +402,9 @@ bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile* profil
 
     // Merge all channels' tables into a single array.
     for (int c = 0; c < 3; ++c) {
-        for (uint32_t i = 0; i < count[c]; ++i) {
-            *x++ = i / (count[c] - 1.0f);
-            *t++ = read_big_u16(table[c] + 2 * i) * (1 / 65535.0f);
+        for (uint32_t i = 0; i < curves[c].table_size; ++i) {
+            *x++ = i / (curves[c].table_size - 1.0f);
+            *t++ = read_big_u16(curves[c].table + 2 * i) * (1 / 65535.0f);
         }
     }
 
