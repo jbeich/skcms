@@ -248,12 +248,18 @@ static bool read_tag_para(const skcms_ICCTag* tag, skcms_TransferFunction* para)
         case kGAB:
             para->a = read_big_fixed(paraTag->parameters + 4);
             para->b = read_big_fixed(paraTag->parameters + 8);
+            if (para->a <= 0 && para->a >= 0) {
+                return false;
+            }
             para->d = -para->b / para->a;
             break;
         case kGABC:
             para->a = read_big_fixed(paraTag->parameters + 4);
             para->b = read_big_fixed(paraTag->parameters + 8);
             para->e = read_big_fixed(paraTag->parameters + 12);
+            if (para->a <= 0 && para->a >= 0) {
+                return false;
+            }
             para->d = -para->b / para->a;
             para->f = para->e;
             break;
