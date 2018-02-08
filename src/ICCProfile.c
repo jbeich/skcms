@@ -249,12 +249,18 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curv
         case kGAB:
             curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
             curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
+            if (curve->parametric.a <= 0 && curve->parametric.a >= 0) {
+                return false;
+            }
             curve->parametric.d = -curve->parametric.b / curve->parametric.a;
             break;
         case kGABC:
             curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
             curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
             curve->parametric.e = read_big_fixed(paraTag->parameters + 12);
+            if (curve->parametric.a <= 0 && curve->parametric.a >= 0) {
+                return false;
+            }
             curve->parametric.d = -curve->parametric.b / curve->parametric.a;
             curve->parametric.f = curve->parametric.e;
             break;

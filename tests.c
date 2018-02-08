@@ -463,6 +463,7 @@ static const ProfileTestCase profile_test_cases[] = {
     // These parse but have trouble afterward.
     { "profiles/fuzz/curv_size_overflow.icc",          true, NULL, NULL, NULL }, // skia:7593
     { "profiles/fuzz/truncated_curv_tag.icc",          true, NULL, NULL, NULL }, // oss-fuzz:6103
+    { "profiles/fuzz/zero_a.icc",                      true, NULL, NULL, NULL }, // oss-fuzz:????
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
