@@ -457,11 +457,12 @@ static const ProfileTestCase profile_test_cases[] = {
     // fuzzer generated profiles that found parsing bugs
 
     // Bad tag table data - these should not parse
-    { "profiles/fuzz/last_tag_too_small.icc",          false, NULL, NULL, NULL }, // skbug.com/7592
-    { "profiles/fuzz/named_tag_too_small.icc",         false, NULL, NULL, NULL }, // skbug.com/7592
+    { "profiles/fuzz/last_tag_too_small.icc",          false, NULL, NULL, NULL }, // skia:7592
+    { "profiles/fuzz/named_tag_too_small.icc",         false, NULL, NULL, NULL }, // skia:7592
 
-    // 'curv' table has a size that implies > 4GB of data (unsigned overflow)
-    { "profiles/fuzz/curv_size_overflow.icc",          true, NULL, NULL, NULL },
+    // These parse but have trouble afterward.
+    { "profiles/fuzz/curv_size_overflow.icc",          true, NULL, NULL, NULL }, // skia:7593
+    { "profiles/fuzz/truncated_curv_tag.icc",          true, NULL, NULL, NULL }, // oss-fuzz:6103
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {

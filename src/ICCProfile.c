@@ -166,6 +166,11 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
     return true;
 }
 
+// Check that a tag is big enough to cast to T and has the correct signature.
+#define TAG_CAST(T, signature, tag)                                              \
+    (tag && tag->type == make_signature signature && tag->size >= SAFE_SIZEOF(T) \
+     ? (const T*)tag->buf : NULL)
+
 // XYZType is technically variable sized, holding N XYZ triples. However, the only valid uses of
 // the type are for tags/data that store exactly one triple.
 typedef struct {
@@ -177,12 +182,12 @@ typedef struct {
 } skcms_XYZType;
 
 static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) {
-    if (!tag || tag->type != make_signature('X', 'Y', 'Z', ' ') || !x || !y || !z ||
-        tag->size < SAFE_SIZEOF(skcms_XYZType)) {
+    const skcms_XYZType* xyzTag = TAG_CAST(skcms_XYZType, ('X','Y','Z',' '), tag);
+
+    if (!xyzTag || !x || !y || !z) {
         return false;
     }
 
-    const skcms_XYZType* xyzTag = (const skcms_XYZType*)tag->buf;
     *x = read_big_fixed(xyzTag->X);
     *y = read_big_fixed(xyzTag->Y);
     *z = read_big_fixed(xyzTag->Z);
@@ -213,11 +218,12 @@ typedef struct {
 } skcms_parametricCurveType;
 
 static bool read_tag_para(const skcms_ICCTag* tag, skcms_TransferFunction* para) {
-    if (!tag || tag->type != make_signature('p', 'a', 'r', 'a') || !para) {
+    const skcms_parametricCurveType* paraTag =
+        TAG_CAST(skcms_parametricCurveType, ('p','a','r','a'), tag);
+
+    if (!paraTag || !para) {
         return false;
     }
-
-    const skcms_parametricCurveType* paraTag = (const skcms_parametricCurveType*)tag->buf;
 
     enum { kG = 0, kGAB = 1, kGABC = 2, kGABCD = 3, kGABCDEF = 4 };
     uint16_t function_type = read_big_u16(paraTag->function_type);
@@ -277,11 +283,11 @@ typedef struct {
 } skcms_curveType;
 
 static bool read_tag_curv_gamma(const skcms_ICCTag* tag, skcms_TransferFunction* para) {
-    if (!tag || tag->type != make_signature('c', 'u', 'r', 'v') || !para) {
+    const skcms_curveType* curvTag = TAG_CAST(skcms_curveType, ('c','u','r','v'), tag);
+
+    if (!curvTag || !para) {
         return false;
     }
-
-    const skcms_curveType* curvTag = (const skcms_curveType*)tag->buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
     if (tag->size < SAFE_SIZEOF(skcms_curveType) + value_count * SAFE_SIZEOF(uint16_t)) {
