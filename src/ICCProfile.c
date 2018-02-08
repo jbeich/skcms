@@ -166,11 +166,6 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
     return true;
 }
 
-// Check that a tag is big enough to cast to T and has the correct signature.
-#define TAG_CAST(T, signature, tag)                                              \
-    (tag && tag->type == make_signature signature && tag->size >= SAFE_SIZEOF(T) \
-     ? (const T*)tag->buf : NULL)
-
 // XYZType is technically variable sized, holding N XYZ triples. However, the only valid uses of
 // the type are for tags/data that store exactly one triple.
 typedef struct {
@@ -182,7 +177,12 @@ typedef struct {
 } skcms_XYZType;
 
 static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) {
-    const skcms_XYZType* xyzTag = TAG_CAST(skcms_XYZType, ('X','Y','Z',' '), tag);
+    const skcms_XYZType* xyzTag = NULL;
+    if (tag &&
+        tag->type == make_signature('X','Y','Z',' ') &&
+        tag->size >= SAFE_SIZEOF(skcms_XYZType)) {
+        xyzTag = (const skcms_XYZType*)tag->buf;
+    }
 
     if (!xyzTag || !x || !y || !z) {
         return false;
@@ -249,7 +249,7 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curv
         case kGAB:
             curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
             curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
-            if (curve->parametric.a <= 0 && curve->parametric.a >= 0) {
+            if (curve->parametric.a == 0) {
                 return false;
             }
             curve->parametric.d = -curve->parametric.b / curve->parametric.a;
@@ -258,7 +258,7 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curv
             curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
             curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
             curve->parametric.e = read_big_fixed(paraTag->parameters + 12);
-            if (curve->parametric.a <= 0 && curve->parametric.a >= 0) {
+            if (curve->parametric.a == 0) {
                 return false;
             }
             curve->parametric.d = -curve->parametric.b / curve->parametric.a;
