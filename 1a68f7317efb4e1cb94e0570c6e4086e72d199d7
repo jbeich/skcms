@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a0b784c_2d384b5c",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-08T18:13:33Z",
+      "side": 1,
+      "message": "I\u0027m trying to stick to the actual tag signature. XYZ tags are actually \u0027XYZ \u0027. Double-underscore?",
+      "revId": "1a68f7317efb4e1cb94e0570c6e4086e72d199d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
