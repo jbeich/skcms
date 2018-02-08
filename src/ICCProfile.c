@@ -83,34 +83,34 @@ typedef struct {
     uint8_t profile_id          [16];
     uint8_t reserved            [28];
     uint8_t tag_count           [ 4]; // Technically not part of header, but required
-} skcms_ICCHeader;
+} header_Layout;
 
 typedef struct {
     uint8_t signature [4];
     uint8_t offset    [4];
     uint8_t size      [4];
-} skcms_ICCTag_Layout;
+} tag_Layout;
 
-static const skcms_ICCTag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
-    return (const skcms_ICCTag_Layout*)(profile->buffer + SAFE_SIZEOF(skcms_ICCHeader));
+static const tag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
+    return (const tag_Layout*)(profile->buffer + SAFE_SIZEOF(header_Layout));
 }
 
 bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
                             const void* buf,
                             size_t len) {
-    static_assert(SAFE_SIZEOF(skcms_ICCHeader) == 132, "ICC header size");
+    static_assert(SAFE_SIZEOF(header_Layout) == 132, "ICC header size");
 
     if (!profile) {
         return false;
     }
     memset(profile, 0, SAFE_SIZEOF(*profile));
 
-    if (len < SAFE_SIZEOF(skcms_ICCHeader)) {
+    if (len < SAFE_SIZEOF(header_Layout)) {
         return false;
     }
 
     // Byte-swap all header fields
-    const skcms_ICCHeader* header = buf;
+    const header_Layout* header = buf;
     profile->buffer              = buf;
     profile->size                = read_big_u32(header->size);
     profile->cmm_type            = read_big_u32(header->cmm_type);
@@ -137,10 +137,10 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
 
     // Validate signature, size (smaller than buffer, large enough to hold tag table),
     // and major version
-    uint64_t tag_table_size = profile->tag_count * SAFE_SIZEOF(skcms_ICCTag_Layout);
+    uint64_t tag_table_size = profile->tag_count * SAFE_SIZEOF(tag_Layout);
     if (profile->signature != make_signature('a', 'c', 's', 'p') ||
         profile->size > len ||
-        profile->size < SAFE_SIZEOF(skcms_ICCHeader) + tag_table_size ||
+        profile->size < SAFE_SIZEOF(header_Layout) + tag_table_size ||
         (profile->version >> 24) > 4) {
         return false;
     }
@@ -153,7 +153,7 @@ bool skcms_ICCProfile_parse(skcms_ICCProfile* profile,
     }
 
     // Validate that all tag entries have sane offset + size
-    const skcms_ICCTag_Layout* tags = get_tag_table(profile);
+    const tag_Layout* tags = get_tag_table(profile);
     for (uint32_t i = 0; i < profile->tag_count; ++i) {
         uint32_t tag_offset = read_big_u32(tags[i].offset);
         uint32_t tag_size   = read_big_u32(tags[i].size);
@@ -174,14 +174,14 @@ typedef struct {
     uint8_t X        [4];
     uint8_t Y        [4];
     uint8_t Z        [4];
-} skcms_XYZType;
+} XYZ_Layout;
 
 static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) {
-    const skcms_XYZType* xyzTag = NULL;
+    const XYZ_Layout* xyzTag = NULL;
     if (tag &&
         tag->type == make_signature('X','Y','Z',' ') &&
-        tag->size >= SAFE_SIZEOF(skcms_XYZType)) {
-        xyzTag = (const skcms_XYZType*)tag->buf;
+        tag->size >= SAFE_SIZEOF(XYZ_Layout)) {
+        xyzTag = (const XYZ_Layout*)tag->buf;
     }
 
     if (!xyzTag || !x || !y || !z) {
@@ -215,14 +215,14 @@ typedef struct {
     uint8_t function_type [2];
     uint8_t reserved_b    [2];
     uint8_t parameters    [ ];  // 1, 3, 4, 5, or 7 s15.16 parameters, depending on function_type
-} skcms_parametricCurveType;
+} para_Layout;
 
 static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
-    if (size < SAFE_SIZEOF(skcms_parametricCurveType)) {
+    if (size < SAFE_SIZEOF(para_Layout)) {
         return false;
     }
 
-    const skcms_parametricCurveType* paraTag = (const skcms_parametricCurveType*)buf;
+    const para_Layout* paraTag = (const para_Layout*)buf;
 
     enum { kG = 0, kGAB = 1, kGABC = 2, kGABCD = 3, kGABCDEF = 4 };
     uint16_t function_type = read_big_u16(paraTag->function_type);
@@ -231,7 +231,7 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curv
     }
 
     static const uint32_t curve_bytes[] = { 4, 12, 16, 20, 28 };
-    if (size < SAFE_SIZEOF(skcms_parametricCurveType) + curve_bytes[function_type]) {
+    if (size < SAFE_SIZEOF(para_Layout) + curve_bytes[function_type]) {
         return false;
     }
 
@@ -287,17 +287,17 @@ typedef struct {
     uint8_t reserved      [4];
     uint8_t value_count   [4];
     uint8_t parameters    [ ];  // value_count parameters (8.8 if 1, uint16 (n*65535) if > 1)
-} skcms_curveType;
+} curv_Layout;
 
 static bool read_curve_curv(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
-    if (size < SAFE_SIZEOF(skcms_curveType)) {
+    if (size < SAFE_SIZEOF(curv_Layout)) {
         return false;
     }
 
-    const skcms_curveType* curvTag = (const skcms_curveType*)buf;
+    const curv_Layout* curvTag = (const curv_Layout*)buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (size < SAFE_SIZEOF(skcms_curveType) + value_count * SAFE_SIZEOF(uint16_t)) {
+    if (size < SAFE_SIZEOF(curv_Layout) + value_count * SAFE_SIZEOF(uint16_t)) {
         return false;
     }
 
@@ -427,7 +427,7 @@ void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile* profile,
                                     skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
     if (index > profile->tag_count) { return; }
-    const skcms_ICCTag_Layout* tags = get_tag_table(profile);
+    const tag_Layout* tags = get_tag_table(profile);
     tag->signature = read_big_u32(tags[index].signature);
     tag->size      = read_big_u32(tags[index].size);
     tag->buf       = read_big_u32(tags[index].offset) + profile->buffer;
@@ -438,7 +438,7 @@ bool skcms_ICCProfile_getTagBySignature(const skcms_ICCProfile* profile,
                                         uint32_t signature,
                                         skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return false; }
-    const skcms_ICCTag_Layout* tags = get_tag_table(profile);
+    const tag_Layout* tags = get_tag_table(profile);
     for (uint32_t i = 0; i < profile->tag_count; ++i) {
         if (read_big_u32(tags[i].signature) == signature) {
             tag->signature = signature;
