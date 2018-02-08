@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be0bc834_c85d9c3e",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-02-08T13:07:24Z",
+      "side": 1,
+      "message": "This is a strange way to check for 0.  Is this needed because of floats or something?",
+      "range": {
+        "startLine": 251,
+        "startChar": 16,
+        "endLine": 251,
+        "endChar": 44
+      },
+      "revId": "301c9f75f21e46dcdf4d0f886b1ac6dd74b539f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
