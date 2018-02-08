@@ -1,5 +1,5 @@
 cc     = clang -arch arm64 -isysroot `xcrun --sdk iphoneos --show-sdk-path`
-cflags = -fcolor-diagnostics -Weverything -Wno-padded -Wno-vector-conversion $
+cflags = -fcolor-diagnostics -Weverything -Wno-padded -Wno-float-equal -Wno-vector-conversion $
          -ffp-contract=fast
 out    = out/ios$mode
 

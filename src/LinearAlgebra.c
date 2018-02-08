@@ -57,7 +57,7 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
                        - b04*b07
                        + b05*b06;
 
-    if (determinant >= 0 && determinant <= 0) {
+    if (determinant == 0) {
         return false;
     }
 

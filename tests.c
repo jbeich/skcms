@@ -21,10 +21,6 @@
 #define expect(cond) \
     if (!(cond)) (fprintf(stderr, "expect(" #cond ") failed at %s:%d\n",__FILE__,__LINE__),exit(1))
 
-// Compilers can be a little nervous about exact float equality comparisons.
-#define expect_eq(a, b) expect((a) <= (b) && (b) <= (a))
-#define expect_eq2(a, b, c) expect( ((a) <= (b) && (b) <= (a)) || ((a) <= (c) && (c) <= (a)) )
-
 static void test_ICCProfile() {
     // Nothing works yet.  :)
     skcms_ICCProfile profile;
@@ -310,36 +306,36 @@ static void test_FormatConversions_half() {
     float fdst[8];
     expect(skcms_Transform(&fdst, skcms_PixelFormat_RGBA_ffff, &profile,
                             &src, skcms_PixelFormat_RGBA_hhhh, &profile, 2));
-    expect_eq(fdst[0],  1.0f);
-    expect_eq(fdst[1],  0.5f);
+    expect(fdst[0] ==  1.0f);
+    expect(fdst[1] ==  0.5f);
     expect(fdst[2] > 1/510.0f);
     expect(fdst[3] < 1/510.0f);
-    expect_eq(fdst[4],  2.0f);
-    expect_eq2(fdst[5], +0.00006097555f, 0.0f);  // may have been flushed to zero
-    expect_eq2(fdst[6], -0.00006097555f, 0.0f);
-    expect_eq(fdst[7], -1.0f);
+    expect(fdst[4] ==  2.0f);
+    expect(fdst[5] == +0.00006097555f || fdst[5] == 0.0f);  // may have been flushed to zero
+    expect(fdst[6] == -0.00006097555f || fdst[6] == 0.0f);
+    expect(fdst[7] == -1.0f);
 
     // Now convert back, first to RGBA halfs, then RGB halfs.
     uint16_t back[8];
     expect(skcms_Transform(&back, skcms_PixelFormat_RGBA_hhhh, &profile,
                            &fdst, skcms_PixelFormat_RGBA_ffff, &profile, 2));
-    expect_eq (back[0], src[0]);
-    expect_eq (back[1], src[1]);
-    expect_eq (back[2], src[2]);
-    expect_eq (back[3], src[3]);
-    expect_eq (back[4], src[4]);
-    expect_eq2(back[5], src[5], 0x0000);
-    expect_eq2(back[6], src[6], 0x0000);
-    expect_eq (back[7], src[7]);
+    expect(back[0] == src[0]);
+    expect(back[1] == src[1]);
+    expect(back[2] == src[2]);
+    expect(back[3] == src[3]);
+    expect(back[4] == src[4]);
+    expect(back[5] == src[5] || back[5] == 0x0000);
+    expect(back[6] == src[6] || back[6] == 0x0000);
+    expect(back[7] == src[7]);
 
     expect(skcms_Transform(&back, skcms_PixelFormat_RGB_hhh  , &profile,
                            &fdst, skcms_PixelFormat_RGBA_ffff, &profile, 2));
-    expect_eq (back[0], src[0]);
-    expect_eq (back[1], src[1]);
-    expect_eq (back[2], src[2]);
-    expect_eq (back[3], src[4]);
-    expect_eq2(back[4], src[5], 0x0000);
-    expect_eq2(back[5], src[6], 0x0000);
+    expect(back[0] == src[0]);
+    expect(back[1] == src[1]);
+    expect(back[2] == src[2]);
+    expect(back[3] == src[4]);
+    expect(back[4] == src[5] || back[4] == 0x0000);
+    expect(back[5] == src[6] || back[5] == 0x0000);
 }
 
 static void test_FormatConversions_float() {
@@ -366,21 +362,21 @@ static void test_FormatConversions_float() {
     expect(skcms_Transform(&fdst, skcms_PixelFormat_RGBA_ffff, &profile,
                           &bytes, skcms_PixelFormat_RGBA_8888, &profile, 64));
     for (int i = 0; i < 256; i++) {
-        expect_eq(fdst[i], i*(1/255.0f));
+        expect(fdst[i] == i*(1/255.0f));
     }
 
     float ffff[16] = { 0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15 };
     float  fff[12] = { 0,0,0, 0,0,0, 0,0,0, 0,0,0};
     expect(skcms_Transform(fff , skcms_PixelFormat_RGB_fff  , &profile,
                            ffff, skcms_PixelFormat_RGBA_ffff, &profile, 1));
-    expect_eq(fff[0],  0); expect_eq(fff[ 1],  1); expect_eq(fff[ 2],  2);
+    expect(fff[0] == 0); expect(fff[1] == 1); expect(fff[2] == 2);
 
     expect(skcms_Transform(fff , skcms_PixelFormat_RGB_fff  , &profile,
                            ffff, skcms_PixelFormat_RGBA_ffff, &profile, 4));
-    expect_eq(fff[0],  0); expect_eq(fff[ 1],  1); expect_eq(fff[ 2],  2);
-    expect_eq(fff[3],  4); expect_eq(fff[ 4],  5); expect_eq(fff[ 5],  6);
-    expect_eq(fff[6],  8); expect_eq(fff[ 7],  9); expect_eq(fff[ 8], 10);
-    expect_eq(fff[9], 12); expect_eq(fff[10], 13); expect_eq(fff[11], 14);
+    expect(fff[0] ==  0); expect(fff[ 1] ==  1); expect(fff[ 2] ==  2);
+    expect(fff[3] ==  4); expect(fff[ 4] ==  5); expect(fff[ 5] ==  6);
+    expect(fff[6] ==  8); expect(fff[ 7] ==  9); expect(fff[ 8] == 10);
+    expect(fff[9] == 12); expect(fff[10] == 13); expect(fff[11] == 14);
 }
 
 static const skcms_TransferFunction srgb_transfer_fn =
@@ -734,7 +730,7 @@ static void test_TransferFunction_approximate_badMatch() {
 static void expect_eq_Matrix3x3(skcms_Matrix3x3 a, skcms_Matrix3x3 b) {
     for (int r = 0; r < 3; r++)
     for (int c = 0; c < 3; c++) {
-        expect_eq(a.vals[r][c], b.vals[r][c]);
+        expect(a.vals[r][c] == b.vals[r][c]);
     }
 }
 
