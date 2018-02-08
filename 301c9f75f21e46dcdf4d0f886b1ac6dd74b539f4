@@ -22,6 +22,30 @@
       "revId": "301c9f75f21e46dcdf4d0f886b1ac6dd74b539f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f26cdbc_b27c745a",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-08T13:11:14Z",
+      "side": 1,
+      "message": "Yeah, sometimes our compilers warn us that equality is a complex issue for floats.  In the case of 0, \u003d\u003d 0 would have been fine because it\u0027s an exact float[1], but we tend to write it like this as a way that works for all numbers.\n\n[1] Interestingly, there are two distinct zero floats, +0.0f and -0.0f, which compare equal to each other.",
+      "parentUuid": "be0bc834_c85d9c3e",
+      "range": {
+        "startLine": 251,
+        "startChar": 16,
+        "endLine": 251,
+        "endChar": 44
+      },
+      "revId": "301c9f75f21e46dcdf4d0f886b1ac6dd74b539f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
