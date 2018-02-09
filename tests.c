@@ -773,6 +773,90 @@ static void test_Matrix3x3_invert() {
     }});
 }
 
+static void test_SimpleRoundTrip() {
+    // We'll test that parametric sRGB roundtrips with itself, bytes -> bytes.
+    void*  srgb_ptr;
+    size_t srgb_len;
+    load_file("profiles/mobile/sRGB_parametric.icc", &srgb_ptr, &srgb_len);
+
+    skcms_ICCProfile srgbA, srgbB;
+    expect(skcms_ICCProfile_parse(&srgbA, srgb_ptr, srgb_len));
+    expect(skcms_ICCProfile_parse(&srgbB, srgb_ptr, srgb_len));
+
+    uint8_t src[256],
+            dst[256];
+    for (int i = 0; i < 256; i++) {
+        src[i] = (uint8_t)i;
+    }
+
+    expect(skcms_Transform(dst, skcms_PixelFormat_RGBA_8888, &srgbA,
+                           src, skcms_PixelFormat_RGBA_8888, &srgbB, 64));
+    for (int i = 0; i < 256; i++) {
+        expect(dst[i] == (uint8_t)i);
+    }
+
+    free(srgb_ptr);
+}
+
+// Floats should hold enough precision that we can round trip any two non-degenerate profiles.
+static void expect_round_trip_through_floats(const skcms_ICCProfile* A,
+                                             const skcms_ICCProfile* B) {
+    uint8_t bytes[256];
+    float  floats[256];
+    for (int i = 0; i < 256; i++) {
+        bytes[i] = (uint8_t)i;
+    }
+
+    expect(skcms_Transform(floats, skcms_PixelFormat_RGBA_ffff, A,
+                           bytes , skcms_PixelFormat_RGBA_8888, B, 64));
+    for (int i = 0; i < 256; i++) {
+        bytes[i] = 0;
+    }
+    expect(skcms_Transform(bytes , skcms_PixelFormat_RGBA_8888, B,
+                           floats, skcms_PixelFormat_RGBA_ffff, A, 64));
+
+    for (int i = 0; i < 256; i++) {
+        expect(bytes[i] == (uint8_t)i);
+    }
+}
+
+static void test_FloatRoundTrips() {
+    void*  srgb_ptr;
+    size_t srgb_len;
+    load_file("profiles/mobile/sRGB_parametric.icc", &srgb_ptr, &srgb_len);
+
+
+    void*  dp3_ptr;
+    size_t dp3_len;
+    load_file("profiles/mobile/Display_P3_parametric.icc", &dp3_ptr, &dp3_len);
+
+    void*  ll_ptr;
+    size_t ll_len;
+    load_file("profiles/color.org/Lower_Left.icc", &ll_ptr, &ll_len);
+
+    void*  lr_ptr;
+    size_t lr_len;
+    load_file("profiles/color.org/Lower_Right.icc", &lr_ptr, &lr_len);
+
+    skcms_ICCProfile srgb, dp3, ll, lr;
+    expect(skcms_ICCProfile_parse(&srgb, srgb_ptr, srgb_len));
+    expect(skcms_ICCProfile_parse(&dp3 ,  dp3_ptr,  dp3_len));
+    expect(skcms_ICCProfile_parse(&ll  ,   ll_ptr,   ll_len));
+    expect(skcms_ICCProfile_parse(&lr  ,   lr_ptr,   lr_len));
+
+
+    const skcms_ICCProfile* profiles[] = { &srgb, &dp3, &ll }; // TODO: add &lr
+    for (int i = 0; i < ARRAY_COUNT(profiles); i++)
+    for (int j = 0; j < ARRAY_COUNT(profiles); j++) {
+        expect_round_trip_through_floats(profiles[i], profiles[j]);
+    }
+
+    free(srgb_ptr);
+    free( dp3_ptr);
+    free(  ll_ptr);
+    free(  lr_ptr);
+}
+
 int main(void) {
     test_ICCProfile();
     test_FormatConversions();
@@ -787,5 +871,8 @@ int main(void) {
     test_TransferFunction_approximate_clamped();
     test_TransferFunction_approximate_badMatch();
     test_Matrix3x3_invert();
+    test_SimpleRoundTrip();
+    test_FloatRoundTrips();
+
     return 0;
 }
