@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04582209_4063a744",
+        "filename": "src/Transform.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-09T19:53:26Z",
+      "side": 1,
+      "message": "Comment that this implementation fails for floats \u003e MAX_INT or \u003c INT_MIN?",
+      "revId": "e2a3f2e1e43d5d7e67c9950de7a8e6bc5f481bd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
