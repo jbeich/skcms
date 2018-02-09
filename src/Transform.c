@@ -13,16 +13,15 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifdef min
-#undef min
-#endif
-
-#ifdef max
-#undef max
+#if defined(__ARM_NEON)
+    #include <arm_neon.h>
+#elif defined(__SSE__)
+    #include <immintrin.h>
 #endif
 
 #if defined(SKCMS_PORTABLE) || (!defined(__clang__) && !defined(__GNUC__))
     #define N 1
+    #include <math.h>
     typedef float    F  ;
     typedef int32_t  I32;
     typedef uint64_t U64;
@@ -74,13 +73,11 @@
 #endif
 
 #if N == 4 && defined(__ARM_NEON)
-    #include <arm_neon.h>
     #define USING_NEON
     #if __ARM_FP & 2
         #define USING_NEON_F16C
     #endif
 #elif N == 8 && defined(__AVX__)
-    #include <immintrin.h>
     #if defined(__F16C__)
         #define USING_AVX_F16C
     #endif
@@ -127,7 +124,7 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
 // always (T) cast the result to the type you expect the result to be.
 #if N == 1
     #define if_then_else(c,t,e) ( (c) ? (t) : (e) )
-#elif !defined(USING_NEON_F16C)
+#else
     #define if_then_else(c,t,e) ( ((c) & (I32)(t)) | (~(c) & (I32)(e)) )
 #endif
 
@@ -182,12 +179,75 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
 #endif
 
 #if defined(USING_NEON)
-    SI F min(F x, F y) { return vminq_f32(x,y); }
-    SI F max(F x, F y) { return vmaxq_f32(x,y); }
+    SI F min_(F x, F y) { return vminq_f32(x,y); }
+    SI F max_(F x, F y) { return vmaxq_f32(x,y); }
 #else
-    SI F min(F x, F y) { return (F)if_then_else(x > y, y, x); }
-    SI F max(F x, F y) { return (F)if_then_else(x < y, y, x); }
+    SI F min_(F x, F y) { return (F)if_then_else(x > y, y, x); }
+    SI F max_(F x, F y) { return (F)if_then_else(x < y, y, x); }
 #endif
+
+SI F floor_(F x) {
+#if N == 1
+    return floorf(x);
+#elif defined(__aarch64__)
+    return vrndmq_f32(x);
+#elif defined(__AVX__)
+    return _mm256_floor_ps(x);
+#elif defined(__SSE4_1__)
+    return _mm_floor_ps(x);
+#else
+    // Round trip through integers with a truncating cast.
+    F roundtrip = CAST(F, CAST(I32, x));
+    // If x is negative, truncating gives the ceiling instead of the floor.
+    return roundtrip - (F)if_then_else(roundtrip > x, F1, F0);
+
+    // This implementation fails for values of x that are outside
+    // the range an integer can represent.  We expect most x to be small.
+#endif
+}
+
+SI F approx_log2(F x) {
+    // The first approximation of log2(x) is its exponent 'e', minus 127.
+    U32 bits;
+    small_memcpy(&bits, &x, sizeof(bits));
+
+    F e = CAST(F, bits) * (1.0f / (1<<23));
+
+    // If we use the mantissa too we can refine the error signficantly.
+    U32 m_bits = (bits & 0x007fffff) | 0x3f000000;
+    F m;
+    small_memcpy(&m, &m_bits, sizeof(m));
+
+    return e - 124.225514990f
+             -   1.498030302f*m
+             -   1.725879990f/(0.3520887068f + m);
+}
+
+SI F approx_pow2(F x) {
+    F fract = x - floor_(x);
+
+    U32 bits = CAST(U32, (1.0f * (1<<23)) * (x + 121.274057500f
+                                               -   1.490129070f*fract
+                                               +  27.728023300f/(4.84252568f - fract)));
+    small_memcpy(&x, &bits, sizeof(x));
+    return x;
+}
+
+SI F approx_powf(F x, float y) {
+    return (F)if_then_else(x == F0, F0
+                                  , approx_pow2(approx_log2(x) * y));
+}
+
+// Return tf(x).
+SI F apply_transfer_function(const skcms_TransferFunction* tf, F x) {
+    F sign = (F)if_then_else(x < 0, -F1, F1);
+    x *= sign;
+
+    F linear    =             tf->c*x + tf->f;
+    F nonlinear = approx_powf(tf->a*x + tf->b, tf->g) + tf->e;
+
+    return sign * (F)if_then_else(x < tf->d, linear, nonlinear);
+}
 
 // Strided loads and stores of N values, starting from p.
 #if N == 1
@@ -608,10 +668,10 @@ static void swap_rb(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
 }
 
 static void clamp(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
-    r = max(F0, min(r, F1));
-    g = max(F0, min(g, F1));
-    b = max(F0, min(b, F1));
-    a = max(F0, min(a, F1));
+    r = max_(F0, min_(r, F1));
+    g = max_(F0, min_(g, F1));
+    b = max_(F0, min_(b, F1));
+    a = max_(F0, min_(a, F1));
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
@@ -622,7 +682,10 @@ static void force_opaque(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
 
 static void transfer_function(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
-    (void)tf;
+
+    r = apply_transfer_function(tf, r);
+    g = apply_transfer_function(tf, g);
+    b = apply_transfer_function(tf, b);
 
     next_stage(i,ip,ctx, r,g,b,a);
 }
