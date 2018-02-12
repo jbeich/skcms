@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "866e63bb_5bfb810d",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-12T20:15:39Z",
+      "side": 1,
+      "message": "Warning 4221 is for initializing an aggregate with the address of a local variable. Sigh.",
+      "revId": "956eda8a1c4ce348438a05834c63b39422662bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25a81ab8_4bbb0382",
+        "filename": "bench.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-12T20:15:39Z",
+      "side": 1,
+      "message": "Lossy conversion from double -\u003e int",
+      "revId": "956eda8a1c4ce348438a05834c63b39422662bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
