@@ -77,7 +77,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.2",
+        "os:Mac-10.13.3",
         "gpu:none",
         "pool:Skia"
       ],
