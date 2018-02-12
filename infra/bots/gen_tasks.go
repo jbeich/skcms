@@ -18,7 +18,7 @@ var (
 func addTask(b *specs.TasksCfgBuilder, task string) {
 	dimensions := map[string][]string{
 		"skcms-Linux": []string{"cpu:x86-64-Haswell_GCE", "os:Debian-9.2"},
-		"skcms-Mac":   []string{"cpu:x86-64-E5-2697_v2", "os:Mac-10.13.2"},
+		"skcms-Mac":   []string{"cpu:x86-64-E5-2697_v2", "os:Mac-10.13.3"},
 	}
 	packages := map[string][]*specs.CipdPackage{
 		"skcms-Linux": []*specs.CipdPackage{
