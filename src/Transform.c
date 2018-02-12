@@ -30,6 +30,26 @@
     typedef uint8_t  U8 ;
     static const F F0 = 0,
                    F1 = 1;
+#elif defined(__clang__) && defined(__AVX512F__)
+    #define N 16
+    typedef float    __attribute__((ext_vector_type(N))) F  ;
+    typedef int32_t  __attribute__((ext_vector_type(N))) I32;
+    typedef uint64_t __attribute__((ext_vector_type(N))) U64;
+    typedef uint32_t __attribute__((ext_vector_type(N))) U32;
+    typedef uint16_t __attribute__((ext_vector_type(N))) U16;
+    typedef uint8_t  __attribute__((ext_vector_type(N))) U8 ;
+    static const F F0 = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0},
+                   F1 = {1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1};
+#elif defined(__GNUC__) && defined(__AVX512F__)
+    #define N 16
+    typedef float    __attribute__((vector_size( 64))) F  ;
+    typedef int32_t  __attribute__((vector_size( 64))) I32;
+    typedef uint64_t __attribute__((vector_size(128))) U64;
+    typedef uint32_t __attribute__((vector_size( 64))) U32;
+    typedef uint16_t __attribute__((vector_size( 32))) U16;
+    typedef uint8_t  __attribute__((vector_size( 16))) U8 ;
+    static const F F0 = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0},
+                   F1 = {1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1};
 #elif defined(__clang__) && defined(__AVX__)
     #define N 8
     typedef float    __attribute__((ext_vector_type(N))) F  ;
@@ -112,6 +132,9 @@
     #define CAST(T, v) (T){(v)[0],(v)[1],(v)[2],(v)[3]}
 #elif N == 8
     #define CAST(T, v) (T){(v)[0],(v)[1],(v)[2],(v)[3], (v)[4],(v)[5],(v)[6],(v)[7]}
+#elif N == 16
+    #define CAST(T, v) (T){(v)[0],(v)[1],(v)[ 2],(v)[ 3], (v)[ 4],(v)[ 5],(v)[ 6],(v)[ 7], \
+                           (v)[8],(v)[9],(v)[10],(v)[11], (v)[12],(v)[13],(v)[14],(v)[15]}
 #endif
 
 // When we convert from float to fixed point, it's very common to want to round,
@@ -131,6 +154,10 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
 #if defined(USING_NEON_F16C)
     SI F F_from_Half(U16 half) { return vcvt_f32_f16(half); }
     SI U16 Half_from_F(F f)    { return vcvt_f16_f32(f   ); }
+#elif defined(__AVX512F__)
+    SI F F_from_Half(U16 half) { return (F)  _mm512_cvtph_ps((__m256i)half); }
+    SI U16 Half_from_F(F f)    { return (U16)_mm512_cvtps_ph((__m512 )f,
+                                                             _MM_FROUND_CUR_DIRECTION ); }
 #elif defined(USING_AVX_F16C)
     SI F F_from_Half(U16 half) { return (F)  _mm256_cvtph_ps((__m128i)half); }
     SI U16 Half_from_F(F f)    { return (U16)_mm256_cvtps_ph((__m256 )f,
@@ -191,6 +218,8 @@ SI F floor_(F x) {
     return floorf(x);
 #elif defined(__aarch64__)
     return vrndmq_f32(x);
+#elif defined(__AVX512F__)
+    return _mm512_floor_ps(x);
 #elif defined(__AVX__)
     return _mm256_floor_ps(x);
 #elif defined(__SSE4_1__)
@@ -267,6 +296,29 @@ SI F apply_transfer_function(const skcms_TransferFunction* tf, F x) {
                           (p)[12] = (v)[4]; (p)[15] = (v)[5]; (p)[18] = (v)[6]; (p)[21] = (v)[7]
     #define STORE_4(p, v) (p)[ 0] = (v)[0]; (p)[ 4] = (v)[1]; (p)[ 8] = (v)[2]; (p)[12] = (v)[3]; \
                           (p)[16] = (v)[4]; (p)[20] = (v)[5]; (p)[24] = (v)[6]; (p)[28] = (v)[7]
+#elif N == 16
+    // TODO: revisit with AVX-512 gathers and scatters?
+    #define LOAD_3(T, p) (T){(p)[ 0], (p)[ 3], (p)[ 6], (p)[ 9], \
+                             (p)[12], (p)[15], (p)[18], (p)[21], \
+                             (p)[24], (p)[27], (p)[30], (p)[33], \
+                             (p)[36], (p)[39], (p)[42], (p)[45]}
+
+    #define LOAD_4(T, p) (T){(p)[ 0], (p)[ 4], (p)[ 8], (p)[12], \
+                             (p)[16], (p)[20], (p)[24], (p)[28], \
+                             (p)[32], (p)[36], (p)[40], (p)[44], \
+                             (p)[48], (p)[52], (p)[56], (p)[60]}
+
+    #define STORE_3(p, v) \
+        (p)[ 0] = (v)[ 0]; (p)[ 3] = (v)[ 1]; (p)[ 6] = (v)[ 2]; (p)[ 9] = (v)[ 3]; \
+        (p)[12] = (v)[ 4]; (p)[15] = (v)[ 5]; (p)[18] = (v)[ 6]; (p)[21] = (v)[ 7]; \
+        (p)[24] = (v)[ 8]; (p)[27] = (v)[ 9]; (p)[30] = (v)[10]; (p)[33] = (v)[11]; \
+        (p)[36] = (v)[12]; (p)[39] = (v)[13]; (p)[42] = (v)[14]; (p)[45] = (v)[15]
+
+    #define STORE_4(p, v) \
+        (p)[ 0] = (v)[ 0]; (p)[ 4] = (v)[ 1]; (p)[ 8] = (v)[ 2]; (p)[12] = (v)[ 3]; \
+        (p)[16] = (v)[ 4]; (p)[20] = (v)[ 5]; (p)[24] = (v)[ 6]; (p)[28] = (v)[ 7]; \
+        (p)[32] = (v)[ 8]; (p)[36] = (v)[ 9]; (p)[40] = (v)[10]; (p)[44] = (v)[11]; \
+        (p)[48] = (v)[12]; (p)[52] = (v)[13]; (p)[56] = (v)[14]; (p)[60] = (v)[15]
 #endif
 
 typedef struct {

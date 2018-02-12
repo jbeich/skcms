@@ -12,6 +12,7 @@ subninja build/clang.tsan
 subninja build/clang.xsan
 
 subninja build/gcc
+subninja build/gcc.avx512
 subninja build/gcc.m32
 subninja build/gcc.native
 subninja build/gcc.portable
