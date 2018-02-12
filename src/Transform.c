@@ -206,6 +206,21 @@ SI F floor_(F x) {
 #endif
 }
 
+SI F approx_divide(float x, F y) {
+#if N == 1
+    return x/y;
+#elif defined(__ARM_NEON)
+    float32x4_t est = vrecpeq_f32(y);
+    return vdupq_n_f32(x) * vrecpsq_f32(y,est)*est;
+#elif defined(__AVX__)
+    return _mm256_set1_ps(x) * _mm256_rcp_ps(y);
+#elif defined(__SSE__)
+    return _mm_set1_ps(x) * _mm_rcp_ps(y);
+#else
+    return x/y;
+#endif
+}
+
 SI F approx_log2(F x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
     I32 bits;
@@ -220,7 +235,7 @@ SI F approx_log2(F x) {
 
     return e - 124.225514990f
              -   1.498030302f*m
-             -   1.725879990f/(0.3520887068f + m);
+             - approx_divide(1.725879990f, 0.3520887068f + m);
 }
 
 SI F approx_pow2(F x) {
@@ -228,7 +243,7 @@ SI F approx_pow2(F x) {
 
     I32 bits = CAST(I32, (1.0f * (1<<23)) * (x + 121.274057500f
                                                -   1.490129070f*fract
-                                               +  27.728023300f/(4.84252568f - fract)));
+                                               + approx_divide(27.728023300f, 4.84252568f-fract)));
     small_memcpy(&x, &bits, sizeof(x));
     return x;
 }
