@@ -208,13 +208,13 @@ SI F floor_(F x) {
 
 SI F approx_log2(F x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
-    U32 bits;
+    I32 bits;
     small_memcpy(&bits, &x, sizeof(bits));
 
     F e = CAST(F, bits) * (1.0f / (1<<23));
 
     // If we use the mantissa too we can refine the error signficantly.
-    U32 m_bits = (bits & 0x007fffff) | 0x3f000000;
+    I32 m_bits = (bits & 0x007fffff) | 0x3f000000;
     F m;
     small_memcpy(&m, &m_bits, sizeof(m));
 
@@ -226,7 +226,7 @@ SI F approx_log2(F x) {
 SI F approx_pow2(F x) {
     F fract = x - floor_(x);
 
-    U32 bits = CAST(U32, (1.0f * (1<<23)) * (x + 121.274057500f
+    I32 bits = CAST(I32, (1.0f * (1<<23)) * (x + 121.274057500f
                                                -   1.490129070f*fract
                                                +  27.728023300f/(4.84252568f - fract)));
     small_memcpy(&x, &bits, sizeof(x));
