@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
         running_under_profiler = true;
     }
 
-    int loops = argc > 1 ? atoi(argv[1]) : 1e5;
+    int loops = argc > 1 ? atoi(argv[1]) : 100000;
 
     void  *src_buf, *dst_buf;
     size_t src_len,  dst_len;
