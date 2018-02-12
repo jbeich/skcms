@@ -1,0 +1,5 @@
+mode         = .avx512
+extra_cflags = -march=skylake-avx512 -ffp-contract=fast
+include build/clang
+
+disabled = (uname | grep -qv Darwin || sysctl machdep.cpu.leaf7_features | grep -qv AVX512F)

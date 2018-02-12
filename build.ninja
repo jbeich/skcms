@@ -1,6 +1,7 @@
 builddir = out
 
 subninja build/clang
+subninja build/clang.avx512
 subninja build/clang.lsan
 subninja build/clang.m32
 subninja build/clang.msan
