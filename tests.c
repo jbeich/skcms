@@ -816,7 +816,8 @@ static void expect_round_trip_through_floats(const skcms_ICCProfile* A,
                            floats, skcms_PixelFormat_RGBA_ffff, A, 64));
 
     for (int i = 0; i < 256; i++) {
-        expect(bytes[i] == (uint8_t)i);
+        expect(abs(bytes[i] - i) < 2);
+        //expect(bytes[i] == (uint8_t)i);
     }
 }
 
