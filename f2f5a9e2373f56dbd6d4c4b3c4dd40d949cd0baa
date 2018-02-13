@@ -22,6 +22,30 @@
       "revId": "f2f5a9e2373f56dbd6d4c4b3c4dd40d949cd0baa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7fe3011_30127f06",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-02-13T18:47:41Z",
+      "side": 1,
+      "message": "In the Skia repo, we often (maybe 1/6 of upgrades) see differences either in Gold or Perf when we do OS upgrades. Having a CL on the blamelist makes it very easy to determine the reason. Otherwise it just looks like flakes while we\u0027re rolling out the upgrade and any changes get blamed on a random CL.\n\nIt\u0027s possible that this has become less of an issue for non-NativeFonts bots in the Skia repo, but I don\u0027t have enough evidence.\n\nIf skcms only has unit tests or you don\u0027t care about the above issues, it\u0027s fine to change this to just os:Mac.",
+      "parentUuid": "8641467d_403bcae1",
+      "range": {
+        "startLine": 21,
+        "startChar": 52,
+        "endLine": 21,
+        "endChar": 58
+      },
+      "revId": "f2f5a9e2373f56dbd6d4c4b3c4dd40d949cd0baa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
