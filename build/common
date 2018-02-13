@@ -12,36 +12,4 @@ rule link
     command = $disabled && touch $out || $cc $ldflags $extra_ldflags -lm $in -o $out
     description = link $out
 
-build $out/skcms.o:  compile skcms.c
-
-build $out/tests.o:  compile tests.c
-build $out/tests:    link $out/skcms.o $out/tests.o
-build $out/tests.ok: run  $out/tests
-
-build $out/bench.o: compile bench.c
-build $out/bench:   link $out/skcms.o $out/bench.o
-
-build $out/iccdump.o: compile iccdump.c
-build $out/iccdump:   link $out/skcms.o $out/iccdump.o
-
-build $out/fuzz/fuzz_main.o: compile fuzz/fuzz_main.c
-
-build $out/fuzz/fuzz_iccprofile_atf.o: compile fuzz/fuzz_iccprofile_atf.c
-build $out/fuzz_iccprofile_atf:      link $out/fuzz/fuzz_iccprofile_atf.o $
-                                          $out/fuzz/fuzz_main.o $
-                                          $out/skcms.o
-
-build $out/fuzz/fuzz_iccprofile_info.o: compile fuzz/fuzz_iccprofile_info.c
-build $out/fuzz_iccprofile_info:      link $out/fuzz/fuzz_iccprofile_info.o $
-                                           $out/fuzz/fuzz_main.o $
-                                           $out/skcms.o
-
-build $out/fuzz/fuzz_iccprofile_transform.o: compile fuzz/fuzz_iccprofile_transform.c
-build $out/fuzz_iccprofile_transform:      link $out/fuzz/fuzz_iccprofile_transform.o $
-                                                $out/fuzz/fuzz_main.o $
-                                                $out/skcms.o
-
-build $out/src/ICCProfile.o:       compile src/ICCProfile.c
-build $out/src/LinearAlgebra.o:    compile src/LinearAlgebra.c
-build $out/src/TransferFunction.o: compile src/TransferFunction.c
-build $out/src/Transform.o:        compile src/Transform.c
+include build/targets
