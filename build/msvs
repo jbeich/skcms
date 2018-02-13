@@ -1,0 +1,19 @@
+cflags = /W4 /wd"4200" /wd"4204" /wd"4221"
+out    = out/msvs$mode
+exe    = .exe
+
+rule run
+    command = $in > $out
+    description = run $in
+
+builddir = $out
+
+rule compile
+    command = cl.exe /c /nologo /Zi /WX /O2 /Oy- /fp:fast /MT /Zc:inline /Fo"$out" /Fd"$out.pdb" $cflags $extra_cflags $in
+    description = compile $out
+
+rule link
+    command = link.exe /nologo /DEBUG $in /OUT:"$out" /PDB:"$out.pdb"
+    description = link $out
+
+include build/targets
