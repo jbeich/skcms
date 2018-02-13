@@ -12,6 +12,7 @@ var (
 	TASKS = []string{
 		"skcms-Linux",
 		"skcms-Mac",
+		"skcms-Win",
 	}
 )
 
@@ -19,6 +20,7 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 	dimensions := map[string][]string{
 		"skcms-Linux": []string{"cpu:x86-64-Haswell_GCE", "os:Debian-9.2"},
 		"skcms-Mac":   []string{"cpu:x86-64-E5-2697_v2", "os:Mac-10.13.3"},
+		"skcms-Win":   []string{"cpu:x86-64-Haswell_GCE", "os:Windows-2016Server-14393"},
 	}
 	packages := map[string][]*specs.CipdPackage{
 		"skcms-Linux": []*specs.CipdPackage{
@@ -48,6 +50,18 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 				Name:    "skia/bots/android_ndk_darwin",
 				Path:    "ndk",
 				Version: "version:4",
+			},
+		},
+		"skcms-Win": []*specs.CipdPackage{
+			&specs.CipdPackage{
+				Name:    "skia/bots/win_ninja",
+				Path:    "ninja",
+				Version: "version:2",
+			},
+			&specs.CipdPackage{
+				Name:    "skia/bots/win_toolchain",
+				Path:    "t",
+				Version: "version:7",
 			},
 		},
 	}
