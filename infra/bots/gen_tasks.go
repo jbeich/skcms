@@ -18,9 +18,10 @@ var (
 
 func addTask(b *specs.TasksCfgBuilder, task string) {
 	dimensions := map[string][]string{
-		"skcms-Linux": []string{"cpu:x86-64-Haswell_GCE", "os:Debian-9.2"},
-		"skcms-Mac":   []string{"cpu:x86-64-E5-2697_v2", "os:Mac-10.13.3"},
-		"skcms-Win":   []string{"cpu:x86-64-Haswell_GCE", "os:Windows-2016Server-14393"},
+		// For the moment we'd rather not run bots on Skylakes, which support AVX-512.
+		"skcms-Linux": []string{"os:Linux", "cpu:x86-64-Haswell_GCE"},
+		"skcms-Mac":   []string{"os:Mac"},
+		"skcms-Win":   []string{"os:Windows"},
 	}
 	packages := map[string][]*specs.CipdPackage{
 		"skcms-Linux": []*specs.CipdPackage{
