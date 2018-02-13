@@ -22,6 +22,30 @@
       "revId": "b9dd607f5ed0473fecaff541fd56c2061e6c08fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8779978e_c361022a",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-13T22:15:31Z",
+      "side": 1,
+      "message": "Oh, I kind of liked these here as the non-varying parts.  We\u0027ll always want these two, no matter the bot.",
+      "parentUuid": "c31e0be6_eddbb03e",
+      "range": {
+        "startLine": 78,
+        "startChar": 41,
+        "endLine": 78,
+        "endChar": 64
+      },
+      "revId": "b9dd607f5ed0473fecaff541fd56c2061e6c08fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
