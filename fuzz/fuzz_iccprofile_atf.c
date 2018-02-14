@@ -14,13 +14,13 @@
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     skcms_ICCProfile p;
-    if (!skcms_ICCProfile_parse(&p, data, size)) {
+    if (!skcms_Parse(data, size, &p)) {
         return 0;
     }
 
     skcms_TransferFunction tf;
     float max_error;
-    (void)skcms_ICCProfile_approximateTransferFunction(&p, &tf, &max_error);
+    (void)skcms_ApproximateTransferFunction(&p, &tf, &max_error);
     (void)max_error;
 
     return 0;

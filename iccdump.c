@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     }
 
     skcms_ICCProfile profile;
-    if (!skcms_ICCProfile_parse(&profile, buf, bytesRead)) {
+    if (!skcms_Parse(buf, bytesRead, &profile)) {
         fatal("Unable to parse ICC profile");
     }
 
@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
     printf(" ------ : ------ : ------ : --------\n");
     for (uint32_t i = 0; i < profile.tag_count; ++i) {
         skcms_ICCTag tag;
-        skcms_ICCProfile_getTagByIndex(&profile, i, &tag);
+        skcms_GetTagByIndex(&profile, i, &tag);
         char tagSig[5];
         char typeSig[5];
         signature_to_string(tag.signature, tagSig);
@@ -112,11 +112,11 @@ int main(int argc, char** argv) {
 
     skcms_TransferFunction tf;
     float max_error;
-    if (skcms_ICCProfile_getTransferFunction(&profile, &tf)) {
+    if (skcms_GetTransferFunction(&profile, &tf)) {
         printf("TRC : %f, %f, %f, %f, %f, %f, %f\n",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f);
-    } else if (skcms_ICCProfile_approximateTransferFunction(&profile, &tf, &max_error)) {
+    } else if (skcms_ApproximateTransferFunction(&profile, &tf, &max_error)) {
         printf("~TRC: %f, %f, %f, %f, %f, %f, %f  (Max error: %f)\n",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f, (double)max_error);
@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
     }
 
     skcms_Matrix3x3 toXYZ;
-    if (skcms_ICCProfile_toXYZD50(&profile, &toXYZ)) {
+    if (skcms_ToXYZD50(&profile, &toXYZ)) {
         printf("XYZ : | %.7f %.7f %.7f |\n"
                "      | %.7f %.7f %.7f |\n"
                "      | %.7f %.7f %.7f |\n",

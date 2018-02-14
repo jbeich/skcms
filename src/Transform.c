@@ -771,8 +771,8 @@ SI size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     return 0;
 }
 
-bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
-               const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
+bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
+                           void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
                      size_t nz) {
     const size_t dst_bpp = bytes_per_pixel(dstFmt),
                  src_bpp = bytes_per_pixel(srcFmt);
@@ -826,8 +826,8 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
         // TODO: A2B, Lab -> XYZ, tables, etc...
 
         // 1) Src RGB to XYZ
-        if (skcms_ICCProfile_getTransferFunction(srcProfile, &src_tf) &&
-            skcms_ICCProfile_toXYZD50(srcProfile, &to_xyz)) {
+        if (skcms_GetTransferFunction(srcProfile, &src_tf) &&
+            skcms_ToXYZD50(srcProfile, &to_xyz)) {
             *ip++ = (void*)transfer_function; *args++ = &src_tf;
             *ip++ = (void*)matrix_3x3;        *args++ = &to_xyz;
         } else {
@@ -840,8 +840,8 @@ bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile
         skcms_TransferFunction dst_tf;
         skcms_Matrix3x3        dst_to_xyz;
 
-        if (skcms_ICCProfile_getTransferFunction(dstProfile, &dst_tf) &&
-            skcms_ICCProfile_toXYZD50(dstProfile, &dst_to_xyz) &&
+        if (skcms_GetTransferFunction(dstProfile, &dst_tf) &&
+            skcms_ToXYZD50(dstProfile, &dst_to_xyz) &&
             skcms_TransferFunction_invert(&dst_tf, &inv_dst_tf) &&
             skcms_Matrix3x3_invert(&dst_to_xyz, &from_xyz)) {
             *ip++ = (void*)matrix_3x3;        *args++ = &from_xyz;
