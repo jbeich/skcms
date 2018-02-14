@@ -27,12 +27,6 @@ static void test_ICCProfile() {
 
     const uint8_t buf[] = { 0x42 };
     expect(!skcms_Parse(buf, sizeof(buf), &profile));
-
-    skcms_Matrix3x3 toXYZD50;
-    expect(!skcms_ToXYZD50(&profile, &toXYZD50));
-
-    skcms_TransferFunction transferFunction;
-    expect(!skcms_GetTransferFunction(&profile, &transferFunction));
 }
 
 static void test_FormatConversions() {
@@ -556,9 +550,7 @@ static void test_Parse() {
             continue;
         }
 
-        skcms_TransferFunction exact_tf;
-        bool exact_tf_result = skcms_GetTransferFunction(&profile, &exact_tf);
-        expect(exact_tf_result == !!test->expect_exact_tf);
+        expect(profile.has_tf == !!test->expect_exact_tf);
 
         skcms_TransferFunction approx_tf;
         float max_error;
@@ -566,14 +558,14 @@ static void test_Parse() {
                                                                              &max_error);
         expect(approx_tf_result == !!test->expect_approx_tf);
 
-        if (exact_tf_result) {
+        if (profile.has_tf) {
             // V2 'curv' gamma values are 8.8 fixed point, so the maximum error is the value we
             // use here: 0.5 / 256 (~= 0.002)
             // V4 'para' curves are 1.15.16 fixed point, and should be precise to 5 digits, but
             // vendors sometimes round strangely when writing values. Regardless, all of our test
             // profiles are within 0.001, except for the odd version of sRGB used in the iPhone
             // profile. It has a D value of .039 (2556 / 64k) rather than .04045 (2651 / 64k).
-            check_transfer_function(*test->expect_exact_tf, exact_tf, 0.5f / 256.0f);
+            check_transfer_function(*test->expect_exact_tf, profile.tf, 0.5f / 256.0f);
         }
 
         if (approx_tf_result) {
@@ -596,18 +588,17 @@ static void test_Parse() {
             check_roundtrip_transfer_functions(test->expect_approx_tf, &approx_inverse_tf, 0.02f);
         }
 
-        skcms_Matrix3x3 toXYZ;
-        bool xyz_result = skcms_ToXYZD50(&profile, &toXYZ);
-        expect(xyz_result == !!test->expect_xyz);
+        expect(profile.has_toXYZD50 == !!test->expect_xyz);
 
-        if (xyz_result) {
+        if (profile.has_toXYZD50) {
             // XYZ values are 1.15.16 fixed point, but the precise values used by vendors vary
             // quite a bit, especially depending on their implementation of D50 adaptation.
             // This is still a pretty tight tolerance, and all of our test profiles pass.
             const float kXYZ_Tol = 0.0002f;
             for (int r = 0; r < 3; ++r) {
                 for (int c = 0; c < 3; ++c) {
-                    expect(fabsf(toXYZ.vals[r][c] - test->expect_xyz->vals[r][c]) < kXYZ_Tol);
+                    expect( fabsf( profile.toXYZD50.vals[r][c] -
+                                  test->expect_xyz->vals[r][c]) < kXYZ_Tol );
                 }
             }
         }

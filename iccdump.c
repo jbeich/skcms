@@ -112,7 +112,8 @@ int main(int argc, char** argv) {
 
     skcms_TransferFunction tf;
     float max_error;
-    if (skcms_GetTransferFunction(&profile, &tf)) {
+    if (profile.has_tf) {
+        tf = profile.tf;
         printf("TRC : %f, %f, %f, %f, %f, %f, %f\n",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f);
@@ -123,8 +124,8 @@ int main(int argc, char** argv) {
 
     }
 
-    skcms_Matrix3x3 toXYZ;
-    if (skcms_ToXYZD50(&profile, &toXYZ)) {
+    if (profile.has_toXYZD50) {
+        skcms_Matrix3x3 toXYZ = profile.toXYZD50;
         printf("XYZ : | %.7f %.7f %.7f |\n"
                "      | %.7f %.7f %.7f |\n"
                "      | %.7f %.7f %.7f |\n",

@@ -65,21 +65,25 @@ typedef struct {
     uint32_t creator;
     uint8_t profile_id[16];
     uint32_t tag_count;
+
+    // skcms_Parse() will set commonly-used fields for you when possible:
+
+    // If the transfer functions for all color channels in this profile are
+    // identical and can be represented by a single skcms_TransferFunction,
+    // skcms_Parse() sets tf to that function and has_tf to true.
+    bool                   has_tf;
+    skcms_TransferFunction tf;
+
+    // If this profile's gamut can be represented by a 3x3 transform to XYZD50,
+    // skcms_Parses() sets toXYZD50 to that transform and has_toXYZD50 to true.
+    bool                   has_toXYZD50;
+    skcms_Matrix3x3        toXYZD50;
 } skcms_ICCProfile;
 
 // Parse an ICC profile and return true if possible, otherwise return false.
 // The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
 // will be used.
 bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
-
-// If this profile's gamut can be represented by a 3x3 transform to XYZD50,
-// set it (if non-NULL) and return true, otherwise return false.
-bool skcms_ToXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
-
-// If the transfer functions for all color channels in this profile are
-// identical and can be represented by a single skcms_TransferFunction, set it
-// (if non-NULL) and return true, otherwise return false.
-bool skcms_GetTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
 
 bool skcms_ApproximateTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*
                                                               , float* max_error);

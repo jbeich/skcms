@@ -17,14 +17,6 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         return 0;
     }
 
-    // These should always be safe to call if skcms_Parse() succeeds.
-
-    skcms_Matrix3x3 m;
-    (void)skcms_ToXYZD50(&p, &m);
-
-    skcms_TransferFunction tf;
-    (void)skcms_GetTransferFunction(&p, &tf);
-
     // Instead of testing all tags, just test that we can read the first and last.
     // This does _not_ imply all the middle will work fine, but these calls should
     // be enough for the fuzzer to find a way to break us.
