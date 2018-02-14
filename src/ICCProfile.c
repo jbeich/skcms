@@ -107,75 +107,6 @@ static const tag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
     return (const tag_Layout*)(profile->buffer + SAFE_SIZEOF(header_Layout));
 }
 
-bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
-    static_assert(SAFE_SIZEOF(header_Layout) == 132, "ICC header size");
-
-    if (!profile) {
-        return false;
-    }
-    memset(profile, 0, SAFE_SIZEOF(*profile));
-
-    if (len < SAFE_SIZEOF(header_Layout)) {
-        return false;
-    }
-
-    // Byte-swap all header fields
-    const header_Layout* header = buf;
-    profile->buffer              = buf;
-    profile->size                = read_big_u32(header->size);
-    profile->cmm_type            = read_big_u32(header->cmm_type);
-    profile->version             = read_big_u32(header->version);
-    profile->profile_class       = read_big_u32(header->profile_class);
-    profile->data_color_space    = read_big_u32(header->data_color_space);
-    profile->pcs                 = read_big_u32(header->pcs);
-    profile->creation_date_time  = read_big_date_time(header->creation_date_time);
-    profile->signature           = read_big_u32(header->signature);
-    profile->platform            = read_big_u32(header->platform);
-    profile->flags               = read_big_u32(header->flags);
-    profile->device_manufacturer = read_big_u32(header->device_manufacturer);
-    profile->device_model        = read_big_u32(header->device_model);
-    profile->device_attributes   = read_big_u64(header->device_attributes);
-    profile->rendering_intent    = read_big_u32(header->rendering_intent);
-    profile->illuminant_X        = read_big_fixed(header->illuminant_X);
-    profile->illuminant_Y        = read_big_fixed(header->illuminant_Y);
-    profile->illuminant_Z        = read_big_fixed(header->illuminant_Z);
-    profile->creator             = read_big_u32(header->creator);
-    static_assert(SAFE_SIZEOF(profile->profile_id) == SAFE_SIZEOF(header->profile_id),
-                  "profile_id size");
-    memcpy(profile->profile_id, header->profile_id, SAFE_SIZEOF(header->profile_id));
-    profile->tag_count           = read_big_u32(header->tag_count);
-
-    // Validate signature, size (smaller than buffer, large enough to hold tag table),
-    // and major version
-    uint64_t tag_table_size = profile->tag_count * SAFE_SIZEOF(tag_Layout);
-    if (profile->signature != make_signature('a', 'c', 's', 'p') ||
-        profile->size > len ||
-        profile->size < SAFE_SIZEOF(header_Layout) + tag_table_size ||
-        (profile->version >> 24) > 4) {
-        return false;
-    }
-
-    // Validate that illuminant is D50 white
-    if (fabsf(profile->illuminant_X - 0.9642f) > 0.0100f ||
-        fabsf(profile->illuminant_Y - 1.0000f) > 0.0100f ||
-        fabsf(profile->illuminant_Z - 0.8249f) > 0.0100f) {
-        return false;
-    }
-
-    // Validate that all tag entries have sane offset + size
-    const tag_Layout* tags = get_tag_table(profile);
-    for (uint32_t i = 0; i < profile->tag_count; ++i) {
-        uint32_t tag_offset = read_big_u32(tags[i].offset);
-        uint32_t tag_size   = read_big_u32(tags[i].size);
-        uint64_t tag_end    = (uint64_t)tag_offset + (uint64_t)tag_size;
-        if (tag_size < 4 || tag_end > profile->size) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 // XYZType is technically variable sized, holding N XYZ triples. However, the only valid uses of
 // the type are for tags/data that store exactly one triple.
 typedef struct {
@@ -204,8 +135,7 @@ static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) 
     return true;
 }
 
-bool skcms_ToXYZD50(const skcms_ICCProfile* profile,
-                               skcms_Matrix3x3* toXYZ) {
+static bool read_to_XYZD50(const skcms_ICCProfile* profile, skcms_Matrix3x3* toXYZ) {
     if (!profile || !toXYZ) { return false; }
     skcms_ICCTag rXYZ, gXYZ, bXYZ;
     if (!skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) ||
@@ -359,8 +289,8 @@ static bool read_curve(const uint8_t* buf, uint32_t size, Curve* curve) {
     return false;
 }
 
-bool skcms_GetTransferFunction(const skcms_ICCProfile* profile,
-                                          skcms_TransferFunction* transferFunction) {
+static bool get_transfer_function(const skcms_ICCProfile* profile,
+                                  skcms_TransferFunction* transferFunction) {
     if (!profile || !transferFunction) { return false; }
     skcms_ICCTag rTRC, gTRC, bTRC;
     // TODO: Skia code supported some of these being missing, with fallback to others!?
@@ -466,4 +396,77 @@ bool skcms_GetTagBySignature(const skcms_ICCProfile* profile,
         }
     }
     return false;
+}
+
+bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
+    static_assert(SAFE_SIZEOF(header_Layout) == 132, "ICC header size");
+
+    if (!profile) {
+        return false;
+    }
+    memset(profile, 0, SAFE_SIZEOF(*profile));
+
+    if (len < SAFE_SIZEOF(header_Layout)) {
+        return false;
+    }
+
+    // Byte-swap all header fields
+    const header_Layout* header = buf;
+    profile->buffer              = buf;
+    profile->size                = read_big_u32(header->size);
+    profile->cmm_type            = read_big_u32(header->cmm_type);
+    profile->version             = read_big_u32(header->version);
+    profile->profile_class       = read_big_u32(header->profile_class);
+    profile->data_color_space    = read_big_u32(header->data_color_space);
+    profile->pcs                 = read_big_u32(header->pcs);
+    profile->creation_date_time  = read_big_date_time(header->creation_date_time);
+    profile->signature           = read_big_u32(header->signature);
+    profile->platform            = read_big_u32(header->platform);
+    profile->flags               = read_big_u32(header->flags);
+    profile->device_manufacturer = read_big_u32(header->device_manufacturer);
+    profile->device_model        = read_big_u32(header->device_model);
+    profile->device_attributes   = read_big_u64(header->device_attributes);
+    profile->rendering_intent    = read_big_u32(header->rendering_intent);
+    profile->illuminant_X        = read_big_fixed(header->illuminant_X);
+    profile->illuminant_Y        = read_big_fixed(header->illuminant_Y);
+    profile->illuminant_Z        = read_big_fixed(header->illuminant_Z);
+    profile->creator             = read_big_u32(header->creator);
+    static_assert(SAFE_SIZEOF(profile->profile_id) == SAFE_SIZEOF(header->profile_id),
+                  "profile_id size");
+    memcpy(profile->profile_id, header->profile_id, SAFE_SIZEOF(header->profile_id));
+    profile->tag_count           = read_big_u32(header->tag_count);
+
+    // Validate signature, size (smaller than buffer, large enough to hold tag table),
+    // and major version
+    uint64_t tag_table_size = profile->tag_count * SAFE_SIZEOF(tag_Layout);
+    if (profile->signature != make_signature('a', 'c', 's', 'p') ||
+        profile->size > len ||
+        profile->size < SAFE_SIZEOF(header_Layout) + tag_table_size ||
+        (profile->version >> 24) > 4) {
+        return false;
+    }
+
+    // Validate that illuminant is D50 white
+    if (fabsf(profile->illuminant_X - 0.9642f) > 0.0100f ||
+        fabsf(profile->illuminant_Y - 1.0000f) > 0.0100f ||
+        fabsf(profile->illuminant_Z - 0.8249f) > 0.0100f) {
+        return false;
+    }
+
+    // Validate that all tag entries have sane offset + size
+    const tag_Layout* tags = get_tag_table(profile);
+    for (uint32_t i = 0; i < profile->tag_count; ++i) {
+        uint32_t tag_offset = read_big_u32(tags[i].offset);
+        uint32_t tag_size   = read_big_u32(tags[i].size);
+        uint64_t tag_end    = (uint64_t)tag_offset + (uint64_t)tag_size;
+        if (tag_size < 4 || tag_end > profile->size) {
+            return false;
+        }
+    }
+
+    // Pre-parse commonly used tags.
+    profile->has_tf       = get_transfer_function(profile, &profile->tf);
+    profile->has_toXYZD50 = read_to_XYZD50       (profile, &profile->toXYZD50);
+
+    return true;
 }
