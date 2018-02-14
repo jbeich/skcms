@@ -58,19 +58,17 @@ static unsigned char profiles_sRGB_Facebook_icc[] = {
   0x5d, 0xed, 0x6b, 0x70, 0x7a, 0x05, 0x89, 0xb1, 0x9a, 0x7c, 0xac, 0x69,
   0xbf, 0x7d, 0xd3, 0xc3, 0xe9, 0x30, 0xff, 0xff
 };
-static unsigned int profiles_sRGB_Facebook_icc_len = 524;
 
 void exit(int);
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     skcms_ICCProfile p;
-    if (!skcms_ICCProfile_parse(&p, data, size)) {
+    if (!skcms_Parse(data, size, &p)) {
         return 0;
     }
     skcms_ICCProfile srgb;
-    if (!skcms_ICCProfile_parse(&srgb, profiles_sRGB_Facebook_icc,
-                                       profiles_sRGB_Facebook_icc_len)) {
+    if (!skcms_Parse(profiles_sRGB_Facebook_icc, sizeof(profiles_sRGB_Facebook_icc), &srgb)) {
         // This should never happen, but if it does, we want to make
         // a big fuss about it (exiting kills libfuzzer, as if it crashed).
         exit(1);
@@ -80,11 +78,13 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     for (int i = 0; i < 256; i++) {
         src[i] = (uint8_t)i;
     }
-    skcms_Transform(dst, skcms_PixelFormat_RGBA_8888, &p,
-                    src, skcms_PixelFormat_RGBA_8888, &srgb, 64);
+    skcms_Transform(src, skcms_PixelFormat_RGBA_8888, &srgb,
+                    dst, skcms_PixelFormat_RGBA_8888, &p,
+                    64);
 
-    skcms_Transform(dst, skcms_PixelFormat_RGBA_8888, &srgb,
-                    src, skcms_PixelFormat_RGBA_8888, &p, 64);
+    skcms_Transform(src, skcms_PixelFormat_RGBA_8888, &p,
+                    dst, skcms_PixelFormat_RGBA_8888, &srgb,
+                    64);
 
     return 0;
 }

@@ -33,13 +33,6 @@ typedef struct {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
-// Unified representation of any 'curv' or 'para' tag data
-typedef struct {
-    skcms_TransferFunction parametric;
-    const uint8_t*         table;
-    uint32_t               table_size;
-} skcms_Curve;
-
 typedef struct {
     uint16_t year;
     uint16_t month;
@@ -77,20 +70,19 @@ typedef struct {
 // Parse an ICC profile and return true if possible, otherwise return false.
 // The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
 // will be used.
-bool skcms_ICCProfile_parse(skcms_ICCProfile*, const void*, size_t);
+bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
 
 // If this profile's gamut can be represented by a 3x3 transform to XYZD50,
 // set it (if non-NULL) and return true, otherwise return false.
-bool skcms_ICCProfile_toXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
+bool skcms_ToXYZD50(const skcms_ICCProfile*, skcms_Matrix3x3*);
 
 // If the transfer functions for all color channels in this profile are
 // identical and can be represented by a single skcms_TransferFunction, set it
 // (if non-NULL) and return true, otherwise return false.
-bool skcms_ICCProfile_getTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
+bool skcms_GetTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*);
 
-bool skcms_ICCProfile_approximateTransferFunction(const skcms_ICCProfile*,
-                                                  skcms_TransferFunction*,
-                                                  float* max_error);
+bool skcms_ApproximateTransferFunction(const skcms_ICCProfile*, skcms_TransferFunction*
+                                                              , float* max_error);
 
 typedef struct {
     uint32_t       signature;
@@ -99,8 +91,8 @@ typedef struct {
     const uint8_t* buf;
 } skcms_ICCTag;
 
-void skcms_ICCProfile_getTagByIndex(const skcms_ICCProfile*, uint32_t, skcms_ICCTag*);
-bool skcms_ICCProfile_getTagBySignature(const skcms_ICCProfile*, uint32_t, skcms_ICCTag*);
+void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
+bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
 // TODO: read table-based transfer functions
 
@@ -138,8 +130,8 @@ typedef enum {
 
 // Convert npixels pixels from src format and color profile to dst format and color profile
 // and return true, otherwise return false.  It is safe to alias dst == src if dstFmt == srcFmt.
-bool skcms_Transform(void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
-               const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
+bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
+                           void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
                      size_t npixels);
 
 #ifdef __cplusplus

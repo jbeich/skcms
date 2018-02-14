@@ -59,8 +59,8 @@ int main(int argc, char** argv) {
     load_file(argc > 3 ? argv[3] : "profiles/mobile/Display_P3_parametric.icc", &dst_buf, &dst_len);
 
     skcms_ICCProfile src_profile, dst_profile;
-    if (!skcms_ICCProfile_parse(&src_profile, src_buf, src_len) ||
-        !skcms_ICCProfile_parse(&dst_profile, dst_buf, dst_len)) {
+    if (!skcms_Parse(src_buf, src_len, &src_profile) ||
+        !skcms_Parse(dst_buf, dst_len, &dst_profile)) {
         return 1;
     }
 
@@ -71,8 +71,9 @@ int main(int argc, char** argv) {
 
     clock_t start = clock();
     for (int i = 0; running_under_profiler || i < loops; i++) {
-        (void)skcms_Transform(dst_pixels, dst_fmt, &dst_profile,
-                              src_pixels, src_fmt, &src_profile, NPIXELS);
+        (void)skcms_Transform(src_pixels, src_fmt, &src_profile,
+                              dst_pixels, dst_fmt, &dst_profile,
+                              NPIXELS);
         src_fmt = (src_fmt + 3) % wrap;
         dst_fmt = (dst_fmt + 7) % wrap;
     }
