@@ -23,15 +23,23 @@ static uint32_t make_signature(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
 }
 
 static uint16_t read_big_u16(const uint8_t* ptr) {
-    return (uint16_t)(ptr[0] << 8)
-         | (uint16_t)(ptr[1] << 0);
+    uint16_t be;
+    memcpy(&be, ptr, sizeof(be));
+#if defined(_MSC_VER)
+    return _byteswap_ushort(be);
+#else
+    return __builtin_bswap16(be);
+#endif
 }
 
 static uint32_t read_big_u32(const uint8_t* ptr) {
-    return (uint32_t)ptr[0] << 24
-         | (uint32_t)ptr[1] << 16
-         | (uint32_t)ptr[2] <<  8
-         | (uint32_t)ptr[3] <<  0;
+    uint32_t be;
+    memcpy(&be, ptr, sizeof(be));
+#if defined(_MSC_VER)
+    return _byteswap_ulong(be);
+#else
+    return __builtin_bswap32(be);
+#endif
 }
 
 static int32_t read_big_i32(const uint8_t* ptr) {
@@ -39,9 +47,13 @@ static int32_t read_big_i32(const uint8_t* ptr) {
 }
 
 static uint64_t read_big_u64(const uint8_t* ptr) {
-    uint64_t hi = read_big_u32(ptr);
-    uint64_t lo = read_big_u32(ptr + 4);
-    return hi << 32 | lo;
+    uint64_t be;
+    memcpy(&be, ptr, sizeof(be));
+#if defined(_MSC_VER)
+    return _byteswap_uint64(be);
+#else
+    return __builtin_bswap64(be);
+#endif
 }
 
 static float read_big_fixed(const uint8_t* ptr) {
