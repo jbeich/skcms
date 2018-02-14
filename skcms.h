@@ -65,6 +65,12 @@ typedef struct {
     uint32_t creator;
     uint8_t profile_id[16];
     uint32_t tag_count;
+
+    // skcms_Parse() will set these commonly used fields when present.
+    bool                   has_tf;
+    bool                   has_toXYZD50;
+    skcms_TransferFunction tf;
+    skcms_Matrix3x3        toXYZD50;
 } skcms_ICCProfile;
 
 // Parse an ICC profile and return true if possible, otherwise return false.

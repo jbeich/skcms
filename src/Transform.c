@@ -322,9 +322,9 @@ SI F apply_transfer_function(const skcms_TransferFunction* tf, F x) {
 #endif
 
 typedef struct {
-    char*       dst;  // Buffer we're writing to in store_xxx.
-    const char* src;  // Buffer we're reading from in load_xxx.
-    void**      args; // Pointers to arguments for other stages, in order.
+    char*        dst;  // Buffer we're writing to in store_xxx.
+    const char*  src;  // Buffer we're reading from in load_xxx.
+    const void** args; // Pointers to arguments for other stages, in order.
 } Context;
 
 typedef void (*Stage)(int i, void** ip, Context* ctx, F r, F g, F b, F a);
@@ -794,14 +794,14 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
     // TODO: this check lazilly disallows U16 <-> F16, but that would actually be fine.
     // TODO: more careful alias rejection (like, dst == src + 1)?
 
-    void* program  [32];   // Pointers to stages.
-    void* arguments[32];   // Arguments for non-load-store stages.
+    void*       program  [32];   // Pointers to stages.
+    const void* arguments[32];   // Arguments for non-load-store stages.
 
-    void** ip   = program;
-    void** args = arguments;
+    void**       ip   = program;
+    const void** args = arguments;
 
-    skcms_TransferFunction src_tf, inv_dst_tf;
-    skcms_Matrix3x3        to_xyz, from_xyz;
+    skcms_TransferFunction inv_dst_tf;
+    skcms_Matrix3x3        from_xyz;
 
     switch (srcFmt >> 1) {
         default: return false;
@@ -826,10 +826,9 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
         // TODO: A2B, Lab -> XYZ, tables, etc...
 
         // 1) Src RGB to XYZ
-        if (skcms_GetTransferFunction(srcProfile, &src_tf) &&
-            skcms_ToXYZD50(srcProfile, &to_xyz)) {
-            *ip++ = (void*)transfer_function; *args++ = &src_tf;
-            *ip++ = (void*)matrix_3x3;        *args++ = &to_xyz;
+        if (srcProfile->has_tf && srcProfile->has_toXYZD50) {
+            *ip++ = (void*)transfer_function; *args++ = &srcProfile->tf;
+            *ip++ = (void*)matrix_3x3;        *args++ = &srcProfile->toXYZD50;
         } else {
             return false;
         }
@@ -837,13 +836,10 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
         // 2) Lab <-> XYZ (if PCS is different)
 
         // 3) Dst XYZ to RGB
-        skcms_TransferFunction dst_tf;
-        skcms_Matrix3x3        dst_to_xyz;
-
-        if (skcms_GetTransferFunction(dstProfile, &dst_tf) &&
-            skcms_ToXYZD50(dstProfile, &dst_to_xyz) &&
-            skcms_TransferFunction_invert(&dst_tf, &inv_dst_tf) &&
-            skcms_Matrix3x3_invert(&dst_to_xyz, &from_xyz)) {
+        if (dstProfile->has_tf &&
+            dstProfile->has_toXYZD50 &&
+            skcms_TransferFunction_invert(&dstProfile->tf, &inv_dst_tf) &&
+            skcms_Matrix3x3_invert(&dstProfile->toXYZD50,  &from_xyz)) {
             *ip++ = (void*)matrix_3x3;        *args++ = &from_xyz;
             *ip++ = (void*)transfer_function; *args++ = &inv_dst_tf;
         } else {

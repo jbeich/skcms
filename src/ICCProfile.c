@@ -173,6 +173,10 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     }
 
+    // Pre-parse commonly used tags.
+    profile->has_tf       = skcms_GetTransferFunction(profile, &profile->tf);
+    profile->has_toXYZD50 = skcms_ToXYZD50           (profile, &profile->toXYZD50);
+
     return true;
 }
 
@@ -204,8 +208,7 @@ static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) 
     return true;
 }
 
-bool skcms_ToXYZD50(const skcms_ICCProfile* profile,
-                               skcms_Matrix3x3* toXYZ) {
+bool skcms_ToXYZD50(const skcms_ICCProfile* profile, skcms_Matrix3x3* toXYZ) {
     if (!profile || !toXYZ) { return false; }
     skcms_ICCTag rXYZ, gXYZ, bXYZ;
     if (!skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) ||
