@@ -40,8 +40,8 @@ static void load_file(const char* filename, void** buf, size_t* len) {
 // Just to keep us on our toes, we transform a non-power-of-two number of pixels.
 #define NPIXELS 255
 
-static uint8_t src_pixels[NPIXELS * 4],
-               dst_pixels[NPIXELS * 4];
+static float src_pixels[NPIXELS * 4],
+             dst_pixels[NPIXELS * 4];
 
 int main(int argc, char** argv) {
     bool running_under_profiler = false;
@@ -64,10 +64,17 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // We'll rotate through pixel formats to get samples from all the various stages.
+    skcms_PixelFormat src_fmt = skcms_PixelFormat_RGB_565,
+                      dst_fmt = skcms_PixelFormat_RGB_565;
+    const int wrap = skcms_PixelFormat_BGRA_ffff+1;
+
     clock_t start = clock();
     for (int i = 0; running_under_profiler || i < loops; i++) {
-        (void)skcms_Transform(dst_pixels, skcms_PixelFormat_RGBA_8888, &dst_profile,
-                              src_pixels, skcms_PixelFormat_RGBA_8888, &src_profile, NPIXELS);
+        (void)skcms_Transform(dst_pixels, dst_fmt, &dst_profile,
+                              src_pixels, src_fmt, &src_profile, NPIXELS);
+        src_fmt = (src_fmt + 3) % wrap;
+        dst_fmt = (dst_fmt + 7) % wrap;
     }
 
     clock_t ticks = clock() - start;
