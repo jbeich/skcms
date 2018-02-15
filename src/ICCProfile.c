@@ -319,8 +319,8 @@ static bool get_transfer_function(const skcms_ICCProfile* profile,
 }
 
 bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
-                                                  skcms_TransferFunction* fn,
-                                                  float* max_error) {
+                                       skcms_TransferFunction* fn,
+                                       float* max_error) {
     if (!profile || !fn) { return false; }
     skcms_ICCTag rTRC, gTRC, bTRC;
     if (!skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) ||
@@ -369,26 +369,22 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
     return result;
 }
 
-void skcms_GetTagByIndex(const skcms_ICCProfile* profile,
-                                    uint32_t index,
-                                    skcms_ICCTag* tag) {
+void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
-    if (index > profile->tag_count) { return; }
+    if (idx > profile->tag_count) { return; }
     const tag_Layout* tags = get_tag_table(profile);
-    tag->signature = read_big_u32(tags[index].signature);
-    tag->size      = read_big_u32(tags[index].size);
-    tag->buf       = read_big_u32(tags[index].offset) + profile->buffer;
+    tag->signature = read_big_u32(tags[idx].signature);
+    tag->size      = read_big_u32(tags[idx].size);
+    tag->buf       = read_big_u32(tags[idx].offset) + profile->buffer;
     tag->type      = read_big_u32(tag->buf);
 }
 
-bool skcms_GetTagBySignature(const skcms_ICCProfile* profile,
-                                        uint32_t signature,
-                                        skcms_ICCTag* tag) {
+bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return false; }
     const tag_Layout* tags = get_tag_table(profile);
     for (uint32_t i = 0; i < profile->tag_count; ++i) {
-        if (read_big_u32(tags[i].signature) == signature) {
-            tag->signature = signature;
+        if (read_big_u32(tags[i].signature) == sig) {
+            tag->signature = sig;
             tag->size      = read_big_u32(tags[i].size);
             tag->buf       = read_big_u32(tags[i].offset) + profile->buffer;
             tag->type      = read_big_u32(tag->buf);
