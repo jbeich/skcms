@@ -369,6 +369,112 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
     return result;
 }
 
+typedef struct {
+    uint8_t type              [ 4];
+    uint8_t reserved_a        [ 4];
+    uint8_t input_channels    [ 1];
+    uint8_t output_channels   [ 1];
+    uint8_t grid_points       [ 1];
+    uint8_t reserved_b        [ 1];
+    uint8_t matrix            [36];
+    uint8_t tables            [  ];
+} mft1_Layout;
+
+static bool read_tag_mft1(const skcms_ICCTag* tag, skcms_MultiFunctionTable* mft) {
+    if (tag->size < SAFE_SIZEOF(mft1_Layout)) {
+        return false;
+    }
+    const float x = (float)((int)1E12F);
+    const mft1_Layout* mftTag = (const mft1_Layout*)tag->buf;
+    mft->input_channels    = mftTag->input_channels[0];
+    mft->input_table_size  = 256;
+    mft->grid_points       = mftTag->grid_points[0];
+    mft->output_channels   = mftTag->output_channels[0];
+    mft->output_table_size = 256;
+    mft->table_byte_width  = 1;
+
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            mft->matrix.vals[r][c] = read_big_fixed(mftTag->matrix[((3 * r) + c) * 4]);
+        }
+    }
+
+    // We require exactly three (ie XYZ/Lab/RGB) output channels
+    if (mft->output_channels != ARRAY_COUNT(mft->output_tables)) {
+        return false;
+    }
+    // We require at least one, and no more than four (ie CMYK) input channels
+    if (mft->input_channels < 1 || mft->input_channels > ARRAY_COUNT(mft->input_tables)) {
+        return false;
+    }
+    // The grid only makes sense with at least two points along each axis
+    if (mft->grid_points < 2) {
+        return false;
+    }
+
+    uint64_t input_table_size = mft->input_channels * (256 * SAFE_SIZEOF(uint8_t));
+    uint64_t grid_size = mft->output_channels * SAFE_SIZEOF(uint8_t);
+    for (int axis = 0; axis < mft->input_channels; ++axis) {
+        grid_size *= mft->grid_points;
+    }
+    uint64_t output_table_size = mft->output_channels * (256 * SAFE_SIZEOF(uint8_t));
+    if (tag->size < SAFE_SIZEOF(mft1_Layout) + input_table_size + grid_size + output_table_size) {
+        return false;
+    }
+
+    for (int i = 0; i < mft->input_channels; ++i) {
+        mft->input_tables[i] = mftTag->tables + i * (256 * SAFE_SIZEOF(uint8_t));
+    }
+    mft->grid = mftTag->tables + input_table_size;
+    for (int i = 0; i < ARRAY_COUNT(mft->output_tables); ++i) {
+        mft->output_tables[i] = mftTag->tables + input_table_size + grid_size + i * (256 * SAFE_SIZEOF(uint8_t));
+    }
+
+    return true;
+}
+
+typedef struct {
+    uint8_t type              [ 4];
+    uint8_t reserved_a        [ 4];
+    uint8_t input_channels    [ 1];
+    uint8_t output_channels   [ 1];
+    uint8_t grid_points       [ 1];
+    uint8_t reserved_b        [ 1];
+    uint8_t matrix            [36];
+    uint8_t input_table_size  [ 2];
+    uint8_t output_table_size [ 2];
+    uint8_t tables            [  ];
+} mft2_Layout;
+
+static bool read_tag_mft2(const skcms_ICCTag* tag, skcms_MultiFunctionTable* mft) {
+    if (tag->size < SAFE_SIZEOF(mft2_Layout)) {
+        return false;
+    }
+
+    const mft2_Layout* curvTag = (const mft2_Layout*)tag->buf;
+
+}
+
+bool skcms_GetMultiFunctionTable(const skcms_ICCProfile* profile,
+                                 skcms_MultiFunctionTable* mft) {
+    if (!profile || !mft) {
+        return false;
+    }
+
+    skcms_ICCTag a2b;
+    if (!skcms_GetTagBySignature(profile, make_signature('A', '2', 'B', '0'), &a2b)) {
+        return false;
+    }
+
+    if (a2b.type == make_signature('m', 'f', 't', '1')) {
+        return read_tag_mft1(&a2b, mft);
+    } else if (a2b.type == make_signature('m', 'f', 't', '2')) {
+        return read_tag_mft2(&a2b, mft);
+    }
+
+    return false;
+}
+
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile,
                                     uint32_t index,
                                     skcms_ICCTag* tag) {
