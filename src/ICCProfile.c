@@ -369,6 +369,146 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
     return result;
 }
 
+// mft1 and mft2 share a large chunk of data
+typedef struct {
+    uint8_t type              [ 4];
+    uint8_t reserved_a        [ 4];
+    uint8_t input_channels    [ 1];
+    uint8_t output_channels   [ 1];
+    uint8_t grid_points       [ 1];
+    uint8_t reserved_b        [ 1];
+    uint8_t matrix            [36];
+} mft_CommonLayout;
+
+typedef struct {
+    mft_CommonLayout common   [ 1];
+    uint8_t tables            [  ];
+} mft1_Layout;
+
+typedef struct {
+    mft_CommonLayout common   [ 1];
+    uint8_t input_table_size  [ 2];
+    uint8_t output_table_size [ 2];
+    uint8_t tables            [  ];
+} mft2_Layout;
+
+static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_MultiFunctionTable* mft) {
+    const uint8_t* mtx_ptr = mftTag->matrix;
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            mft->matrix.vals[r][c] = read_big_fixed(mtx_ptr);
+            mtx_ptr += sizeof(uint32_t);
+        }
+    }
+
+    mft->input_channels  = mftTag->input_channels[0];
+    mft->grid_points     = mftTag->grid_points[0];
+    mft->output_channels = mftTag->output_channels[0];
+
+    // We require exactly three (ie XYZ/Lab/RGB) output channels
+    if (mft->output_channels != ARRAY_COUNT(mft->output_tables)) {
+        return false;
+    }
+    // We require at least one, and no more than four (ie CMYK) input channels
+    if (mft->input_channels < 1 || mft->input_channels > ARRAY_COUNT(mft->input_tables)) {
+        return false;
+    }
+    // The grid only makes sense with at least two points along each axis
+    if (mft->grid_points < 2) {
+        return false;
+    }
+
+    return true;
+}
+
+static bool init_mft_tables(const uint8_t* table_base, uint64_t max_tables_len,
+                            skcms_MultiFunctionTable* mft) {
+    uint64_t byte_len_per_input_table  = mft->input_table_size * mft->table_byte_width;
+    uint64_t byte_len_per_output_table = mft->output_table_size * mft->table_byte_width;
+
+    uint64_t byte_len_all_input_tables  = mft->input_channels * byte_len_per_input_table;
+    uint64_t byte_len_all_output_tables = mft->output_channels * byte_len_per_output_table;
+
+    uint64_t grid_size = mft->output_channels * mft->table_byte_width;
+    for (int axis = 0; axis < mft->input_channels; ++axis) {
+        grid_size *= mft->grid_points;
+    }
+
+    if (max_tables_len < byte_len_all_input_tables + grid_size + byte_len_all_output_tables) {
+        return false;
+    }
+
+    for (int i = 0; i < mft->input_channels; ++i) {
+        mft->input_tables[i] = table_base + i * byte_len_per_input_table;
+    }
+    mft->grid = table_base + byte_len_all_input_tables;
+    for (int i = 0; i < ARRAY_COUNT(mft->output_tables); ++i) {
+        mft->output_tables[i] = table_base + byte_len_all_input_tables + grid_size + i * byte_len_per_output_table;
+    }
+
+    return true;
+}
+
+static bool read_tag_mft1(const skcms_ICCTag* tag, skcms_MultiFunctionTable* mft) {
+    if (tag->size < SAFE_SIZEOF(mft1_Layout)) {
+        return false;
+    }
+
+    const mft1_Layout* mftTag = (const mft1_Layout*)tag->buf;
+    if (!read_mft_common(mftTag->common, mft)) {
+        return false;
+    }
+
+    mft->input_table_size  = 256;
+    mft->output_table_size = 256;
+    mft->table_byte_width  = 1;
+
+    return init_mft_tables(mftTag->tables, tag->size - SAFE_SIZEOF(mft1_Layout), mft);
+}
+
+static bool read_tag_mft2(const skcms_ICCTag* tag, skcms_MultiFunctionTable* mft) {
+    if (tag->size < SAFE_SIZEOF(mft2_Layout)) {
+        return false;
+    }
+
+    const mft2_Layout* mftTag = (const mft2_Layout*)tag->buf;
+    if (!read_mft_common(mftTag->common, mft)) {
+        return false;
+    }
+
+    mft->input_table_size  = read_big_u16(mftTag->input_table_size);
+    mft->output_table_size = read_big_u16(mftTag->output_table_size);
+    mft->table_byte_width  = 2;
+
+    // ICC spec mandates that tables are sized in [2, 4096]
+    if (mft->input_table_size < 2 || mft->input_table_size > 4096 ||
+        mft->output_table_size < 2 || mft->output_table_size > 4096) {
+        return false;
+    }
+
+    return init_mft_tables(mftTag->tables, tag->size - SAFE_SIZEOF(mft2_Layout), mft);
+}
+
+bool skcms_GetMultiFunctionTable(const skcms_ICCProfile* profile,
+                                 skcms_MultiFunctionTable* mft) {
+    if (!profile || !mft) {
+        return false;
+    }
+
+    skcms_ICCTag a2b;
+    if (!skcms_GetTagBySignature(profile, make_signature('A', '2', 'B', '0'), &a2b)) {
+        return false;
+    }
+
+    if (a2b.type == make_signature('m', 'f', 't', '1')) {
+        return read_tag_mft1(&a2b, mft);
+    } else if (a2b.type == make_signature('m', 'f', 't', '2')) {
+        return read_tag_mft2(&a2b, mft);
+    }
+
+    return false;
+}
+
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
     if (idx > profile->tag_count) { return; }
