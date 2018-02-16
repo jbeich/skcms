@@ -882,6 +882,25 @@ static void test_FloatRoundTrips() {
     free(  lr_ptr);
 }
 
+static void test_IsSRGB() {
+    void*  ptr;
+    size_t len;
+    skcms_ICCProfile p;
+
+    load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len);
+    expect( skcms_Parse(ptr, len, &p) && p.has_tf && skcms_IsSRGB(&p.tf) );
+    free(ptr);
+
+    load_file("profiles/mobile/Display_P3_parametric.icc", &ptr, &len);
+    expect( skcms_Parse(ptr, len, &p) && p.has_tf && skcms_IsSRGB(&p.tf) );
+    free(ptr);
+
+    // TODO: relax skcms_IsSRGB() so that this one is seen as sRGB too?  It's not far.
+    load_file("profiles/mobile/iPhone7p.icc", &ptr, &len);
+    expect( skcms_Parse(ptr, len, &p) && p.has_tf && !skcms_IsSRGB(&p.tf) );
+    free(ptr);
+}
+
 int main(void) {
     test_ICCProfile();
     test_FormatConversions();
@@ -898,6 +917,7 @@ int main(void) {
     test_Matrix3x3_invert();
     test_SimpleRoundTrip();
     test_FloatRoundTrips();
+    test_IsSRGB();
 
     return 0;
 }

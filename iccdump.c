@@ -114,9 +114,13 @@ int main(int argc, char** argv) {
     float max_error;
     if (profile.has_tf) {
         tf = profile.tf;
-        printf("TRC : %f, %f, %f, %f, %f, %f, %f\n",
+        printf("TRC : %f, %f, %f, %f, %f, %f, %f",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f);
+        if (skcms_IsSRGB(&tf)) {
+            printf(" (sRGB)");
+        }
+        printf("\n");
     } else if (skcms_ApproximateTransferFunction(&profile, &tf, &max_error)) {
         printf("~TRC: %f, %f, %f, %f, %f, %f, %f  (Max error: %f)\n",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,

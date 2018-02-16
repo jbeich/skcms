@@ -33,6 +33,10 @@ typedef struct {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
+// Return true if the skcms_TransferFunction is the sRGB transfer function,
+// to within unspecified tolerance.
+bool skcms_IsSRGB(const skcms_TransferFunction*);
+
 typedef struct {
     uint16_t year;
     uint16_t month;
