@@ -901,6 +901,54 @@ static void test_IsSRGB() {
     free(ptr);
 }
 
+// Canonical implementation of transfer function evaluation.
+static float eval_tf(skcms_TransferFunction tf, float x) {
+    float sign = x < 0 ? -1.0f : 1.0f;
+    x *= sign;
+    return sign * (x < tf.d ? tf.c * x + tf.e
+                            : powf(tf.a * x + tf.b, tf.g) + tf.f);
+}
+
+static void test_sRGB_AllBytes() {
+    // Test that our transfer function implementation is perfect to at least 8-bit precision.
+
+    void* ptr;
+    size_t len;
+    skcms_ICCProfile sRGB;
+    load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len);
+    expect( skcms_Parse(ptr, len, &sRGB) );
+
+    skcms_ICCProfile linear_sRGB = sRGB;
+    linear_sRGB.tf = (skcms_TransferFunction){ 0,0,0,1,2,0,0 };
+    // We could express linear as {1,1,0,0,0,0,0}, but that takes a more complicated
+    // path, leading to four failures instead of just the two you'll see later on.
+    // linear_sRGB.tf = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
+
+    // Enough to hit all distinct bytes when interpreted as RGB 888.
+    uint8_t src[258],
+            dst[258];
+    for (int i = 0; i < 258; i++) {
+        src[i] = (uint8_t)i;  // (We don't really care about bytes 256 and 257.)
+    }
+
+    expect( skcms_Transform(src, skcms_PixelFormat_RGB_888, &sRGB,
+                            dst, skcms_PixelFormat_RGB_888, &linear_sRGB,
+                            258/3) );
+
+    for (int i = 0; i < 256; i++) {
+        float linear = eval_tf(sRGB.tf, i * (1/255.0f));
+        uint8_t expected = (uint8_t)(linear * 255.0f + 0.5f);
+
+        // There are a couple known failures today.
+        if (i == 220) { expect(expected == 183); expected = 182; }
+        if (i == 243) { expect(expected == 229); expected = 228; }
+
+        expect(dst[i] == expected);
+    }
+
+    free(ptr);
+}
+
 int main(void) {
     test_ICCProfile();
     test_FormatConversions();
@@ -918,6 +966,7 @@ int main(void) {
     test_SimpleRoundTrip();
     test_FloatRoundTrips();
     test_IsSRGB();
+    test_sRGB_AllBytes();
 
     return 0;
 }
