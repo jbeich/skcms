@@ -75,7 +75,7 @@ typedef struct {
     skcms_TransferFunction tf;
 
     // If this profile's gamut can be represented by a 3x3 transform to XYZD50,
-    // skcms_Parses() sets toXYZD50 to that transform and has_toXYZD50 to true.
+    // skcms_Parse() sets toXYZD50 to that transform and has_toXYZD50 to true.
     bool                   has_toXYZD50;
     skcms_Matrix3x3        toXYZD50;
 } skcms_ICCProfile;
