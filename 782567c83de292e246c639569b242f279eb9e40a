@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14f1f5d9_ffd2f68e",
+        "filename": "skcms.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-16T15:30:57Z",
+      "side": 1,
+      "message": "These are actually going to need to be replaced with Curve instances for lutAtoB, because those support \u0027curv\u0027 and \u0027para\u0027 for each of the 1D functions. Fun!",
+      "revId": "782567c83de292e246c639569b242f279eb9e40a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
