@@ -228,7 +228,7 @@ bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
     // for the initial value of G, because not all values will converge.
     bool nonlinear_fit_converged = false;
     {
-        float initial_gammas[] = { 2.2f, 1.0f, 3.0f, 0.5f };
+        float initial_gammas[] = { 2.2f, 2.4f, 1.0f, 3.0f, 0.5f };
         for (int i = 0; i < ARRAY_COUNT(initial_gammas); ++i) {
             fn->g = initial_gammas[i];
             fn->a = 1;
