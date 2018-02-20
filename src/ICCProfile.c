@@ -157,14 +157,15 @@ typedef struct {
     uint8_t parameters    [ ];  // 1, 3, 4, 5, or 7 s15.16 parameters, depending on function_type
 } para_Layout;
 
-// Unified representation of any 'curv' or 'para' tag data
+// Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef struct {
     skcms_TransferFunction parametric;
-    const uint8_t*         table;
+    const uint8_t*         table_8;
+    const uint8_t*         table_16;
     uint32_t               table_size;
-} Curve;
+} skcms_Curve;
 
-static bool read_curve_para(const uint8_t* buf, uint32_t size, Curve* curve) {
+static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
     if (size < SAFE_SIZEOF(para_Layout)) {
         return false;
     }
@@ -182,8 +183,9 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size, Curve* curve) {
         return false;
     }
 
-    curve->table = NULL;
-    curve->table_size = 0;
+    curve->table_8      = NULL;
+    curve->table_16     = NULL;
+    curve->table_size   = 0;
     curve->parametric.a = 1.0f;
     curve->parametric.b = 0.0f;
     curve->parametric.c = 0.0f;
@@ -236,7 +238,7 @@ typedef struct {
     uint8_t parameters    [ ];  // value_count parameters (8.8 if 1, uint16 (n*65535) if > 1)
 } curv_Layout;
 
-static bool read_curve_curv(const uint8_t* buf, uint32_t size, Curve* curve) {
+static bool read_curve_curv(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
     if (size < SAFE_SIZEOF(curv_Layout)) {
         return false;
     }
@@ -249,8 +251,9 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size, Curve* curve) {
     }
 
     if (value_count < 2) {
-        curve->table = NULL;
-        curve->table_size = 0;
+        curve->table_8      = NULL;
+        curve->table_16     = NULL;
+        curve->table_size   = 0;
         curve->parametric.a = 1.0f;
         curve->parametric.b = 0.0f;
         curve->parametric.c = 0.0f;
@@ -266,15 +269,16 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size, Curve* curve) {
         }
     } else {
         memset(&curve->parametric, 0, SAFE_SIZEOF(curve->parametric));
+        curve->table_8    = NULL;
+        curve->table_16   = curvTag->parameters;
         curve->table_size = value_count;
-        curve->table = curvTag->parameters;
     }
 
     return true;
 }
 
 // Parses both curveType and parametricCurveType data
-static bool read_curve(const uint8_t* buf, uint32_t size, Curve* curve) {
+static bool read_curve(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
     if (!buf || size < 4 || !curve) {
         return false;
     }
@@ -302,10 +306,10 @@ static bool get_transfer_function(const skcms_ICCProfile* profile,
 
     // For each TRC tag, check for either V4 parametric curve data, or special cases of
     // V2 curve data that encode a numerical gamma curve.
-    Curve rCurve, gCurve, bCurve;
-    if (!read_curve(rTRC.buf, rTRC.size, &rCurve) || rCurve.table ||
-        !read_curve(gTRC.buf, gTRC.size, &gCurve) || gCurve.table ||
-        !read_curve(bTRC.buf, bTRC.size, &bCurve) || bCurve.table) {
+    skcms_Curve rCurve, gCurve, bCurve;
+    if (!read_curve(rTRC.buf, rTRC.size, &rCurve) || rCurve.table_size ||
+        !read_curve(gTRC.buf, gTRC.size, &gCurve) || gCurve.table_size ||
+        !read_curve(bTRC.buf, bTRC.size, &bCurve) || bCurve.table_size) {
         return false;
     }
 
@@ -329,10 +333,10 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
         return false;
     }
 
-    Curve curves[3];
-    if (!read_curve(rTRC.buf, rTRC.size, &curves[0]) || !curves[0].table ||
-        !read_curve(gTRC.buf, gTRC.size, &curves[1]) || !curves[1].table ||
-        !read_curve(bTRC.buf, bTRC.size, &curves[2]) || !curves[2].table) {
+    skcms_Curve curves[3];
+    if (!read_curve(rTRC.buf, rTRC.size, &curves[0]) || !curves[0].table_16 ||
+        !read_curve(gTRC.buf, gTRC.size, &curves[1]) || !curves[1].table_16 ||
+        !read_curve(bTRC.buf, bTRC.size, &curves[2]) || !curves[2].table_16) {
         return false;
     }
 
@@ -357,7 +361,7 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
     for (int c = 0; c < 3; ++c) {
         for (uint32_t i = 0; i < curves[c].table_size; ++i) {
             *x++ = i / (curves[c].table_size - 1.0f);
-            *t++ = read_big_u16(curves[c].table + 2 * i) * (1 / 65535.0f);
+            *t++ = read_big_u16(curves[c].table_16 + 2 * i) * (1 / 65535.0f);
         }
     }
 
