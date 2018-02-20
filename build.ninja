@@ -27,6 +27,7 @@ subninja build/android.tiny
 subninja build/android-arm
 subninja build/android-arm.lsan
 subninja build/android-arm.neon-vfpv4
+subninja build/android-arm.neon-vfpv4-O3
 subninja build/android-arm.portable
 subninja build/android-arm.tiny
 subninja build/android-arm.vfpv2
