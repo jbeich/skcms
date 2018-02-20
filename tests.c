@@ -907,14 +907,6 @@ static void test_IsSRGB() {
     free(ptr);
 }
 
-// Canonical implementation of transfer function evaluation.
-static float eval_tf(skcms_TransferFunction tf, float x) {
-    float sign = x < 0 ? -1.0f : 1.0f;
-    x *= sign;
-    return sign * (x < tf.d ? tf.c * x + tf.e
-                            : powf(tf.a * x + tf.b, tf.g) + tf.f);
-}
-
 static void test_sRGB_AllBytes() {
     // Test that our transfer function implementation is perfect to at least 8-bit precision.
 
@@ -942,7 +934,7 @@ static void test_sRGB_AllBytes() {
                             258/3) );
 
     for (int i = 0; i < 256; i++) {
-        float linear = eval_tf(sRGB.tf, i * (1/255.0f));
+        float linear = skcms_TransferFunction_eval(&sRGB.tf, i * (1/255.0f));
         uint8_t expected = (uint8_t)(linear * 255.0f + 0.5f);
 
         // There is one known failure today:
