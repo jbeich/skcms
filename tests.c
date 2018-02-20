@@ -939,9 +939,12 @@ static void test_sRGB_AllBytes() {
         float linear = eval_tf(sRGB.tf, i * (1/255.0f));
         uint8_t expected = (uint8_t)(linear * 255.0f + 0.5f);
 
-        // There are a couple known failures today.
+        // There is one known failure today:
         if (i == 220) { expect(expected == 183); expected = 182; }
-        if (i == 243) { expect(expected == 229); expected = 228; }
+
+        if (dst[i] != expected) {
+            fprintf(stderr, "%d -> %d, want %d\n", i, dst[i], expected);
+        }
 
         expect(dst[i] == expected);
     }

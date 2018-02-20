@@ -263,8 +263,17 @@ SI F approx_pow2(F x) {
 }
 
 SI F approx_powf(F x, float y) {
-    return (F)if_then_else(x == F0, F0
-                                  , approx_pow2(approx_log2(x) * y));
+    // Handling all the integral powers first increases our precision a little.
+    F r = F1;
+    while (y >= 1.0f) {
+        r *= x;
+        y -= 1.0f;
+    }
+
+    // TODO: The rest of this could perhaps be specialized further knowing 0 <= y < 1.
+    assert (0 <= y && y < 1);
+    return r * (F)if_then_else(x == F0, F0
+                                      , approx_pow2(approx_log2(x) * y));
 }
 
 // Return tf(x).
