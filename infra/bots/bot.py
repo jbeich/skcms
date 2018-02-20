@@ -37,6 +37,8 @@ else:  # Windows
   os.environ['PATH'] = win_toolchain + '\\VC\\Tools\\MSVC\\14.11.25503\\bin\\HostX64\\x64;' + os.environ['PATH']
   os.environ['INCLUDE'] = win_toolchain + '\\VC\\Tools\\MSVC\\14.11.25503\\include;'
   os.environ['INCLUDE'] += win_toolchain + '\\win_sdk\\Include\\10.0.15063.0\\ucrt;'
+  os.environ['INCLUDE'] += win_toolchain + '\\win_sdk\\Include\\10.0.15063.0\\um;'
+  os.environ['INCLUDE'] += win_toolchain + '\\win_sdk\\Include\\10.0.15063.0\\shared;'
   os.environ['LIB'] = win_toolchain + '\\VC\\Tools\\MSVC\\14.11.25503\\lib\\x64;'
   os.environ['LIB'] += win_toolchain + '\\win_sdk\\Lib\\10.0.15063.0\\um\\x64;'
   os.environ['LIB'] += win_toolchain + '\\win_sdk\\Lib\\10.0.15063.0\\ucrt\\x64;'
