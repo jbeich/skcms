@@ -102,7 +102,24 @@ typedef struct {
 void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
 bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
-// TODO: read table-based transfer functions
+typedef struct {
+    int             table_byte_width; // 1 for lut8, 2 for lut16
+
+    int             input_channels;
+    int             input_table_size;
+    const void*     input_tables[4];
+
+    skcms_Matrix3x3 matrix;
+
+    int             grid_points;
+    const void*     grid;
+
+    int             output_channels;
+    int             output_table_size;
+    const void*     output_tables[3];
+} skcms_A2B;
+
+bool skcms_GetA2B(const skcms_ICCProfile*, skcms_A2B*);
 
 typedef enum {
     skcms_PixelFormat_RGB_565,
