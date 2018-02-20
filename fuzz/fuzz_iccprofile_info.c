@@ -25,5 +25,9 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         skcms_GetTagByIndex(&p,               0, &tag);
         skcms_GetTagByIndex(&p, p.tag_count - 1, &tag);
     }
+
+    skcms_A2B a2b;
+    skcms_GetA2B(&p, &a2b);
+
     return 0;
 }
