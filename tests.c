@@ -637,12 +637,6 @@ static void test_TransferFunction_approximate() {
 
             skcms_TransferFunction fn_approx;
             float max_error;
-
-        // TODO: this particular test fails using build/android-arm.neon-vfpv4-O3.
-        #if defined(__arm__) && defined(__ARM_NEON) && \
-            defined(__OPTIMIZE__) && !defined(__OPTIMIZE_SIZE__)
-            if (ts == 10 && tf == 3) { continue; }
-        #endif
             expect(skcms_TransferFunction_approximate(&fn_approx, x, t, table_sizes[ts],
                                                       &max_error));
 
