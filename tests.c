@@ -7,6 +7,7 @@
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
+#include "Windows.h"
 #endif
 
 #include "skcms.h"
@@ -18,8 +19,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _MSC_VER
+#define expect(cond)                                                                      \
+    do {                                                                                  \
+        if (!(cond)) {                                                                    \
+            if (IsDebuggerPresent()) {                                                    \
+                DebugBreak();                                                             \
+            } else {                                                                      \
+                fprintf(stderr, "expect(" #cond ") failed at %s:%d\n",__FILE__,__LINE__); \
+                exit(1);                                                                  \
+            }                                                                             \
+        }                                                                                 \
+    } while(false)
+#else
 #define expect(cond) \
     if (!(cond)) (fprintf(stderr, "expect(" #cond ") failed at %s:%d\n",__FILE__,__LINE__),exit(1))
+#endif
 
 static void test_ICCProfile() {
     // Nothing works yet.  :)
@@ -406,6 +421,8 @@ static void test_FormatConversions_float() {
 
 static const skcms_TransferFunction srgb_transfer_fn =
     { 2.4f, 1 / 1.055f, 0.055f / 1.055f, 1 / 12.92f, 0.04045f, 0.0f, 0.0f };
+static const skcms_TransferFunction gamma_1_8_transfer_fn =
+    { 1.8f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static const skcms_TransferFunction gamma_2_2_transfer_fn =
     { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static const skcms_TransferFunction gamma_2_4_transfer_fn =
@@ -438,6 +455,26 @@ static const skcms_Matrix3x3 p3_to_xyz    = { { { 0.5151215f, 0.2919769f, 0.1571
                                                 { 0.2411957f, 0.6922455f, 0.0665741f },
                                                 { -0.0010376f, 0.0418854f, 0.7840729f } } };
 
+static const skcms_Matrix3x3 apple_lcd_to_xyz = { { { 0.4443359f, 0.3794403f, 0.1404114f },
+                                                    { 0.2247620f, 0.7261658f, 0.0490723f },
+                                                    { 0.0054779f, 0.0779724f, 0.7414551f } } };
+
+static const skcms_Matrix3x3 gen_rgb_to_xyz = { { { 0.4542999f, 0.3533478f, 0.1566467f },
+                                                  { 0.2419128f, 0.6736298f, 0.0844574f },
+                                                  { 0.0148926f, 0.0906372f, 0.7195740f } } };
+
+static const skcms_Matrix3x3 hd709_to_xyz = { { { 0.3589630f, 0.4463501f, 0.1588898f },
+                                                { 0.1959229f, 0.7428436f, 0.0612335f },
+                                                { 0.0096741f, 0.0435181f, 0.7717133f } } };
+
+static const skcms_Matrix3x3 mm_hard_to_xyz = { { { 0.9642029f, 0.0000000f, 0.9642029f },
+                                                  { 1.0000000f, 0.0000000f, 1.0000000f },
+                                                  { 0.8249054f, 0.0000000f, 0.8249054f } } };
+
+static const skcms_Matrix3x3 ph1_to_xyz = { { { 0.6479034f, 0.3573608f, 0.1564178f },
+                                              { 0.3829193f, 1.1097260f, 0.0000000f },
+                                              { 0.0832672f, 0.6792755f, 0.5234222f } } };
+
 typedef struct {
     const char*                   filename;
     bool                          expect_parse;
@@ -452,16 +489,33 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL, NULL, NULL },
     { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL, NULL, NULL },
 
-    // V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
+    // V2 or V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
     { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true, NULL, NULL, NULL },
     { "profiles/color.org/sRGB_v4_ICC_preference.icc", true, NULL, NULL, NULL },
     { "profiles/color.org/Upper_Left.icc",             true, NULL, NULL, NULL },
     { "profiles/color.org/Upper_Right.icc",            true, NULL, NULL, NULL },
+    { "profiles/misc/Apple_Wide_Color.icc",            true, NULL, NULL, NULL },
+    { "profiles/misc/Coated_FOGRA39_CMYK.icc",         true, NULL, NULL, NULL },
+    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",   true, NULL, NULL, NULL }, // Has kTRC. Broken tag table, but A2B0 parses okay
+    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  true, NULL, NULL, NULL }, // Has kTRC.
+    { "profiles/misc/Japan_Color_2001_Coated.icc",     true, NULL, NULL, NULL },
+    { "profiles/misc/Lexmark_X110.icc",                true, NULL, NULL, NULL },
+    { "profiles/misc/MartiMaria_browsertest_A2B.icc",  true, NULL, NULL, NULL },
+    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   true, NULL, NULL, NULL }, // Has kTRC.
+    { "profiles/misc/sRGB_ICC_v4_beta.icc",            true, NULL, NULL, NULL },
+    { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     true, NULL, NULL, NULL },
+    { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     true, NULL, NULL, NULL },
+    { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      true, NULL, NULL, NULL },
+
+    // V2 monochrome output profiles that include kTRC but no A2B
+    { "profiles/misc/Dot_Gain_20_Grayscale.icc",       true, NULL, NULL, NULL }, // kTRC table
+    { "profiles/misc/Gray_Gamma_22.icc",               true, NULL, NULL, NULL }, // kTRC gamma
 
     // V4 profiles with parametric TRC curves and XYZ
     { "profiles/mobile/Display_P3_parametric.icc",     true, &srgb_transfer_fn, NULL, &p3_to_xyz },
     { "profiles/mobile/sRGB_parametric.icc",           true, &srgb_transfer_fn, NULL, &srgb_to_xyz },
     { "profiles/mobile/iPhone7p.icc",                  true, &srgb_transfer_fn, NULL, &p3_to_xyz },
+    { "profiles/misc/sRGB_lcms.icc",                   true, &srgb_transfer_fn, NULL, &srgb_to_xyz },
 
     // V4 profiles with LUT TRC curves and XYZ
     { "profiles/mobile/Display_P3_LUT.icc",            true, NULL, &srgb_transfer_fn, &p3_to_xyz },
@@ -470,10 +524,27 @@ static const ProfileTestCase profile_test_cases[] = {
     // V2 profiles with gamma TRC and XYZ
     { "profiles/color.org/Lower_Left.icc",             true, &gamma_2_2_transfer_fn, NULL, &sgbr_to_xyz },
     { "profiles/color.org/Lower_Right.icc",            true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz },
+    { "profiles/misc/AdobeRGB.icc",                    true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz },
+    { "profiles/misc/Color_Spin_Gamma_18.icc",         true, &gamma_1_8_transfer_fn, NULL, &sgbr_to_xyz },
+    { "profiles/misc/Generic_RGB_Gamma_18.icc",        true, &gamma_1_8_transfer_fn, NULL, &gen_rgb_to_xyz },
 
     // V2 profiles with LUT TRC and XYZ
     { "profiles/color.org/sRGB2014.icc",               true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
     { "profiles/sRGB_Facebook.icc",                    true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/misc/Apple_Color_LCD.icc",             true, NULL, &srgb_transfer_fn, &apple_lcd_to_xyz },
+    { "profiles/misc/HD_709.icc",                      true, NULL, &srgb_transfer_fn, &hd709_to_xyz},
+    { "profiles/misc/sRGB_black_scaled.icc",           true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/misc/sRGB_HP.icc",                     true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/misc/sRGB_HP_2.icc",                   true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+
+    // Hard test profile. Non-invertible XYZ, three separate tables that fail to approximate
+    { "profiles/misc/MartiMaria_browsertest_HARD.icc", true, NULL, NULL, &mm_hard_to_xyz },
+
+    // Camera profile with three separate tables that fail to approximate
+    { "profiles/misc/Phase_One_P25.icc",               true, NULL, NULL, &ph1_to_xyz },
+
+    // Profile claims to be sRGB, but seems quite different
+//    { "profiles/misc/Kodak_sRGB.icc",                  true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
 
     // fuzzer generated profiles that found parsing bugs
 
@@ -594,7 +665,10 @@ static void test_Parse() {
             // XYZ values are 1.15.16 fixed point, but the precise values used by vendors vary
             // quite a bit, especially depending on their implementation of D50 adaptation.
             // This is still a pretty tight tolerance, and all of our test profiles pass.
-            const float kXYZ_Tol = 0.0002f;
+
+            // TODO: Allow for per-profile tolerance in this test? All profiles pass with .002,
+            // except for the LCMS profile, which needs this larger tolerance.
+            const float kXYZ_Tol = 0.0003f;
             for (int r = 0; r < 3; ++r) {
                 for (int c = 0; c < 3; ++c) {
                     expect( fabsf( profile.toXYZD50.vals[r][c] -
