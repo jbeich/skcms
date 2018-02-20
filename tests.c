@@ -406,6 +406,10 @@ static void test_FormatConversions_float() {
 
 static const skcms_TransferFunction srgb_transfer_fn =
     { 2.4f, 1 / 1.055f, 0.055f / 1.055f, 1 / 12.92f, 0.04045f, 0.0f, 0.0f };
+static const skcms_TransferFunction kodak_transfer_fn =
+    { 2.404834f, 0.945568f, 0.052557f, 0.151814f, 0.133333f, 0.004353f, 0.0f };
+static const skcms_TransferFunction gamma_1_8_transfer_fn =
+    { 1.8f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static const skcms_TransferFunction gamma_2_2_transfer_fn =
     { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static const skcms_TransferFunction gamma_2_4_transfer_fn =
@@ -430,6 +434,14 @@ static const skcms_Matrix3x3 sgbr_to_xyz  = { { { 0.3851471f, 0.1430664f, 0.4360
                                                 { 0.7168732f, 0.0606079f, 0.2224884f },
                                                 { 0.0970764f, 0.7140961f, 0.0139160f } } };
 
+static const skcms_Matrix3x3 srgb_lcms_to_xyz  = { { { 0.4358521f, 0.3853302f, 0.1430206f },
+                                                     { 0.2223816f, 0.7170410f, 0.0605927f },
+                                                     { 0.0139160f, 0.0971375f, 0.7138367f } } };
+
+static const skcms_Matrix3x3 kodak_to_xyz  = { { { 0.4376373f, 0.3884125f, 0.1424103f },
+                                                 { 0.2149506f, 0.7129059f, 0.0721283f, },
+                                                 { 0.0112610f, 0.0807190f, 0.7258759f } } };
+
 static const skcms_Matrix3x3 adobe_to_xyz = { { { 0.6097412f, 0.2052765f, 0.1491852f },
                                                 { 0.3111115f, 0.6256714f, 0.0632172f },
                                                 { 0.0194702f, 0.0608673f, 0.7445679f } } };
@@ -437,6 +449,26 @@ static const skcms_Matrix3x3 adobe_to_xyz = { { { 0.6097412f, 0.2052765f, 0.1491
 static const skcms_Matrix3x3 p3_to_xyz    = { { { 0.5151215f, 0.2919769f, 0.1571045f },
                                                 { 0.2411957f, 0.6922455f, 0.0665741f },
                                                 { -0.0010376f, 0.0418854f, 0.7840729f } } };
+
+static const skcms_Matrix3x3 apple_lcd_to_xyz = { { { 0.4443359f, 0.3794403f, 0.1404114f },
+                                                    { 0.2247620f, 0.7261658f, 0.0490723f },
+                                                    { 0.0054779f, 0.0779724f, 0.7414551f } } };
+
+static const skcms_Matrix3x3 gen_rgb_to_xyz = { { { 0.4542999f, 0.3533478f, 0.1566467f },
+                                                  { 0.2419128f, 0.6736298f, 0.0844574f },
+                                                  { 0.0148926f, 0.0906372f, 0.7195740f } } };
+
+static const skcms_Matrix3x3 hd709_to_xyz = { { { 0.3589630f, 0.4463501f, 0.1588898f },
+                                                { 0.1959229f, 0.7428436f, 0.0612335f },
+                                                { 0.0096741f, 0.0435181f, 0.7717133f } } };
+
+static const skcms_Matrix3x3 mm_hard_to_xyz = { { { 0.9642029f, 0.0000000f, 0.9642029f },
+                                                  { 1.0000000f, 0.0000000f, 1.0000000f },
+                                                  { 0.8249054f, 0.0000000f, 0.8249054f } } };
+
+static const skcms_Matrix3x3 ph1_to_xyz = { { { 0.6479034f, 0.3573608f, 0.1564178f },
+                                              { 0.3829193f, 1.1097260f, 0.0000000f },
+                                              { 0.0832672f, 0.6792755f, 0.5234222f } } };
 
 typedef struct {
     const char*                   filename;
@@ -452,16 +484,33 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL, NULL, NULL },
     { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL, NULL, NULL },
 
-    // V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
+    // V2 or V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
     { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true, NULL, NULL, NULL },
     { "profiles/color.org/sRGB_v4_ICC_preference.icc", true, NULL, NULL, NULL },
     { "profiles/color.org/Upper_Left.icc",             true, NULL, NULL, NULL },
     { "profiles/color.org/Upper_Right.icc",            true, NULL, NULL, NULL },
+    { "profiles/misc/Apple_Wide_Color.icc",            true, NULL, NULL, NULL },
+    { "profiles/misc/Coated_FOGRA39_CMYK.icc",         true, NULL, NULL, NULL },
+    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",   true, NULL, NULL, NULL }, // Has kTRC. Broken tag table, but A2B0 parses okay
+    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  true, NULL, NULL, NULL }, // Has kTRC.
+    { "profiles/misc/Japan_Color_2001_Coated.icc",     true, NULL, NULL, NULL },
+    { "profiles/misc/Lexmark_X110.icc",                true, NULL, NULL, NULL },
+    { "profiles/misc/MartiMaria_browsertest_A2B.icc",  true, NULL, NULL, NULL },
+    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   true, NULL, NULL, NULL }, // Has kTRC.
+    { "profiles/misc/sRGB_ICC_v4_beta.icc",            true, NULL, NULL, NULL },
+    { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     true, NULL, NULL, NULL },
+    { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     true, NULL, NULL, NULL },
+    { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      true, NULL, NULL, NULL },
+
+    // V2 monochrome output profiles that include kTRC but no A2B
+    { "profiles/misc/Dot_Gain_20_Grayscale.icc",       true, NULL, NULL, NULL }, // kTRC table
+    { "profiles/misc/Gray_Gamma_22.icc",               true, NULL, NULL, NULL }, // kTRC gamma
 
     // V4 profiles with parametric TRC curves and XYZ
     { "profiles/mobile/Display_P3_parametric.icc",     true, &srgb_transfer_fn, NULL, &p3_to_xyz },
     { "profiles/mobile/sRGB_parametric.icc",           true, &srgb_transfer_fn, NULL, &srgb_to_xyz },
     { "profiles/mobile/iPhone7p.icc",                  true, &srgb_transfer_fn, NULL, &p3_to_xyz },
+    { "profiles/misc/sRGB_lcms.icc",                   true, &srgb_transfer_fn, NULL, &srgb_lcms_to_xyz },
 
     // V4 profiles with LUT TRC curves and XYZ
     { "profiles/mobile/Display_P3_LUT.icc",            true, NULL, &srgb_transfer_fn, &p3_to_xyz },
@@ -470,10 +519,27 @@ static const ProfileTestCase profile_test_cases[] = {
     // V2 profiles with gamma TRC and XYZ
     { "profiles/color.org/Lower_Left.icc",             true, &gamma_2_2_transfer_fn, NULL, &sgbr_to_xyz },
     { "profiles/color.org/Lower_Right.icc",            true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz },
+    { "profiles/misc/AdobeRGB.icc",                    true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz },
+    { "profiles/misc/Color_Spin_Gamma_18.icc",         true, &gamma_1_8_transfer_fn, NULL, &sgbr_to_xyz },
+    { "profiles/misc/Generic_RGB_Gamma_18.icc",        true, &gamma_1_8_transfer_fn, NULL, &gen_rgb_to_xyz },
 
     // V2 profiles with LUT TRC and XYZ
     { "profiles/color.org/sRGB2014.icc",               true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
     { "profiles/sRGB_Facebook.icc",                    true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/misc/Apple_Color_LCD.icc",             true, NULL, &srgb_transfer_fn, &apple_lcd_to_xyz },
+    { "profiles/misc/HD_709.icc",                      true, NULL, &srgb_transfer_fn, &hd709_to_xyz},
+    { "profiles/misc/sRGB_black_scaled.icc",           true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/misc/sRGB_HP.icc",                     true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/misc/sRGB_HP_2.icc",                   true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+
+    // Hard test profile. Non-invertible XYZ, three separate tables that fail to approximate
+    { "profiles/misc/MartiMaria_browsertest_HARD.icc", true, NULL, NULL, &mm_hard_to_xyz },
+
+    // Camera profile with three separate tables that fail to approximate
+    { "profiles/misc/Phase_One_P25.icc",               true, NULL, NULL, &ph1_to_xyz },
+
+    // Profile claims to be sRGB, but seems quite different
+    { "profiles/misc/Kodak_sRGB.icc",                  true, NULL, &kodak_transfer_fn, &kodak_to_xyz },
 
     // fuzzer generated profiles that found parsing bugs
 
