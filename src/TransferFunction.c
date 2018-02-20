@@ -13,13 +13,11 @@
 #include <math.h>
 
 float skcms_TransferFunction_evalUnclamped(const skcms_TransferFunction* fn, float x) {
-    // TODO: absf() and copysignf() to allow negative x?
-    assert (x >= 0);
+    float sign = x < 0 ? -1.0f : 1.0f;
+    x *= sign;
 
-    if (x < fn->d) {
-        return fn->c * x + fn->f;
-    }
-    return powf(fn->a * x + fn->b, fn->g) + fn->e;
+    return sign * (x < fn->d ? fn->c * x + fn->f
+                             : powf(fn->a * x + fn->b, fn->g) + fn->e);
 }
 
 float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
