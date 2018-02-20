@@ -157,14 +157,6 @@ typedef struct {
     uint8_t parameters    [ ];  // 1, 3, 4, 5, or 7 s15.16 parameters, depending on function_type
 } para_Layout;
 
-// Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
-typedef struct {
-    skcms_TransferFunction parametric;
-    const uint8_t*         table_8;
-    const uint8_t*         table_16;
-    uint32_t               table_size;
-} skcms_Curve;
-
 static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
     if (size < SAFE_SIZEOF(para_Layout)) {
         return false;
@@ -373,6 +365,164 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
     return result;
 }
 
+// mft1 and mft2 share a large chunk of data
+typedef struct {
+    uint8_t type              [ 4];
+    uint8_t reserved_a        [ 4];
+    uint8_t input_channels    [ 1];
+    uint8_t output_channels   [ 1];
+    uint8_t grid_points       [ 1];
+    uint8_t reserved_b        [ 1];
+    uint8_t matrix            [36];
+} mft_CommonLayout;
+
+typedef struct {
+    mft_CommonLayout common   [ 1];
+
+    uint8_t tables            [  ];
+} mft1_Layout;
+
+typedef struct {
+    mft_CommonLayout common   [ 1];
+
+    uint8_t input_table_size  [ 2];
+    uint8_t output_table_size [ 2];
+    uint8_t tables            [  ];
+} mft2_Layout;
+
+static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_A2B* a2b) {
+    // MFT matrices are applied before the first set of curves, but must be identity unless the
+    // input is PCSXYZ. We don't support PCSXYZ profiles, so we ignore this matrix. Note that the
+    // matrix in skcms_A2B is applied later in the pipe, so supporting this would require another
+    // field/flag.
+    a2b->matrix_channels = 0;
+
+    a2b->input_channels  = mftTag->input_channels[0];
+    a2b->grid_points     = mftTag->grid_points[0];
+    a2b->output_channels = mftTag->output_channels[0];
+
+    // We require exactly three (ie XYZ/Lab/RGB) output channels
+    if (a2b->output_channels != ARRAY_COUNT(a2b->output_curves)) {
+        return false;
+    }
+    // We require at least one, and no more than four (ie CMYK) input channels
+    if (a2b->input_channels < 1 || a2b->input_channels > ARRAY_COUNT(a2b->input_curves)) {
+        return false;
+    }
+    // The grid only makes sense with at least two points along each axis
+    if (a2b->grid_points < 2) {
+        return false;
+    }
+
+    return true;
+}
+
+static bool init_a2b_tables(const uint8_t* table_base, uint64_t max_tables_len, uint32_t byte_width,
+                            uint32_t input_table_size, uint32_t output_table_size, skcms_A2B* a2b) {
+    uint64_t byte_len_per_input_table  = input_table_size * byte_width;
+    uint64_t byte_len_per_output_table = output_table_size * byte_width;
+
+    uint64_t byte_len_all_input_tables  = a2b->input_channels * byte_len_per_input_table;
+    uint64_t byte_len_all_output_tables = a2b->output_channels * byte_len_per_output_table;
+
+    uint64_t grid_size = a2b->output_channels * byte_width;
+    for (uint32_t axis = 0; axis < a2b->input_channels; ++axis) {
+        grid_size *= a2b->grid_points;
+    }
+
+    if (max_tables_len < byte_len_all_input_tables + grid_size + byte_len_all_output_tables) {
+        return false;
+    }
+
+    for (uint32_t i = 0; i < a2b->input_channels; ++i) {
+        a2b->input_curves[i].table_size = input_table_size;
+        if (byte_width == 1) {
+            a2b->input_curves[i].table_8  = table_base + i * byte_len_per_input_table;
+            a2b->input_curves[i].table_16 = NULL;
+        } else {
+            a2b->input_curves[i].table_8  = NULL;
+            a2b->input_curves[i].table_16 = table_base + i * byte_len_per_input_table;
+        }
+    }
+
+    a2b->grid = table_base + byte_len_all_input_tables;
+
+    const uint8_t* output_table_base = table_base + byte_len_all_input_tables + grid_size;
+    for (uint32_t i = 0; i < a2b->output_channels; ++i) {
+        a2b->output_curves[i].table_size = output_table_size;
+        if (byte_width == 1) {
+            a2b->output_curves[i].table_8  = output_table_base + i * byte_len_per_output_table;
+            a2b->output_curves[i].table_16 = NULL;
+        } else {
+            a2b->output_curves[i].table_8  = NULL;
+            a2b->output_curves[i].table_16 = output_table_base + i * byte_len_per_output_table;
+        }
+    }
+
+    return true;
+}
+
+static bool read_tag_mft1(const skcms_ICCTag* tag, skcms_A2B* a2b) {
+    if (tag->size < SAFE_SIZEOF(mft1_Layout)) {
+        return false;
+    }
+
+    const mft1_Layout* mftTag = (const mft1_Layout*)tag->buf;
+    if (!read_mft_common(mftTag->common, a2b)) {
+        return false;
+    }
+
+    uint32_t input_table_size  = 256;
+    uint32_t output_table_size = 256;
+
+    return init_a2b_tables(mftTag->tables, tag->size - SAFE_SIZEOF(mft1_Layout), 1,
+                           input_table_size, output_table_size, a2b);
+}
+
+static bool read_tag_mft2(const skcms_ICCTag* tag, skcms_A2B* a2b) {
+    if (tag->size < SAFE_SIZEOF(mft2_Layout)) {
+        return false;
+    }
+
+    const mft2_Layout* mftTag = (const mft2_Layout*)tag->buf;
+    if (!read_mft_common(mftTag->common, a2b)) {
+        return false;
+    }
+
+    uint32_t input_table_size  = read_big_u16(mftTag->input_table_size);
+    uint32_t output_table_size = read_big_u16(mftTag->output_table_size);
+
+    // ICC spec mandates that tables are sized in [2, 4096]
+    if (input_table_size < 2 || input_table_size > 4096 ||
+        output_table_size < 2 || output_table_size > 4096) {
+        return false;
+    }
+
+    return init_a2b_tables(mftTag->tables, tag->size - SAFE_SIZEOF(mft2_Layout), 2,
+                           input_table_size, output_table_size, a2b);
+}
+
+static bool read_a2b(const skcms_ICCProfile* profile, skcms_A2B* a2b) {
+    if (!profile || !a2b) {
+        return false;
+    }
+
+    skcms_ICCTag tag;
+    if (!skcms_GetTagBySignature(profile, make_signature('A', '2', 'B', '0'), &tag)) {
+        return false;
+    }
+
+    if (tag.type == make_signature('m', 'f', 't', '1')) {
+        return read_tag_mft1(&tag, a2b);
+    } else if (tag.type == make_signature('m', 'f', 't', '2')) {
+        return read_tag_mft2(&tag, a2b);
+    }
+
+    // TODO: Also parse lutAtoBType ('mAB ')
+
+    return false;
+}
+
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
     if (idx > profile->tag_count) { return; }
@@ -467,6 +617,7 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     // Pre-parse commonly used tags.
     profile->has_tf       = get_transfer_function(profile, &profile->tf);
     profile->has_toXYZD50 = read_to_XYZD50       (profile, &profile->toXYZD50);
+    profile->has_A2B      = read_a2b             (profile, &profile->A2B);
 
     return true;
 }

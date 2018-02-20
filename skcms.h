@@ -37,6 +37,35 @@ typedef struct {
 // within an unspecified tolerance.
 bool skcms_IsSRGB(const skcms_TransferFunction*);
 
+// Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
+typedef struct {
+    skcms_TransferFunction parametric;
+    const uint8_t*         table_8;
+    const uint8_t*         table_16;
+    uint32_t               table_size;
+} skcms_Curve;
+
+typedef struct {
+    // Optional: 1D curves, followed by an N-dimensional CLUT.
+    // If input_channels == 0, these curves and CLUT are skipped,
+    // Otherwise, input_channels must be in [1, 4].
+    uint32_t        input_channels;
+    skcms_Curve     input_curves[4];
+    uint32_t        grid_points;
+    const void*     grid;
+
+    // Optional: 1D curves, followed by a color matrix.
+    // If matrix_channels == 0, these curves and matrix are skipped,
+    // Otherwise, matrix_channels must be 3.
+    int             matrix_channels;
+    skcms_Curve     matrix_curves[3];
+    skcms_Matrix3x3 matrix;
+
+    // Required: 1D curves. Always present, and output_channels must be 3.
+    uint32_t        output_channels;
+    skcms_Curve     output_curves[3];
+} skcms_A2B;
+
 typedef struct {
     uint16_t year;
     uint16_t month;
@@ -82,6 +111,11 @@ typedef struct {
     // skcms_Parse() sets toXYZD50 to that transform and has_toXYZD50 to true.
     bool                   has_toXYZD50;
     skcms_Matrix3x3        toXYZD50;
+
+    // If the profile has a valid A2B0 tag, skcms_Parse() sets A2B to that data,
+    // and has_A2B to true.
+    bool                   has_A2B;
+    skcms_A2B              A2B;
 } skcms_ICCProfile;
 
 // Parse an ICC profile and return true if possible, otherwise return false.
@@ -101,8 +135,6 @@ typedef struct {
 
 void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
 bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
-
-// TODO: read table-based transfer functions
 
 typedef enum {
     skcms_PixelFormat_RGB_565,
