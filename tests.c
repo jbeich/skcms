@@ -18,8 +18,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _MSC_VER
+#define expect(cond)                                                                  \
+    do {                                                                              \
+        if (!(cond)) {                                                                \
+            fprintf(stderr, "expect(" #cond ") failed at %s:%d\n",__FILE__,__LINE__); \
+            fflush(stderr);                                                           \
+            __debugbreak();                                                           \
+        }                                                                             \
+    } while(false)
+#else
 #define expect(cond) \
     if (!(cond)) (fprintf(stderr, "expect(" #cond ") failed at %s:%d\n",__FILE__,__LINE__),exit(1))
+#endif
 
 static void test_ICCProfile() {
     // Nothing works yet.  :)
