@@ -58,11 +58,14 @@ static uint16_t read_big_u16(const uint8_t* ptr) {
 #endif
 }
 
-static void dump_curve(const char* name, const skcms_Curve* curve, bool verbose) {
+void dump_curve_svg(const char* name, const skcms_Curve* curve, const char* color);
+
+static void dump_curve(const char* name, const skcms_Curve* curve, bool verbose, const char* color) {
     if (curve->table_entries) {
         printf("%4s : %d-bit table with %u entries", name,
                curve->table_8 ? 8 : 16, curve->table_entries);
         if (verbose) {
+            dump_curve_svg(name, curve, color);
             char filename[32];
             snprintf(filename, sizeof(filename), "%s.csv", name);
             FILE* fp = fopen(filename, "wb");
@@ -82,6 +85,29 @@ static void dump_curve(const char* name, const skcms_Curve* curve, bool verbose)
     } else {
         dump_transfer_function(name, &curve->parametric);
     }
+}
+
+void dump_curve_svg(const char* name, const skcms_Curve* curve, const char* color) {
+    char filename[32];
+    snprintf(filename, sizeof(filename), "%s.svg", name);
+    FILE* fp = fopen(filename, "wb");
+    if (!fp) {
+        return;
+    }
+
+    fprintf(fp, "<svg width=\"1000\" height=\"1000\" xmlns=\"http://www.w3.org/2000/svg\">\n");
+    fprintf(fp, "<polyline fill=\"none\" stroke=\"%s\" points=\"\n", color);
+
+    for (uint32_t i = 0; i < curve->table_entries; ++i) {
+        double x = i / (curve->table_entries - 1.0);
+        double t = curve->table_8
+            ? curve->table_8[i] * (1.0f / 255)
+            : read_big_u16(curve->table_16 + 2 * i) * (1.0 / 65535);
+        fprintf(fp, "%f,%f\n", x * 1000, (1 - t) * 1000);
+    }
+
+    fprintf(fp, "\"/></svg>\n");
+    fclose(fp);
 }
 
 int main(int argc, char** argv) {
@@ -180,8 +206,9 @@ int main(int argc, char** argv) {
 
     if (!profile.has_tf && profile.has_trc) {
         const char* trcNames[3] = { "rTRC", "gTRC", "bTRC" };
+        const char* colors[3] = { "red", "green", "blue" };
         for (int i = 0; i < 3; ++i) {
-            dump_curve(trcNames[i], &profile.trc[i], verbose);
+            dump_curve(trcNames[i], &profile.trc[i], verbose, colors[i]);
         }
     }
 
