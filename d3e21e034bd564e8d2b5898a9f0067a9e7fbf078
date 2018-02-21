@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25153374_32d9849a",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T22:42:22Z",
+      "side": 1,
+      "message": "\"N 1D curves, followed by an N-dimensional CLUT\"?",
+      "range": {
+        "startLine": 49,
+        "startChar": 17,
+        "endLine": 49,
+        "endChar": 26
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3598ca23_a0f18736",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T22:42:22Z",
+      "side": 1,
+      "message": "this\u0027ll be grid_points[4], right?",
+      "range": {
+        "startLine": 54,
+        "startChar": 20,
+        "endLine": 54,
+        "endChar": 31
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0687f504_80c65702",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T22:42:22Z",
+      "side": 1,
+      "message": "Are we not just all in on uint32_t at this point?",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 61,
+        "endChar": 7
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b7a4940_e290fd1f",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T22:42:22Z",
+      "side": 1,
+      "message": "So, silly question...",
+      "range": {
+        "startLine": 65,
+        "startChar": 28,
+        "endLine": 66,
+        "endChar": 36
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1637c87a_534023d5",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T22:42:22Z",
+      "side": 1,
+      "message": "So what do we want to end up with here in the end?  Something like\n\nenum { kTRC_and_XYZD50, kA2B, kUnknown } type;\n\nunion {\n   struct { skcms_Curve trc[3]; skcms_Matrix3x3 toXYZD50; };\n   skcms_A2B a2b;\n};\n\n?",
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26c19cb6_9d3b67e7",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T22:42:22Z",
+      "side": 1,
+      "message": "Is this _too_ cute have an array of 1 struct?",
+      "range": {
+        "startLine": 363,
+        "startChar": 4,
+        "endLine": 363,
+        "endChar": 38
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
