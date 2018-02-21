@@ -111,7 +111,7 @@
         "t"
       ],
       "dimensions": [
-        "os:Windows",
+        "os:Windows-2016Server",
         "gpu:none",
         "pool:Skia"
       ],

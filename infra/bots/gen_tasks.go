@@ -21,7 +21,8 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 		// For the moment we'd rather not run bots on Skylakes, which support AVX-512.
 		"skcms-Linux": []string{"os:Linux", "cpu:x86-64-Haswell_GCE"},
 		"skcms-Mac":   []string{"os:Mac"},
-		"skcms-Win":   []string{"os:Windows"},
+		// We think there's something amiss building on Win7 or Win8 bots, so restrict to 2016.
+		"skcms-Win": []string{"os:Windows-2016Server"},
 	}
 	packages := map[string][]*specs.CipdPackage{
 		"skcms-Linux": []*specs.CipdPackage{
