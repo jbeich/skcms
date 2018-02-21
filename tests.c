@@ -977,10 +977,7 @@ static void test_sRGB_AllBytes() {
     expect( skcms_Parse(ptr, len, &sRGB) );
 
     skcms_ICCProfile linear_sRGB = sRGB;
-    linear_sRGB.tf = (skcms_TransferFunction){ 0,0,0,1,2,0,0 };
-    // We could express linear as {1,1,0,0,0,0,0}, but that takes a more complicated
-    // path, leading to four failures instead of just the two you'll see later on.
-    // linear_sRGB.tf = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
+    linear_sRGB.tf = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
 
     // Enough to hit all distinct bytes when interpreted as RGB 888.
     uint8_t src[258],
