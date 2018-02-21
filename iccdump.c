@@ -16,6 +16,7 @@
 #include "skcms.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 SKCMS_NORETURN
 static void fatal(const char* msg) {
@@ -37,9 +38,66 @@ static void dump_sig_field(const char* name, uint32_t val) {
     printf("%20s : 0x%08X : '%s'\n", name, val, valStr);
 }
 
+static void dump_transfer_function(const char* name, const skcms_TransferFunction* tf) {
+    printf("%4s : %f, %f, %f, %f, %f, %f, %f", name,
+           (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
+           (double)tf->d, (double)tf->e, (double)tf->f);
+    if (skcms_IsSRGB(tf)) {
+        printf(" (sRGB)");
+    }
+    printf("\n");
+}
+
+static uint16_t read_big_u16(const uint8_t* ptr) {
+    uint16_t be;
+    memcpy(&be, ptr, sizeof(be));
+#if defined(_MSC_VER)
+    return _byteswap_ushort(be);
+#else
+    return __builtin_bswap16(be);
+#endif
+}
+
+static void dump_curve(const char* name, const skcms_Curve* curve, bool verbose) {
+    if (curve->table_entries) {
+        printf("%4s : %d-bit table with %u entries", name,
+               curve->table_8 ? 8 : 16, curve->table_entries);
+        if (verbose) {
+            char filename[32];
+            snprintf(filename, sizeof(filename), "%s.csv", name);
+            FILE* fp = fopen(filename, "wb");
+            if (fp) {
+                for (uint32_t i = 0; i < curve->table_entries; ++i) {
+                    double x = i / (curve->table_entries - 1.0);
+                    double t = curve->table_8
+                        ? curve->table_8[i] * (1.0 / 255)
+                        : read_big_u16(curve->table_16 + 2 * i) * (1.0 / 65535);
+                    fprintf(fp, "%f,%f\n", x, t);
+                }
+                fclose(fp);
+                printf(" (wrote to %s)", filename);
+            }
+        }
+        printf("\n");
+    } else {
+        dump_transfer_function(name, &curve->parametric);
+    }
+}
+
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        printf("usage: %s <ICC filename>\n", argv[0]);
+    const char* filename = NULL;
+    bool verbose = false;
+
+    for (int i = 1; i < argc; ++i) {
+        if (0 == strcmp(argv[i], "-v")) {
+            verbose = true;
+        } else {
+            filename = argv[i];
+        }
+    }
+
+    if (!filename) {
+        printf("usage: %s [-v] <ICC filename>\n", argv[0]);
         return 1;
     }
 
@@ -113,26 +171,25 @@ int main(int argc, char** argv) {
     skcms_TransferFunction tf;
     float max_error;
     if (profile.has_tf) {
-        tf = profile.tf;
-        printf("TRC : %f, %f, %f, %f, %f, %f, %f",
-               (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
-               (double)tf.d, (double)tf.e, (double)tf.f);
-        if (skcms_IsSRGB(&tf)) {
-            printf(" (sRGB)");
-        }
-        printf("\n");
+        dump_transfer_function("TRC", &profile.tf);
     } else if (skcms_ApproximateTransferFunction(&profile, &tf, &max_error)) {
-        printf("~TRC: %f, %f, %f, %f, %f, %f, %f  (Max error: %f)\n",
+        printf("%4s : %f, %f, %f, %f, %f, %f, %f  (Max error: %f)\n", "~TRC",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f, (double)max_error);
+    }
 
+    if (!profile.has_tf && profile.has_trc) {
+        const char* trcNames[3] = { "rTRC", "gTRC", "bTRC" };
+        for (int i = 0; i < 3; ++i) {
+            dump_curve(trcNames[i], &profile.trc[i], verbose);
+        }
     }
 
     if (profile.has_toXYZD50) {
         skcms_Matrix3x3 toXYZ = profile.toXYZD50;
-        printf("XYZ : | %.7f %.7f %.7f |\n"
-               "      | %.7f %.7f %.7f |\n"
-               "      | %.7f %.7f %.7f |\n",
+        printf(" XYZ : | %.7f %.7f %.7f |\n"
+               "       | %.7f %.7f %.7f |\n"
+               "       | %.7f %.7f %.7f |\n",
                (double)toXYZ.vals[0][0], (double)toXYZ.vals[0][1], (double)toXYZ.vals[0][2],
                (double)toXYZ.vals[1][0], (double)toXYZ.vals[1][1], (double)toXYZ.vals[1][2],
                (double)toXYZ.vals[2][0], (double)toXYZ.vals[2][1], (double)toXYZ.vals[2][2]);
