@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56ff93df_e37abf88",
+        "filename": "skcms.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-21T21:16:37Z",
+      "side": 1,
+      "message": "The exact shape of this data is still open to change. Not sure if you want the stride per-dimension?",
+      "range": {
+        "startLine": 54,
+        "startChar": 3,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "c34fce4d19b8e93e5359a9d157f433d657a902d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
