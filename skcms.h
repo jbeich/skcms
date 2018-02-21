@@ -33,6 +33,14 @@ typedef struct {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
+// Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
+typedef struct {
+    skcms_TransferFunction parametric;
+    const uint8_t*         table_8;
+    const uint8_t*         table_16;
+    uint32_t               table_size;
+} skcms_Curve;
+
 // Return true if the skcms_TransferFunction is the sRGB transfer function,
 // within an unspecified tolerance.
 bool skcms_IsSRGB(const skcms_TransferFunction*);
@@ -77,6 +85,11 @@ typedef struct {
     // skcms_Parse() sets tf to that function and has_tf to true.
     bool                   has_tf;
     skcms_TransferFunction tf;
+
+    // If the profile has valid rTRC, gTRC, and bTRC tags, then trc will be
+    // set to those three curves, and has_trc will be true.
+    bool                   has_trc;
+    skcms_Curve            trc[3];
 
     // If this profile's gamut can be represented by a 3x3 transform to XYZD50,
     // skcms_Parse() sets toXYZD50 to that transform and has_toXYZD50 to true.
