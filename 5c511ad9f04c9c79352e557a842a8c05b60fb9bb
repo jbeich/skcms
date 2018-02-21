@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "263564b5_89d94ab4",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T18:49:57Z",
+      "side": 1,
+      "message": "Does this seem ambiguous for table_16?  Would it be less so as table_length, table_entries, table_count?",
+      "range": {
+        "startLine": 41,
+        "startChar": 27,
+        "endLine": 41,
+        "endChar": 37
+      },
+      "revId": "5c511ad9f04c9c79352e557a842a8c05b60fb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9dd0064_0282b938",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T18:49:57Z",
+      "side": 1,
+      "message": "We\u0027re going to phase this out right?",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 30
+      },
+      "revId": "5c511ad9f04c9c79352e557a842a8c05b60fb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "437bdee0_acec12c4",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-21T18:49:57Z",
+      "side": 1,
+      "message": "Is this more specific than we need?  Like, \"Of we can parse red, green, and blue skcms_Curves from the profile, trc will be set to those three curves and has_trc will be true\"?",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 32
+      },
+      "revId": "5c511ad9f04c9c79352e557a842a8c05b60fb9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
