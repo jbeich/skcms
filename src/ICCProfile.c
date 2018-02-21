@@ -157,14 +157,6 @@ typedef struct {
     uint8_t parameters    [ ];  // 1, 3, 4, 5, or 7 s15.16 parameters, depending on function_type
 } para_Layout;
 
-// Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
-typedef struct {
-    skcms_TransferFunction parametric;
-    const uint8_t*         table_8;
-    const uint8_t*         table_16;
-    uint32_t               table_size;
-} skcms_Curve;
-
 static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
     if (size < SAFE_SIZEOF(para_Layout)) {
         return false;
@@ -183,16 +175,16 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size, skcms_Curve* curv
         return false;
     }
 
-    curve->table_8      = NULL;
-    curve->table_16     = NULL;
-    curve->table_size   = 0;
-    curve->parametric.a = 1.0f;
-    curve->parametric.b = 0.0f;
-    curve->parametric.c = 0.0f;
-    curve->parametric.d = 0.0f;
-    curve->parametric.e = 0.0f;
-    curve->parametric.f = 0.0f;
-    curve->parametric.g = read_big_fixed(paraTag->parameters);
+    curve->table_8       = NULL;
+    curve->table_16      = NULL;
+    curve->table_entries = 0;
+    curve->parametric.a  = 1.0f;
+    curve->parametric.b  = 0.0f;
+    curve->parametric.c  = 0.0f;
+    curve->parametric.d  = 0.0f;
+    curve->parametric.e  = 0.0f;
+    curve->parametric.f  = 0.0f;
+    curve->parametric.g  = read_big_fixed(paraTag->parameters);
 
     switch (function_type) {
         case kGAB:
@@ -251,15 +243,15 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size, skcms_Curve* curv
     }
 
     if (value_count < 2) {
-        curve->table_8      = NULL;
-        curve->table_16     = NULL;
-        curve->table_size   = 0;
-        curve->parametric.a = 1.0f;
-        curve->parametric.b = 0.0f;
-        curve->parametric.c = 0.0f;
-        curve->parametric.d = 0.0f;
-        curve->parametric.e = 0.0f;
-        curve->parametric.f = 0.0f;
+        curve->table_8       = NULL;
+        curve->table_16      = NULL;
+        curve->table_entries = 0;
+        curve->parametric.a  = 1.0f;
+        curve->parametric.b  = 0.0f;
+        curve->parametric.c  = 0.0f;
+        curve->parametric.d  = 0.0f;
+        curve->parametric.e  = 0.0f;
+        curve->parametric.f  = 0.0f;
         if (value_count == 0) {
             // Empty tables are a shorthand for linear
             curve->parametric.g = 1.0f;
@@ -269,9 +261,9 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size, skcms_Curve* curv
         }
     } else {
         memset(&curve->parametric, 0, SAFE_SIZEOF(curve->parametric));
-        curve->table_8    = NULL;
-        curve->table_16   = curvTag->parameters;
-        curve->table_size = value_count;
+        curve->table_8       = NULL;
+        curve->table_16      = curvTag->parameters;
+        curve->table_entries = value_count;
     }
 
     return true;
@@ -295,30 +287,21 @@ static bool read_curve(const uint8_t* buf, uint32_t size, skcms_Curve* curve) {
 
 static bool get_transfer_function(const skcms_ICCProfile* profile,
                                   skcms_TransferFunction* transferFunction) {
-    if (!profile || !transferFunction) { return false; }
-    skcms_ICCTag rTRC, gTRC, bTRC;
-    // TODO: Skia code supported some of these being missing, with fallback to others!?
-    if (!skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) ||
-        !skcms_GetTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) ||
-        !skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+    if (!profile || !profile->has_trc || !transferFunction) {
         return false;
     }
 
-    // For each TRC tag, check for either V4 parametric curve data, or special cases of
-    // V2 curve data that encode a numerical gamma curve.
-    skcms_Curve rCurve, gCurve, bCurve;
-    if (!read_curve(rTRC.buf, rTRC.size, &rCurve) || rCurve.table_size ||
-        !read_curve(gTRC.buf, gTRC.size, &gCurve) || gCurve.table_size ||
-        !read_curve(bTRC.buf, bTRC.size, &bCurve) || bCurve.table_size) {
+    const skcms_Curve* trc = profile->trc;
+    if (trc[0].table_entries || trc[1].table_entries || trc[2].table_entries) {
         return false;
     }
 
-    if (0 != memcmp(&rCurve.parametric, &gCurve.parametric, SAFE_SIZEOF(rCurve.parametric)) ||
-        0 != memcmp(&rCurve.parametric, &bCurve.parametric, SAFE_SIZEOF(rCurve.parametric))) {
+    if (0 != memcmp(&trc[0].parametric, &trc[1].parametric, SAFE_SIZEOF(trc[0].parametric)) ||
+        0 != memcmp(&trc[0].parametric, &trc[2].parametric, SAFE_SIZEOF(trc[0].parametric))) {
         return false;
     }
 
-    *transferFunction = rCurve.parametric;
+    *transferFunction = trc[0].parametric;
     return true;
 }
 
@@ -326,23 +309,15 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
                                        skcms_TransferFunction* fn,
                                        float* max_error) {
     if (!profile || !fn) { return false; }
-    skcms_ICCTag rTRC, gTRC, bTRC;
-    if (!skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) ||
-        !skcms_GetTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) ||
-        !skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+
+    const skcms_Curve* curves = profile->trc;
+    if (!curves[0].table_16 || !curves[1].table_16 || !curves[2].table_16) {
         return false;
     }
 
-    skcms_Curve curves[3];
-    if (!read_curve(rTRC.buf, rTRC.size, &curves[0]) || !curves[0].table_16 ||
-        !read_curve(gTRC.buf, gTRC.size, &curves[1]) || !curves[1].table_16 ||
-        !read_curve(bTRC.buf, bTRC.size, &curves[2]) || !curves[2].table_16) {
-        return false;
-    }
-
-    uint64_t n = (uint64_t)curves[0].table_size
-               + (uint64_t)curves[1].table_size
-               + (uint64_t)curves[2].table_size;
+    uint64_t n = (uint64_t)curves[0].table_entries
+               + (uint64_t)curves[1].table_entries
+               + (uint64_t)curves[2].table_entries;
     if (n > INT_MAX) {
         return false;
     }
@@ -359,8 +334,8 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
 
     // Merge all channels' tables into a single array.
     for (int c = 0; c < 3; ++c) {
-        for (uint32_t i = 0; i < curves[c].table_size; ++i) {
-            *x++ = i / (curves[c].table_size - 1.0f);
+        for (uint32_t i = 0; i < curves[c].table_entries; ++i) {
+            *x++ = i / (curves[c].table_entries - 1.0f);
             *t++ = read_big_u16(curves[c].table_16 + 2 * i) * (1 / 65535.0f);
         }
     }
@@ -465,6 +440,15 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     }
 
     // Pre-parse commonly used tags.
+    skcms_ICCTag rTRC, gTRC, bTRC;
+    profile->has_trc =
+        skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) &&
+        skcms_GetTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) &&
+        skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC) &&
+        read_curve(rTRC.buf, rTRC.size, &profile->trc[0]) &&
+        read_curve(gTRC.buf, gTRC.size, &profile->trc[1]) &&
+        read_curve(bTRC.buf, bTRC.size, &profile->trc[2]);
+
     profile->has_tf       = get_transfer_function(profile, &profile->tf);
     profile->has_toXYZD50 = read_to_XYZD50       (profile, &profile->toXYZD50);
 

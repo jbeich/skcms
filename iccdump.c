@@ -37,6 +37,25 @@ static void dump_sig_field(const char* name, uint32_t val) {
     printf("%20s : 0x%08X : '%s'\n", name, val, valStr);
 }
 
+static void dump_transfer_function(const char* name, const skcms_TransferFunction* tf) {
+    printf("%4s : %f, %f, %f, %f, %f, %f, %f", name,
+           (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
+           (double)tf->d, (double)tf->e, (double)tf->f);
+    if (skcms_IsSRGB(tf)) {
+        printf(" (sRGB)");
+    }
+    printf("\n");
+}
+
+static void dump_curve(const char* name, const skcms_Curve* curve) {
+    if (curve->table_entries) {
+        printf("%4s : %d-bit table with %u entries\n", name,
+               curve->table_8 ? 8 : 16, curve->table_entries);
+    } else {
+        dump_transfer_function(name, &curve->parametric);
+    }
+}
+
 int main(int argc, char** argv) {
     if (argc != 2) {
         printf("usage: %s <ICC filename>\n", argv[0]);
@@ -113,19 +132,18 @@ int main(int argc, char** argv) {
     skcms_TransferFunction tf;
     float max_error;
     if (profile.has_tf) {
-        tf = profile.tf;
-        printf("TRC : %f, %f, %f, %f, %f, %f, %f",
-               (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
-               (double)tf.d, (double)tf.e, (double)tf.f);
-        if (skcms_IsSRGB(&tf)) {
-            printf(" (sRGB)");
-        }
-        printf("\n");
+        dump_transfer_function("TRC", &profile.tf);
     } else if (skcms_ApproximateTransferFunction(&profile, &tf, &max_error)) {
         printf("~TRC: %f, %f, %f, %f, %f, %f, %f  (Max error: %f)\n",
                (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                (double)tf.d, (double)tf.e, (double)tf.f, (double)max_error);
+    }
 
+    if (!profile.has_tf && profile.has_trc) {
+        const char* trcNames[3] = { "rTRC", "gTRC", "bTRC" };
+        for (int i = 0; i < 3; ++i) {
+            dump_curve(trcNames[i], &profile.trc[i]);
+        }
     }
 
     if (profile.has_toXYZD50) {
