@@ -101,7 +101,7 @@ static double svg_map_y(double y) {
     return (1.0 - y) * kSVGScaleY + kSVGMarginTop;
 }
 
-static void dump_curves_svg(const char* name, const skcms_Curve* curve) {
+static void dump_curves_svg(const char* name, uint32_t num_curves, const skcms_Curve* curves) {
     char filename[256];
     snprintf(filename, sizeof(filename), "%s.svg", name);
     FILE* fp = fopen(filename, "wb");
@@ -117,10 +117,12 @@ static void dump_curves_svg(const char* name, const skcms_Curve* curve) {
             svg_map_x(0), svg_map_y(1), svg_map_x(0), svg_map_y(0), svg_map_x(1), svg_map_y(0));
 
     // Curves
-    static const char* colors[3] = { "red", "green", "blue" };
-    for (int c = 0; c < 3; ++c) {
-        uint32_t num_entries = curve[c].table_entries ? curve[c].table_entries : 256;
-        double yScale = curve[c].table_8 ? (1.0 / 255) : curve[c].table_16 ? (1.0 / 65535) : 1.0;
+    const char* rgb_colors[3] = { "red", "green", "blue" };
+    const char* cmyk_colors[4] = { "cyan", "magenta", "yellow", "black" };
+    const char** colors = (num_curves == 3) ? rgb_colors : cmyk_colors;
+    for (uint32_t c = 0; c < num_curves; ++c) {
+        uint32_t num_entries = curves[c].table_entries ? curves[c].table_entries : 256;
+        double yScale = curves[c].table_8 ? (1.0 / 255) : curves[c].table_16 ? (1.0 / 65535) : 1.0;
 
         fprintf(fp, "<polyline fill=\"none\" stroke=\"%s\" vector-effect=\"non-scaling-stroke\" "
                     "transform=\"matrix(%f 0 0 %f %f %f)\" points=\"\n",
@@ -129,13 +131,13 @@ static void dump_curves_svg(const char* name, const skcms_Curve* curve) {
                 kSVGMarginLeft, kSVGScaleY + kSVGMarginTop);
 
         for (uint32_t i = 0; i < num_entries; ++i) {
-            if (curve[c].table_8) {
-                fprintf(fp, "%3u, %3u\n", i, curve[c].table_8[i]);
-            } else if (curve[c].table_16) {
-                fprintf(fp, "%4u, %5u\n", i, read_big_u16(curve[c].table_16 + 2 * i));
+            if (curves[c].table_8) {
+                fprintf(fp, "%3u, %3u\n", i, curves[c].table_8[i]);
+            } else if (curves[c].table_16) {
+                fprintf(fp, "%4u, %5u\n", i, read_big_u16(curves[c].table_16 + 2 * i));
             } else {
                 double x = i / (num_entries - 1.0);
-                double t = (double)skcms_TransferFunction_eval(&curve[c].parametric, (float)x);
+                double t = (double)skcms_TransferFunction_eval(&curves[c].parametric, (float)x);
                 fprintf(fp, "%f, %f\n", x, t);
             }
         }
@@ -251,7 +253,7 @@ int main(int argc, char** argv) {
     }
 
     if (svg && profile.has_trc) {
-        dump_curves_svg(filename, profile.trc);
+        dump_curves_svg(filename, 3, profile.trc);
     }
 
     if (profile.has_toXYZD50) {
@@ -262,6 +264,61 @@ int main(int argc, char** argv) {
                (double)toXYZ.vals[0][0], (double)toXYZ.vals[0][1], (double)toXYZ.vals[0][2],
                (double)toXYZ.vals[1][0], (double)toXYZ.vals[1][1], (double)toXYZ.vals[1][2],
                (double)toXYZ.vals[2][0], (double)toXYZ.vals[2][1], (double)toXYZ.vals[2][2]);
+    }
+
+    if (profile.has_A2B) {
+        const skcms_A2B* a2b = &profile.A2B;
+        printf(" A2B : %s%s\"B\"\n", a2b->input_channels ? "\"A\", CLUT, " : "",
+                                     a2b->matrix_channels ? "\"M\", Matrix, " : "");
+        if (a2b->input_channels) {
+            printf("%4s : %u inputs\n", "\"A\"", a2b->input_channels);
+            const char* curveNames[4] = { "A0", "A1", "A2", "A3" };
+            for (uint32_t i = 0; i < a2b->input_channels; ++i) {
+                dump_curve(curveNames[i], &a2b->input_curves[i], verbose);
+            }
+            printf("%4s : ", "CLUT");
+            const char* sep = "";
+            for (uint32_t i = 0; i < a2b->input_channels; ++i) {
+                printf("%s%u", sep, a2b->grid_points[i]);
+                sep = " x ";
+            }
+            printf(" (%d bpp)\n", a2b->grid_8 ? 8 : 16);
+
+            if (svg) {
+                dump_curves_svg("A_curves", a2b->input_channels, a2b->input_curves);
+            }
+        }
+
+        if (a2b->matrix_channels) {
+            printf("%4s : %u inputs\n", "\"M\"", a2b->matrix_channels);
+            const char* curveNames[4] = { "M0", "M1", "M2" };
+            for (uint32_t i = 0; i < a2b->matrix_channels; ++i) {
+                dump_curve(curveNames[i], &a2b->matrix_curves[i], verbose);
+            }
+            const skcms_Matrix3x4* m = &a2b->matrix;
+            printf("Mtrx : | %.7f %.7f %.7f %.7f |\n"
+                   "       | %.7f %.7f %.7f %.7f |\n"
+                   "       | %.7f %.7f %.7f %.7f |\n",
+                   (double)m->vals[0][0], (double)m->vals[0][1], (double)m->vals[0][2], (double)m->vals[0][3],
+                   (double)m->vals[1][0], (double)m->vals[1][1], (double)m->vals[1][2], (double)m->vals[1][3],
+                   (double)m->vals[2][0], (double)m->vals[2][1], (double)m->vals[2][2], (double)m->vals[2][3]);
+
+            if (svg) {
+                dump_curves_svg("M_curves", a2b->matrix_channels, a2b->matrix_curves);
+            }
+        }
+
+        {
+            printf("%4s : %u outputs\n", "\"B\"", a2b->output_channels);
+            const char* curveNames[3] = { "B0", "B1", "B2" };
+            for (uint32_t i = 0; i < a2b->output_channels; ++i) {
+                dump_curve(curveNames[i], &a2b->output_curves[i], verbose);
+            }
+
+            if (svg) {
+                dump_curves_svg("B_curves", a2b->output_channels, a2b->output_curves);
+            }
+        }
     }
     return 0;
 }
