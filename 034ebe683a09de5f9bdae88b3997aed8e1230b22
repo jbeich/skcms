@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12bd93c6_78d1b9d0",
+        "filename": "iccdump.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-22T15:48:48Z",
+      "side": 1,
+      "message": "Ha, I figured you\u0027d just dump it to stdout and let the user redirect.  How nice of you.",
+      "revId": "034ebe683a09de5f9bdae88b3997aed8e1230b22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "659248d6_babb052c",
+        "filename": "iccdump.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-22T15:48:48Z",
+      "side": 1,
+      "message": "We missed a major opportunity to draw these colors using the profile\u0027s primaries... though I guess we can\u0027t go outside sRGB here in SVG?",
+      "range": {
+        "startLine": 122,
+        "startChar": 45,
+        "endLine": 122,
+        "endChar": 58
+      },
+      "revId": "034ebe683a09de5f9bdae88b3997aed8e1230b22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
