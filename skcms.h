@@ -22,6 +22,11 @@ typedef struct {
     float vals[3][3];
 } skcms_Matrix3x3;
 
+// A row-major 3x4 matrix (ie vals[row][col])
+typedef struct {
+    float vals[3][4];
+} skcms_Matrix3x4;
+
 // A transfer function mapping encoded values to linear values,
 // represented by this 7-parameter piecewise function:
 //
@@ -60,7 +65,7 @@ typedef struct {
     // Otherwise, matrix_channels must be 3.
     uint32_t        matrix_channels;
     skcms_Curve     matrix_curves[3];
-    skcms_Matrix3x3 matrix;
+    skcms_Matrix3x4 matrix;
 
     // Required: 3 1D curves. Always present, and output_channels must be 3.
     uint32_t        output_channels;
