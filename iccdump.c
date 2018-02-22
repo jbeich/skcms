@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    FILE* fp = fopen(argv[1], "rb");
+    FILE* fp = fopen(filename, "rb");
     if (!fp) {
         fatal("Unable to open input file");
     }
