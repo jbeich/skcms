@@ -14,6 +14,7 @@
 #endif
 
 #include "skcms.h"
+#include "src/TransferFunction.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,20 +85,79 @@ static void dump_curve(const char* name, const skcms_Curve* curve, bool verbose)
     }
 }
 
+static const double kSVGMarginLeft   = 100.0;
+static const double kSVGMarginRight  = 10.0;
+static const double kSVGMarginTop    = 10.0;
+static const double kSVGMarginBottom = 50.0;
+
+static const double kSVGScaleX = 800.0;
+static const double kSVGScaleY = 800.0;
+
+static double svg_map_x(double x) {
+    return x * kSVGScaleX + kSVGMarginLeft;
+}
+
+static double svg_map_y(double y) {
+    return (1.0 - y) * kSVGScaleY + kSVGMarginTop;
+}
+
+static void dump_curves_svg(const char* name, const skcms_Curve* curve) {
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s.svg", name);
+    FILE* fp = fopen(filename, "wb");
+    if (!fp) {
+        return;
+    }
+
+    fprintf(fp, "<svg width=\"%f\" height=\"%f\" xmlns=\"http://www.w3.org/2000/svg\">\n",
+            kSVGMarginLeft + kSVGScaleX + kSVGMarginRight,
+            kSVGMarginTop + kSVGScaleY + kSVGMarginBottom);
+    // Axes
+    fprintf(fp, "<polyline fill=\"none\" stroke=\"black\" points=\"%f,%f %f,%f %f,%f\"/>\n",
+            svg_map_x(0), svg_map_y(1), svg_map_x(0), svg_map_y(0), svg_map_x(1), svg_map_y(0));
+
+    // Curves
+    static const char* colors[3] = { "red", "green", "blue" };
+    for (int c = 0; c < 3; ++c) {
+        fprintf(fp, "<polyline fill=\"none\" stroke=\"%s\" points=\"\n", colors[c]);
+
+        uint32_t num_entries = curve[c].table_entries ? curve[c].table_entries : 256;
+        for (uint32_t i = 0; i < num_entries; ++i) {
+            double x = i / (num_entries - 1.0);
+            double t;
+            if (curve[c].table_8) {
+                t = curve[c].table_8[i] * (1.0 / 255);
+            } else if (curve[c].table_16) {
+                t = read_big_u16(curve[c].table_16 + 2 * i) * (1.0 / 65535);
+            } else {
+                t = (double)skcms_TransferFunction_eval(&curve[c].parametric, (float)x);
+            }
+            fprintf(fp, "%f,%f\n", svg_map_x(x), svg_map_y(t));
+        }
+        fprintf(fp, "\"/>\n");
+    }
+
+    fprintf(fp, "</svg>\n");
+    fclose(fp);
+}
+
 int main(int argc, char** argv) {
     const char* filename = NULL;
     bool verbose = false;
+    bool svg = false;
 
     for (int i = 1; i < argc; ++i) {
         if (0 == strcmp(argv[i], "-v")) {
             verbose = true;
+        } else if (0 == strcmp(argv[i], "-s")) {
+            svg = true;
         } else {
             filename = argv[i];
         }
     }
 
     if (!filename) {
-        printf("usage: %s [-v] <ICC filename>\n", argv[0]);
+        printf("usage: %s [-v] [-s] <ICC filename>\n", argv[0]);
         return 1;
     }
 
@@ -183,6 +243,10 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 3; ++i) {
             dump_curve(trcNames[i], &profile.trc[i], verbose);
         }
+    }
+
+    if (svg && profile.has_trc) {
+        dump_curves_svg(filename, profile.trc);
     }
 
     if (profile.has_toXYZD50) {
