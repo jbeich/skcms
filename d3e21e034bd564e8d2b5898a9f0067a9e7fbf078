@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bcbc3bfa_02a9ced8",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-22T14:57:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25153374_32d9849a",
+      "range": {
+        "startLine": 49,
+        "startChar": 17,
+        "endLine": 49,
+        "endChar": 26
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3598ca23_a0f18736",
         "filename": "skcms.h",
         "patchSetId": 18
@@ -45,6 +69,30 @@
       "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b372777e_d7adc06b",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-22T14:57:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3598ca23_a0f18736",
+      "range": {
+        "startLine": 54,
+        "startChar": 20,
+        "endLine": 54,
+        "endChar": 31
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a91e7451_e2044475",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-22T14:57:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0687f504_80c65702",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 61,
+        "endChar": 7
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b7a4940_e290fd1f",
         "filename": "skcms.h",
         "patchSetId": 18
@@ -82,6 +154,30 @@
       "writtenOn": "2018-02-21T22:42:22Z",
       "side": 1,
       "message": "So, silly question...",
+      "range": {
+        "startLine": 65,
+        "startChar": 28,
+        "endLine": 66,
+        "endChar": 36
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "064ffcf1_b15b0b47",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-22T14:57:07Z",
+      "side": 1,
+      "message": "I know. This was about the code that applies these, and also computes derived table/grid sizes. That number (3) is needed in several places, and giving it a name makes it clear how they\u0027re linked. It could just be a named constant (or ARRAY_COUNT(output_curves), but I wasn\u0027t sure that deviating from the input_channels/matrix_channels pattern was worth it?)",
+      "parentUuid": "6b7a4940_e290fd1f",
       "range": {
         "startLine": 65,
         "startChar": 28,
@@ -111,6 +207,24 @@
     },
     {
       "key": {
+        "uuid": "ff8b99fb_de2565f9",
+        "filename": "skcms.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-22T14:57:07Z",
+      "side": 1,
+      "message": "There are profiles with both A2B and TRC/XYZ tags. In Skia, I think we want to favor the XYZ/TRC data, so we can construct an SkColorSpace. But for standalone transform usage, I\u0027d favor using the A2B data, as it may be more accurate, etc... We could slice this problem several ways:\n\n1) Current path - Profile extracts all possible data separately, client can pick out the fields they want to use.\n2) union+type - Parse takes a flag indicating which representation is preferred/requested?\n\nLess appealing:\n\n3) transform with XYZ/TRC in profiles that have both.\n4) Treat profiles that have both as A2B in Skia, forcing us to transform to a pure XYZ profile before use.",
+      "parentUuid": "1637c87a_534023d5",
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "26c19cb6_9d3b67e7",
         "filename": "src/ICCProfile.c",
         "patchSetId": 18
@@ -122,6 +236,30 @@
       "writtenOn": "2018-02-21T22:42:22Z",
       "side": 1,
       "message": "Is this _too_ cute have an array of 1 struct?",
+      "range": {
+        "startLine": 363,
+        "startChar": 4,
+        "endLine": 363,
+        "endChar": 38
+      },
+      "revId": "d3e21e034bd564e8d2b5898a9f0067a9e7fbf078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "659d6312_95819237",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-22T14:57:07Z",
+      "side": 1,
+      "message": "I originally had it without the array, and I\u0027m not sold on either version. This uses the formatting to call attention to the field, which otherwise wasn\u0027t as prominent.",
+      "parentUuid": "26c19cb6_9d3b67e7",
       "range": {
         "startLine": 363,
         "startChar": 4,
