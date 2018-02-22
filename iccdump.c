@@ -119,20 +119,25 @@ static void dump_curves_svg(const char* name, const skcms_Curve* curve) {
     // Curves
     static const char* colors[3] = { "red", "green", "blue" };
     for (int c = 0; c < 3; ++c) {
-        fprintf(fp, "<polyline fill=\"none\" stroke=\"%s\" points=\"\n", colors[c]);
-
         uint32_t num_entries = curve[c].table_entries ? curve[c].table_entries : 256;
+        double yScale = curve[c].table_8 ? (1.0 / 255) : curve[c].table_16 ? (1.0 / 65535) : 1.0;
+
+        fprintf(fp, "<polyline fill=\"none\" stroke=\"%s\" vector-effect=\"non-scaling-stroke\" "
+                    "transform=\"matrix(%f 0 0 %f %f %f)\" points=\"\n",
+                colors[c],
+                kSVGScaleX / (num_entries - 1.0), -kSVGScaleY * yScale,
+                kSVGMarginLeft, kSVGScaleY + kSVGMarginTop);
+
         for (uint32_t i = 0; i < num_entries; ++i) {
-            double x = i / (num_entries - 1.0);
-            double t;
             if (curve[c].table_8) {
-                t = curve[c].table_8[i] * (1.0 / 255);
+                fprintf(fp, "%3u, %3u\n", i, curve[c].table_8[i]);
             } else if (curve[c].table_16) {
-                t = read_big_u16(curve[c].table_16 + 2 * i) * (1.0 / 65535);
+                fprintf(fp, "%4u, %5u\n", i, read_big_u16(curve[c].table_16 + 2 * i));
             } else {
-                t = (double)skcms_TransferFunction_eval(&curve[c].parametric, (float)x);
+                double x = i / (num_entries - 1.0);
+                double t = (double)skcms_TransferFunction_eval(&curve[c].parametric, (float)x);
+                fprintf(fp, "%f, %f\n", x, t);
             }
-            fprintf(fp, "%f,%f\n", svg_map_x(x), svg_map_y(t));
         }
         fprintf(fp, "\"/>\n");
     }
