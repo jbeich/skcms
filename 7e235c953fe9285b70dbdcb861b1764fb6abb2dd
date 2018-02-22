@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78913c2c_97c7c9a8",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-22T18:20:05Z",
+      "side": 1,
+      "message": "Might be reassuring to note the possible ranges of some of these values?",
+      "revId": "7e235c953fe9285b70dbdcb861b1764fb6abb2dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
