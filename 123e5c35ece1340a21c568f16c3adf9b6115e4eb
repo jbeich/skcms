@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86a175af_40756804",
+        "filename": "fuzz/fuzz_iccprofile_info.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-22T16:23:30Z",
+      "side": 1,
+      "message": "We want to do the same for has_trc and its table values, right?",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 44,
+        "endChar": 20
+      },
+      "revId": "123e5c35ece1340a21c568f16c3adf9b6115e4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae872a24_3938c4b0",
+        "filename": "skcms.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-22T16:23:30Z",
+      "side": 1,
+      "message": "Think it makes sense to keep these uint8_t?  It\u0027ll help us remember that\u0027s as big as they get in the profile.",
+      "revId": "123e5c35ece1340a21c568f16c3adf9b6115e4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0d2d9fa_fd5b57f0",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-22T16:23:30Z",
+      "side": 1,
+      "message": "For these multiplies, don\u0027t we need to pre-promote at least one of the multiplicands to uint64_t?  Otherwise it\u0027s a uint32_t multiply followed by a promotion to uint64_t, right?",
+      "range": {
+        "startLine": 408,
+        "startChar": 41,
+        "endLine": 408,
+        "endChar": 73
+      },
+      "revId": "123e5c35ece1340a21c568f16c3adf9b6115e4eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
