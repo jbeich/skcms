@@ -41,4 +41,4 @@ else:  # Windows
   os.environ['LIB'] += win_toolchain + '\\win_sdk\\Lib\\10.0.15063.0\\um\\x64;'
   os.environ['LIB'] += win_toolchain + '\\win_sdk\\Lib\\10.0.15063.0\\ucrt\\x64;'
 
-  call('{ninja}\\ninja.exe -C skcms -f build\\msvs -k 0'.format(ninja=ninja))
+  call('{ninja}\\ninja.exe -C skcms -f msvs.ninja -k 0'.format(ninja=ninja))

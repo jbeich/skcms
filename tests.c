@@ -7,6 +7,7 @@
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
+#pragma warning( disable : 6011 ) // dereferencing NULL pointer (from malloc)
 #endif
 
 #include "skcms.h"
@@ -998,7 +999,7 @@ static void test_sRGB_AllBytes() {
     uint8_t src[258],
             dst[258];
     for (int i = 0; i < 258; i++) {
-        src[i] = (uint8_t)i;  // (We don't really care about bytes 256 and 257.)
+        src[i] = (uint8_t)(i & 0xFF);  // (We don't really care about bytes 256 and 257.)
     }
 
     expect( skcms_Transform(src, skcms_PixelFormat_RGB_888, &sRGB,
@@ -1013,7 +1014,7 @@ static void test_sRGB_AllBytes() {
         if (i == 220) { expect(expected == 183); expected = 182; }
 
         if (dst[i] != expected) {
-            fprintf(stderr, "%d -> %d, want %d\n", i, dst[i], expected);
+            fprintf(stderr, "%d -> %u, want %u\n", i, dst[i], expected);
         }
 
         expect(dst[i] == expected);
