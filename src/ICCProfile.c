@@ -698,8 +698,6 @@ static bool read_a2b(const skcms_ICCProfile* profile, skcms_A2B* a2b) {
         return read_tag_mab(&tag, a2b);
     }
 
-    // TODO: Also parse lutAtoBType ('mAB ')
-
     return false;
 }
 
