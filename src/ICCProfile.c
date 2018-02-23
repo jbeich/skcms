@@ -393,9 +393,6 @@ static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_A2B* a2b) {
     a2b->matrix_channels = 0;
 
     a2b->input_channels  = mftTag->input_channels[0];
-    for (uint32_t i = 0; i < a2b->input_channels; ++i) {
-        a2b->grid_points[i] = mftTag->grid_points[0];
-    }
     a2b->output_channels = mftTag->output_channels[0];
 
     // We require exactly three (ie XYZ/Lab/RGB) output channels
@@ -405,6 +402,10 @@ static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_A2B* a2b) {
     // We require at least one, and no more than four (ie CMYK) input channels
     if (a2b->input_channels < 1 || a2b->input_channels > ARRAY_COUNT(a2b->input_curves)) {
         return false;
+    }
+
+    for (uint32_t i = 0; i < a2b->input_channels; ++i) {
+        a2b->grid_points[i] = mftTag->grid_points[0];
     }
     // The grid only makes sense with at least two points along each axis
     if (a2b->grid_points[0] < 2) {
