@@ -37,6 +37,9 @@ int main(int argc, char** argv) {
     size_t len = (size_t)slen;
     rewind(fp);
     void* data = malloc(len);
+    if (!data) {
+        return 1;
+    }
     size_t size = fread(data, 1, len, fp);
     fclose(fp);
     if (size != len) {

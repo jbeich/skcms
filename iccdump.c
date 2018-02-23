@@ -65,7 +65,9 @@ static void dump_curve(const char* name, const skcms_Curve* curve, bool verbose)
                curve->table_8 ? 8 : 16, curve->table_entries);
         if (verbose) {
             char filename[32];
-            snprintf(filename, sizeof(filename), "%s.csv", name);
+            if (snprintf(filename, sizeof(filename), "%s.csv", name) < 0) {
+                return;
+            }
             FILE* fp = fopen(filename, "wb");
             if (fp) {
                 for (uint32_t i = 0; i < curve->table_entries; ++i) {
@@ -103,7 +105,9 @@ static double svg_map_y(double y) {
 
 static void dump_curves_svg(const char* name, const skcms_Curve* curve) {
     char filename[256];
-    snprintf(filename, sizeof(filename), "%s.svg", name);
+    if (snprintf(filename, sizeof(filename), "%s.svg", name) < 0) {
+        return;
+    }
     FILE* fp = fopen(filename, "wb");
     if (!fp) {
         return;
@@ -180,6 +184,9 @@ int main(int argc, char** argv) {
     rewind(fp);
 
     void* buf = malloc(len);
+    if (!buf) {
+        fatal("malloc failed");
+    }
     size_t bytesRead = fread(buf, 1, len, fp);
     fclose(fp);
     if (bytesRead != len) {
