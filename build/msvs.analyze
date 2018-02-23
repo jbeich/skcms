@@ -1,0 +1,5 @@
+mode         = .analyze
+extra_cflags = /analyze /RTCcsu
+include build/msvs
+
+# Consider /guard:cf ?
