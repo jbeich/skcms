@@ -340,6 +340,9 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
         return false;
     }
     float* data = malloc((size_t)buf_size);
+    if (!data) {
+        return false;
+    }
 
     float* x = data;
     float* t = data + n;

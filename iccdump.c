@@ -180,6 +180,9 @@ int main(int argc, char** argv) {
     rewind(fp);
 
     void* buf = malloc(len);
+    if (!buf) {
+        fatal("malloc failed");
+    }
     size_t bytesRead = fread(buf, 1, len, fp);
     fclose(fp);
     if (bytesRead != len) {
