@@ -14,6 +14,7 @@
 #endif
 
 #include "skcms.h"
+#include "src/Macros.h"
 #include "src/TransferFunction.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -146,23 +147,88 @@ static void dump_curves_svg(const char* name, const skcms_Curve* curve) {
     fclose(fp);
 }
 
+static void dump_curve_test_data(const skcms_Curve* c) {
+    const skcms_TransferFunction* p = &c->parametric;
+    printf("        { { %ff, %ff, %ff, %ff, %ff, %ff, %ff }, %s, %s, %u },\n",
+           p->g, p->a, p->b, p->c, p->d, p->e, p->f,
+           c->table_8 ? "NOT_NULL" : "NULL",
+           c->table_16 ? "NOT_NULL" : "NULL",
+           c->table_entries);
+}
+
+static void dump_curves_test_data(uint32_t num_channels, uint32_t num_curves,
+                                  const skcms_Curve* curves) {
+    printf("    %u, {\n", num_channels);
+    for (uint32_t i = 0; i < num_curves; ++i) {
+        dump_curve_test_data(curves + i);
+    }
+    printf("    },\n");
+}
+
+static void dump_a2b_test_data(const char* filename, const skcms_A2B* a2b) {
+    char* namecopy = malloc(strlen(filename) + 1);
+    if (!namecopy) {
+        fatal("malloc failed");
+    }
+    strcpy(namecopy, filename);
+    char* ext = strrchr(namecopy, '.');
+    if (ext) {
+        *ext = '\0';
+    }
+    char* basename = namecopy;
+    char* sep1 = strrchr(namecopy, '/');
+    if (sep1) {
+        basename = sep1 + 1;
+    }
+    char* sep2 = strrchr(namecopy, '\\');
+    if (sep2 && sep2 > basename) {
+        basename = sep2 + 1;
+    }
+
+    printf("static const skcms_A2B %s_A2B = {\n", basename);
+    dump_curves_test_data(a2b->input_channels, ARRAY_COUNT(a2b->input_curves), a2b->input_curves);
+    printf("    { %u, %u, %u, %u },\n",
+           a2b->grid_points[0], a2b->grid_points[1], a2b->grid_points[2], a2b->grid_points[3]);
+    printf("    %s, %s,\n", a2b->grid_8 ? "NOT_NULL" : "NULL", a2b->grid_16 ? "NOT_NULL" : "NULL");
+
+    dump_curves_test_data(a2b->matrix_channels, ARRAY_COUNT(a2b->matrix_curves),
+                          a2b->matrix_curves);
+    const skcms_Matrix3x4* m = &a2b->matrix;
+    printf("    { { { %ff, %ff, %ff, %ff },\n",
+           m->vals[0][0], m->vals[0][1], m->vals[0][2], m->vals[0][3]);
+    printf("        { %ff, %ff, %ff, %ff },\n",
+           m->vals[1][0], m->vals[1][1], m->vals[1][2], m->vals[1][3]);
+    printf("        { %ff, %ff, %ff, %ff } } },\n",
+           m->vals[2][0], m->vals[2][1], m->vals[2][2], m->vals[2][3]);
+
+    dump_curves_test_data(a2b->output_channels, ARRAY_COUNT(a2b->output_curves),
+                          a2b->output_curves);
+
+    printf("};\n");
+
+    free(namecopy);
+}
+
 int main(int argc, char** argv) {
     const char* filename = NULL;
     bool verbose = false;
     bool svg = false;
+    bool test = false;
 
     for (int i = 1; i < argc; ++i) {
         if (0 == strcmp(argv[i], "-v")) {
             verbose = true;
         } else if (0 == strcmp(argv[i], "-s")) {
             svg = true;
+        } else if (0 == strcmp(argv[i], "-t")) {
+            test = true;
         } else {
             filename = argv[i];
         }
     }
 
     if (!filename) {
-        printf("usage: %s [-v] [-s] <ICC filename>\n", argv[0]);
+        printf("usage: %s [-t] [-v] [-s] <ICC filename>\n", argv[0]);
         return 1;
     }
 
@@ -189,6 +255,13 @@ int main(int argc, char** argv) {
     skcms_ICCProfile profile;
     if (!skcms_Parse(buf, bytesRead, &profile)) {
         fatal("Unable to parse ICC profile");
+    }
+
+    if (test) {
+        if (profile.has_A2B) {
+            dump_a2b_test_data(filename, &profile.A2B);
+        }
+        return 0;
     }
 
     printf("%20s : 0x%08X : %u\n", "Size", profile.size, profile.size);
