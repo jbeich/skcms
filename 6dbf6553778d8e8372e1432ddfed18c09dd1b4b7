@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe9a736c_44fcaccb",
+        "filename": "build/msvs.analyze",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-26T14:30:27Z",
+      "side": 1,
+      "message": "This one is particularly neat.",
+      "range": {
+        "startLine": 2,
+        "startChar": 29,
+        "endLine": 2,
+        "endChar": 30
+      },
+      "revId": "6dbf6553778d8e8372e1432ddfed18c09dd1b4b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
