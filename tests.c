@@ -485,88 +485,92 @@ static const skcms_Matrix3x3 ph1_to_xyz = { { { 0.6479034f, 0.3573608f, 0.156417
                                               { 0.3829193f, 1.1097260f, 0.0000000f },
                                               { 0.0832672f, 0.6792755f, 0.5234222f } } };
 
+#define NOT_NULL (void*)0x1
+#include "profiles/a2b.h"
+
 typedef struct {
     const char*                   filename;
     bool                          expect_parse;
     const skcms_TransferFunction* expect_exact_tf;
     const skcms_TransferFunction* expect_approx_tf;
     const skcms_Matrix3x3*        expect_xyz;
+    const skcms_A2B*              expect_a2b;
 } ProfileTestCase;
 
 static const ProfileTestCase profile_test_cases[] = {
     // iccMAX profiles that we can't parse at all
-    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, NULL, NULL, NULL },
-    { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL, NULL, NULL },
-    { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL, NULL, NULL },
+    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, NULL, NULL, NULL, NULL },
+    { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL, NULL, NULL, NULL },
+    { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL, NULL, NULL, NULL },
 
     // V2 or V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
-    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true, NULL, NULL, NULL },
-    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true, NULL, NULL, NULL },
-    { "profiles/color.org/Upper_Left.icc",             true, NULL, NULL, NULL },
-    { "profiles/color.org/Upper_Right.icc",            true, NULL, NULL, NULL },
-    { "profiles/misc/Apple_Wide_Color.icc",            true, NULL, NULL, NULL },
-    { "profiles/misc/Coated_FOGRA39_CMYK.icc",         true, NULL, NULL, NULL },
-    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",   true, NULL, NULL, NULL }, // Has kTRC. Broken tag table, but A2B0 parses okay
-    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  true, NULL, NULL, NULL }, // Has kTRC.
-    { "profiles/misc/Japan_Color_2001_Coated.icc",     true, NULL, NULL, NULL },
-    { "profiles/misc/Lexmark_X110.icc",                true, NULL, NULL, NULL },
-    { "profiles/misc/MartiMaria_browsertest_A2B.icc",  true, NULL, NULL, NULL },
-    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   true, NULL, NULL, NULL }, // Has kTRC.
-    { "profiles/misc/sRGB_ICC_v4_beta.icc",            true, NULL, NULL, NULL },
-    { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     true, NULL, NULL, NULL },
-    { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     true, NULL, NULL, NULL },
-    { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      true, NULL, NULL, NULL },
+    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true, NULL, NULL, NULL, &sRGB_ICC_v4_Appearance_A2B },
+    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true, NULL, NULL, NULL, &sRGB_v4_ICC_preference_A2B },
+    { "profiles/color.org/Upper_Left.icc",             true, NULL, NULL, NULL, &Upper_Left_A2B },
+    { "profiles/color.org/Upper_Right.icc",            true, NULL, NULL, NULL, &Upper_Right_A2B },
+    { "profiles/misc/Apple_Wide_Color.icc",            true, NULL, NULL, NULL, &Apple_Wide_Color_A2B },
+    { "profiles/misc/Coated_FOGRA39_CMYK.icc",         true, NULL, NULL, NULL, &Coated_FOGRA39_CMYK_A2B },
+    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",   true, NULL, NULL, NULL, NULL }, // Has kTRC. Broken tag table, and A2B0 fails to parse
+    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  true, NULL, NULL, NULL, &ColorLogic_ISO_Coated_CMYK_A2B }, // Has kTRC.
+    { "profiles/misc/Japan_Color_2001_Coated.icc",     true, NULL, NULL, NULL, &Japan_Color_2001_Coated_A2B },
+    { "profiles/misc/Lexmark_X110.icc",                true, NULL, NULL, NULL, &Lexmark_X110_A2B },
+    { "profiles/misc/MartiMaria_browsertest_A2B.icc",  true, NULL, NULL, NULL, &MartiMaria_browsertest_A2B_A2B },
+    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   true, NULL, NULL, NULL, &PrintOpen_ISO_Coated_CMYK_A2B }, // Has kTRC.
+    { "profiles/misc/sRGB_ICC_v4_beta.icc",            true, NULL, NULL, NULL, &sRGB_ICC_v4_beta_A2B },
+    { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     true, NULL, NULL, NULL, &SWOP_Coated_20_GCR_CMYK_A2B },
+    { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     true, NULL, NULL, NULL, &US_Web_Coated_SWOP_CMYK_A2B },
+    { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      true, NULL, NULL, NULL, &XRite_GRACol7_340_CMYK_A2B },
 
     // V2 monochrome output profiles that include kTRC but no A2B
-    { "profiles/misc/Dot_Gain_20_Grayscale.icc",       true, NULL, NULL, NULL }, // kTRC table
-    { "profiles/misc/Gray_Gamma_22.icc",               true, NULL, NULL, NULL }, // kTRC gamma
+    { "profiles/misc/Dot_Gain_20_Grayscale.icc",       true, NULL, NULL, NULL, NULL }, // kTRC table
+    { "profiles/misc/Gray_Gamma_22.icc",               true, NULL, NULL, NULL, NULL }, // kTRC gamma
 
     // V4 profiles with parametric TRC curves and XYZ
-    { "profiles/mobile/Display_P3_parametric.icc",     true, &srgb_transfer_fn, NULL, &p3_to_xyz },
-    { "profiles/mobile/sRGB_parametric.icc",           true, &srgb_transfer_fn, NULL, &srgb_to_xyz },
-    { "profiles/mobile/iPhone7p.icc",                  true, &srgb_transfer_fn, NULL, &p3_to_xyz },
-    { "profiles/misc/sRGB_lcms.icc",                   true, &srgb_transfer_fn, NULL, &srgb_lcms_to_xyz },
+    { "profiles/mobile/Display_P3_parametric.icc",     true, &srgb_transfer_fn, NULL, &p3_to_xyz,        NULL },
+    { "profiles/mobile/sRGB_parametric.icc",           true, &srgb_transfer_fn, NULL, &srgb_to_xyz,      NULL },
+    { "profiles/mobile/iPhone7p.icc",                  true, &srgb_transfer_fn, NULL, &p3_to_xyz,        NULL },
+    { "profiles/misc/sRGB_lcms.icc",                   true, &srgb_transfer_fn, NULL, &srgb_lcms_to_xyz, NULL },
 
     // V4 profiles with LUT TRC curves and XYZ
-    { "profiles/mobile/Display_P3_LUT.icc",            true, NULL, &srgb_transfer_fn, &p3_to_xyz },
-    { "profiles/mobile/sRGB_LUT.icc",                  true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/mobile/Display_P3_LUT.icc",            true, NULL, &srgb_transfer_fn, &p3_to_xyz,   NULL },
+    { "profiles/mobile/sRGB_LUT.icc",                  true, NULL, &srgb_transfer_fn, &srgb_to_xyz, NULL },
 
     // V2 profiles with gamma TRC and XYZ
-    { "profiles/color.org/Lower_Left.icc",             true, &gamma_2_2_transfer_fn, NULL, &sgbr_to_xyz },
-    { "profiles/color.org/Lower_Right.icc",            true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz },
-    { "profiles/misc/AdobeRGB.icc",                    true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz },
-    { "profiles/misc/Color_Spin_Gamma_18.icc",         true, &gamma_1_8_transfer_fn, NULL, &sgbr_to_xyz },
-    { "profiles/misc/Generic_RGB_Gamma_18.icc",        true, &gamma_1_8_transfer_fn, NULL, &gen_rgb_to_xyz },
+    { "profiles/color.org/Lower_Left.icc",             true, &gamma_2_2_transfer_fn, NULL, &sgbr_to_xyz,    NULL },
+    { "profiles/color.org/Lower_Right.icc",            true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz,   NULL },
+    { "profiles/misc/AdobeRGB.icc",                    true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz,   NULL },
+    { "profiles/misc/Color_Spin_Gamma_18.icc",         true, &gamma_1_8_transfer_fn, NULL, &sgbr_to_xyz,    NULL },
+    { "profiles/misc/Generic_RGB_Gamma_18.icc",        true, &gamma_1_8_transfer_fn, NULL, &gen_rgb_to_xyz, NULL },
 
     // V2 profiles with LUT TRC and XYZ
-    { "profiles/color.org/sRGB2014.icc",               true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
-    { "profiles/sRGB_Facebook.icc",                    true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
-    { "profiles/misc/Apple_Color_LCD.icc",             true, NULL, &srgb_transfer_fn, &apple_lcd_to_xyz },
-    { "profiles/misc/HD_709.icc",                      true, NULL, &srgb_transfer_fn, &hd709_to_xyz},
-    { "profiles/misc/sRGB_black_scaled.icc",           true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
-    { "profiles/misc/sRGB_HP.icc",                     true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
-    { "profiles/misc/sRGB_HP_2.icc",                   true, NULL, &srgb_transfer_fn, &srgb_to_xyz },
+    { "profiles/color.org/sRGB2014.icc",               true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
+    { "profiles/sRGB_Facebook.icc",                    true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
+    { "profiles/misc/Apple_Color_LCD.icc",             true, NULL, &srgb_transfer_fn, &apple_lcd_to_xyz, NULL },
+    { "profiles/misc/HD_709.icc",                      true, NULL, &srgb_transfer_fn, &hd709_to_xyz,     NULL },
+    { "profiles/misc/sRGB_black_scaled.icc",           true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
+    { "profiles/misc/sRGB_HP.icc",                     true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
+    { "profiles/misc/sRGB_HP_2.icc",                   true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
 
     // Hard test profile. Non-invertible XYZ, three separate tables that fail to approximate
-    { "profiles/misc/MartiMaria_browsertest_HARD.icc", true, NULL, NULL, &mm_hard_to_xyz },
+    { "profiles/misc/MartiMaria_browsertest_HARD.icc", true, NULL, NULL, &mm_hard_to_xyz, &MartiMaria_browsertest_HARD_A2B },
 
     // Camera profile with three separate tables that fail to approximate
-    { "profiles/misc/Phase_One_P25.icc",               true, NULL, NULL, &ph1_to_xyz },
+    { "profiles/misc/Phase_One_P25.icc",               true, NULL, NULL, &ph1_to_xyz, &Phase_One_P25_A2B },
 
     // Profile claims to be sRGB, but seems quite different
-    { "profiles/misc/Kodak_sRGB.icc",                  true, NULL, &kodak_transfer_fn, &kodak_to_xyz },
+    { "profiles/misc/Kodak_sRGB.icc",                  true, NULL, &kodak_transfer_fn, &kodak_to_xyz, &Kodak_sRGB_A2B },
 
     // fuzzer generated profiles that found parsing bugs
 
     // Bad tag table data - these should not parse
-    { "profiles/fuzz/last_tag_too_small.icc",          false, NULL, NULL, NULL }, // skia:7592
-    { "profiles/fuzz/named_tag_too_small.icc",         false, NULL, NULL, NULL }, // skia:7592
+    { "profiles/fuzz/last_tag_too_small.icc",          false, NULL, NULL, NULL, NULL }, // skia:7592
+    { "profiles/fuzz/named_tag_too_small.icc",         false, NULL, NULL, NULL, NULL }, // skia:7592
 
     // These parse but have trouble afterward.
-    { "profiles/fuzz/curv_size_overflow.icc",          true, NULL, NULL, NULL }, // skia:7593
-    { "profiles/fuzz/truncated_curv_tag.icc",          true, NULL, NULL, NULL }, // oss-fuzz:6103
-    { "profiles/fuzz/zero_a.icc",                      true, NULL, NULL, NULL }, // oss-fuzz:????
-    { "profiles/fuzz/a2b_too_many_input_channels.icc", true, NULL, NULL, NULL }, // oss-fuzz:6521
+    { "profiles/fuzz/curv_size_overflow.icc",          true, NULL, NULL, NULL, NULL }, // skia:7593
+    { "profiles/fuzz/truncated_curv_tag.icc",          true, NULL, NULL, NULL, NULL }, // oss-fuzz:6103
+    { "profiles/fuzz/zero_a.icc",                      true, NULL, NULL, NULL, NULL }, // oss-fuzz:????
+    { "profiles/fuzz/a2b_too_many_input_channels.icc", true, NULL, NULL, NULL, NULL }, // oss-fuzz:6521
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
@@ -607,6 +611,42 @@ static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd
         expect((int)(x * 255.0f + 0.5f) == i);
         expect(fabsf(x - t) < tol);
     }
+}
+
+static void check_curves(uint32_t num_channels, const skcms_Curve* ref, const skcms_Curve* curves) {
+    for (uint32_t i = 0; i < num_channels; ++i) {
+        expect(ref[i].parametric.g == curves[i].parametric.g);
+        expect(ref[i].parametric.a == curves[i].parametric.a);
+        expect(ref[i].parametric.b == curves[i].parametric.b);
+        expect(ref[i].parametric.c == curves[i].parametric.c);
+        expect(ref[i].parametric.d == curves[i].parametric.d);
+        expect(ref[i].parametric.e == curves[i].parametric.e);
+        expect(ref[i].parametric.f == curves[i].parametric.f);
+        expect(!!ref[i].table_8 == !!curves[i].table_8);
+        expect(!!ref[i].table_16 == !!curves[i].table_16);
+        expect(ref[i].table_entries == curves[i].table_entries);
+    }
+}
+
+static void check_a2b(const skcms_A2B* ref, const skcms_A2B* a2b) {
+    expect(ref->input_channels == a2b->input_channels);
+    check_curves(a2b->input_channels, ref->input_curves, a2b->input_curves);
+    for (uint32_t i = 0; i < a2b->input_channels; ++i) {
+        expect(ref->grid_points[i] == a2b->grid_points[i]);
+    }
+    expect(!!ref->grid_8 == !!a2b->grid_8);
+    expect(!!ref->grid_16 == !!a2b->grid_16);
+
+    expect(ref->matrix_channels == a2b->matrix_channels);
+    check_curves(a2b->matrix_channels, ref->matrix_curves, a2b->matrix_curves);
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            expect(ref->matrix.vals[r][c] == a2b->matrix.vals[r][c]);
+        }
+    }
+
+    expect(ref->output_channels == a2b->output_channels);
+    check_curves(a2b->output_channels, ref->output_curves, a2b->output_curves);
 }
 
 static void test_Parse() {
@@ -683,6 +723,12 @@ static void test_Parse() {
                                   test->expect_xyz->vals[r][c]) < kXYZ_Tol );
                 }
             }
+        }
+
+        expect(profile.has_A2B == !!test->expect_a2b);
+
+        if (profile.has_A2B) {
+            check_a2b(test->expect_a2b, &profile.A2B);
         }
 
         free(buf);
