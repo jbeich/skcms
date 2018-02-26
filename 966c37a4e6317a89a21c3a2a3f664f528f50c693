@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d49e86b_8e897e50",
+        "filename": "tests.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-26T15:04:46Z",
+      "side": 1,
+      "message": "Not just \u003d\u003d for these comparisons?",
+      "revId": "966c37a4e6317a89a21c3a2a3f664f528f50c693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffe8e031_0eb7c817",
+        "filename": "tests.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-26T15:04:46Z",
+      "side": 1,
+      "message": "Ah, NOT_NULL is quite clever!",
+      "revId": "966c37a4e6317a89a21c3a2a3f664f528f50c693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f7cfc2a_1350c4e0",
+        "filename": "tests.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-26T15:04:46Z",
+      "side": 1,
+      "message": "Here too... won\u0027t we be perfect?",
+      "revId": "966c37a4e6317a89a21c3a2a3f664f528f50c693",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
