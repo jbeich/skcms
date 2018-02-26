@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78e5ba54_1a720fd7",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-02-26T14:38:39Z",
+      "side": 1,
+      "message": "Is it correct to add a comment like this here?\n\n// In MFT tags, the grid always has the same number of points in each dimension, a hypercube.\n// (The dimensions may vary in MAB tags.)",
+      "revId": "569770ec9110579036c29b2e82aa52df0aa59dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
