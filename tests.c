@@ -510,7 +510,6 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/color.org/Upper_Right.icc",            true, NULL, NULL, NULL, &Upper_Right_A2B },
     { "profiles/misc/Apple_Wide_Color.icc",            true, NULL, NULL, NULL, &Apple_Wide_Color_A2B },
     { "profiles/misc/Coated_FOGRA39_CMYK.icc",         true, NULL, NULL, NULL, &Coated_FOGRA39_CMYK_A2B },
-    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",   true, NULL, NULL, NULL, NULL }, // Has kTRC. Broken tag table, and A2B0 fails to parse
     { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  true, NULL, NULL, NULL, &ColorLogic_ISO_Coated_CMYK_A2B }, // Has kTRC.
     { "profiles/misc/Japan_Color_2001_Coated.icc",     true, NULL, NULL, NULL, &Japan_Color_2001_Coated_A2B },
     { "profiles/misc/Lexmark_X110.icc",                true, NULL, NULL, NULL, &Lexmark_X110_A2B },
@@ -562,15 +561,18 @@ static const ProfileTestCase profile_test_cases[] = {
 
     // fuzzer generated profiles that found parsing bugs
 
+    // Bad profiles found inn the wild
+    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",   false, NULL, NULL, NULL, NULL }, // Broken tag table, and A2B0 fails to parse
+
     // Bad tag table data - these should not parse
     { "profiles/fuzz/last_tag_too_small.icc",          false, NULL, NULL, NULL, NULL }, // skia:7592
     { "profiles/fuzz/named_tag_too_small.icc",         false, NULL, NULL, NULL, NULL }, // skia:7592
 
-    // These parse but have trouble afterward.
-    { "profiles/fuzz/curv_size_overflow.icc",          true, NULL, NULL, NULL, NULL }, // skia:7593
-    { "profiles/fuzz/truncated_curv_tag.icc",          true, NULL, NULL, NULL, NULL }, // oss-fuzz:6103
-    { "profiles/fuzz/zero_a.icc",                      true, NULL, NULL, NULL, NULL }, // oss-fuzz:????
-    { "profiles/fuzz/a2b_too_many_input_channels.icc", true, NULL, NULL, NULL, NULL }, // oss-fuzz:6521
+    // Bad tag data - these should not parse
+    { "profiles/fuzz/curv_size_overflow.icc",          false, NULL, NULL, NULL, NULL }, // skia:7593
+    { "profiles/fuzz/truncated_curv_tag.icc",          false, NULL, NULL, NULL, NULL }, // oss-fuzz:6103
+    { "profiles/fuzz/zero_a.icc",                      false, NULL, NULL, NULL, NULL }, // oss-fuzz:????
+    { "profiles/fuzz/a2b_too_many_input_channels.icc", false, NULL, NULL, NULL, NULL }, // oss-fuzz:6521
 };
 
 static void load_file(const char* filename, void** buf, size_t* len) {
