@@ -118,16 +118,11 @@ typedef struct {
 } XYZ_Layout;
 
 static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) {
-    const XYZ_Layout* xyzTag = NULL;
-    if (tag &&
-        tag->type == make_signature('X','Y','Z',' ') &&
-        tag->size >= SAFE_SIZEOF(XYZ_Layout)) {
-        xyzTag = (const XYZ_Layout*)tag->buf;
-    }
-
-    if (!xyzTag || !x || !y || !z) {
+    if (tag->type != make_signature('X','Y','Z',' ') || tag->size < SAFE_SIZEOF(XYZ_Layout)) {
         return false;
     }
+
+    const XYZ_Layout* xyzTag = (const XYZ_Layout*)tag->buf;
 
     *x = read_big_fixed(xyzTag->X);
     *y = read_big_fixed(xyzTag->Y);
@@ -135,18 +130,11 @@ static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) 
     return true;
 }
 
-static bool read_to_XYZD50(const skcms_ICCProfile* profile, skcms_Matrix3x3* toXYZ) {
-    if (!profile || !toXYZ) { return false; }
-    skcms_ICCTag rXYZ, gXYZ, bXYZ;
-    if (!skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) ||
-        !skcms_GetTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) ||
-        !skcms_GetTagBySignature(profile, make_signature('b', 'X', 'Y', 'Z'), &bXYZ)) {
-        return false;
-    }
-
-    return read_tag_xyz(&rXYZ, &toXYZ->vals[0][0], &toXYZ->vals[1][0], &toXYZ->vals[2][0]) &&
-           read_tag_xyz(&gXYZ, &toXYZ->vals[0][1], &toXYZ->vals[1][1], &toXYZ->vals[2][1]) &&
-           read_tag_xyz(&bXYZ, &toXYZ->vals[0][2], &toXYZ->vals[1][2], &toXYZ->vals[2][2]);
+static bool read_to_XYZD50(const skcms_ICCTag* rXYZ, const skcms_ICCTag* gXYZ,
+                           const skcms_ICCTag* bXYZ, skcms_Matrix3x3* toXYZ) {
+    return read_tag_xyz(rXYZ, &toXYZ->vals[0][0], &toXYZ->vals[1][0], &toXYZ->vals[2][0]) &&
+           read_tag_xyz(gXYZ, &toXYZ->vals[0][1], &toXYZ->vals[1][1], &toXYZ->vals[2][1]) &&
+           read_tag_xyz(bXYZ, &toXYZ->vals[0][2], &toXYZ->vals[1][2], &toXYZ->vals[2][2]);
 }
 
 typedef struct {
@@ -299,7 +287,7 @@ static bool read_curve(const uint8_t* buf, uint32_t size,
 
 static bool get_transfer_function(const skcms_ICCProfile* profile,
                                   skcms_TransferFunction* transferFunction) {
-    if (!profile || !profile->has_trc || !transferFunction) {
+    if (!profile->has_trc) {
         return false;
     }
 
@@ -683,22 +671,13 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b) {
     return true;
 }
 
-static bool read_a2b(const skcms_ICCProfile* profile, skcms_A2B* a2b) {
-    if (!profile || !a2b) {
-        return false;
-    }
-
-    skcms_ICCTag tag;
-    if (!skcms_GetTagBySignature(profile, make_signature('A', '2', 'B', '0'), &tag)) {
-        return false;
-    }
-
-    if (tag.type == make_signature('m', 'f', 't', '1')) {
-        return read_tag_mft1(&tag, a2b);
-    } else if (tag.type == make_signature('m', 'f', 't', '2')) {
-        return read_tag_mft2(&tag, a2b);
-    } else if (tag.type == make_signature('m', 'A', 'B', ' ')) {
-        return read_tag_mab(&tag, a2b);
+static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b) {
+    if (tag->type == make_signature('m', 'f', 't', '1')) {
+        return read_tag_mft1(tag, a2b);
+    } else if (tag->type == make_signature('m', 'f', 't', '2')) {
+        return read_tag_mft2(tag, a2b);
+    } else if (tag->type == make_signature('m', 'A', 'B', ' ')) {
+        return read_tag_mab(tag, a2b);
     }
 
     return false;
@@ -797,17 +776,39 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
 
     // Pre-parse commonly used tags.
     skcms_ICCTag rTRC, gTRC, bTRC;
-    profile->has_trc =
-        skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) &&
+    if (skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) &&
         skcms_GetTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) &&
-        skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC) &&
-        read_curve(rTRC.buf, rTRC.size, &profile->trc[0], NULL) &&
-        read_curve(gTRC.buf, gTRC.size, &profile->trc[1], NULL) &&
-        read_curve(bTRC.buf, bTRC.size, &profile->trc[2], NULL);
+        skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+        if (!read_curve(rTRC.buf, rTRC.size, &profile->trc[0], NULL) ||
+            !read_curve(gTRC.buf, gTRC.size, &profile->trc[1], NULL) ||
+            !read_curve(bTRC.buf, bTRC.size, &profile->trc[2], NULL)) {
+            // Malformed TRC tags
+            return false;
+        }
+        profile->has_trc = true;
+    }
 
     profile->has_tf       = get_transfer_function(profile, &profile->tf);
-    profile->has_toXYZD50 = read_to_XYZD50       (profile, &profile->toXYZD50);
-    profile->has_A2B      = read_a2b             (profile, &profile->A2B);
+
+    skcms_ICCTag rXYZ, gXYZ, bXYZ;
+    if (skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) &&
+        skcms_GetTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) &&
+        skcms_GetTagBySignature(profile, make_signature('b', 'X', 'Y', 'Z'), &bXYZ)) {
+        if (!read_to_XYZD50(&rXYZ, &gXYZ, &bXYZ, &profile->toXYZD50)) {
+            // Malformed XYZ tags
+            return false;
+        }
+        profile->has_toXYZD50 = true;
+    }
+
+    skcms_ICCTag a2b_tag;
+    if (skcms_GetTagBySignature(profile, make_signature('A', '2', 'B', '0'), &a2b_tag)) {
+        if (!read_a2b(&a2b_tag, &profile->A2B)) {
+            // Malformed A2B tag
+            return false;
+        }
+        profile->has_A2B = true;
+    }
 
     return true;
 }
