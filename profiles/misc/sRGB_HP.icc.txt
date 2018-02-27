@@ -1,0 +1,48 @@
+                Size : 0x00000C48 : 3144
+            CMM type : 0x4C696E6F : 'Lino'
+             Version : 0x02100000 : 2.1.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 1998-02-09 06:49:00
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4D534654 : 'MSFT'
+               Flags : 0x00000000
+ Device manufacturer : 0x49454320 : 'IEC '
+        Device model : 0x73524742 : 'sRGB'
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x48502020 : 'HP  '
+           Tag count : 0x00000011 : 17
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'cprt' : 'text' :     51 : 336
+ 'desc' : 'desc' :    108 : 388
+ 'wtpt' : 'XYZ ' :     20 : 496
+ 'bkpt' : 'XYZ ' :     20 : 516
+ 'rXYZ' : 'XYZ ' :     20 : 536
+ 'gXYZ' : 'XYZ ' :     20 : 556
+ 'bXYZ' : 'XYZ ' :     20 : 576
+ 'dmnd' : 'desc' :    112 : 596
+ 'dmdd' : 'desc' :    136 : 708
+ 'vued' : 'desc' :    134 : 844
+ 'view' : 'view' :     36 : 980
+ 'lumi' : 'XYZ ' :     20 : 1016
+ 'meas' : 'meas' :     36 : 1036
+ 'tech' : 'sig ' :     12 : 1072
+ 'rTRC' : 'curv' :   2060 : 1084
+ 'gTRC' : 'curv' :   2060 : 1084
+ 'bTRC' : 'curv' :   2060 : 1084
+
+~TRC : 2.4, 0.9478, 0.0522, 0.078, 0, 0
+rTRC : 16-bit table with 1024 entries
+gTRC : 16-bit table with 1024 entries
+bTRC : 16-bit table with 1024 entries
+ XYZ : | 0.436065674 0.385147095 0.143066406 |
+       | 0.222488403 0.716873169 0.060607910 |
+       | 0.013916016 0.097076416 0.714096069 |

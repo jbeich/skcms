@@ -13,11 +13,13 @@
 #include "skcms.h"
 #include "src/LinearAlgebra.h"
 #include "src/Macros.h"
+#include "src/TestOnly.h"
 #include "src/TransferFunction.h"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if defined(_MSC_VER)
     #define DEBUGBREAK __debugbreak
@@ -441,144 +443,90 @@ static const skcms_TransferFunction gamma_1_transfer_fn =
 static const skcms_TransferFunction linear_transfer_fn =
     { 0.0f, 1.0f, 0.0f, 1.0f, 2.0f, 0.0f, 0.0f };
 
-static const skcms_Matrix3x3 srgb_to_xyz  = { { { 0.4360657f, 0.3851471f, 0.1430664f },
-                                                { 0.2224884f, 0.7168732f, 0.0606079f },
-                                                { 0.0139160f, 0.0970764f, 0.7140961f } } };
-
-static const skcms_Matrix3x3 sgbr_to_xyz  = { { { 0.3851471f, 0.1430664f, 0.4360657f },
-                                                { 0.7168732f, 0.0606079f, 0.2224884f },
-                                                { 0.0970764f, 0.7140961f, 0.0139160f } } };
-
-static const skcms_Matrix3x3 srgb_lcms_to_xyz  = { { { 0.4358521f, 0.3853302f, 0.1430206f },
-                                                     { 0.2223816f, 0.7170410f, 0.0605927f },
-                                                     { 0.0139160f, 0.0971375f, 0.7138367f } } };
-
-static const skcms_Matrix3x3 kodak_to_xyz  = { { { 0.4376373f, 0.3884125f, 0.1424103f },
-                                                 { 0.2149506f, 0.7129059f, 0.0721283f, },
-                                                 { 0.0112610f, 0.0807190f, 0.7258759f } } };
-
-static const skcms_Matrix3x3 adobe_to_xyz = { { { 0.6097412f, 0.2052765f, 0.1491852f },
-                                                { 0.3111115f, 0.6256714f, 0.0632172f },
-                                                { 0.0194702f, 0.0608673f, 0.7445679f } } };
-
-static const skcms_Matrix3x3 p3_to_xyz    = { { { 0.5151215f, 0.2919769f, 0.1571045f },
-                                                { 0.2411957f, 0.6922455f, 0.0665741f },
-                                                { -0.0010376f, 0.0418854f, 0.7840729f } } };
-
-static const skcms_Matrix3x3 apple_lcd_to_xyz = { { { 0.4443359f, 0.3794403f, 0.1404114f },
-                                                    { 0.2247620f, 0.7261658f, 0.0490723f },
-                                                    { 0.0054779f, 0.0779724f, 0.7414551f } } };
-
-static const skcms_Matrix3x3 gen_rgb_to_xyz = { { { 0.4542999f, 0.3533478f, 0.1566467f },
-                                                  { 0.2419128f, 0.6736298f, 0.0844574f },
-                                                  { 0.0148926f, 0.0906372f, 0.7195740f } } };
-
-static const skcms_Matrix3x3 hd709_to_xyz = { { { 0.3589630f, 0.4463501f, 0.1588898f },
-                                                { 0.1959229f, 0.7428436f, 0.0612335f },
-                                                { 0.0096741f, 0.0435181f, 0.7717133f } } };
-
-static const skcms_Matrix3x3 mm_hard_to_xyz = { { { 0.9642029f, 0.0000000f, 0.9642029f },
-                                                  { 1.0000000f, 0.0000000f, 1.0000000f },
-                                                  { 0.8249054f, 0.0000000f, 0.8249054f } } };
-
-static const skcms_Matrix3x3 ph1_to_xyz = { { { 0.6479034f, 0.3573608f, 0.1564178f },
-                                              { 0.3829193f, 1.1097260f, 0.0000000f },
-                                              { 0.0832672f, 0.6792755f, 0.5234222f } } };
-
-#define NOT_NULL (void*)0x1
-#include "profiles/a2b.h"
-
 typedef struct {
     const char*                   filename;
-    bool                          expect_parse;
-    const skcms_TransferFunction* expect_exact_tf;
     const skcms_TransferFunction* expect_approx_tf;
-    const skcms_Matrix3x3*        expect_xyz;
-    const skcms_A2B*              expect_a2b;
 } ProfileTestCase;
 
 static const ProfileTestCase profile_test_cases[] = {
     // iccMAX profiles that we can't parse at all
-    { "profiles/color.org/sRGB_D65_colorimetric.icc",  false, NULL, NULL, NULL, NULL },
-    { "profiles/color.org/sRGB_D65_MAT.icc",           false, NULL, NULL, NULL, NULL },
-    { "profiles/color.org/sRGB_ISO22028.icc",          false, NULL, NULL, NULL, NULL },
+    { "profiles/color.org/sRGB_D65_colorimetric.icc", NULL },
+    { "profiles/color.org/sRGB_D65_MAT.icc",          NULL },
+    { "profiles/color.org/sRGB_ISO22028.icc",         NULL },
 
     // V2 or V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
-    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", true, NULL, NULL, NULL, &sRGB_ICC_v4_Appearance_A2B },
-    { "profiles/color.org/sRGB_v4_ICC_preference.icc", true, NULL, NULL, NULL, &sRGB_v4_ICC_preference_A2B },
-    { "profiles/color.org/Upper_Left.icc",             true, NULL, NULL, NULL, &Upper_Left_A2B },
-    { "profiles/color.org/Upper_Right.icc",            true, NULL, NULL, NULL, &Upper_Right_A2B },
-    { "profiles/misc/Apple_Wide_Color.icc",            true, NULL, NULL, NULL, &Apple_Wide_Color_A2B },
-    { "profiles/misc/Coated_FOGRA39_CMYK.icc",         true, NULL, NULL, NULL, &Coated_FOGRA39_CMYK_A2B },
-    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  true, NULL, NULL, NULL, &ColorLogic_ISO_Coated_CMYK_A2B }, // Has kTRC.
-    { "profiles/misc/Japan_Color_2001_Coated.icc",     true, NULL, NULL, NULL, &Japan_Color_2001_Coated_A2B },
-    { "profiles/misc/Lexmark_X110.icc",                true, NULL, NULL, NULL, &Lexmark_X110_A2B },
-    { "profiles/misc/MartiMaria_browsertest_A2B.icc",  true, NULL, NULL, NULL, &MartiMaria_browsertest_A2B_A2B },
-    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   true, NULL, NULL, NULL, &PrintOpen_ISO_Coated_CMYK_A2B }, // Has kTRC.
-    { "profiles/misc/sRGB_ICC_v4_beta.icc",            true, NULL, NULL, NULL, &sRGB_ICC_v4_beta_A2B },
-    { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     true, NULL, NULL, NULL, &SWOP_Coated_20_GCR_CMYK_A2B },
-    { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     true, NULL, NULL, NULL, &US_Web_Coated_SWOP_CMYK_A2B },
-    { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      true, NULL, NULL, NULL, &XRite_GRACol7_340_CMYK_A2B },
+    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", NULL },
+    { "profiles/color.org/sRGB_v4_ICC_preference.icc", NULL },
+    { "profiles/color.org/Upper_Left.icc",             NULL },
+    { "profiles/color.org/Upper_Right.icc",            NULL },
+    { "profiles/misc/Apple_Wide_Color.icc",            NULL },
+    { "profiles/misc/Coated_FOGRA39_CMYK.icc",         NULL },
+    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  NULL },
+    { "profiles/misc/Japan_Color_2001_Coated.icc",     NULL },
+    { "profiles/misc/Lexmark_X110.icc",                NULL },
+    { "profiles/misc/MartiMaria_browsertest_A2B.icc",  NULL },
+    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   NULL }, // Has kTRC.
+    { "profiles/misc/sRGB_ICC_v4_beta.icc",            NULL },
+    { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     NULL },
+    { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     NULL },
+    { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      NULL },
 
     // V2 monochrome output profiles that include kTRC but no A2B
-    { "profiles/misc/Dot_Gain_20_Grayscale.icc",       true, NULL, NULL, NULL, NULL }, // kTRC table
-    { "profiles/misc/Gray_Gamma_22.icc",               true, NULL, NULL, NULL, NULL }, // kTRC gamma
+    { "profiles/misc/Dot_Gain_20_Grayscale.icc", NULL }, // kTRC table
+    { "profiles/misc/Gray_Gamma_22.icc",         NULL }, // kTRC gamma
 
     // V4 profiles with parametric TRC curves and XYZ
-    { "profiles/mobile/Display_P3_parametric.icc",     true, &srgb_transfer_fn, NULL, &p3_to_xyz,        NULL },
-    { "profiles/mobile/sRGB_parametric.icc",           true, &srgb_transfer_fn, NULL, &srgb_to_xyz,      NULL },
-    { "profiles/mobile/iPhone7p.icc",                  true, &srgb_transfer_fn, NULL, &p3_to_xyz,        NULL },
-    { "profiles/misc/sRGB_lcms.icc",                   true, &srgb_transfer_fn, NULL, &srgb_lcms_to_xyz, NULL },
+    { "profiles/mobile/Display_P3_parametric.icc", NULL },
+    { "profiles/mobile/sRGB_parametric.icc",       NULL },
+    { "profiles/mobile/iPhone7p.icc",              NULL },
+    { "profiles/misc/sRGB_lcms.icc",               NULL },
 
     // V4 profiles with LUT TRC curves and XYZ
-    { "profiles/mobile/Display_P3_LUT.icc",            true, NULL, &srgb_transfer_fn, &p3_to_xyz,   NULL },
-    { "profiles/mobile/sRGB_LUT.icc",                  true, NULL, &srgb_transfer_fn, &srgb_to_xyz, NULL },
+    { "profiles/mobile/Display_P3_LUT.icc", &srgb_transfer_fn },
+    { "profiles/mobile/sRGB_LUT.icc",       &srgb_transfer_fn },
 
     // V2 profiles with gamma TRC and XYZ
-    { "profiles/color.org/Lower_Left.icc",             true, &gamma_2_2_transfer_fn, NULL, &sgbr_to_xyz,    NULL },
-    { "profiles/color.org/Lower_Right.icc",            true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz,   NULL },
-    { "profiles/misc/AdobeRGB.icc",                    true, &gamma_2_2_transfer_fn, NULL, &adobe_to_xyz,   NULL },
-    { "profiles/misc/Color_Spin_Gamma_18.icc",         true, &gamma_1_8_transfer_fn, NULL, &sgbr_to_xyz,    NULL },
-    { "profiles/misc/Generic_RGB_Gamma_18.icc",        true, &gamma_1_8_transfer_fn, NULL, &gen_rgb_to_xyz, NULL },
+    { "profiles/color.org/Lower_Left.icc",      NULL },
+    { "profiles/color.org/Lower_Right.icc",     NULL },
+    { "profiles/misc/AdobeRGB.icc",             NULL },
+    { "profiles/misc/Color_Spin_Gamma_18.icc",  NULL },
+    { "profiles/misc/Generic_RGB_Gamma_18.icc", NULL },
 
     // V2 profiles with LUT TRC and XYZ
-    { "profiles/color.org/sRGB2014.icc",               true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
-    { "profiles/sRGB_Facebook.icc",                    true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
-    { "profiles/misc/Apple_Color_LCD.icc",             true, NULL, &srgb_transfer_fn, &apple_lcd_to_xyz, NULL },
-    { "profiles/misc/HD_709.icc",                      true, NULL, &srgb_transfer_fn, &hd709_to_xyz,     NULL },
-    { "profiles/misc/sRGB_black_scaled.icc",           true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
-    { "profiles/misc/sRGB_HP.icc",                     true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
-    { "profiles/misc/sRGB_HP_2.icc",                   true, NULL, &srgb_transfer_fn, &srgb_to_xyz,      NULL },
+    { "profiles/color.org/sRGB2014.icc",     &srgb_transfer_fn },
+    { "profiles/sRGB_Facebook.icc",          &srgb_transfer_fn },
+    { "profiles/misc/Apple_Color_LCD.icc",   &srgb_transfer_fn },
+    { "profiles/misc/HD_709.icc",            &srgb_transfer_fn },
+    { "profiles/misc/sRGB_black_scaled.icc", &srgb_transfer_fn },
+    { "profiles/misc/sRGB_HP.icc",           &srgb_transfer_fn },
+    { "profiles/misc/sRGB_HP_2.icc",         &srgb_transfer_fn },
 
     // Hard test profile. Non-invertible XYZ, three separate tables that fail to approximate
-    { "profiles/misc/MartiMaria_browsertest_HARD.icc", true, NULL, NULL, &mm_hard_to_xyz, &MartiMaria_browsertest_HARD_A2B },
+    { "profiles/misc/MartiMaria_browsertest_HARD.icc", NULL },
 
     // Camera profile with three separate tables that fail to approximate
-    { "profiles/misc/Phase_One_P25.icc",               true, NULL, NULL, &ph1_to_xyz, &Phase_One_P25_A2B },
+    { "profiles/misc/Phase_One_P25.icc", NULL },
 
     // Profile claims to be sRGB, but seems quite different
-    { "profiles/misc/Kodak_sRGB.icc",                  true, NULL, &kodak_transfer_fn, &kodak_to_xyz, &Kodak_sRGB_A2B },
+    { "profiles/misc/Kodak_sRGB.icc", &kodak_transfer_fn },
+
+    // Bad profiles found inn the wild
+    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc", NULL }, // Broken tag table, and A2B0 fails to parse
 
     // fuzzer generated profiles that found parsing bugs
 
-    // Bad profiles found inn the wild
-    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",   false, NULL, NULL, NULL, NULL }, // Broken tag table, and A2B0 fails to parse
-
     // Bad tag table data - these should not parse
-    { "profiles/fuzz/last_tag_too_small.icc",          false, NULL, NULL, NULL, NULL }, // skia:7592
-    { "profiles/fuzz/named_tag_too_small.icc",         false, NULL, NULL, NULL, NULL }, // skia:7592
+    { "profiles/fuzz/last_tag_too_small.icc",  NULL }, // skia:7592
+    { "profiles/fuzz/named_tag_too_small.icc", NULL }, // skia:7592
 
     // Bad tag data - these should not parse
-    { "profiles/fuzz/curv_size_overflow.icc",          false, NULL, NULL, NULL, NULL }, // skia:7593
-    { "profiles/fuzz/truncated_curv_tag.icc",          false, NULL, NULL, NULL, NULL }, // oss-fuzz:6103
-    { "profiles/fuzz/zero_a.icc",                      false, NULL, NULL, NULL, NULL }, // oss-fuzz:????
-    { "profiles/fuzz/a2b_too_many_input_channels.icc", false, NULL, NULL, NULL, NULL }, // oss-fuzz:6521
+    { "profiles/fuzz/curv_size_overflow.icc",          NULL }, // skia:7593
+    { "profiles/fuzz/truncated_curv_tag.icc",          NULL }, // oss-fuzz:6103
+    { "profiles/fuzz/zero_a.icc",                      NULL }, // oss-fuzz:????
+    { "profiles/fuzz/a2b_too_many_input_channels.icc", NULL }, // oss-fuzz:6521
 };
 
-static void load_file(const char* filename, void** buf, size_t* len) {
-    FILE* fp = fopen(filename, "rb");
-    expect(fp);
-
+static void load_file_fp(FILE* fp, void** buf, size_t* len) {
     expect(fseek(fp, 0L, SEEK_END) == 0);
     long size = ftell(fp);
     expect(size > 0);
@@ -588,20 +536,21 @@ static void load_file(const char* filename, void** buf, size_t* len) {
     *buf = malloc(*len);
     expect(*buf);
 
-    size_t bytes_read = fread(*buf, 1, *len, fp);
-    expect(bytes_read == *len);
+    expect(fread(*buf, 1, *len, fp) == *len);
 }
 
-static void check_transfer_function(skcms_TransferFunction fn_a,
-                                    skcms_TransferFunction fn_b,
-                                    float tol) {
-    expect(fabsf(fn_a.g - fn_b.g) < tol);
-    expect(fabsf(fn_a.a - fn_b.a) < tol);
-    expect(fabsf(fn_a.b - fn_b.b) < tol);
-    expect(fabsf(fn_a.c - fn_b.c) < tol);
-    expect(fabsf(fn_a.d - fn_b.d) < tol);
-    expect(fabsf(fn_a.e - fn_b.e) < tol);
-    expect(fabsf(fn_a.f - fn_b.f) < tol);
+static void load_file(const char* filename, void** buf, size_t* len) {
+    FILE* fp = fopen(filename, "rb");
+    expect(fp);
+    load_file_fp(fp, buf, len);
+    fclose(fp);
+}
+
+static void write_file(const char* filename, void* buf, size_t len) {
+    FILE* fp = fopen(filename, "wb");
+    expect(fp);
+    expect(fwrite(buf, 1, len, fp) == len);
+    fclose(fp);
 }
 
 static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd,
@@ -615,89 +564,59 @@ static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd
     }
 }
 
-static void check_curves(uint32_t num_channels, const skcms_Curve* ref, const skcms_Curve* curves) {
-    for (uint32_t i = 0; i < num_channels; ++i) {
-        expect(ref[i].parametric.g == curves[i].parametric.g);
-        expect(ref[i].parametric.a == curves[i].parametric.a);
-        expect(ref[i].parametric.b == curves[i].parametric.b);
-        expect(ref[i].parametric.c == curves[i].parametric.c);
-        expect(ref[i].parametric.d == curves[i].parametric.d);
-        expect(ref[i].parametric.e == curves[i].parametric.e);
-        expect(ref[i].parametric.f == curves[i].parametric.f);
-        expect(!!ref[i].table_8 == !!curves[i].table_8);
-        expect(!!ref[i].table_16 == !!curves[i].table_16);
-        expect(ref[i].table_entries == curves[i].table_entries);
-    }
-}
-
-static void check_a2b(const skcms_A2B* ref, const skcms_A2B* a2b) {
-    expect(ref->input_channels == a2b->input_channels);
-    check_curves(a2b->input_channels, ref->input_curves, a2b->input_curves);
-    for (uint32_t i = 0; i < a2b->input_channels; ++i) {
-        expect(ref->grid_points[i] == a2b->grid_points[i]);
-    }
-    expect(!!ref->grid_8 == !!a2b->grid_8);
-    expect(!!ref->grid_16 == !!a2b->grid_16);
-
-    expect(ref->matrix_channels == a2b->matrix_channels);
-    check_curves(a2b->matrix_channels, ref->matrix_curves, a2b->matrix_curves);
-    for (int r = 0; r < 3; ++r) {
-        for (int c = 0; c < 4; ++c) {
-            expect(ref->matrix.vals[r][c] == a2b->matrix.vals[r][c]);
-        }
-    }
-
-    expect(ref->output_channels == a2b->output_channels);
-    check_curves(a2b->output_channels, ref->output_curves, a2b->output_curves);
-}
-
-static void test_Parse() {
-    const int test_cases_count = ARRAY_COUNT(profile_test_cases);
-    for (int i = 0; i < test_cases_count; ++i) {
+static void test_Parse(bool regen) {
+    for (int i = 0; i < ARRAY_COUNT(profile_test_cases); ++i) {
         const ProfileTestCase* test = profile_test_cases + i;
-
-        // Make sure the test parameters are internally consistent
-        expect(test->expect_parse || !test->expect_exact_tf);
-        expect(test->expect_parse || !test->expect_approx_tf);
-        expect(test->expect_parse || !test->expect_xyz);
-        expect(!(test->expect_exact_tf && test->expect_approx_tf));
 
         void* buf = NULL;
         size_t len = 0;
         load_file(test->filename, &buf, &len);
         skcms_ICCProfile profile;
-        bool result = skcms_Parse(buf, len, &profile);
-        expect(result == test->expect_parse);
+        bool parsed = skcms_Parse(buf, len, &profile);
 
-        if (!result) {
-            free(buf);
-            continue;
+        FILE* dump = tmpfile();
+        expect(dump);
+
+        if (parsed) {
+            dump_profile(&profile, dump, true);
+        } else {
+            fprintf(dump, "Unable to parse ICC profile\n");
         }
 
-        expect(profile.has_tf == !!test->expect_exact_tf);
+        void* dump_buf = NULL;
+        size_t dump_len = 0;
+        load_file_fp(dump, &dump_buf, &dump_len);
+        fclose(dump);
+
+        char ref_filename[256];
+        if (snprintf(ref_filename, sizeof(ref_filename), "%s.txt", test->filename) < 0) {
+            expect(false);
+        }
+
+        if (regen) {
+            // Just write out new test data if in regen mode
+            write_file(ref_filename, dump_buf, dump_len);
+        } else {
+            // Read in existing test data
+            void* ref_buf = NULL;
+            size_t ref_len = 0;
+            load_file(ref_filename, &ref_buf, &ref_len);
+
+            if (dump_len != ref_len || memcmp(dump_buf, ref_buf, dump_len) != 0) {
+                // Write out the new data on a mismatch
+                fprintf(stderr, "Parse mismatch for %s:\n", test->filename);
+                fwrite(dump_buf, 1, dump_len, stderr);
+                fprintf(stderr, "\n");
+                expect(false);
+            }
+            free(ref_buf);
+        }
 
         skcms_TransferFunction approx_tf;
         float max_error;
-        bool approx_tf_result = skcms_ApproximateTransferFunction(&profile, &approx_tf,
-                                                                             &max_error);
+        bool approx_tf_result = skcms_ApproximateTransferFunction(&profile, &approx_tf, &max_error);
         expect(approx_tf_result == !!test->expect_approx_tf);
-
-        if (profile.has_tf) {
-            // V2 'curv' gamma values are 8.8 fixed point, so the maximum error is the value we
-            // use here: 0.5 / 256 (~= 0.002)
-            // V4 'para' curves are 1.15.16 fixed point, and should be precise to 5 digits, but
-            // vendors sometimes round strangely when writing values. Regardless, all of our test
-            // profiles are within 0.001, except for the odd version of sRGB used in the iPhone
-            // profile. It has a D value of .039 (2556 / 64k) rather than .04045 (2651 / 64k).
-            check_transfer_function(*test->expect_exact_tf, profile.tf, 0.5f / 256.0f);
-        }
-
         if (approx_tf_result) {
-            // Our approximate curves can vary pretty significantly from the reference curves,
-            // so this needs to be fairly tolerant. The more important thing is how the overall
-            // curve behaves - which is tested with the byte round-tripping below.
-            check_transfer_function(*test->expect_approx_tf, approx_tf, 0.01f);
-
             // For this check, run every byte value through the forward version of one TF, and
             // the inverse of the other, and make sure it round-trips (using both combinations).
             skcms_TransferFunction approx_inverse_tf;
@@ -712,37 +631,19 @@ static void test_Parse() {
             check_roundtrip_transfer_functions(test->expect_approx_tf, &approx_inverse_tf, 0.02f);
         }
 
-        expect(profile.has_toXYZD50 == !!test->expect_xyz);
-
-        if (profile.has_toXYZD50) {
-            // XYZ values are 1.15.16 fixed point, but the precise values used by vendors vary
-            // quite a bit, especially depending on their implementation of D50 adaptation.
-            // This is still a pretty tight tolerance, and all of our test profiles pass.
-            const float kXYZ_Tol = 0.0002f;
-            for (int r = 0; r < 3; ++r) {
-                for (int c = 0; c < 3; ++c) {
-                    expect( fabsf( profile.toXYZD50.vals[r][c] -
-                                  test->expect_xyz->vals[r][c]) < kXYZ_Tol );
-                }
-            }
-        }
-
-        expect(profile.has_A2B == !!test->expect_a2b);
-
-        if (profile.has_A2B) {
-            check_a2b(test->expect_a2b, &profile.A2B);
-        }
-
         free(buf);
+        free(dump_buf);
     }
 }
 
 static void test_TransferFunction_approximate() {
     const skcms_TransferFunction* transfer_fns[] = {
+//        &gamma_1_8_transfer_fn,
         &gamma_2_2_transfer_fn,
         &gamma_2_4_transfer_fn,
         &gamma_2_8_transfer_fn,
         &srgb_transfer_fn,
+        &kodak_transfer_fn,
         &smpte_240m_transfer_fn,
         &bt_709_transfer_fn,
         &gamma_1_transfer_fn,
@@ -1071,7 +972,14 @@ static void test_sRGB_AllBytes() {
     free(ptr);
 }
 
-int main(void) {
+int main(int argc, char** argv) {
+    bool regenTestData = false;
+    for (int i = 1; i < argc; ++i) {
+        if (0 == strcmp(argv[i], "-t")) {
+            regenTestData = true;
+        }
+    }
+
     test_ICCProfile();
     test_FormatConversions();
     test_FormatConversions_565();
@@ -1080,7 +988,7 @@ int main(void) {
     test_FormatConversions_101010();
     test_FormatConversions_half();
     test_FormatConversions_float();
-    test_Parse();
+    test_Parse(regenTestData);
     test_TransferFunction_approximate();
     test_TransferFunction_approximate_clamped();
     test_TransferFunction_approximate_badMatch();

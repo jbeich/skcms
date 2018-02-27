@@ -1,0 +1,52 @@
+                Size : 0x00007BFC : 31740
+            CMM type : 0x6C636D73 : 'lcms'
+             Version : 0x02100000 : 2.1.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2011-06-02 10:48:14
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4D534654 : 'MSFT'
+               Flags : 0x00000000
+ Device manufacturer : 0x00000000 : ''
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x6C636D73 : 'lcms'
+           Tag count : 0x0000000C : 12
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :    212 : 276
+ 'cprt' : 'text' :     41 : 488
+ 'wtpt' : 'XYZ ' :     20 : 532
+ 'rXYZ' : 'XYZ ' :     20 : 552
+ 'bXYZ' : 'XYZ ' :     20 : 572
+ 'gXYZ' : 'XYZ ' :     20 : 592
+ 'rTRC' : 'curv' :    522 : 612
+ 'gTRC' : 'curv' :    522 : 1136
+ 'bTRC' : 'curv' :    522 : 1660
+ 'A2B0' : 'mft2' :  29554 : 2184
+ 'A2B1' : 'mft2' :  29554 : 2184
+ 'A2B2' : 'mft2' :  29554 : 2184
+
+rTRC : 16-bit table with 255 entries
+gTRC : 16-bit table with 255 entries
+bTRC : 16-bit table with 255 entries
+ XYZ : | 0.964202881 0.000000000 0.964202881 |
+       | 1.000000000 0.000000000 1.000000000 |
+       | 0.824905396 0.000000000 0.824905396 |
+ A2B : "A", CLUT, "B"
+ "A" : 3 inputs
+  A0 : 16-bit table with 2 entries
+  A1 : 16-bit table with 2 entries
+  A2 : 16-bit table with 2 entries
+CLUT : 17 x 17 x 17 (16 bpp)
+ "B" : 3 outputs
+  B0 : 16-bit table with 2 entries
+  B1 : 16-bit table with 2 entries
+  B2 : 16-bit table with 2 entries

@@ -1,0 +1,55 @@
+                Size : 0x00024B60 : 150368
+            CMM type : 0x4B434D53 : 'KCMS'
+             Version : 0x02000000 : 2.0.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x4C616220 : 'Lab '
+  Creation date/time :            : 1996-06-23 20:15:04
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x53554E57 : 'SUNW'
+               Flags : 0x00000000
+ Device manufacturer : 0x4B4F4441 : 'KODA'
+        Device model : 0x6E6F6E65 : 'none'
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.963684082
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.82409668
+             Creator : 0x00000000 : ''
+           Tag count : 0x0000000E : 14
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'A2B0' : 'mft2' :  29236 : 300
+ 'B2A0' : 'mft2' : 119914 : 29536
+ 'cprt' : 'text' :     71 : 149452
+ 'dmnd' : 'desc' :    110 : 149524
+ 'dmdd' : 'desc' :    107 : 149636
+ 'lumi' : 'XYZ ' :     20 : 149744
+ 'wtpt' : 'XYZ ' :     20 : 149764
+ 'desc' : 'desc' :    107 : 149636
+ 'rXYZ' : 'XYZ ' :     20 : 149784
+ 'gXYZ' : 'XYZ ' :     20 : 149804
+ 'bXYZ' : 'XYZ ' :     20 : 149824
+ 'rTRC' : 'curv' :    524 : 149844
+ 'gTRC' : 'curv' :    524 : 149844
+ 'bTRC' : 'curv' :    524 : 149844
+
+~TRC : 2.405, 0.9456, 0.0526, 0.15, 0.004353, 0
+rTRC : 16-bit table with 256 entries
+gTRC : 16-bit table with 256 entries
+bTRC : 16-bit table with 256 entries
+ XYZ : | 0.437637329 0.388412476 0.142410278 |
+       | 0.214950562 0.712905884 0.072128296 |
+       | 0.011260986 0.080718994 0.725875854 |
+ A2B : "A", CLUT, "B"
+ "A" : 3 inputs
+  A0 : 16-bit table with 256 entries
+  A1 : 16-bit table with 256 entries
+  A2 : 16-bit table with 256 entries
+CLUT : 8 x 8 x 8 (16 bpp)
+ "B" : 3 outputs
+  B0 : 16-bit table with 4096 entries
+  B1 : 16-bit table with 4096 entries
+  B2 : 16-bit table with 4096 entries

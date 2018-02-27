@@ -1,0 +1,49 @@
+                Size : 0x00007620 : 30240
+            CMM type : 0x6170706C : 'appl'
+             Version : 0x04000000 : 4.0.0
+       Profile class : 0x73636E72 : 'scnr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2016-01-01 00:00:00
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4150504C : 'APPL'
+               Flags : 0x00000000
+ Device manufacturer : 0x4150504C : 'APPL'
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x6170706C : 'appl'
+           Tag count : 0x00000008 : 8
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :    123 : 228
+ 'cprt' : 'text' :     35 : 352
+ 'wtpt' : 'XYZ ' :     20 : 388
+ 'A2B2' : 'mAB ' :  29772 : 408
+ 'chad' : 'sf32' :     44 : 30180
+ 'aapy' : 'data' :     14 : 30224
+ 'A2B0' : 'mAB ' :  29772 : 408
+ 'A2B1' : 'mAB ' :  29772 : 408
+
+ A2B : "A", CLUT, "M", Matrix, "B"
+ "A" : 3 inputs
+  A0 : 16-bit table with 2 entries
+  A1 : 16-bit table with 2 entries
+  A2 : 16-bit table with 2 entries
+CLUT : 17 x 17 x 17 (16 bpp)
+ "M" : 3 inputs
+  M0 : 2.3999939, 0.947906494, 0.0520935059, 0.0773925781, 0.0393066406, 0, 0
+  M1 : 2.3999939, 0.947906494, 0.0520935059, 0.0773925781, 0.0393066406, 0, 0
+  M2 : 2.3999939, 0.947906494, 0.0520935059, 0.0773925781, 0.0393066406, 0, 0
+Mtrx : | 0.253631592 0.150619507 0.077850342 0.000000000 |
+       | 0.119674683 0.347351074 0.032989502 0.000000000 |
+       | 0.000228882 0.023696899 0.388580322 0.000000000 |
+ "B" : 3 outputs
+  B0 : 16-bit table with 2 entries
+  B1 : 16-bit table with 2 entries
+  B2 : 16-bit table with 2 entries
