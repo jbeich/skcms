@@ -4,14 +4,14 @@ project(skcms)
 add_library(skcms skcms.c)
 
 enable_testing()
-add_executable(tests tests.c)
+add_executable(tests tests.c test_only.c)
 target_link_libraries(tests skcms)
 add_test(tests tests)
 
 add_executable(bench bench.c)
 target_link_libraries(bench skcms)
 
-add_executable(iccdump iccdump.c)
+add_executable(iccdump iccdump.c test_only.c)
 target_link_libraries(iccdump skcms)
 
 add_executable(fuzz_iccprofile_atf fuzz/fuzz_iccprofile_atf.c fuzz/fuzz_main.c)
