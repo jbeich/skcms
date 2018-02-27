@@ -1,0 +1,39 @@
+                Size : 0x000007A8 : 1960
+            CMM type : 0x6170706C : 'appl'
+             Version : 0x02200000 : 2.2.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2009-02-25 11:26:11
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4150504C : 'APPL'
+               Flags : 0x00000000
+ Device manufacturer : 0x6170706C : 'appl'
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x6170706C : 'appl'
+           Tag count : 0x0000000B : 11
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :    111 : 264
+ 'dscm' : 'mluc' :   1388 : 376
+ 'cprt' : 'text' :     56 : 1764
+ 'wtpt' : 'XYZ ' :     20 : 1820
+ 'rXYZ' : 'XYZ ' :     20 : 1840
+ 'gXYZ' : 'XYZ ' :     20 : 1860
+ 'bXYZ' : 'XYZ ' :     20 : 1880
+ 'rTRC' : 'curv' :     14 : 1900
+ 'chad' : 'sf32' :     44 : 1916
+ 'bTRC' : 'curv' :     14 : 1900
+ 'gTRC' : 'curv' :     14 : 1900
+
+ TRC : 1.80078125, 1, 0, 0, 0, 0, 0
+ XYZ : | 0.454299927 0.353347778 0.156646729 |
+       | 0.241912842 0.673629761 0.084457397 |
+       | 0.014892578 0.090637207 0.719573975 |

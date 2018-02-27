@@ -1,14 +1,16 @@
 build $out/skcms.o: compile skcms.c
 
+build $out/test_only.o: compile test_only.c
+
 build $out/tests.o:   compile tests.c
-build $out/tests$exe: link $out/skcms.o $out/tests.o
+build $out/tests$exe: link $out/skcms.o $out/tests.o $out/test_only.o
 build $out/tests.ok:  run  $out/tests$exe
 
 build $out/bench.o:   compile bench.c
 build $out/bench$exe: link $out/skcms.o $out/bench.o
 
 build $out/iccdump.o:   compile iccdump.c
-build $out/iccdump$exe: link $out/skcms.o $out/iccdump.o
+build $out/iccdump$exe: link $out/skcms.o $out/iccdump.o $out/test_only.o
 
 build $out/fuzz/fuzz_main.o: compile fuzz/fuzz_main.c
 
