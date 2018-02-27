@@ -1,0 +1,47 @@
+                Size : 0x00000BE8 : 3048
+            CMM type : 0x00000000 : ''
+             Version : 0x02000000 : 2.0.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2009-03-27 21:36:31
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x00000000 : ''
+               Flags : 0x00000000
+ Device manufacturer : 0x00000000 : ''
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000001
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x00000000 : ''
+           Tag count : 0x00000010 : 16
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :    121 : 324
+ 'bXYZ' : 'XYZ ' :     20 : 448
+ 'bTRC' : 'curv' :   2060 : 468
+ 'dmdd' : 'desc' :    136 : 2528
+ 'gXYZ' : 'XYZ ' :     20 : 2664
+ 'gTRC' : 'curv' :   2060 : 468
+ 'lumi' : 'XYZ ' :     20 : 2684
+ 'meas' : 'meas' :     36 : 2704
+ 'bkpt' : 'XYZ ' :     20 : 2740
+ 'rXYZ' : 'XYZ ' :     20 : 2760
+ 'rTRC' : 'curv' :   2060 : 468
+ 'tech' : 'sig ' :     12 : 2780
+ 'vued' : 'desc' :    135 : 2792
+ 'wtpt' : 'XYZ ' :     20 : 2928
+ 'cprt' : 'text' :     55 : 2948
+ 'chad' : 'sf32' :     44 : 3004
+
+~TRC : 2.40018582, 0.947783947, 0.0522187948, 0.0784040764, 0.0322580636, 0, 0  (Max error: 2.66840216e-05)
+rTRC : 16-bit table with 1024 entries
+gTRC : 16-bit table with 1024 entries
+bTRC : 16-bit table with 1024 entries
+ XYZ : | 0.436065674 0.385147095 0.143066406 |
+       | 0.222488403 0.716873169 0.060607910 |
+       | 0.013916016 0.097076416 0.714096069 |

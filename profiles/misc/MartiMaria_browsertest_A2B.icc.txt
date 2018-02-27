@@ -1,0 +1,40 @@
+                Size : 0x00007554 : 30036
+            CMM type : 0x6C636D73 : 'lcms'
+             Version : 0x02100000 : 2.1.0
+       Profile class : 0x73636E72 : 'scnr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2011-06-02 14:26:15
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4D534654 : 'MSFT'
+               Flags : 0x00000000
+ Device manufacturer : 0x00000000 : ''
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x6C636D73 : 'lcms'
+           Tag count : 0x00000006 : 6
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :    212 : 204
+ 'cprt' : 'text' :     41 : 416
+ 'wtpt' : 'XYZ ' :     20 : 460
+ 'A2B0' : 'mft2' :  29554 : 480
+ 'A2B1' : 'mft2' :  29554 : 480
+ 'A2B2' : 'mft2' :  29554 : 480
+
+ A2B : "A", CLUT, "B"
+ "A" : 3 inputs
+  A0 : 16-bit table with 2 entries
+  A1 : 16-bit table with 2 entries
+  A2 : 16-bit table with 2 entries
+CLUT : 17 x 17 x 17 (16 bpp)
+ "B" : 3 outputs
+  B0 : 16-bit table with 2 entries
+  B1 : 16-bit table with 2 entries
+  B2 : 16-bit table with 2 entries

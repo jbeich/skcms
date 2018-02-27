@@ -1,0 +1,37 @@
+                Size : 0x000001DA : 474
+            CMM type : 0x4D534654 : 'MSFT'
+             Version : 0x02100000 : 2.1.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2005-10-18 16:02:04
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4150504C : 'APPL'
+               Flags : 0x00000000
+ Device manufacturer : 0x6E6F6E65 : 'none'
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000001 : 1
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824890137
+             Creator : 0x4D534654 : 'MSFT'
+           Tag count : 0x00000009 : 9
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'cprt' : 'text' :     38 : 240
+ 'desc' : 'desc' :    100 : 280
+ 'wtpt' : 'XYZ ' :     20 : 380
+ 'rXYZ' : 'XYZ ' :     20 : 400
+ 'gXYZ' : 'XYZ ' :     20 : 420
+ 'bXYZ' : 'XYZ ' :     20 : 440
+ 'rTRC' : 'curv' :     14 : 460
+ 'gTRC' : 'curv' :     14 : 460
+ 'bTRC' : 'curv' :     14 : 460
+
+ TRC : 1.80078125, 1, 0, 0, 0, 0, 0
+ XYZ : | 0.385116577 0.143035889 0.436050415 |
+       | 0.716903687 0.060607910 0.222488403 |
+       | 0.097061157 0.713912964 0.013916016 |
