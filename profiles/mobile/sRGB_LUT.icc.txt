@@ -1,0 +1,42 @@
+                Size : 0x00000A40 : 2624
+            CMM type : 0x00000000 : ''
+             Version : 0x04000000 : 4.0.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2016-12-06 10:18:00
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x00000000 : ''
+               Flags : 0x00000000
+ Device manufacturer : 0x474F4F47 : 'GOOG'
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x474F4F47 : 'GOOG'
+           Tag count : 0x0000000B : 11
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'mluc' :     64 : 264
+ 'cprt' : 'mluc' :     90 : 328
+ 'wtpt' : 'XYZ ' :     20 : 420
+ 'bkpt' : 'XYZ ' :     20 : 440
+ 'rXYZ' : 'XYZ ' :     20 : 460
+ 'gXYZ' : 'XYZ ' :     20 : 480
+ 'bXYZ' : 'XYZ ' :     20 : 500
+ 'rTRC' : 'curv' :   2060 : 520
+ 'chad' : 'sf32' :     44 : 2580
+ 'bTRC' : 'curv' :   2060 : 520
+ 'gTRC' : 'curv' :   2060 : 520
+
+~TRC : 2.4, 0.9478, 0.0522, 0.078, 0.03, 0, 0
+rTRC : 16-bit table with 1024 entries
+gTRC : 16-bit table with 1024 entries
+bTRC : 16-bit table with 1024 entries
+ XYZ : | 0.436035156 0.385116577 0.143051147 |
+       | 0.222488403 0.716903687 0.060607910 |
+       | 0.013916016 0.097061157 0.713912964 |

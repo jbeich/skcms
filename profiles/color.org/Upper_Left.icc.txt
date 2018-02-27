@@ -1,0 +1,47 @@
+                Size : 0x00001D24 : 7460
+            CMM type : 0x41444245 : 'ADBE'
+             Version : 0x04000000 : 4.0.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2002-10-15 00:00:00
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4150504C : 'APPL'
+               Flags : 0x00000000
+ Device manufacturer : 0x00000000 : ''
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000001 : 1
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x41444245 : 'ADBE'
+           Tag count : 0x0000000B : 11
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'cprt' : 'mluc' :    110 : 264
+ 'desc' : 'mluc' :     40 : 376
+ 'wtpt' : 'XYZ ' :     20 : 416
+ 'bkpt' : 'XYZ ' :     20 : 436
+ 'chad' : 'sf32' :     44 : 456
+ 'A2B0' : 'mAB ' :   1688 : 500
+ 'A2B2' : 'mAB ' :   1688 : 500
+ 'A2B1' : 'mAB ' :   1688 : 2188
+ 'B2A0' : 'mBA ' :   1792 : 3876
+ 'B2A2' : 'mBA ' :   1792 : 3876
+ 'B2A1' : 'mBA ' :   1792 : 5668
+
+ A2B : "M", Matrix, "B"
+ "M" : 3 inputs
+  M0 : 16-bit table with 256 entries
+  M1 : 16-bit table with 256 entries
+  M2 : 16-bit table with 256 entries
+Mtrx : | 0.479705811 0.423675537 0.157409668 -0.251556396 |
+       | 0.244720459 0.788772583 0.066696167 -0.260910034 |
+       | 0.015289307 0.106796265 0.785446167 -0.215225220 |
+ "B" : 3 outputs
+  B0 : 1, 1, 0, 0, 0, 0, 0
+  B1 : 1, 1, 0, 0, 0, 0, 0
+  B2 : 1, 1, 0, 0, 0, 0, 0
