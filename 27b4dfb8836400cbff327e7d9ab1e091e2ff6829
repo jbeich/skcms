@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da420da3_b8f5c382",
+        "filename": "build/targets",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-02-27T21:46:19Z",
+      "side": 1,
+      "message": "It\u0027s a little weird to have TestOnly.c in src/ among the rest of the implementation of skcms.  What if we just move it to top level?\n\nRelated, might want to also move its build line up here with the test tools?  The ones below are kind of optional builds, given that we already have skcms.o built, but TestOnly.o definitely needs to be built.\n\nOr, crazy idea, merge iccdump and tests completely into one binary, with the union of tests.c, iccdump.c, and TestOnly.c?",
+      "revId": "27b4dfb8836400cbff327e7d9ab1e091e2ff6829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
