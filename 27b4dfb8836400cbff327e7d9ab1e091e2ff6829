@@ -16,6 +16,24 @@
       "revId": "27b4dfb8836400cbff327e7d9ab1e091e2ff6829",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6574a50_759fc57a",
+        "filename": "build/targets",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-02-27T22:04:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da420da3_b8f5c382",
+      "revId": "27b4dfb8836400cbff327e7d9ab1e091e2ff6829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
