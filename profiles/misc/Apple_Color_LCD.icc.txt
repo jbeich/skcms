@@ -1,0 +1,48 @@
+                Size : 0x00000F28 : 3880
+            CMM type : 0x6170706C : 'appl'
+             Version : 0x02100000 : 2.1.0
+       Profile class : 0x6D6E7472 : 'mntr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+  Creation date/time :            : 2015-01-02 09:15:26
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4150504C : 'APPL'
+               Flags : 0x00000000
+ Device manufacturer : 0x00000000 : ''
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000001 : 1
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x6170706C : 'appl'
+           Tag count : 0x00000011 : 17
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :     98 : 336
+ 'dscm' : 'mluc' :   1038 : 436
+ 'cprt' : 'text' :     35 : 1476
+ 'wtpt' : 'XYZ ' :     20 : 1512
+ 'rXYZ' : 'XYZ ' :     20 : 1532
+ 'gXYZ' : 'XYZ ' :     20 : 1552
+ 'bXYZ' : 'XYZ ' :     20 : 1572
+ 'rTRC' : 'curv' :   2060 : 1592
+ 'aarg' : 'para' :     32 : 3652
+ 'vcgt' : 'vcgt' :     48 : 3684
+ 'ndin' : 'ndin' :     62 : 3732
+ 'chad' : 'sf32' :     44 : 3796
+ 'mmod' : 'mmod' :     40 : 3840
+ 'bTRC' : 'curv' :   2060 : 1592
+ 'gTRC' : 'curv' :   2060 : 1592
+ 'aabg' : 'para' :     32 : 3652
+ 'aagg' : 'para' :     32 : 3652
+
+~TRC : 2.40018582, 0.947783947, 0.0522187948, 0.0779572651, 0.0342130996, 0, 0  (Max error: 2.75298953e-05)
+rTRC : 16-bit table with 1024 entries
+gTRC : 16-bit table with 1024 entries
+bTRC : 16-bit table with 1024 entries
+ XYZ : | 0.444335938 0.379440308 0.140411377 |
+       | 0.224761963 0.726165771 0.049072266 |
+       | 0.005477905 0.077972412 0.741455078 |
