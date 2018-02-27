@@ -1,0 +1,49 @@
+                Size : 0x0034FB80 : 3472256
+            CMM type : 0x00000000 : ''
+             Version : 0x02000000 : 2.0.0
+       Profile class : 0x70727472 : 'prtr'
+    Data color space : 0x434D594B : 'CMYK'
+                 PCS : 0x4C616220 : 'Lab '
+  Creation date/time :            : 2007-01-26 01:22:53
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4150504C : 'APPL'
+               Flags : 0x00020000
+ Device manufacturer : 0x00000000 : ''
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000001 : 1
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x4D4F4E53 : 'MONS'
+           Tag count : 0x0000000E : 14
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'wtpt' : 'XYZ ' :     20 : 300
+ 'bkpt' : 'XYZ ' :     20 : 320
+ 'cprt' : 'text' :     31 : 340
+ 'A2B0' : 'mft2' : 558522 : 372
+ 'A2B1' : 'mft2' : 558522 : 558896
+ 'A2B2' : 'mft2' : 558522 : 1117420
+ 'B2A0' : 'mft2' : 344892 : 1675944
+ 'B2A1' : 'mft2' : 344892 : 2020836
+ 'B2A2' : 'mft2' : 344892 : 2365728
+ 'gamt' : 'mft1' :  37009 : 2710620
+ 'chad' : 'sf32' :     44 : 2747632
+ 'DEVD' : 'MSBN' :  32216 : 2747676
+ 'DEVS' : 'MSBN' : 692224 : 2779892
+ 'desc' : 'desc' :    138 : 3472116
+
+ A2B : "A", CLUT, "B"
+ "A" : 4 inputs
+  A0 : 16-bit table with 4096 entries
+  A1 : 16-bit table with 4096 entries
+  A2 : 16-bit table with 4096 entries
+  A3 : 16-bit table with 4096 entries
+CLUT : 17 x 17 x 17 x 17 (16 bpp)
+ "B" : 3 outputs
+  B0 : 16-bit table with 4096 entries
+  B1 : 16-bit table with 4096 entries
+  B2 : 16-bit table with 4096 entries

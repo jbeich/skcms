@@ -1,0 +1,49 @@
+                Size : 0x0009FC10 : 654352
+            CMM type : 0x41444245 : 'ADBE'
+             Version : 0x02100000 : 2.1.0
+       Profile class : 0x70727472 : 'prtr'
+    Data color space : 0x434D594B : 'CMYK'
+                 PCS : 0x4C616220 : 'Lab '
+  Creation date/time :            : 2007-05-15 16:30:03
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x4150504C : 'APPL'
+               Flags : 0x00000000
+ Device manufacturer : 0x41444245 : 'ADBE'
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000001 : 1
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x41444245 : 'ADBE'
+           Tag count : 0x0000000E : 14
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :    124 : 300
+ 'cprt' : 'text' :     43 : 424
+ 'wtpt' : 'XYZ ' :     20 : 468
+ 'targ' : 'text' :     24 : 488
+ 'tech' : 'sig ' :     12 : 512
+ 'vued' : 'desc' :     94 : 524
+ 'view' : 'view' :     36 : 620
+ 'A2B0' : 'mft2' :  89958 : 656
+ 'A2B2' : 'mft2' :  89958 : 656
+ 'A2B1' : 'mft2' :  89958 : 90616
+ 'B2A0' : 'mft1' : 145588 : 180576
+ 'B2A1' : 'mft1' : 145588 : 326164
+ 'B2A2' : 'mft1' : 145588 : 471752
+ 'gamt' : 'mft1' :  37009 : 617340
+
+ A2B : "A", CLUT, "B"
+ "A" : 4 inputs
+  A0 : 16-bit table with 256 entries
+  A1 : 16-bit table with 256 entries
+  A2 : 16-bit table with 256 entries
+  A3 : 16-bit table with 256 entries
+CLUT : 11 x 11 x 11 x 11 (16 bpp)
+ "B" : 3 outputs
+  B0 : 16-bit table with 2 entries
+  B1 : 16-bit table with 2 entries
+  B2 : 16-bit table with 2 entries

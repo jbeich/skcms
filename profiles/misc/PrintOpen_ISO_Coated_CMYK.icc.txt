@@ -1,0 +1,48 @@
+                Size : 0x001BE8D5 : 1829077
+            CMM type : 0x48444D20 : 'HDM '
+             Version : 0x02400000 : 2.4.0
+       Profile class : 0x70727472 : 'prtr'
+    Data color space : 0x434D594B : 'CMYK'
+                 PCS : 0x4C616220 : 'Lab '
+  Creation date/time :            : 2007-02-28 08:00:00
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x00000000 : ''
+               Flags : 0x00000000
+ Device manufacturer : 0x00000000 : ''
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x48444D20 : 'HDM '
+           Tag count : 0x0000000D : 13
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'cprt' : 'text' :    103 : 288
+ 'wtpt' : 'XYZ ' :     20 : 392
+ 'A2B0' : 'mft2' : 396852 : 412
+ 'B2A0' : 'mft2' : 291132 : 397264
+ 'gamt' : 'mft1' :  33840 : 688396
+ 'A2B1' : 'mft2' : 396852 : 722236
+ 'B2A1' : 'mft2' : 291132 : 1119088
+ 'A2B2' : 'mft2' : 396852 : 412
+ 'B2A2' : 'mft2' : 291132 : 1410220
+ 'kTRC' : 'curv' :    524 : 1701352
+ 'hd10' : 'text' :    364 : 1701876
+ 'desc' : 'desc' :    152 : 1702240
+ 'targ' : 'text' : 126685 : 1702392
+
+ A2B : "A", CLUT, "B"
+ "A" : 4 inputs
+  A0 : 16-bit table with 256 entries
+  A1 : 16-bit table with 256 entries
+  A2 : 16-bit table with 256 entries
+  A3 : 16-bit table with 256 entries
+CLUT : 16 x 16 x 16 x 16 (16 bpp)
+ "B" : 3 outputs
+  B0 : 16-bit table with 256 entries
+  B1 : 16-bit table with 256 entries
+  B2 : 16-bit table with 256 entries
