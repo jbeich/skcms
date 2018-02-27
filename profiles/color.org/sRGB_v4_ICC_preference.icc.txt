@@ -1,0 +1,50 @@
+                Size : 0x0000EE20 : 60960
+            CMM type : 0x00000000 : ''
+             Version : 0x04200000 : 4.2.0
+       Profile class : 0x73706163 : 'spac'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x4C616220 : 'Lab '
+  Creation date/time :            : 2007-07-25 00:05:37
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x00000000 : ''
+               Flags : 0x00000000
+ Device manufacturer : 0x00000000 : ''
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x00000000
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x00000000 : ''
+           Tag count : 0x00000009 : 9
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'mluc' :    118 : 240
+ 'A2B0' : 'mAB ' :  29712 : 360
+ 'A2B1' : 'mAB ' :    436 : 30072
+ 'B2A0' : 'mBA ' :  29748 : 30508
+ 'B2A1' : 'mBA ' :    508 : 60256
+ 'rig0' : 'sig ' :     12 : 60764
+ 'wtpt' : 'XYZ ' :     20 : 60776
+ 'cprt' : 'mluc' :    118 : 60796
+ 'chad' : 'sf32' :     44 : 60916
+
+ A2B : "A", CLUT, "M", Matrix, "B"
+ "A" : 3 inputs
+  A0 : 1, 1, 0, 0, 0, 0, 0
+  A1 : 1, 1, 0, 0, 0, 0, 0
+  A2 : 1, 1, 0, 0, 0, 0, 0
+CLUT : 17 x 17 x 17 (16 bpp)
+ "M" : 3 inputs
+  M0 : 1, 1, 0, 0, 0, 0, 0
+  M1 : 1, 1, 0, 0, 0, 0, 0
+  M2 : 1, 1, 0, 0, 0, 0, 0
+Mtrx : | 1.000000000 0.000000000 0.000000000 0.000000000 |
+       | 0.000000000 1.000000000 0.000000000 0.000000000 |
+       | 0.000000000 0.000000000 1.000000000 0.000000000 |
+ "B" : 3 outputs
+  B0 : 1, 1, 0, 0, 0, 0, 0
+  B1 : 1, 1, 0, 0, 0, 0, 0
+  B2 : 1, 1, 0, 0, 0, 0, 0

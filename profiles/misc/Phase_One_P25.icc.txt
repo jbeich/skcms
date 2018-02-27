@@ -1,0 +1,52 @@
+                Size : 0x000358E4 : 219364
+            CMM type : 0x00000000 : ''
+             Version : 0x02100000 : 2.1.0
+       Profile class : 0x73636E72 : 'scnr'
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x4C616220 : 'Lab '
+  Creation date/time :            : 2004-05-06 14:47:01
+           Signature : 0x61637370 : 'acsp'
+            Platform : 0x00000000 : ''
+               Flags : 0x00000002
+ Device manufacturer : 0x504F6E65 : 'POne'
+        Device model : 0x00000000 : ''
+   Device attributes : 0x00000000
+                     : 0x006E45F0
+    Rendering intent : 0x00000000 : 0
+        Illuminant X :            : 0.964202881
+        Illuminant Y :            : 1
+        Illuminant Z :            : 0.824905396
+             Creator : 0x504F6E65 : 'POne'
+           Tag count : 0x0000000C : 12
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :    119 : 276
+ 'cprt' : 'text' :     63 : 395
+ 'rXYZ' : 'XYZ ' :     20 : 458
+ 'gXYZ' : 'XYZ ' :     20 : 478
+ 'bXYZ' : 'XYZ ' :     20 : 498
+ 'rTRC' : 'curv' :    524 : 518
+ 'gTRC' : 'curv' :    524 : 1042
+ 'bTRC' : 'curv' :    524 : 1566
+ 'wtpt' : 'XYZ ' :     20 : 2090
+ 'bkpt' : 'XYZ ' :     20 : 2110
+ 'A2B0' : 'mft2' : 217222 : 2130
+ 'tech' : 'sig ' :     12 : 219352
+
+rTRC : 16-bit table with 256 entries
+gTRC : 16-bit table with 256 entries
+bTRC : 16-bit table with 256 entries
+ XYZ : | 0.647903442 0.357360840 0.156417847 |
+       | 0.382919312 1.109725952 0.000000000 |
+       | 0.083267212 0.679275513 0.523422241 |
+ A2B : "A", CLUT, "B"
+ "A" : 3 inputs
+  A0 : 16-bit table with 256 entries
+  A1 : 16-bit table with 256 entries
+  A2 : 16-bit table with 256 entries
+CLUT : 33 x 33 x 33 (16 bpp)
+ "B" : 3 outputs
+  B0 : 16-bit table with 2 entries
+  B1 : 16-bit table with 2 entries
+  B2 : 16-bit table with 2 entries
