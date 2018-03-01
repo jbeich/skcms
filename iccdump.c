@@ -45,6 +45,9 @@ static const double kSVGMarginBottom = 50.0;
 static const double kSVGScaleX = 800.0;
 static const double kSVGScaleY = 800.0;
 
+static const char* kSVG_RGB_Colors[3] = { "red", "green", "blue" };
+static const char* kSVG_CMYK_Colors[4] = { "cyan", "magenta", "yellow", "black" };
+
 static double svg_map_x(double x) {
     return x * kSVGScaleX + kSVGMarginLeft;
 }
@@ -53,53 +56,65 @@ static double svg_map_y(double y) {
     return (1.0 - y) * kSVGScaleY + kSVGMarginTop;
 }
 
-static void dump_curves_svg(const char* name, uint32_t num_curves, const skcms_Curve* curves) {
-    char filename[256];
-    if (snprintf(filename, sizeof(filename), "%s.svg", name) < 0) {
-        return;
-    }
+static FILE* svg_open(const char* filename) {
     FILE* fp = fopen(filename, "wb");
     if (!fp) {
-        return;
+        fatal("Unable to open output file");
     }
 
     fprintf(fp, "<svg width=\"%f\" height=\"%f\" xmlns=\"http://www.w3.org/2000/svg\">\n",
             kSVGMarginLeft + kSVGScaleX + kSVGMarginRight,
             kSVGMarginTop + kSVGScaleY + kSVGMarginBottom);
-    // Axes
-    fprintf(fp, "<polyline fill=\"none\" stroke=\"black\" points=\"%f,%f %f,%f %f,%f\"/>\n",
-            svg_map_x(0), svg_map_y(1), svg_map_x(0), svg_map_y(0), svg_map_x(1), svg_map_y(0));
+    return fp;
+}
 
-    // Curves
-    const char* rgb_colors[3] = { "red", "green", "blue" };
-    const char* cmyk_colors[4] = { "cyan", "magenta", "yellow", "black" };
-    const char** colors = (num_curves == 3) ? rgb_colors : cmyk_colors;
-    for (uint32_t c = 0; c < num_curves; ++c) {
-        uint32_t num_entries = curves[c].table_entries ? curves[c].table_entries : 256;
-        double yScale = curves[c].table_8 ? (1.0 / 255) : curves[c].table_16 ? (1.0 / 65535) : 1.0;
-
-        fprintf(fp, "<polyline fill=\"none\" stroke=\"%s\" vector-effect=\"non-scaling-stroke\" "
-                    "transform=\"matrix(%f 0 0 %f %f %f)\" points=\"\n",
-                colors[c],
-                kSVGScaleX / (num_entries - 1.0), -kSVGScaleY * yScale,
-                kSVGMarginLeft, kSVGScaleY + kSVGMarginTop);
-
-        for (uint32_t i = 0; i < num_entries; ++i) {
-            if (curves[c].table_8) {
-                fprintf(fp, "%3u, %3u\n", i, curves[c].table_8[i]);
-            } else if (curves[c].table_16) {
-                fprintf(fp, "%4u, %5u\n", i, read_big_u16(curves[c].table_16 + 2 * i));
-            } else {
-                double x = i / (num_entries - 1.0);
-                double t = (double)skcms_TransferFunction_eval(&curves[c].parametric, (float)x);
-                fprintf(fp, "%f, %f\n", x, t);
-            }
-        }
-        fprintf(fp, "\"/>\n");
-    }
-
+static void svg_close(FILE* fp) {
     fprintf(fp, "</svg>\n");
     fclose(fp);
+}
+
+static void svg_axes(FILE* fp) {
+    fprintf(fp, "<polyline fill=\"none\" stroke=\"black\" points=\"%f,%f %f,%f %f,%f\"/>\n",
+            svg_map_x(0), svg_map_y(1), svg_map_x(0), svg_map_y(0), svg_map_x(1), svg_map_y(0));
+}
+
+static void svg_curve(FILE* fp, const skcms_Curve* curve, const char* color) {
+    uint32_t num_entries = curve->table_entries ? curve->table_entries : 256;
+    double yScale = curve->table_8 ? (1.0 / 255) : curve->table_16 ? (1.0 / 65535) : 1.0;
+
+    fprintf(fp, "<polyline fill=\"none\" stroke=\"%s\" vector-effect=\"non-scaling-stroke\" "
+            "transform=\"matrix(%f 0 0 %f %f %f)\" points=\"\n",
+            color,
+            kSVGScaleX / (num_entries - 1.0), -kSVGScaleY * yScale,
+            kSVGMarginLeft, kSVGScaleY + kSVGMarginTop);
+
+    for (uint32_t i = 0; i < num_entries; ++i) {
+        if (curve->table_8) {
+            fprintf(fp, "%3u, %3u\n", i, curve->table_8[i]);
+        } else if (curve->table_16) {
+            fprintf(fp, "%4u, %5u\n", i, read_big_u16(curve->table_16 + 2 * i));
+        } else {
+            double x = i / (num_entries - 1.0);
+            double t = (double)skcms_TransferFunction_eval(&curve->parametric, (float)x);
+            fprintf(fp, "%3u, %f\n", i, t);
+        }
+    }
+    fprintf(fp, "\"/>\n");
+}
+
+static void svg_curves(FILE* fp, uint32_t num_curves, const skcms_Curve* curves,
+                       const char** colors) {
+    for (uint32_t c = 0; c < num_curves; ++c) {
+        svg_curve(fp, curves + c, colors[c]);
+    }
+}
+
+static void dump_curves_svg(const char* filename, uint32_t num_curves, const skcms_Curve* curves) {
+    FILE* fp = svg_open(filename);
+    svg_axes(fp);
+    fprintf(fp, "<text x=\"20\" y=\"20\" font-size=\"18\">%s</text>\n", filename);
+    svg_curves(fp, num_curves, curves, (num_curves == 3) ? kSVG_RGB_Colors : kSVG_CMYK_Colors);
+    svg_close(fp);
 }
 
 int main(int argc, char** argv) {
@@ -119,27 +134,10 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    FILE* fp = fopen(filename, "rb");
-    if (!fp) {
-        fatal("Unable to open input file");
-    }
-
-    fseek(fp, 0L, SEEK_END);
-    long slen = ftell(fp);
-    if (slen <= 0) {
-        fatal("ftell failed");
-    }
-    size_t len = (size_t)slen;
-    rewind(fp);
-
-    void* buf = malloc(len);
-    if (!buf) {
-        fatal("malloc failed");
-    }
-    size_t bytesRead = fread(buf, 1, len, fp);
-    fclose(fp);
-    if (bytesRead != len) {
-        fatal("Unable to read file");
+    void* buf = NULL;
+    size_t len = 0;
+    if (!load_file(filename, &buf, &len)) {
+        fatal("Unable to load input file");
     }
 
     skcms_ICCProfile profile;
@@ -151,20 +149,30 @@ int main(int argc, char** argv) {
 
     if (svg) {
         if (profile.has_trc) {
-            dump_curves_svg("TRC_curves", 3, profile.trc);
+            FILE* fp = svg_open("TRC_curves.svg");
+            svg_axes(fp);
+            svg_curves(fp, 3, profile.trc, kSVG_RGB_Colors);
+            skcms_Curve approx;
+            float max_error;
+            if (skcms_ApproximateTransferFunction(&profile, &approx.parametric, &max_error)) {
+                approx.table_8 = approx.table_16 = NULL;
+                approx.table_entries = 0;
+                svg_curve(fp, &approx, "magenta");
+            }
+            svg_close(fp);
         }
 
         if (profile.has_A2B) {
             const skcms_A2B* a2b = &profile.A2B;
             if (a2b->input_channels) {
-                dump_curves_svg("A_curves", a2b->input_channels, a2b->input_curves);
+                dump_curves_svg("A_curves.svg", a2b->input_channels, a2b->input_curves);
             }
 
             if (a2b->matrix_channels) {
-                dump_curves_svg("M_curves", a2b->matrix_channels, a2b->matrix_curves);
+                dump_curves_svg("M_curves.svg", a2b->matrix_channels, a2b->matrix_curves);
             }
 
-            dump_curves_svg("B_curves", a2b->output_channels, a2b->output_curves);
+            dump_curves_svg("B_curves.svg", a2b->output_channels, a2b->output_curves);
         }
     }
 
