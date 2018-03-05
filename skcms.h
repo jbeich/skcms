@@ -107,12 +107,6 @@ typedef struct {
 
     // skcms_Parse() will set commonly-used fields for you when possible:
 
-    // If the transfer functions for all color channels in this profile are
-    // identical and can be represented by a single skcms_TransferFunction,
-    // skcms_Parse() sets tf to that function and has_tf to true.
-    bool                   has_tf;
-    skcms_TransferFunction tf;
-
     // If we can parse red, green and blue transfer curves from the profile,
     // trc will be set to those three curves, and has_trc will be true.
     bool                   has_trc;

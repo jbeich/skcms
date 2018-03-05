@@ -10,9 +10,10 @@
 #endif
 
 #include "skcms.h"
-#include "test_only.h"
 #include "src/TransferFunction.h"
+#include "test_only.h"
 #include <stdlib.h>
+#include <string.h>
 
 static void signature_to_string(uint32_t sig, char* str) {
     str[0] = (char)((sig >> 24) & 0xFF);
@@ -45,6 +46,28 @@ static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve) {
     } else {
         dump_transfer_function(fp, name, &curve->parametric);
     }
+}
+
+static bool has_single_transfer_function(const skcms_ICCProfile* profile,
+                                         skcms_TransferFunction* tf) {
+    if (profile->has_trc &&
+            profile->trc[0].table_entries == 0 &&
+            profile->trc[1].table_entries == 0 &&
+            profile->trc[2].table_entries == 0) {
+
+        if (0 != memcmp(&profile->trc[0].parametric,
+                        &profile->trc[1].parametric, sizeof(skcms_TransferFunction))) {
+            return false;
+        }
+        if (0 != memcmp(&profile->trc[0].parametric,
+                        &profile->trc[2].parametric, sizeof(skcms_TransferFunction))) {
+            return false;
+        }
+
+        memcpy(tf, &profile->trc[0].parametric, sizeof(skcms_TransferFunction));
+        return true;
+    }
+    return false;
 }
 
 void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test) {
@@ -94,9 +117,11 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
     fprintf(fp, "\n");
 
     skcms_TransferFunction tf;
+    bool has_single_tf = has_single_transfer_function(profile, &tf);
+
     float max_error;
-    if (profile->has_tf) {
-        dump_transfer_function(fp, "TRC", &profile->tf);
+    if (has_single_tf) {
+        dump_transfer_function(fp, "TRC", &tf);
     } else if (skcms_ApproximateTransferFunction(profile, &tf, &max_error)) {
         if (for_unit_test) {
             // The approximated transfer function can vary significantly, due to FMA, etc. In unit
@@ -113,7 +138,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
         }
     }
 
-    if (!profile->has_tf && profile->has_trc) {
+    if (!has_single_tf && profile->has_trc) {
         const char* trcNames[3] = { "rTRC", "gTRC", "bTRC" };
         for (int i = 0; i < 3; ++i) {
             dump_curve(fp, trcNames[i], &profile->trc[i]);

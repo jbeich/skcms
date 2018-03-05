@@ -741,13 +741,21 @@ static void force_opaque(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void transfer_function(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void transfer_function_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
-
     r = apply_transfer_function(tf, r);
-    g = apply_transfer_function(tf, g);
-    b = apply_transfer_function(tf, b);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
 
+static void transfer_function_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_TransferFunction* tf = *ctx->args++;
+    g = apply_transfer_function(tf, g);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
+static void transfer_function_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_TransferFunction* tf = *ctx->args++;
+    b = apply_transfer_function(tf, b);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
@@ -780,6 +788,13 @@ SI size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     return 0;
 }
 
+static bool is_parametric(const skcms_ICCProfile* profile) {
+    return profile->has_trc
+        && profile->trc[0].table_entries == 0
+        && profile->trc[1].table_entries == 0
+        && profile->trc[2].table_entries == 0;
+}
+
 bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
                            void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
                      size_t nz) {
@@ -809,7 +824,7 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
     void**       ip   = program;
     const void** args = arguments;
 
-    skcms_TransferFunction inv_dst_tf;
+    skcms_TransferFunction inv_dst_tf_r, inv_dst_tf_g, inv_dst_tf_b;
     skcms_Matrix3x3        from_xyz;
 
     switch (srcFmt >> 1) {
@@ -835,9 +850,11 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
         // TODO: A2B, Lab -> XYZ, tables, etc...
 
         // 1) Src RGB to XYZ
-        if (srcProfile->has_tf && srcProfile->has_toXYZD50) {
-            *ip++ = (void*)transfer_function; *args++ = &srcProfile->tf;
-            *ip++ = (void*)matrix_3x3;        *args++ = &srcProfile->toXYZD50;
+        if (is_parametric(srcProfile) && srcProfile->has_toXYZD50) {
+            *ip++ = (void*)transfer_function_r; *args++ = &srcProfile->trc[0].parametric;
+            *ip++ = (void*)transfer_function_g; *args++ = &srcProfile->trc[1].parametric;
+            *ip++ = (void*)transfer_function_b; *args++ = &srcProfile->trc[2].parametric;
+            *ip++ = (void*)matrix_3x3;          *args++ = &srcProfile->toXYZD50;
         } else {
             return false;
         }
@@ -845,12 +862,16 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
         // 2) Lab <-> XYZ (if PCS is different)
 
         // 3) Dst XYZ to RGB
-        if (dstProfile->has_tf &&
+        if (is_parametric(dstProfile) &&
+            skcms_TransferFunction_invert(&dstProfile->trc[0].parametric, &inv_dst_tf_r) &&
+            skcms_TransferFunction_invert(&dstProfile->trc[1].parametric, &inv_dst_tf_g) &&
+            skcms_TransferFunction_invert(&dstProfile->trc[2].parametric, &inv_dst_tf_b) &&
             dstProfile->has_toXYZD50 &&
-            skcms_TransferFunction_invert(&dstProfile->tf, &inv_dst_tf) &&
             skcms_Matrix3x3_invert(&dstProfile->toXYZD50,  &from_xyz)) {
-            *ip++ = (void*)matrix_3x3;        *args++ = &from_xyz;
-            *ip++ = (void*)transfer_function; *args++ = &inv_dst_tf;
+            *ip++ = (void*)matrix_3x3;          *args++ = &from_xyz;
+            *ip++ = (void*)transfer_function_r; *args++ = &inv_dst_tf_r;
+            *ip++ = (void*)transfer_function_g; *args++ = &inv_dst_tf_g;
+            *ip++ = (void*)transfer_function_b; *args++ = &inv_dst_tf_b;
         } else {
             return false;
         }
