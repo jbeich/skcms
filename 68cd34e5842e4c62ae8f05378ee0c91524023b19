@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4eaac13_a71c7202",
+        "filename": "tests.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 895,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-05T18:17:36Z",
+      "side": 1,
+      "message": "If the TRC tag is a table, we will have left the parametric initialized to 0, so this will work correctly, but I wonder if we should change either:\n\n1) This test, to p.has_trc \u0026\u0026 p.trc[0].table_entries \u003d\u003d 0 \u0026\u0026 ...\n2) The definition of skcms_IsSRGB() to take an skcms_Curve, rather than TF?",
+      "revId": "68cd34e5842e4c62ae8f05378ee0c91524023b19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
