@@ -892,16 +892,16 @@ static void test_IsSRGB() {
     skcms_ICCProfile p;
 
     expect( load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len) );
-    expect( skcms_Parse(ptr, len, &p) && p.has_tf && skcms_IsSRGB(&p.tf) );
+    expect( skcms_Parse(ptr, len, &p) && p.has_trc && skcms_IsSRGB(&p.trc[0].parametric) );
     free(ptr);
 
     expect( load_file("profiles/mobile/Display_P3_parametric.icc", &ptr, &len) );
-    expect( skcms_Parse(ptr, len, &p) && p.has_tf && skcms_IsSRGB(&p.tf) );
+    expect( skcms_Parse(ptr, len, &p) && p.has_trc && skcms_IsSRGB(&p.trc[0].parametric) );
     free(ptr);
 
     // TODO: relax skcms_IsSRGB() so that this one is seen as sRGB too?  It's not far.
     expect( load_file("profiles/mobile/iPhone7p.icc", &ptr, &len) );
-    expect( skcms_Parse(ptr, len, &p) && p.has_tf && !skcms_IsSRGB(&p.tf) );
+    expect( skcms_Parse(ptr, len, &p) && p.has_trc && !skcms_IsSRGB(&p.trc[0].parametric) );
     free(ptr);
 }
 
@@ -915,7 +915,9 @@ static void test_sRGB_AllBytes() {
     expect( skcms_Parse(ptr, len, &sRGB) );
 
     skcms_ICCProfile linear_sRGB = sRGB;
-    linear_sRGB.tf = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
+    linear_sRGB.trc[0].parametric = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
+    linear_sRGB.trc[1].parametric = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
+    linear_sRGB.trc[2].parametric = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
 
     // Enough to hit all distinct bytes when interpreted as RGB 888.
     uint8_t src[258],
@@ -929,7 +931,7 @@ static void test_sRGB_AllBytes() {
                             258/3) );
 
     for (int i = 0; i < 256; i++) {
-        float linear = skcms_TransferFunction_eval(&sRGB.tf, i * (1/255.0f));
+        float linear = skcms_TransferFunction_eval(&sRGB.trc[0].parametric, i * (1/255.0f));
         uint8_t expected = (uint8_t)(linear * 255.0f + 0.5f);
 
         // There is one known failure today:
