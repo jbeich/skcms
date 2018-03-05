@@ -12,6 +12,7 @@
 #include "skcms.h"
 #include "test_only.h"
 #include "src/TransferFunction.h"
+#include <stdlib.h>
 
 static void signature_to_string(uint32_t sig, char* str) {
     str[0] = (char)((sig >> 24) & 0xFF);
@@ -171,4 +172,47 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
             }
         }
     }
+}
+
+bool load_file_fp(FILE* fp, void** buf, size_t* len) {
+    if (fseek(fp, 0L, SEEK_END) != 0) {
+        return false;
+    }
+    long size = ftell(fp);
+    if (size <= 0) {
+        return false;
+    }
+    *len = (size_t)size;
+    rewind(fp);
+
+    *buf = malloc(*len);
+    if (!*buf) {
+        return false;
+    }
+
+    if (fread(*buf, 1, *len, fp) != *len) {
+        free(*buf);
+        return false;
+    }
+    return true;
+}
+
+bool load_file(const char* filename, void** buf, size_t* len) {
+    FILE* fp = fopen(filename, "rb");
+    if (!fp) {
+        return false;
+    }
+    bool result = load_file_fp(fp, buf, len);
+    fclose(fp);
+    return result;
+}
+
+bool write_file(const char* filename, void* buf, size_t len) {
+    FILE* fp = fopen(filename, "wb");
+    if (!fp) {
+        return false;
+    }
+    bool result = (fwrite(buf, 1, len, fp) == len);
+    fclose(fp);
+    return result;
 }
