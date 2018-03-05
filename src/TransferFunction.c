@@ -402,13 +402,3 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     *dst = fn_inv;
     return true;
 }
-
-bool skcms_IsSRGB(const skcms_TransferFunction* tf) {
-    return tf->g == 157286 / 65536.0f
-        && tf->a ==  62119 / 65536.0f
-        && tf->b ==   3417 / 65536.0f
-        && tf->c ==   5072 / 65536.0f
-        && tf->d ==   2651 / 65536.0f
-        && tf->e ==      0 / 65536.0f
-        && tf->f ==      0 / 65536.0f;
-}
