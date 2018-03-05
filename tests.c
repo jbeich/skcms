@@ -928,6 +928,36 @@ static void test_sRGB_AllBytes() {
     free(ptr);
 }
 
+static void test_TRC_Table16() {
+    // We'll convert from FB (table-based sRGB) to sRGB (parametric sRGB).
+    skcms_ICCProfile FB, sRGB;
+
+    void  *FB_ptr, *sRGB_ptr;
+    size_t FB_len,  sRGB_len;
+    expect( load_file("profiles/sRGB_Facebook.icc"         , &  FB_ptr, &  FB_len) );
+    expect( load_file("profiles/mobile/sRGB_parametric.icc", &sRGB_ptr, &sRGB_len) );
+    expect( skcms_Parse(  FB_ptr,   FB_len, &  FB) );
+    expect( skcms_Parse(sRGB_ptr, sRGB_len, &sRGB) );
+
+    // Enough to hit all distinct bytes when interpreted as RGB 888.
+    uint8_t src[258],
+            dst[258];
+    for (int i = 0; i < 258; i++) {
+        src[i] = (uint8_t)(i & 0xFF);  // (We don't really care about bytes 256 and 257.)
+    }
+
+    expect( skcms_Transform(src, skcms_PixelFormat_RGB_888, &FB,
+                            dst, skcms_PixelFormat_RGB_888, &sRGB,
+                            258/3) );
+
+    for (int i = 0; i < 256; i++) {
+        expect( dst[i] == i );
+    }
+
+    free(  FB_ptr);
+    free(sRGB_ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -952,6 +982,7 @@ int main(int argc, char** argv) {
     test_SimpleRoundTrip();
     test_FloatRoundTrips();
     test_sRGB_AllBytes();
+    test_TRC_Table16();
 
     return 0;
 }
