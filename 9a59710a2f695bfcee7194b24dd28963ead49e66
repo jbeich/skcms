@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b967ec90_6abafab7",
+        "filename": "iccdump.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-05T14:44:25Z",
+      "side": 1,
+      "message": "maybe even svg_push_group()?  Is that obvious?",
+      "range": {
+        "startLine": 144,
+        "startChar": 12,
+        "endLine": 144,
+        "endChar": 20
+      },
+      "revId": "9a59710a2f695bfcee7194b24dd28963ead49e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73725255_b0cc46e9",
+        "filename": "test_only.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-05T14:44:25Z",
+      "side": 1,
+      "message": "ಠ_ಠ",
+      "range": {
+        "startLine": 200,
+        "startChar": 0,
+        "endLine": 200,
+        "endChar": 1
+      },
+      "revId": "9a59710a2f695bfcee7194b24dd28963ead49e66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
