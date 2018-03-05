@@ -526,33 +526,6 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/fuzz/a2b_too_many_input_channels.icc", NULL }, // oss-fuzz:6521
 };
 
-static void load_file_fp(FILE* fp, void** buf, size_t* len) {
-    expect(fseek(fp, 0L, SEEK_END) == 0);
-    long size = ftell(fp);
-    expect(size > 0);
-    *len = (size_t)size;
-    rewind(fp);
-
-    *buf = malloc(*len);
-    expect(*buf);
-
-    expect(fread(*buf, 1, *len, fp) == *len);
-}
-
-static void load_file(const char* filename, void** buf, size_t* len) {
-    FILE* fp = fopen(filename, "rb");
-    expect(fp);
-    load_file_fp(fp, buf, len);
-    fclose(fp);
-}
-
-static void write_file(const char* filename, void* buf, size_t len) {
-    FILE* fp = fopen(filename, "wb");
-    expect(fp);
-    expect(fwrite(buf, 1, len, fp) == len);
-    fclose(fp);
-}
-
 static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd,
                                                const skcms_TransferFunction* rev,
                                                float tol) {
@@ -570,7 +543,7 @@ static void test_Parse(bool regen) {
 
         void* buf = NULL;
         size_t len = 0;
-        load_file(test->filename, &buf, &len);
+        expect(load_file(test->filename, &buf, &len));
         skcms_ICCProfile profile;
         bool parsed = skcms_Parse(buf, len, &profile);
 
@@ -585,7 +558,7 @@ static void test_Parse(bool regen) {
 
         void* dump_buf = NULL;
         size_t dump_len = 0;
-        load_file_fp(dump, &dump_buf, &dump_len);
+        expect(load_file_fp(dump, &dump_buf, &dump_len));
         fclose(dump);
 
         char ref_filename[256];
@@ -595,12 +568,12 @@ static void test_Parse(bool regen) {
 
         if (regen) {
             // Just write out new test data if in regen mode
-            write_file(ref_filename, dump_buf, dump_len);
+            expect(write_file(ref_filename, dump_buf, dump_len));
         } else {
             // Read in existing test data
             void* ref_buf = NULL;
             size_t ref_len = 0;
-            load_file(ref_filename, &ref_buf, &ref_len);
+            expect(load_file(ref_filename, &ref_buf, &ref_len));
 
             if (dump_len != ref_len || memcmp(dump_buf, ref_buf, dump_len) != 0) {
                 // Write out the new data on a mismatch
@@ -830,7 +803,7 @@ static void test_SimpleRoundTrip() {
     // We'll test that parametric sRGB roundtrips with itself, bytes -> bytes.
     void*  srgb_ptr;
     size_t srgb_len;
-    load_file("profiles/mobile/sRGB_parametric.icc", &srgb_ptr, &srgb_len);
+    expect(load_file("profiles/mobile/sRGB_parametric.icc", &srgb_ptr, &srgb_len));
 
     skcms_ICCProfile srgbA, srgbB;
     expect(skcms_Parse(srgb_ptr, srgb_len, &srgbA));
@@ -879,20 +852,20 @@ static void expect_round_trip_through_floats(const skcms_ICCProfile* A,
 static void test_FloatRoundTrips() {
     void*  srgb_ptr;
     size_t srgb_len;
-    load_file("profiles/mobile/sRGB_parametric.icc", &srgb_ptr, &srgb_len);
+    expect(load_file("profiles/mobile/sRGB_parametric.icc", &srgb_ptr, &srgb_len));
 
 
     void*  dp3_ptr;
     size_t dp3_len;
-    load_file("profiles/mobile/Display_P3_parametric.icc", &dp3_ptr, &dp3_len);
+    expect(load_file("profiles/mobile/Display_P3_parametric.icc", &dp3_ptr, &dp3_len));
 
     void*  ll_ptr;
     size_t ll_len;
-    load_file("profiles/color.org/Lower_Left.icc", &ll_ptr, &ll_len);
+    expect(load_file("profiles/color.org/Lower_Left.icc", &ll_ptr, &ll_len));
 
     void*  lr_ptr;
     size_t lr_len;
-    load_file("profiles/color.org/Lower_Right.icc", &lr_ptr, &lr_len);
+    expect(load_file("profiles/color.org/Lower_Right.icc", &lr_ptr, &lr_len));
 
     skcms_ICCProfile srgb, dp3, ll, lr;
     expect(skcms_Parse(srgb_ptr, srgb_len, &srgb));
@@ -918,16 +891,16 @@ static void test_IsSRGB() {
     size_t len;
     skcms_ICCProfile p;
 
-    load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len);
+    expect( load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len) );
     expect( skcms_Parse(ptr, len, &p) && p.has_tf && skcms_IsSRGB(&p.tf) );
     free(ptr);
 
-    load_file("profiles/mobile/Display_P3_parametric.icc", &ptr, &len);
+    expect( load_file("profiles/mobile/Display_P3_parametric.icc", &ptr, &len) );
     expect( skcms_Parse(ptr, len, &p) && p.has_tf && skcms_IsSRGB(&p.tf) );
     free(ptr);
 
     // TODO: relax skcms_IsSRGB() so that this one is seen as sRGB too?  It's not far.
-    load_file("profiles/mobile/iPhone7p.icc", &ptr, &len);
+    expect( load_file("profiles/mobile/iPhone7p.icc", &ptr, &len) );
     expect( skcms_Parse(ptr, len, &p) && p.has_tf && !skcms_IsSRGB(&p.tf) );
     free(ptr);
 }
@@ -938,7 +911,7 @@ static void test_sRGB_AllBytes() {
     void* ptr;
     size_t len;
     skcms_ICCProfile sRGB;
-    load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len);
+    expect( load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len) );
     expect( skcms_Parse(ptr, len, &sRGB) );
 
     skcms_ICCProfile linear_sRGB = sRGB;
