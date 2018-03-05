@@ -741,21 +741,76 @@ static void force_opaque(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void transfer_function_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void tf_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
     r = apply_transfer_function(tf, r);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void transfer_function_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void tf_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
     g = apply_transfer_function(tf, g);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void transfer_function_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+static void tf_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
     b = apply_transfer_function(tf, b);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
+SI F gather_16(const uint8_t* p, I32 ix) {
+    // TODO: plenty of opportunity to optimize here.
+    uint8_t buf[2*N];
+#if N == 1
+    small_memcpy(buf, p + 2*ix, 2);
+#else
+    for (int i = 0; i < N; i++) {
+        small_memcpy(buf + 2*i, p + 2*ix[i], 2);
+    }
+#endif
+
+    U16 v;
+    _Static_assert(sizeof(v) == sizeof(buf), "");
+    small_memcpy(&v, buf, sizeof(v));
+
+    // The 16-bit tables are big-endian, so we byte swap before converting to float.
+    return CAST(F, (U16)( (v<<8)|(v>>8) )) * (1/65535.0f);
+}
+
+SI F minus_1_ulp(F v) {
+    I32 bits;
+    small_memcpy(&bits, &v, sizeof(bits));
+    bits = bits - 1;
+    small_memcpy(&v, &bits, sizeof(bits));
+    return v;
+}
+
+SI F table_16(const skcms_Curve* curve, F v) {
+    // Clamp the input to [0,1], then scale to the table size.
+    F ix = max_(F0, min_(v, F1)) * (float)(curve->table_entries - 1);
+
+    // We'll look up adjacent entries at lo and hi, then lerp by t between the two.
+    I32 lo = CAST(I32,             ix      ),
+        hi = CAST(I32, minus_1_ulp(ix+1.0f));
+    F t = ix - CAST(F, lo);  // i.e. the fractional part of ix.
+    F l = gather_16(curve->table_16, lo),
+      h = gather_16(curve->table_16, hi);
+    return l*(1-t) + h*t;
+}
+
+static void table_16_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    r = table_16(*ctx->args++, r);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
+static void table_16_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    g = table_16(*ctx->args++, g);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
+static void table_16_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    b = table_16(*ctx->args++, b);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
@@ -786,13 +841,6 @@ SI size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     }
     assert(false);
     return 0;
-}
-
-static bool is_parametric(const skcms_ICCProfile* profile) {
-    return profile->has_trc
-        && profile->trc[0].table_entries == 0
-        && profile->trc[1].table_entries == 0
-        && profile->trc[2].table_entries == 0;
 }
 
 bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
@@ -847,31 +895,45 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
     }
 
     if (dstProfile != srcProfile) {
-        // TODO: A2B, Lab -> XYZ, tables, etc...
+        // Linearize using TRC curves, either parametric or 16-bit tables.
+        if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
+            void*       tf_stages[] = { (void*)      tf_r, (void*)      tf_g, (void*)      tf_b };
+            void* table_16_stages[] = { (void*)table_16_r, (void*)table_16_g, (void*)table_16_b };
 
-        // 1) Src RGB to XYZ
-        if (is_parametric(srcProfile) && srcProfile->has_toXYZD50) {
-            *ip++ = (void*)transfer_function_r; *args++ = &srcProfile->trc[0].parametric;
-            *ip++ = (void*)transfer_function_g; *args++ = &srcProfile->trc[1].parametric;
-            *ip++ = (void*)transfer_function_b; *args++ = &srcProfile->trc[2].parametric;
-            *ip++ = (void*)matrix_3x3;          *args++ = &srcProfile->toXYZD50;
+            for (int i = 0; i < 3; i++) {
+                if (srcProfile->trc[i].table_entries == 0) {
+                    *ip++   = tf_stages[i];
+                    *args++ = &srcProfile->trc[i].parametric;
+                } else if (srcProfile->trc[i].table_16) {
+                    *ip++   = table_16_stages[i];
+                    *args++ = &srcProfile->trc[i];
+                } else {
+                    // 8-bit tables aren't possible in TRC curves.
+                    return false;
+                }
+            }
+
+            *ip++   = (void*)matrix_3x3;
+            *args++ = &srcProfile->toXYZD50;
         } else {
-            return false;
+            // TODO: A2B
         }
 
-        // 2) Lab <-> XYZ (if PCS is different)
 
-        // 3) Dst XYZ to RGB
-        if (is_parametric(dstProfile) &&
+        // Back to dst RGB.  (TODO: support tables here?)
+        if (dstProfile->has_trc &&
+            dstProfile->trc[0].table_entries == 0 &&
+            dstProfile->trc[1].table_entries == 0 &&
+            dstProfile->trc[2].table_entries == 0 &&
             skcms_TransferFunction_invert(&dstProfile->trc[0].parametric, &inv_dst_tf_r) &&
             skcms_TransferFunction_invert(&dstProfile->trc[1].parametric, &inv_dst_tf_g) &&
             skcms_TransferFunction_invert(&dstProfile->trc[2].parametric, &inv_dst_tf_b) &&
             dstProfile->has_toXYZD50 &&
             skcms_Matrix3x3_invert(&dstProfile->toXYZD50,  &from_xyz)) {
-            *ip++ = (void*)matrix_3x3;          *args++ = &from_xyz;
-            *ip++ = (void*)transfer_function_r; *args++ = &inv_dst_tf_r;
-            *ip++ = (void*)transfer_function_g; *args++ = &inv_dst_tf_g;
-            *ip++ = (void*)transfer_function_b; *args++ = &inv_dst_tf_b;
+            *ip++ = (void*)matrix_3x3; *args++ = &from_xyz;
+            *ip++ = (void*)tf_r;       *args++ = &inv_dst_tf_r;
+            *ip++ = (void*)tf_g;       *args++ = &inv_dst_tf_g;
+            *ip++ = (void*)tf_b;       *args++ = &inv_dst_tf_b;
         } else {
             return false;
         }
