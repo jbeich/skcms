@@ -285,26 +285,6 @@ static bool read_curve(const uint8_t* buf, uint32_t size,
     return false;
 }
 
-static bool get_transfer_function(const skcms_ICCProfile* profile,
-                                  skcms_TransferFunction* transferFunction) {
-    if (!profile->has_trc) {
-        return false;
-    }
-
-    const skcms_Curve* trc = profile->trc;
-    if (trc[0].table_entries || trc[1].table_entries || trc[2].table_entries) {
-        return false;
-    }
-
-    if (0 != memcmp(&trc[0].parametric, &trc[1].parametric, SAFE_SIZEOF(trc[0].parametric)) ||
-        0 != memcmp(&trc[0].parametric, &trc[2].parametric, SAFE_SIZEOF(trc[0].parametric))) {
-        return false;
-    }
-
-    *transferFunction = trc[0].parametric;
-    return true;
-}
-
 bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
                                        skcms_TransferFunction* fn,
                                        float* max_error) {
@@ -787,8 +767,6 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
         profile->has_trc = true;
     }
-
-    profile->has_tf       = get_transfer_function(profile, &profile->tf);
 
     skcms_ICCTag rXYZ, gXYZ, bXYZ;
     if (skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) &&
