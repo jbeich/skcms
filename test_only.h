@@ -11,3 +11,8 @@
 #include <stdio.h>
 
 void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test);
+
+bool load_file_fp(FILE* fp, void** buf, size_t* len);
+bool load_file(const char* filename, void** buf, size_t* len);
+
+bool write_file(const char* filename, void* buf, size_t len);
