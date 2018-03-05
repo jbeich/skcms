@@ -46,10 +46,6 @@ typedef struct {
     uint32_t               table_entries;
 } skcms_Curve;
 
-// Return true if the skcms_TransferFunction is the sRGB transfer function,
-// within an unspecified tolerance.
-bool skcms_IsSRGB(const skcms_TransferFunction*);
-
 typedef struct {
     // Optional: N 1D curves, followed by an N-dimensional CLUT.
     // If input_channels == 0, these curves and CLUT are skipped,

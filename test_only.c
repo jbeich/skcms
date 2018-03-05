@@ -29,11 +29,21 @@ static void dump_sig_field(FILE* fp, const char* name, uint32_t val) {
     fprintf(fp, "%20s : 0x%08X : '%s'\n", name, val, valStr);
 }
 
+static bool is_sRGB(const skcms_TransferFunction* tf) {
+    return tf->g == 157286 / 65536.0f
+        && tf->a ==  62119 / 65536.0f
+        && tf->b ==   3417 / 65536.0f
+        && tf->c ==   5072 / 65536.0f
+        && tf->d ==   2651 / 65536.0f
+        && tf->e ==      0 / 65536.0f
+        && tf->f ==      0 / 65536.0f;
+}
+
 static void dump_transfer_function(FILE* fp, const char* name, const skcms_TransferFunction* tf) {
     fprintf(fp, "%4s : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g", name,
            (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
            (double)tf->d, (double)tf->e, (double)tf->f);
-    if (skcms_IsSRGB(tf)) {
+    if (is_sRGB(tf)) {
         fprintf(fp, " (sRGB)");
     }
     fprintf(fp, "\n");

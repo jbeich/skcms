@@ -886,25 +886,6 @@ static void test_FloatRoundTrips() {
     free(  lr_ptr);
 }
 
-static void test_IsSRGB() {
-    void*  ptr;
-    size_t len;
-    skcms_ICCProfile p;
-
-    expect( load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len) );
-    expect( skcms_Parse(ptr, len, &p) && p.has_trc && skcms_IsSRGB(&p.trc[0].parametric) );
-    free(ptr);
-
-    expect( load_file("profiles/mobile/Display_P3_parametric.icc", &ptr, &len) );
-    expect( skcms_Parse(ptr, len, &p) && p.has_trc && skcms_IsSRGB(&p.trc[0].parametric) );
-    free(ptr);
-
-    // TODO: relax skcms_IsSRGB() so that this one is seen as sRGB too?  It's not far.
-    expect( load_file("profiles/mobile/iPhone7p.icc", &ptr, &len) );
-    expect( skcms_Parse(ptr, len, &p) && p.has_trc && !skcms_IsSRGB(&p.trc[0].parametric) );
-    free(ptr);
-}
-
 static void test_sRGB_AllBytes() {
     // Test that our transfer function implementation is perfect to at least 8-bit precision.
 
@@ -970,7 +951,6 @@ int main(int argc, char** argv) {
     test_Matrix3x3_invert();
     test_SimpleRoundTrip();
     test_FloatRoundTrips();
-    test_IsSRGB();
     test_sRGB_AllBytes();
 
     return 0;
