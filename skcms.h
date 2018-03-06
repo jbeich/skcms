@@ -167,13 +167,24 @@ typedef enum {
     skcms_PixelFormat_BGRA_ffff,
 } skcms_PixelFormat;
 
-// TODO: do we want/need to support anything other than unpremul input, unpremul output?
+typedef enum {
+    skcms_AlphaFormat_Opaque,
+    skcms_AlphaFormat_Unpremul,
+    skcms_AlphaFormat_PremulAsEncoded,
+    skcms_AlphaFormat_PremulLinear,
+} skcms_AlphaFormat;
 
 // Convert npixels pixels from src format and color profile to dst format and color profile
 // and return true, otherwise return false.  It is safe to alias dst == src if dstFmt == srcFmt.
-bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
-                           void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
-                     size_t npixels);
+bool skcms_Transform(const void*             src,
+                     skcms_PixelFormat       srcFmt,
+                     skcms_AlphaFormat       srcAlpha,
+                     const skcms_ICCProfile* srcProfile,
+                     void*                   dst,
+                     skcms_PixelFormat       dstFmt,
+                     skcms_AlphaFormat       dstAlpha,
+                     const skcms_ICCProfile* dstProfile,
+                     size_t                  npixels);
 
 #ifdef __cplusplus
 }
