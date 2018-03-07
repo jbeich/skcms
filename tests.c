@@ -958,6 +958,64 @@ static void test_TRC_Table16() {
     free(sRGB_ptr);
 }
 
+static void test_Premul() {
+    void* ptr;
+    size_t len;
+    skcms_ICCProfile sRGB;
+    expect( load_file("profiles/mobile/sRGB_parametric.icc", &ptr, &len) );
+    expect( skcms_Parse(ptr, len, &sRGB) );
+
+    expect (sRGB.has_trc && sRGB.trc[0].table_entries == 0);
+
+    const skcms_TransferFunction* tf = &sRGB.trc[0].parametric;
+    skcms_TransferFunction inv;
+    expect (skcms_TransferFunction_invert(tf, &inv));
+
+    uint8_t src[256],
+            dst[256] = {0};
+    for (int i = 0; i < 256; i++) {
+        src[i] = (uint8_t)i;
+    }
+
+    expect(skcms_Transform(
+        src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul       , &sRGB,
+        dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_PremulAsEncoded, &sRGB,
+        64));
+    for (int i = 0; i < 256; i+=4) {
+        expect( dst[i+0] == (uint8_t)( src[i+0]*src[i+3]/255.0f + 0.5f ) );
+        expect( dst[i+1] == (uint8_t)( src[i+1]*src[i+3]/255.0f + 0.5f ) );
+        expect( dst[i+2] == (uint8_t)( src[i+2]*src[i+3]/255.0f + 0.5f ) );
+        expect( dst[i+3] == src[i+3] );
+    }
+
+    expect(skcms_Transform(
+        src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul    , &sRGB,
+        dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_PremulLinear, &sRGB,
+        64));
+    for (int i = 0; i < 256; i+=4) {
+        float l,e;
+
+        l = skcms_TransferFunction_eval(tf,     src[i+0]/255.0f);
+        e = skcms_TransferFunction_eval(&inv, l*src[i+3]/255.0f);
+        expect( dst[i+0] == (uint8_t)(255.0f*e + 0.5f) );
+
+        // TODO
+        /*
+        l = skcms_TransferFunction_eval(tf,     src[i+1]1/255.0f);
+        e = skcms_TransferFunction_eval(&inv, l*src[i+3]1/255.0f);
+        expect( dst[i+1] == (uint8_t)(255.0f*e + 0.5f) );
+
+        l = skcms_TransferFunction_eval(tf,     src[i+2]/255.0f);
+        e = skcms_TransferFunction_eval(&inv, l*src[i+3]/255.0f);
+        expect( dst[i+2] == (uint8_t)(255.0f*e + 0.5f) );
+        */
+
+        expect( dst[i+3] == src[i+3] );
+    }
+
+    free(ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -983,6 +1041,7 @@ int main(int argc, char** argv) {
     test_FloatRoundTrips();
     test_sRGB_AllBytes();
     test_TRC_Table16();
+    test_Premul();
 
     return 0;
 }
