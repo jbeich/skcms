@@ -728,6 +728,25 @@ static void swap_rb(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, b,g,r,a);
 }
 
+static void unpremul(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    U32 inf_bits = 0x7f800000;
+    F inf;
+    small_memcpy(&inf, &inf_bits, sizeof(inf));
+
+    F scale = (F)if_then_else(F1 / a < inf, F1 / a, F0);
+    r *= scale;
+    g *= scale;
+    b *= scale;
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
+static void premul(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    r *= a;
+    g *= a;
+    b *= a;
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
 static void clamp(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     r = max_(F0, min_(r, F1));
     g = max_(F0, min_(g, F1));
@@ -837,7 +856,6 @@ SI size_t bytes_per_pixel(skcms_PixelFormat fmt) {
         case skcms_PixelFormat_RGB_565       >> 1: return  2;
         case skcms_PixelFormat_RGB_888       >> 1: return  3;
         case skcms_PixelFormat_RGBA_8888     >> 1: return  4;
-        case skcms_PixelFormat_RGB_101010x   >> 1: return  4;
         case skcms_PixelFormat_RGBA_1010102  >> 1: return  4;
         case skcms_PixelFormat_RGB_161616    >> 1: return  6;
         case skcms_PixelFormat_RGBA_16161616 >> 1: return  8;
@@ -850,9 +868,15 @@ SI size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     return 0;
 }
 
-bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
-                           void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
-                     size_t nz) {
+bool skcms_Transform(const void*             src,
+                     skcms_PixelFormat       srcFmt,
+                     skcms_AlphaFormat       srcAlpha,
+                     const skcms_ICCProfile* srcProfile,
+                     void*                   dst,
+                     skcms_PixelFormat       dstFmt,
+                     skcms_AlphaFormat       dstAlpha,
+                     const skcms_ICCProfile* dstProfile,
+                     size_t                  nz) {
     const size_t dst_bpp = bytes_per_pixel(dstFmt),
                  src_bpp = bytes_per_pixel(srcFmt);
     // Let's just refuse if the request is absurdly big.
@@ -887,8 +911,6 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
         case skcms_PixelFormat_RGB_565       >> 1: *ip++ = (void*)load_565;      break;
         case skcms_PixelFormat_RGB_888       >> 1: *ip++ = (void*)load_888;      break;
         case skcms_PixelFormat_RGBA_8888     >> 1: *ip++ = (void*)load_8888;     break;
-        case skcms_PixelFormat_RGB_101010x   >> 1: *ip++ = (void*)load_1010102;
-                                                   *ip++ = (void*)force_opaque;  break;
         case skcms_PixelFormat_RGBA_1010102  >> 1: *ip++ = (void*)load_1010102;  break;
         case skcms_PixelFormat_RGB_161616    >> 1: *ip++ = (void*)load_161616;   break;
         case skcms_PixelFormat_RGBA_16161616 >> 1: *ip++ = (void*)load_16161616; break;
@@ -900,8 +922,17 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
     if (srcFmt & 1) {
         *ip++ = (void*)swap_rb;
     }
+    if (srcAlpha == skcms_AlphaFormat_Opaque) {
+        *ip++ = (void*)force_opaque;
+    } else if (srcAlpha == skcms_AlphaFormat_PremulAsEncoded) {
+        *ip++ = (void*)unpremul;
+    }
 
-    if (dstProfile != srcProfile) {
+    // TODO: We can skip this work if both srcAlpha and dstAlpha are PremulLinear, and the profiles
+    // are the same. Also, if dstAlpha is PremulLinear, and SrcAlpha is Opaque.
+    if (dstProfile != srcProfile ||
+        srcAlpha == skcms_AlphaFormat_PremulLinear ||
+        dstAlpha == skcms_AlphaFormat_PremulLinear) {
         // Linearize using TRC curves, either parametric or 16-bit tables.
         if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
             void*       tf_stages[] = { (void*)      tf_r, (void*)      tf_g, (void*)      tf_b };
@@ -920,12 +951,15 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
                 }
             }
 
+            if (srcAlpha == skcms_AlphaFormat_PremulLinear) {
+                *ip++ = (void*)unpremul;
+            }
+
             *ip++   = (void*)matrix_3x3;
             *args++ = &srcProfile->toXYZD50;
         } else {
             // TODO: A2B
         }
-
 
         // Back to dst RGB.  (TODO: support tables here?)
         if (dstProfile->has_trc &&
@@ -938,6 +972,11 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
             dstProfile->has_toXYZD50 &&
             skcms_Matrix3x3_invert(&dstProfile->toXYZD50,  &from_xyz)) {
             *ip++ = (void*)matrix_3x3; *args++ = &from_xyz;
+
+            if (dstAlpha == skcms_AlphaFormat_PremulLinear) {
+                *ip++ = (void*)premul;
+            }
+
             *ip++ = (void*)tf_r;       *args++ = &inv_dst_tf_r;
             *ip++ = (void*)tf_g;       *args++ = &inv_dst_tf_g;
             *ip++ = (void*)tf_b;       *args++ = &inv_dst_tf_b;
@@ -946,6 +985,11 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
         }
     }
 
+    if (dstAlpha == skcms_AlphaFormat_Opaque) {
+        *ip++ = (void*)force_opaque;
+    } else if (dstAlpha == skcms_AlphaFormat_PremulAsEncoded) {
+        *ip++ = (void*)premul;
+    }
     if (dstFmt & 1) {
         *ip++ = (void*)swap_rb;
     }
@@ -957,8 +1001,6 @@ bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCP
         case skcms_PixelFormat_RGB_565       >> 1: *ip++ = (void*)store_565;      break;
         case skcms_PixelFormat_RGB_888       >> 1: *ip++ = (void*)store_888;      break;
         case skcms_PixelFormat_RGBA_8888     >> 1: *ip++ = (void*)store_8888;     break;
-        case skcms_PixelFormat_RGB_101010x   >> 1: *ip++ = (void*)force_opaque;
-                                                   *ip++ = (void*)store_1010102;  break;
         case skcms_PixelFormat_RGBA_1010102  >> 1: *ip++ = (void*)store_1010102;  break;
         case skcms_PixelFormat_RGB_161616    >> 1: *ip++ = (void*)store_161616;   break;
         case skcms_PixelFormat_RGBA_16161616 >> 1: *ip++ = (void*)store_16161616; break;
