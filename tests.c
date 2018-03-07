@@ -59,16 +59,16 @@ static void test_FormatConversions() {
     }
 
     // This should basically be a really complicated memcpy().
-    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_8888, &profile,
-                           dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            64));
     for (int i = 0; i < 256; i++) {
         expect(dst[i] == i);
     }
 
     // We can do RGBA -> BGRA swaps two ways:
-    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_8888, &profile,
-                           dst, skcms_PixelFormat_BGRA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_BGRA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            64));
     for (int i = 0; i < 64; i++) {
         expect(dst[4*i+0] == 4*i+2);
@@ -76,8 +76,8 @@ static void test_FormatConversions() {
         expect(dst[4*i+2] == 4*i+0);
         expect(dst[4*i+3] == 4*i+3);
     }
-    expect(skcms_Transform(src, skcms_PixelFormat_BGRA_8888, &profile,
-                           dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_BGRA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            64));
     for (int i = 0; i < 64; i++) {
         expect(dst[4*i+0] == 4*i+2);
@@ -87,8 +87,8 @@ static void test_FormatConversions() {
     }
 
     // Let's convert RGB_888 to RGBA_8888...
-    expect(skcms_Transform(src, skcms_PixelFormat_RGB_888  , &profile,
-                           dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGB_888  , skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            85));
     for (int i = 0; i < 85; i++) {
         expect(dst[4*i+0] == 3*i+0);
@@ -97,8 +97,8 @@ static void test_FormatConversions() {
         expect(dst[4*i+3] ==   255);
     }
     // ... and now all the variants of R-B swaps.
-    expect(skcms_Transform(src, skcms_PixelFormat_BGR_888  , &profile,
-                           dst, skcms_PixelFormat_BGRA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_BGR_888  , skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_BGRA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            85));
     for (int i = 0; i < 85; i++) {
         expect(dst[4*i+0] == 3*i+0);
@@ -106,8 +106,8 @@ static void test_FormatConversions() {
         expect(dst[4*i+2] == 3*i+2);
         expect(dst[4*i+3] ==   255);
     }
-    expect(skcms_Transform(src, skcms_PixelFormat_BGR_888  , &profile,
-                           dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_BGR_888  , skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            85));
     for (int i = 0; i < 85; i++) {
         expect(dst[4*i+0] == 3*i+2);
@@ -115,8 +115,8 @@ static void test_FormatConversions() {
         expect(dst[4*i+2] == 3*i+0);
         expect(dst[4*i+3] ==   255);
     }
-    expect(skcms_Transform(src, skcms_PixelFormat_RGB_888  , &profile,
-                           dst, skcms_PixelFormat_BGRA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGB_888  , skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_BGRA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            85));
     for (int i = 0; i < 85; i++) {
         expect(dst[4*i+0] == 3*i+2);
@@ -127,13 +127,13 @@ static void test_FormatConversions() {
 
     // Let's test in-place transforms.
     // RGBA_8888 and RGB_888 aren't the same size, so we shouldn't allow this call.
-    expect(!skcms_Transform(src, skcms_PixelFormat_RGB_888,   &profile,
-                            src, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(!skcms_Transform(src, skcms_PixelFormat_RGB_888,   skcms_AlphaFormat_Unpremul, &profile,
+                            src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                             85));
 
     // These two should work fine.
-    expect(skcms_Transform(src, skcms_PixelFormat_BGRA_8888, &profile,
-                           src, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_BGRA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                           src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            64));
     for (int i = 0; i < 64; i++) {
         expect(src[4*i+0] == 4*i+2);
@@ -141,8 +141,8 @@ static void test_FormatConversions() {
         expect(src[4*i+2] == 4*i+0);
         expect(src[4*i+3] == 4*i+3);
     }
-    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_8888, &profile,
-                           src, skcms_PixelFormat_BGRA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                           src, skcms_PixelFormat_BGRA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            64));
     for (int i = 0; i < 64; i++) {
         expect(src[4*i+0] == 4*i+0);
@@ -153,8 +153,8 @@ static void test_FormatConversions() {
 
     uint32_t _8888[3] = { 0x03020100, 0x07060504, 0x0b0a0908 };
     uint8_t _888[9];
-    expect(skcms_Transform(_8888, skcms_PixelFormat_RGBA_8888, &profile,
-                           _888 , skcms_PixelFormat_RGB_888  , &profile,
+    expect(skcms_Transform(_8888, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                           _888 , skcms_PixelFormat_RGB_888  , skcms_AlphaFormat_Unpremul, &profile,
                            3));
     expect(_888[0] == 0 && _888[1] == 1 && _888[2] ==  2);
     expect(_888[3] == 4 && _888[4] == 5 && _888[5] ==  6);
@@ -178,8 +178,8 @@ static void test_FormatConversions_565() {
     expect(src[63] == 0xffff);
 
     uint32_t dst[64];
-    expect(skcms_Transform(src, skcms_PixelFormat_RGB_565,   &profile,
-                           dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGB_565,   skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            64));
     // We'll just spot check these results a bit.
     for (int i = 0; i < 64; i++) {
@@ -192,8 +192,8 @@ static void test_FormatConversions_565() {
 
     // Let's convert back the other way.
     uint16_t back[64];
-    expect(skcms_Transform(dst , skcms_PixelFormat_RGBA_8888, &profile,
-                           back, skcms_PixelFormat_RGB_565  , &profile,
+    expect(skcms_Transform(dst , skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                           back, skcms_PixelFormat_RGB_565  , skcms_AlphaFormat_Unpremul, &profile,
                            64));
     for (int i = 0; i < 64; i++) {
         expect(src[i] == back[i]);
@@ -216,8 +216,8 @@ static void test_FormatConversions_16161616() {
     expect(src[16383] == 0xfffffffefffdfffc);
 
     uint32_t* dst = malloc(4 * 16384);
-    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_16161616, &profile,
-                           dst, skcms_PixelFormat_RGBA_8888    , &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_16161616, skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGBA_8888    , skcms_AlphaFormat_Unpremul, &profile,
                            16384));
 
     // skcms_Transform() will treat src as holding big-endian 16-bit values,
@@ -230,8 +230,8 @@ static void test_FormatConversions_16161616() {
     // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
     // Instead we should see the 8-bit dst value byte-doubled, as 65535/255 = 257 = 0x0101.
     uint64_t* back = malloc(8 * 16384);
-    expect(skcms_Transform(dst , skcms_PixelFormat_RGBA_8888    , &profile,
-                           back, skcms_PixelFormat_RGBA_16161616, &profile,
+    expect(skcms_Transform(dst , skcms_PixelFormat_RGBA_8888    , skcms_AlphaFormat_Unpremul, &profile,
+                           back, skcms_PixelFormat_RGBA_16161616, skcms_AlphaFormat_Unpremul, &profile,
                            16384));
     for (int i = 0; i < 16384; i++) {
         expect( ((back[i] >>  0) & 0xffff) == ((dst[i] >>  0) & 0xff) * 0x0101);
@@ -254,8 +254,8 @@ static void test_FormatConversions_161616() {
                        0x7efe, 0x7eff, 0xfffc,
                        0xfffd, 0xfffe, 0xffff };
     uint32_t dst[4];
-    expect(skcms_Transform(src, skcms_PixelFormat_RGB_161616, &profile,
-                           dst, skcms_PixelFormat_RGBA_8888 , &profile,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGB_161616, skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGBA_8888 , skcms_AlphaFormat_Unpremul, &profile,
                            4));
 
     expect(dst[0] == 0xff020100);
@@ -266,8 +266,8 @@ static void test_FormatConversions_161616() {
     // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
     // Instead we should see the most signficant (low) byte doubled, as 65535/255 = 257 = 0x0101.
     uint16_t back[12];
-    expect(skcms_Transform(dst , skcms_PixelFormat_RGBA_8888 , &profile,
-                           back, skcms_PixelFormat_RGB_161616, &profile,
+    expect(skcms_Transform(dst , skcms_PixelFormat_RGBA_8888 , skcms_AlphaFormat_Unpremul, &profile,
+                           back, skcms_PixelFormat_RGB_161616, skcms_AlphaFormat_Unpremul, &profile,
                            4));
     for (int i = 0; i < 12; i++) {
         expect(back[0] == (src[0] & 0xff) * 0x0101);
@@ -282,27 +282,27 @@ static void test_FormatConversions_101010() {
                  | (uint32_t)   4 << 20    // Smallest 10-bit channel that's non-zero in 8-bit.
                  | (uint32_t)   1 << 30;   // 1/3, smallest non-zero alpha.
     uint32_t dst;
-    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_1010102, &profile,
-                           &dst, skcms_PixelFormat_RGBA_8888   , &profile,
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_1010102, skcms_AlphaFormat_Unpremul, &profile,
+                           &dst, skcms_PixelFormat_RGBA_8888   , skcms_AlphaFormat_Unpremul, &profile,
                            1));
     expect(dst == 0x55017fff);
 
     // Same as above, but we'll ignore the 1/3 alpha and fill in 1.0.
-    expect(skcms_Transform(&src, skcms_PixelFormat_RGB_101010x, &profile,
-                           &dst, skcms_PixelFormat_RGBA_8888  , &profile,
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_1010102, skcms_AlphaFormat_Opaque  , &profile,
+                           &dst, skcms_PixelFormat_RGBA_8888   , skcms_AlphaFormat_Unpremul, &profile,
                            1));
     expect(dst == 0xff017fff);
 
     // Converting 101010x <-> 1010102 will force opaque in either direction.
-    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_1010102, &profile,
-                           &dst, skcms_PixelFormat_RGB_101010x , &profile,
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_1010102, skcms_AlphaFormat_Unpremul, &profile,
+                           &dst, skcms_PixelFormat_RGBA_1010102, skcms_AlphaFormat_Opaque  , &profile,
                            1));
     expect(dst == ( (uint32_t)1023 <<  0
                   | (uint32_t) 511 << 10
                   | (uint32_t)   4 << 20
                   | (uint32_t)   3 << 30));
-    expect(skcms_Transform(&src, skcms_PixelFormat_RGB_101010x , &profile,
-                           &dst, skcms_PixelFormat_RGBA_1010102, &profile,
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_1010102, skcms_AlphaFormat_Opaque  , &profile,
+                           &dst, skcms_PixelFormat_RGBA_1010102, skcms_AlphaFormat_Unpremul, &profile,
                            1));
     expect(dst == ( (uint32_t)1023 <<  0
                   | (uint32_t) 511 << 10
@@ -325,21 +325,21 @@ static void test_FormatConversions_half() {
     };
 
     uint32_t dst[2];
-    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_hhhh, &profile,
-                           &dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_hhhh, skcms_AlphaFormat_Unpremul, &profile,
+                           &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            2));
     expect(dst[0] == 0x000180ff);
     expect(dst[1] == 0x000000ff);  // Notice we've clamped 2.0 to 0xff and -1.0 to 0x00.
 
-    expect(skcms_Transform(&src, skcms_PixelFormat_RGB_hhh,   &profile,
-                           &dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGB_hhh  , skcms_AlphaFormat_Unpremul, &profile,
+                           &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            2));
     expect(dst[0] == 0xff0180ff);
     expect(dst[1] == 0xff00ff00);  // Remember, this corresponds to src[3-5].
 
     float fdst[8];
-    expect(skcms_Transform( &src, skcms_PixelFormat_RGBA_hhhh, &profile,
-                           &fdst, skcms_PixelFormat_RGBA_ffff, &profile,
+    expect(skcms_Transform( &src, skcms_PixelFormat_RGBA_hhhh, skcms_AlphaFormat_Unpremul, &profile,
+                           &fdst, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &profile,
                            2));
     expect(fdst[0] ==  1.0f);
     expect(fdst[1] ==  0.5f);
@@ -352,8 +352,8 @@ static void test_FormatConversions_half() {
 
     // Now convert back, first to RGBA halfs, then RGB halfs.
     uint16_t back[8];
-    expect(skcms_Transform(&fdst, skcms_PixelFormat_RGBA_ffff, &profile,
-                           &back, skcms_PixelFormat_RGBA_hhhh, &profile,
+    expect(skcms_Transform(&fdst, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &profile,
+                           &back, skcms_PixelFormat_RGBA_hhhh, skcms_AlphaFormat_Unpremul, &profile,
                            2));
     expect(back[0] == src[0]);
     expect(back[1] == src[1]);
@@ -364,8 +364,8 @@ static void test_FormatConversions_half() {
     expect(back[6] == src[6] || back[6] == 0x0000);
     expect(back[7] == src[7]);
 
-    expect(skcms_Transform(&fdst, skcms_PixelFormat_RGBA_ffff, &profile,
-                           &back, skcms_PixelFormat_RGB_hhh  , &profile,
+    expect(skcms_Transform(&fdst, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &profile,
+                           &back, skcms_PixelFormat_RGB_hhh  , skcms_AlphaFormat_Unpremul, &profile,
                            2));
     expect(back[0] == src[0]);
     expect(back[1] == src[1]);
@@ -381,14 +381,14 @@ static void test_FormatConversions_float() {
     float src[] = { 1.0f, 0.5f, 1/255.0f, 1/512.0f };
 
     uint32_t dst;
-    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_ffff, &profile,
-                           &dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &profile,
+                           &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            1));
     expect(dst == 0x000180ff);
 
     // Same as above, but we'll ignore the 1/512 alpha and fill in 1.0.
-    expect(skcms_Transform(&src, skcms_PixelFormat_RGB_fff,   &profile,
-                           &dst, skcms_PixelFormat_RGBA_8888, &profile,
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGB_fff  , skcms_AlphaFormat_Unpremul, &profile,
+                           &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                            1));
     expect(dst == 0xff0180ff);
 
@@ -398,8 +398,8 @@ static void test_FormatConversions_float() {
     for (int i = 0; i < 64; i++) {
         bytes[i] = 0x03020100 + 0x04040404 * (uint32_t)i;
     }
-    expect(skcms_Transform(&bytes, skcms_PixelFormat_RGBA_8888, &profile,
-                            &fdst, skcms_PixelFormat_RGBA_ffff, &profile,
+    expect(skcms_Transform(&bytes, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                            &fdst, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &profile,
                            64));
     for (int i = 0; i < 256; i++) {
         expect(fdst[i] == i*(1/255.0f));
@@ -407,13 +407,13 @@ static void test_FormatConversions_float() {
 
     float ffff[16] = { 0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15 };
     float  fff[12] = { 0,0,0, 0,0,0, 0,0,0, 0,0,0};
-    expect(skcms_Transform(ffff, skcms_PixelFormat_RGBA_ffff, &profile,
-                           fff , skcms_PixelFormat_RGB_fff  , &profile,
+    expect(skcms_Transform(ffff, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &profile,
+                           fff , skcms_PixelFormat_RGB_fff  , skcms_AlphaFormat_Unpremul, &profile,
                            1));
     expect(fff[0] == 0); expect(fff[1] == 1); expect(fff[2] == 2);
 
-    expect(skcms_Transform(ffff, skcms_PixelFormat_RGBA_ffff, &profile,
-                           fff , skcms_PixelFormat_RGB_fff  , &profile,
+    expect(skcms_Transform(ffff, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &profile,
+                           fff , skcms_PixelFormat_RGB_fff  , skcms_AlphaFormat_Unpremul, &profile,
                            4));
     expect(fff[0] ==  0); expect(fff[ 1] ==  1); expect(fff[ 2] ==  2);
     expect(fff[3] ==  4); expect(fff[ 4] ==  5); expect(fff[ 5] ==  6);
@@ -815,8 +815,8 @@ static void test_SimpleRoundTrip() {
         src[i] = (uint8_t)i;
     }
 
-    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_8888, &srgbB,
-                           dst, skcms_PixelFormat_RGBA_8888, &srgbA,
+    expect(skcms_Transform(src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &srgbB,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &srgbA,
                            64));
     for (int i = 0; i < 256; i++) {
         expect(dst[i] == (uint8_t)i);
@@ -834,14 +834,14 @@ static void expect_round_trip_through_floats(const skcms_ICCProfile* A,
         bytes[i] = (uint8_t)i;
     }
 
-    expect(skcms_Transform(bytes , skcms_PixelFormat_RGBA_8888, B,
-                           floats, skcms_PixelFormat_RGBA_ffff, A,
+    expect(skcms_Transform(bytes , skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, B,
+                           floats, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, A,
                            64));
     for (int i = 0; i < 256; i++) {
         bytes[i] = 0;
     }
-    expect(skcms_Transform(floats, skcms_PixelFormat_RGBA_ffff, A,
-                           bytes , skcms_PixelFormat_RGBA_8888, B,
+    expect(skcms_Transform(floats, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, A,
+                           bytes , skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, B,
                            64));
 
     for (int i = 0; i < 256; i++) {
@@ -907,8 +907,8 @@ static void test_sRGB_AllBytes() {
         src[i] = (uint8_t)(i & 0xFF);  // (We don't really care about bytes 256 and 257.)
     }
 
-    expect( skcms_Transform(src, skcms_PixelFormat_RGB_888, &sRGB,
-                            dst, skcms_PixelFormat_RGB_888, &linear_sRGB,
+    expect( skcms_Transform(src, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &sRGB,
+                            dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &linear_sRGB,
                             258/3) );
 
     for (int i = 0; i < 256; i++) {
@@ -946,8 +946,8 @@ static void test_TRC_Table16() {
         src[i] = (uint8_t)(i & 0xFF);  // (We don't really care about bytes 256 and 257.)
     }
 
-    expect( skcms_Transform(src, skcms_PixelFormat_RGB_888, &FB,
-                            dst, skcms_PixelFormat_RGB_888, &sRGB,
+    expect( skcms_Transform(src, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &FB,
+                            dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &sRGB,
                             258/3) );
 
     for (int i = 0; i < 256; i++) {

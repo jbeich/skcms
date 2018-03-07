@@ -78,12 +78,12 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     for (int i = 0; i < 256; i++) {
         src[i] = (uint8_t)i;
     }
-    skcms_Transform(src, skcms_PixelFormat_RGBA_8888, &srgb,
-                    dst, skcms_PixelFormat_RGBA_8888, &p,
+    skcms_Transform(src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &srgb,
+                    dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &p,
                     64);
 
-    skcms_Transform(src, skcms_PixelFormat_RGBA_8888, &p,
-                    dst, skcms_PixelFormat_RGBA_8888, &srgb,
+    skcms_Transform(src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &p,
+                    dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &srgb,
                     64);
 
     return 0;
