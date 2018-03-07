@@ -146,8 +146,6 @@ typedef enum {
     skcms_PixelFormat_RGBA_8888,
     skcms_PixelFormat_BGRA_8888,
 
-    skcms_PixelFormat_RGB_101010x,
-    skcms_PixelFormat_BGR_101010x,
     skcms_PixelFormat_RGBA_1010102,
     skcms_PixelFormat_BGRA_1010102,
 
@@ -167,13 +165,40 @@ typedef enum {
     skcms_PixelFormat_BGRA_ffff,
 } skcms_PixelFormat;
 
-// TODO: do we want/need to support anything other than unpremul input, unpremul output?
+// We always store any alpha channel linearly.  In the chart below, tf-1() is the inverse
+// transfer function for the given color profile (applying the transfer function linearizes).
+
+// We treat opaque as a strong requirement, not just a performance hint: we will ignore
+// any source alpha and treat it as 1.0, and will make sure that any destination alpha
+// channel is filled with the equivalent of 1.0.
+
+// When premultiplying and/or using a non-linear transfer function, it's important
+// that we know the order the operations are applied.  If you're used to working
+// with non-color-managed drawing systems, PremulAsEncoded is probably the "premul"
+// you're looking for; if you want linear blending, PremulLinear is the choice for you.
+
+typedef enum {
+    skcms_AlphaFormat_Opaque,          // alpha is always opaque
+                                       //   tf-1(r),   tf-1(g),   tf-1(b),   1.0
+    skcms_AlphaFormat_Unpremul,        // alpha and color are unassociated
+                                       //   tf-1(r),   tf-1(g),   tf-1(b),   a
+    skcms_AlphaFormat_PremulAsEncoded, // premultiplied while encoded
+                                       //   tf-1(r)*a, tf-1(g)*a, tf-1(b)*a, a
+    skcms_AlphaFormat_PremulLinear,    // premultiplied while linear
+                                       //   tf-1(r*a), tf-1(g*a), tf-1(b*a), a
+} skcms_AlphaFormat;
 
 // Convert npixels pixels from src format and color profile to dst format and color profile
 // and return true, otherwise return false.  It is safe to alias dst == src if dstFmt == srcFmt.
-bool skcms_Transform(const void* src, skcms_PixelFormat srcFmt, const skcms_ICCProfile* srcProfile,
-                           void* dst, skcms_PixelFormat dstFmt, const skcms_ICCProfile* dstProfile,
-                     size_t npixels);
+bool skcms_Transform(const void*             src,
+                     skcms_PixelFormat       srcFmt,
+                     skcms_AlphaFormat       srcAlpha,
+                     const skcms_ICCProfile* srcProfile,
+                     void*                   dst,
+                     skcms_PixelFormat       dstFmt,
+                     skcms_AlphaFormat       dstAlpha,
+                     const skcms_ICCProfile* dstProfile,
+                     size_t                  npixels);
 
 #ifdef __cplusplus
 }
