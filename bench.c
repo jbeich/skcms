@@ -71,8 +71,8 @@ int main(int argc, char** argv) {
 
     clock_t start = clock();
     for (int i = 0; running_under_profiler || i < loops; i++) {
-        (void)skcms_Transform(src_pixels, src_fmt, &src_profile,
-                              dst_pixels, dst_fmt, &dst_profile,
+        (void)skcms_Transform(src_pixels, src_fmt, skcms_AlphaFormat_Unpremul, &src_profile,
+                              dst_pixels, dst_fmt, skcms_AlphaFormat_Unpremul, &dst_profile,
                               NPIXELS);
         src_fmt = (src_fmt + 3) % wrap;
         dst_fmt = (dst_fmt + 7) % wrap;
