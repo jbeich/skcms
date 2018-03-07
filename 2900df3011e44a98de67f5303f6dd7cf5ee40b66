@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88f220df_b8859be3",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-07T13:53:17Z",
+      "side": 1,
+      "message": "I think we can kill off 101010x now?  Isn\u0027t it going to be 1010102/Opaque?",
+      "revId": "2900df3011e44a98de67f5303f6dd7cf5ee40b66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bf6bd1e_ca262b4d",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-07T13:53:17Z",
+      "side": 1,
+      "message": "Something like this?\n\n// We always store any alpha channel linearly.  In the chart below, tf-1() is the inverse\n// transfer function for the given color profile (applying the transfer function linearizes).\n\n// We treat opaque as a strong requirement, not just a performance hint: we will ignore \n// any source alpha and treat it as 1.0, and will make sure that any destination alpha\n// channel is filled with the equivalent of 1.0.\n\n// When premultiplying and/or using a non-linear transfer function, it\u0027s important\n// that we know the order the operations are applied.  If you\u0027re used to working\n// with non-color-managed drawing systems, PremulAsEncoded is probably the \"premul\"\n// you\u0027re looking for; if you want linear blending, PremulLinear is the choice for you.\n\n  // alpha is always opaque,            tf-1(r),   tf-1(g),   tf-1(b),   1.0\n  // alpha and color are unassociated,  tf-1(r),   tf-1(g),   tf-1(b),   a\n  // premultiplied while encoded,       tf-1(r)*a, tf-1(g)*a, tf-1(b)*a, a\n  // premultiplied while linear,        tf-1(r*a), tf-1(g*a), tf-1(b*a), a",
+      "revId": "2900df3011e44a98de67f5303f6dd7cf5ee40b66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2960be77_4d39a120",
+        "filename": "src/Transform.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-07T13:53:17Z",
+      "side": 1,
+      "message": "I think there\u0027s also INFINITY in math.h if that makes things any easier to work with.  This lgtm as it stands though.",
+      "revId": "2900df3011e44a98de67f5303f6dd7cf5ee40b66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a627b9a2_02c2b890",
+        "filename": "src/Transform.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-07T13:53:17Z",
+      "side": 1,
+      "message": "if_then_else() is slightly annoying to use here in C land.  The result really is of type F, but sometimes we have to coax the compiler with a cast, so generally I always cast it:\n\nF scale \u003d (F)if_then_else(F1/a \u003c inf, F1/a, F0);",
+      "revId": "2900df3011e44a98de67f5303f6dd7cf5ee40b66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa3cede1_409b359b",
+        "filename": "src/Transform.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 969,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-07T13:53:17Z",
+      "side": 1,
+      "message": "This is logically part of the TODO: A2B, no?  Or is it possible for us to have TRC profiles that connect through Lab?",
+      "range": {
+        "startLine": 969,
+        "startChar": 8,
+        "endLine": 969,
+        "endChar": 27
+      },
+      "revId": "2900df3011e44a98de67f5303f6dd7cf5ee40b66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
