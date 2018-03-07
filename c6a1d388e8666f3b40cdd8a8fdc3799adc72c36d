@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b2fe4c1_a5323522",
+        "filename": "fuzz/fuzz_iccprofile_transform.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-03-07T19:01:14Z",
+      "side": 1,
+      "message": "lgtm",
+      "revId": "c6a1d388e8666f3b40cdd8a8fdc3799adc72c36d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
