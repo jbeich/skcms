@@ -689,7 +689,7 @@ bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcm
 }
 
 bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
-    static_assert(SAFE_SIZEOF(header_Layout) == 132, "ICC header size");
+    assert(SAFE_SIZEOF(header_Layout) == 132);
 
     if (!profile) {
         return false;
@@ -721,8 +721,9 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     profile->illuminant_Y        = read_big_fixed(header->illuminant_Y);
     profile->illuminant_Z        = read_big_fixed(header->illuminant_Z);
     profile->creator             = read_big_u32(header->creator);
-    static_assert(SAFE_SIZEOF(profile->profile_id) == SAFE_SIZEOF(header->profile_id),
-                  "profile_id size");
+
+    assert(SAFE_SIZEOF(profile->profile_id) == SAFE_SIZEOF(header->profile_id));
+
     memcpy(profile->profile_id, header->profile_id, SAFE_SIZEOF(header->profile_id));
     profile->tag_count           = read_big_u32(header->tag_count);
 
