@@ -272,8 +272,7 @@ SI F approx_powf(F x, float y) {
 
     // TODO: The rest of this could perhaps be specialized further knowing 0 <= y < 1.
     assert (0 <= y && y < 1);
-    return r * (F)if_then_else(x == F0, F0
-                                      , approx_pow2(approx_log2(x) * y));
+    return (F)if_then_else((x == F0) | (x == F1), x, r * approx_pow2(approx_log2(x) * y));
 }
 
 // Return tf(x).
@@ -929,7 +928,8 @@ bool skcms_Transform(const void*             src,
     if (dstProfile != srcProfile ||
         srcAlpha == skcms_AlphaFormat_PremulLinear ||
         dstAlpha == skcms_AlphaFormat_PremulLinear) {
-        // Linearize using TRC curves, either parametric or 16-bit tables.
+
+        // Linearize source using TRC curves, either parametric or 16-bit tables.
         if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
             void*       tf_stages[] = { (void*)      tf_r, (void*)      tf_g, (void*)      tf_b };
             void* table_16_stages[] = { (void*)table_16_r, (void*)table_16_g, (void*)table_16_b };
@@ -950,24 +950,43 @@ bool skcms_Transform(const void*             src,
             if (srcAlpha == skcms_AlphaFormat_PremulLinear) {
                 *ip++ = (void*)unpremul;
             }
-
-            *ip++   = (void*)matrix_3x3;
-            *args++ = &srcProfile->toXYZD50;
         } else {
             // TODO: A2B
         }
 
-        // Back to dst RGB.  (TODO: support tables here?)
+        // We only support destination gamuts that can be transformed from XYZD50.
+        if (!dstProfile->has_toXYZD50) {
+            return false;
+        }
+
+        // Sources with a toXYZD50 matrix still need to be transformed.
+        // Others (A2B) should already be in XYZD50 at this point.
+        static const skcms_Matrix3x3 I = {{
+            { 1.0f, 0.0f, 0.0f },
+            { 0.0f, 1.0f, 0.0f },
+            { 0.0f, 0.0f, 1.0f },
+        }};
+        const skcms_Matrix3x3* to_xyz = srcProfile->has_toXYZD50 ? &srcProfile->toXYZD50 : &I;
+
+        // There's a chance the source and destination gamuts are identical,
+        // in which case we can skip the gamut transform.
+        if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
+            if (!skcms_Matrix3x3_invert(&dstProfile->toXYZD50, &from_xyz)) {
+                return false;
+            }
+            // TODO: concat these here and only append one matrix_3x3 stage.
+            *ip++ = (void*)matrix_3x3; *args++ =    to_xyz;
+            *ip++ = (void*)matrix_3x3; *args++ = &from_xyz;
+        }
+
+        // Encode back to dst RGB using its parametric transfer functions.
         if (dstProfile->has_trc &&
             dstProfile->trc[0].table_entries == 0 &&
             dstProfile->trc[1].table_entries == 0 &&
             dstProfile->trc[2].table_entries == 0 &&
             skcms_TransferFunction_invert(&dstProfile->trc[0].parametric, &inv_dst_tf_r) &&
             skcms_TransferFunction_invert(&dstProfile->trc[1].parametric, &inv_dst_tf_g) &&
-            skcms_TransferFunction_invert(&dstProfile->trc[2].parametric, &inv_dst_tf_b) &&
-            dstProfile->has_toXYZD50 &&
-            skcms_Matrix3x3_invert(&dstProfile->toXYZD50,  &from_xyz)) {
-            *ip++ = (void*)matrix_3x3; *args++ = &from_xyz;
+            skcms_TransferFunction_invert(&dstProfile->trc[2].parametric, &inv_dst_tf_b)) {
 
             if (dstAlpha == skcms_AlphaFormat_PremulLinear) {
                 *ip++ = (void*)premul;
