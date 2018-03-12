@@ -1028,6 +1028,38 @@ static void test_Premul() {
     free(ptr);
 }
 
+static void test_ByteToLinearFloat() {
+    uint32_t src[1] = { 0xFFFFFFFF };
+    float dst[4];
+
+    void*  srgb_ptr;
+    size_t srgb_len;
+    expect(load_file("profiles/mobile/sRGB_parametric.icc", &srgb_ptr, &srgb_len));
+
+    skcms_ICCProfile srgb, srgb_linear;
+    expect(skcms_Parse(srgb_ptr, srgb_len, &srgb));
+    srgb_linear = srgb;
+    for (int i = 0; i < 3; ++i) {
+        srgb_linear.trc[i].parametric.g = 1.0f;
+        srgb_linear.trc[i].parametric.a = 1.0f;
+        srgb_linear.trc[i].parametric.b = 0.0f;
+        srgb_linear.trc[i].parametric.c = 0.0f;
+        srgb_linear.trc[i].parametric.d = 0.0f;
+        srgb_linear.trc[i].parametric.e = 0.0f;
+        srgb_linear.trc[i].parametric.f = 0.0f;
+    }
+
+    skcms_Transform(src, skcms_PixelFormat_BGRA_8888, skcms_AlphaFormat_Unpremul, &srgb,
+                    dst, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &srgb_linear, 1);
+
+    expect(dst[0] == 1.0f);
+    expect(dst[1] == 1.0f);
+    expect(dst[2] == 1.0f);
+    expect(dst[3] == 1.0f);
+
+    free(srgb_ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1052,6 +1084,7 @@ int main(int argc, char** argv) {
     test_SimpleRoundTrip();
     test_FloatRoundTrips();
     test_sRGB_AllBytes();
+    test_ByteToLinearFloat();
     test_TRC_Table16();
     test_Premul();
 

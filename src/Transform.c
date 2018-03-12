@@ -272,7 +272,7 @@ SI F approx_powf(F x, float y) {
 
     // TODO: The rest of this could perhaps be specialized further knowing 0 <= y < 1.
     assert (0 <= y && y < 1);
-    return r * (F)if_then_else(x == F0, F0
+    return r * (F)if_then_else((x == F0) | (x == F1), x
                                       , approx_pow2(approx_log2(x) * y));
 }
 
@@ -930,6 +930,7 @@ bool skcms_Transform(const void*             src,
         srcAlpha == skcms_AlphaFormat_PremulLinear ||
         dstAlpha == skcms_AlphaFormat_PremulLinear) {
         // Linearize using TRC curves, either parametric or 16-bit tables.
+        const skcms_Matrix3x3* to_xyz = NULL;
         if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
             void*       tf_stages[] = { (void*)      tf_r, (void*)      tf_g, (void*)      tf_b };
             void* table_16_stages[] = { (void*)table_16_r, (void*)table_16_g, (void*)table_16_b };
@@ -951,10 +952,28 @@ bool skcms_Transform(const void*             src,
                 *ip++ = (void*)unpremul;
             }
 
-            *ip++   = (void*)matrix_3x3;
-            *args++ = &srcProfile->toXYZD50;
+            // Defer adding the XYZ stage - we can skip this if src and dst have the same gamut.
+            to_xyz = &srcProfile->toXYZD50;
         } else {
             // TODO: A2B
+        }
+
+        if (!dstProfile->has_toXYZD50) {
+            return false;
+        }
+
+        // Add gamut transform(s) if there's only one (src was A2B), or src and dst are different
+        if (!to_xyz || 0 != memcmp(to_xyz, &dstProfile->toXYZD50, sizeof(*to_xyz))) {
+            if (to_xyz) {
+                *ip++ = (void*)matrix_3x3;
+                *args++ = to_xyz;
+            }
+            if (skcms_Matrix3x3_invert(&dstProfile->toXYZD50, &from_xyz)) {
+                *ip++ = (void*)matrix_3x3;
+                *args++ = &from_xyz;
+            } else {
+                return false;
+            }
         }
 
         // Back to dst RGB.  (TODO: support tables here?)
@@ -964,11 +983,7 @@ bool skcms_Transform(const void*             src,
             dstProfile->trc[2].table_entries == 0 &&
             skcms_TransferFunction_invert(&dstProfile->trc[0].parametric, &inv_dst_tf_r) &&
             skcms_TransferFunction_invert(&dstProfile->trc[1].parametric, &inv_dst_tf_g) &&
-            skcms_TransferFunction_invert(&dstProfile->trc[2].parametric, &inv_dst_tf_b) &&
-            dstProfile->has_toXYZD50 &&
-            skcms_Matrix3x3_invert(&dstProfile->toXYZD50,  &from_xyz)) {
-            *ip++ = (void*)matrix_3x3; *args++ = &from_xyz;
-
+            skcms_TransferFunction_invert(&dstProfile->trc[2].parametric, &inv_dst_tf_b)) {
             if (dstAlpha == skcms_AlphaFormat_PremulLinear) {
                 *ip++ = (void*)premul;
             }
