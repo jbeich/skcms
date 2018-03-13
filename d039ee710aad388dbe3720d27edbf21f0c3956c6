@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f991eb21_b99a946a",
+        "filename": "src/Transform.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-13T21:19:42Z",
+      "side": 1,
+      "message": "I\u0027ll have to go re-read (again) the stuff in the spec about different ranges of Lab encodings, but this looks good for now. We may need an extra check or alternate set of coefficients in some cases, if my understanding of what the spec says is correct.",
+      "revId": "d039ee710aad388dbe3720d27edbf21f0c3956c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
