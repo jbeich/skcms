@@ -1060,6 +1060,41 @@ static void test_ByteToLinearFloat() {
     free(srgb_ptr);
 }
 
+
+static void test_CLUT() {
+    // sRGB_v4_ICC_preference is an A2B profile that does all its work in the 3D (16-bit) CLUT
+    // and subsequent Lab -> XYZ transformation.  Its A, M, and B curves are all identity, as
+    // is its matrix.  This makes it a good profile to test CLUTs.
+    // (Though it'd be nice to find one connecting to XYZ directly.)
+
+    void  *srgb_ptr, *a2b_ptr;
+    size_t srgb_len,  a2b_len;
+    expect(load_file("profiles/mobile/sRGB_parametric.icc",           &srgb_ptr, &srgb_len));
+    expect(load_file("profiles/color.org/sRGB_v4_ICC_preference.icc", & a2b_ptr, & a2b_len));
+
+    skcms_ICCProfile srgb, a2b;
+    expect( skcms_Parse(srgb_ptr, srgb_len, &srgb) );
+    expect( skcms_Parse( a2b_ptr,  a2b_len, & a2b) );
+
+    uint8_t src[258], dst[258] = {0};
+    for (int i = 0; i < 256; i++) {
+        src[i] = (uint8_t)(i & 0xff);
+    }
+
+    expect(skcms_Transform(src, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &a2b,
+                           dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &srgb, 85));
+
+    for (int i = 0; i < 256; i++) {
+        if (dst[i] != i) {
+            fprintf(stderr, "%d -> %d\n", i, dst[i]);
+        }
+        expect(dst[i] == i);
+    }
+
+    free(srgb_ptr);
+    free(a2b_ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1087,6 +1122,7 @@ int main(int argc, char** argv) {
     test_ByteToLinearFloat();
     test_TRC_Table16();
     test_Premul();
+    test_CLUT();
 
     return 0;
 }
