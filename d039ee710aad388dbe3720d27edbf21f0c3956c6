@@ -16,6 +16,24 @@
       "revId": "d039ee710aad388dbe3720d27edbf21f0c3956c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c33c4ad6_4a701b96",
+        "filename": "src/Transform.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-13T21:25:58Z",
+      "side": 1,
+      "message": "Yeah, just double checked... this seems to match the spec for the most part (with slightly different formulations of the same constants), except for one thing.  There was some sort of note about a legacy encoding for 16-bit tables where 0xff00 (BE) represents 100 instead of 0xffff, and similarly 0xff00 is 127 for *a and *b.  I just kind of decided to ignore that for now hoping you\u0027d tell me it wasn\u0027t relevant.  I think it can be fixed by injecting a simple little scale-by-constant-fixup stage.",
+      "parentUuid": "f991eb21_b99a946a",
+      "revId": "d039ee710aad388dbe3720d27edbf21f0c3956c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
