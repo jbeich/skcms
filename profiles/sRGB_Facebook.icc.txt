@@ -32,7 +32,6 @@
  'gTRC' : 'curv' :     64 : 460
  'bTRC' : 'curv' :     64 : 460
 
-~TRC : 2.405, 0.9464, 0.0537, 0.08, 0, 0
 rTRC : 16-bit table with 26 entries
 gTRC : 16-bit table with 26 entries
 bTRC : 16-bit table with 26 entries
