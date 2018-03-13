@@ -16,6 +16,24 @@
       "revId": "f9d35904ea3734a898b423d2bef06b9e40e63298",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a37fcb17_b64304e5",
+        "filename": "test_only.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-13T16:09:42Z",
+      "side": 1,
+      "message": "Good idea. Although it looks like the failure that prompted this change is so severe that the round-tripping is failing (on gcc and clang .native).",
+      "parentUuid": "e4769152_ed37f353",
+      "revId": "f9d35904ea3734a898b423d2bef06b9e40e63298",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
