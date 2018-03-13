@@ -1060,6 +1060,58 @@ static void test_ByteToLinearFloat() {
     free(srgb_ptr);
 }
 
+
+static void test_CLUT() {
+    // sRGB_v4_ICC_preference is an A2B profile that does all its work in the 3D (16-bit) CLUT
+    // and subsequent Lab -> XYZ transformation.  Its A, M, and B curves are all identity, as
+    // is its matrix.  This makes it a good profile to test CLUTs.
+    // (Though it'd be nice to find one connecting to XYZ directly.)
+
+    void  *srgb_ptr, *a2b_ptr;
+    size_t srgb_len,  a2b_len;
+    expect(load_file("profiles/mobile/sRGB_parametric.icc",           &srgb_ptr, &srgb_len));
+    expect(load_file("profiles/color.org/sRGB_ICC_v4_Appearance.icc", & a2b_ptr, & a2b_len));
+
+    skcms_ICCProfile srgb, a2b;
+    expect( skcms_Parse(srgb_ptr, srgb_len, &srgb) );
+    expect( skcms_Parse( a2b_ptr,  a2b_len, & a2b) );
+
+    // We'll test some edge and middle RGB values.
+    uint8_t src[] = {
+        0x00, 0x00, 0x00,
+        0x00, 0x00, 0x7f,
+        0x00, 0x00, 0xff,
+        0x00, 0x7f, 0x00,
+        0x00, 0xff, 0x00,
+        0x00, 0x7f, 0x7f,
+        0x00, 0xff, 0xff,
+        0x7f, 0x00, 0x00,
+        0xff, 0x00, 0x00,
+        0x7f, 0x00, 0x7f,
+        0xff, 0x00, 0xff,
+        0x7f, 0x7f, 0x00,
+        0xff, 0xff, 0x00,
+        0x7f, 0x7f, 0x7f,
+        0xff, 0xff, 0xff,
+    }, dst[ARRAY_COUNT(src)];
+
+
+    expect(skcms_Transform(src, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &a2b,
+                           dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &srgb,
+                           ARRAY_COUNT(src)/3));
+
+    for (int i = 0; i < ARRAY_COUNT(src); i++) {
+        int tol = 1;
+        if (src[i] == 0) {
+            tol = 9;
+        }
+        expect(abs(dst[i] - src[i]) <= tol);
+    }
+
+    free(srgb_ptr);
+    free(a2b_ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1087,6 +1139,7 @@ int main(int argc, char** argv) {
     test_ByteToLinearFloat();
     test_TRC_Table16();
     test_Premul();
+    test_CLUT();
 
     return 0;
 }
