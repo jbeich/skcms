@@ -756,28 +756,44 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     }
 
     // Pre-parse commonly used tags.
-    skcms_ICCTag rTRC, gTRC, bTRC;
-    if (skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) &&
-        skcms_GetTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) &&
-        skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
-        if (!read_curve(rTRC.buf, rTRC.size, &profile->trc[0], NULL) ||
-            !read_curve(gTRC.buf, gTRC.size, &profile->trc[1], NULL) ||
-            !read_curve(bTRC.buf, bTRC.size, &profile->trc[2], NULL)) {
-            // Malformed TRC tags
+    skcms_ICCTag kTRC;
+    if (skcms_GetTagBySignature(profile, make_signature('k', 'T', 'R', 'C'), &kTRC)) {
+        if (!read_curve(kTRC.buf, kTRC.size, &profile->trc[0], NULL)) {
+            // Malformed tag
             return false;
         }
+        profile->trc[1] = profile->trc[0];
+        profile->trc[2] = profile->trc[0];
         profile->has_trc = true;
-    }
 
-    skcms_ICCTag rXYZ, gXYZ, bXYZ;
-    if (skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) &&
-        skcms_GetTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) &&
-        skcms_GetTagBySignature(profile, make_signature('b', 'X', 'Y', 'Z'), &bXYZ)) {
-        if (!read_to_XYZD50(&rXYZ, &gXYZ, &bXYZ, &profile->toXYZD50)) {
-            // Malformed XYZ tags
-            return false;
-        }
+        profile->toXYZD50.vals[0][0] = profile->illuminant_X;
+        profile->toXYZD50.vals[1][1] = profile->illuminant_Y;
+        profile->toXYZD50.vals[2][2] = profile->illuminant_Z;
         profile->has_toXYZD50 = true;
+    } else {
+        skcms_ICCTag rTRC, gTRC, bTRC;
+        if (skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) &&
+            skcms_GetTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) &&
+            skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+            if (!read_curve(rTRC.buf, rTRC.size, &profile->trc[0], NULL) ||
+                !read_curve(gTRC.buf, gTRC.size, &profile->trc[1], NULL) ||
+                !read_curve(bTRC.buf, bTRC.size, &profile->trc[2], NULL)) {
+                // Malformed TRC tags
+                return false;
+            }
+            profile->has_trc = true;
+        }
+
+        skcms_ICCTag rXYZ, gXYZ, bXYZ;
+        if (skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) &&
+            skcms_GetTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) &&
+            skcms_GetTagBySignature(profile, make_signature('b', 'X', 'Y', 'Z'), &bXYZ)) {
+            if (!read_to_XYZD50(&rXYZ, &gXYZ, &bXYZ, &profile->toXYZD50)) {
+                // Malformed XYZ tags
+                return false;
+            }
+            profile->has_toXYZD50 = true;
+        }
     }
 
     skcms_ICCTag a2b_tag;

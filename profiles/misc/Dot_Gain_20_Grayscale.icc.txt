@@ -27,3 +27,10 @@
  'bkpt' : 'XYZ ' :     20 : 368
  'kTRC' : 'curv' :    524 : 388
 
+~TRC : 1.738, 1, 0, 0.055, 0, 0
+rTRC : 16-bit table with 256 entries
+gTRC : 16-bit table with 256 entries
+bTRC : 16-bit table with 256 entries
+ XYZ : | 0.964202881 0.000000000 0.000000000 |
+       | 0.000000000 1.000000000 0.000000000 |
+       | 0.000000000 0.000000000 0.824905396 |
