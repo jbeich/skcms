@@ -35,6 +35,12 @@
  'desc' : 'desc' :    152 : 1702240
  'targ' : 'text' : 126685 : 1702392
 
+rTRC : 16-bit table with 256 entries
+gTRC : 16-bit table with 256 entries
+bTRC : 16-bit table with 256 entries
+ XYZ : | 0.964202881 0.000000000 0.000000000 |
+       | 0.000000000 1.000000000 0.000000000 |
+       | 0.000000000 0.000000000 0.824905396 |
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
