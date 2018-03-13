@@ -773,6 +773,28 @@ static void tf_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
+// Applied to the 'a' channel when using 4-channel input, i.e. CMYK.  So think 'tf_K'.
+static void tf_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_TransferFunction* tf = *ctx->args++;
+    a = apply_transfer_function(tf, a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
+SI F gather_8(const uint8_t* p, I32 ix) {
+    uint8_t buf[N];
+#if N == 1
+    buf[0] = p[ix];
+#else
+    for (int i = 0; i < N; i++) {
+        buf[i] = p[ix[i]];
+    }
+#endif
+
+    U8 v;
+    small_memcpy(&v, buf, sizeof(v));
+    return CAST(F, v) * (1/255.0f);
+}
+
 SI F gather_16(const uint8_t* p, I32 ix) {
     // TODO: plenty of opportunity to optimize here.
     uint8_t buf[2*N];
@@ -801,7 +823,7 @@ SI F minus_1_ulp(F v) {
     return v;
 }
 
-SI F table_16(const skcms_Curve* curve, F v) {
+SI F table_8(const skcms_Curve* curve, F v) {
     // Clamp the input to [0,1], then scale to a table index.
     F ix = max_(F0, min_(v, F1)) * (float)(curve->table_entries - 1);
 
@@ -810,29 +832,90 @@ SI F table_16(const skcms_Curve* curve, F v) {
         hi = CAST(I32, minus_1_ulp(ix+1.0f));
     F t = ix - CAST(F, lo);  // i.e. the fractional part of ix.
 
-    // TODO: can we load l and h simultaneously?  Each entry is either the same or adjacent.
-    // We have a rough idea that's it'd always be safe to read adjacent entries and perhaps
-    // underflow the table by 2 bytes (junk, but always safe to read).  This might allow using
-    // 32-bit lane gather instructions from AVX2+.  Not sure how to lerp that yet.
-    F l = gather_16(curve->table_16, lo),
-      h = gather_16(curve->table_16, hi);
-
+    // TODO: can we load l and h simultaneously?  Each entry in 'h' is either
+    // the same as in 'l' or adjacent.  We have a rough idea that's it'd always be safe
+    // to read adjacent entries and perhaps underflow the table by a byte or two
+    // (it'd be junk, but always safe to read).  Not sure how to lerp yet.
+    F l = gather_8(curve->table_8, lo),
+      h = gather_8(curve->table_8, hi);
     return l*(1-t) + h*t;
 }
 
+SI F table_16(const skcms_Curve* curve, F v) {
+    // All just as in table_8() until the gathers.
+    F ix = max_(F0, min_(v, F1)) * (float)(curve->table_entries - 1);
+
+    I32 lo = CAST(I32,             ix      ),
+        hi = CAST(I32, minus_1_ulp(ix+1.0f));
+    F t = ix - CAST(F, lo);
+
+    // TODO: as above, load l and h simultaneously?
+    // Here we could even use AVX2-style 32-bit gathers.
+    F l = gather_16(curve->table_16, lo),
+      h = gather_16(curve->table_16, hi);
+    return l*(1-t) + h*t;
+}
+
+static void table_8_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    r = table_8(*ctx->args++, r);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
 static void table_16_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     r = table_16(*ctx->args++, r);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
+static void table_8_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    g = table_8(*ctx->args++, g);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
 static void table_16_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     g = table_16(*ctx->args++, g);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
+static void table_8_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    b = table_8(*ctx->args++, b);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
 static void table_16_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     b = table_16(*ctx->args++, b);
     next_stage(i,ip,ctx, r,g,b,a);
+}
+
+// Applied to the 'a' channel when using 4-channel input, i.e. CMYK.  So think 'table_{8,16}_K'.
+static void table_8_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    a = table_8(*ctx->args++, a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+static void table_16_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    a = table_16(*ctx->args++, a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
+typedef struct {
+    Stage       stage;
+    const void* arg;
+} StageAndArg;
+
+SI StageAndArg select_curve_stage(const skcms_Curve* curve, int channel) {
+    static const struct { Stage parametric, table_8, table_16; } stages[] = {
+        { tf_r, table_8_r, table_16_r },
+        { tf_g, table_8_g, table_16_g },
+        { tf_b, table_8_b, table_16_b },
+        { tf_a, table_8_a, table_16_a },
+    };
+
+    if (curve->table_entries == 0) {
+        return (StageAndArg){ stages[channel].parametric, &curve->parametric };
+    } else if (curve->table_8) {
+        return (StageAndArg){ stages[channel].table_8,  curve };
+    } else if (curve->table_16) {
+        return (StageAndArg){ stages[channel].table_16, curve };
+    }
+
+    assert(false);
+    return (StageAndArg){NULL,NULL};
 }
 
 static void matrix_3x3(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
@@ -844,6 +927,118 @@ static void matrix_3x3(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
       B = m[6]*r + m[7]*g + m[8]*b;
 
     next_stage(i,ip,ctx, R,G,B,a);
+}
+
+static void matrix_3x4(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_Matrix3x4* matrix = *ctx->args++;
+    const float* m = &matrix->vals[0][0];
+
+    F R = m[0]*r + m[1]*g + m[ 2]*b + m[ 3],
+      G = m[4]*r + m[5]*g + m[ 6]*b + m[ 7],
+      B = m[8]*r + m[9]*g + m[10]*b + m[11];
+
+    next_stage(i,ip,ctx, R,G,B,a);
+}
+
+// Color lookup tables, by input dimension and bit depth.
+SI void clut_0_8(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
+    // TODO: gather_24()?
+    *r = gather_8(a2b->grid_8, 3*ix+0);
+    *g = gather_8(a2b->grid_8, 3*ix+1);
+    *b = gather_8(a2b->grid_8, 3*ix+2);
+    (void)a;
+    (void)stride;
+}
+SI void clut_0_16(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
+    // TODO: gather_48()?
+    *r = gather_16(a2b->grid_16, 3*ix+0);
+    *g = gather_16(a2b->grid_16, 3*ix+1);
+    *b = gather_16(a2b->grid_16, 3*ix+2);
+    (void)a;
+    (void)stride;
+}
+
+// These are all the same basic approach: handle one dimension, then the rest recursively.
+// We let "I" be the current dimension, and "J" the previous dimension, I-1.  "B" is the bit depth.
+// We use static inline here: __attribute__((always_inline)) hits some pathologically
+// case in GCC that makes compilation way too slow for my patience.
+#define DEF_CLUT(I,J,B)                                                                       \
+    static inline                                                                             \
+    void clut_##I##_##B(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {    \
+        I32 limit = CAST(I32, F0);                                                            \
+        limit += a2b->grid_points[I-1];                                                       \
+                                                                                              \
+        const F* srcs[] = { r,g,b,&a };                                                       \
+        F src = *srcs[I-1];                                                                   \
+                                                                                              \
+        F x = max_(F0, min_(src, F1)) * CAST(F, limit - 1);                                   \
+                                                                                              \
+        I32 lo = CAST(I32,             x      ),                                              \
+            hi = CAST(I32, minus_1_ulp(x+1.0f));                                              \
+        F lr = *r, lg = *g, lb = *b,                                                          \
+          hr = *r, hg = *g, hb = *b;                                                          \
+        clut_##J##_##B(a2b, stride*lo + ix, stride*limit, &lr,&lg,&lb,a);                     \
+        clut_##J##_##B(a2b, stride*hi + ix, stride*limit, &hr,&hg,&hb,a);                     \
+                                                                                              \
+        F t = x - CAST(F, lo);                                                                \
+        *r = lr*(1-t) + hr*t;                                                                 \
+        *g = lg*(1-t) + hg*t;                                                                 \
+        *b = lb*(1-t) + hb*t;                                                                 \
+    }
+
+DEF_CLUT(1,0,8)
+DEF_CLUT(2,1,8)
+DEF_CLUT(3,2,8)
+DEF_CLUT(4,3,8)
+
+DEF_CLUT(1,0,16)
+DEF_CLUT(2,1,16)
+DEF_CLUT(3,2,16)
+DEF_CLUT(4,3,16)
+
+// Now the stages that just call into the various implementations above.
+static void clut_1D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_A2B* a2b = *ctx->args++;
+    clut_1_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+static void clut_2D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_A2B* a2b = *ctx->args++;
+    clut_2_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+static void clut_3D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_A2B* a2b = *ctx->args++;
+    clut_3_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+static void clut_4D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_A2B* a2b = *ctx->args++;
+    clut_4_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+    // 'a' was really a CMYK K, so our output is actually opaque.
+    next_stage(i,ip,ctx, r,g,b,F1);
+}
+
+static void clut_1D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_A2B* a2b = *ctx->args++;
+    clut_1_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+static void clut_2D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_A2B* a2b = *ctx->args++;
+    clut_2_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+static void clut_3D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_A2B* a2b = *ctx->args++;
+    clut_3_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+static void clut_4D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    const skcms_A2B* a2b = *ctx->args++;
+    clut_4_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+    // 'a' was really a CMYK K, so our output is actually opaque.
+    next_stage(i,ip,ctx, r,g,b,F1);
 }
 
 SI size_t bytes_per_pixel(skcms_PixelFormat fmt) {
@@ -931,27 +1126,56 @@ bool skcms_Transform(const void*             src,
 
         // Linearize source using TRC curves, either parametric or 16-bit tables.
         if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
-            void*       tf_stages[] = { (void*)      tf_r, (void*)      tf_g, (void*)      tf_b };
-            void* table_16_stages[] = { (void*)table_16_r, (void*)table_16_g, (void*)table_16_b };
-
             for (int i = 0; i < 3; i++) {
-                if (srcProfile->trc[i].table_entries == 0) {
-                    *ip++   = tf_stages[i];
-                    *args++ = &srcProfile->trc[i].parametric;
-                } else if (srcProfile->trc[i].table_16) {
-                    *ip++   = table_16_stages[i];
-                    *args++ = &srcProfile->trc[i];
-                } else {
-                    // 8-bit tables aren't possible in TRC curves.
-                    return false;
-                }
+                StageAndArg sa = select_curve_stage(&srcProfile->trc[i], i);
+                *ip++   = (void*)sa.stage;
+                *args++ =        sa.arg;
             }
-
             if (srcAlpha == skcms_AlphaFormat_PremulLinear) {
                 *ip++ = (void*)unpremul;
             }
+        } else if (srcProfile->has_A2B) {
+            if (srcProfile->A2B.input_channels) {
+                for (int i = 0; i < (int)srcProfile->A2B.input_channels; i++) {
+                    StageAndArg sa = select_curve_stage(&srcProfile->A2B.input_curves[i], i);
+                    *ip++   = (void*)sa.stage;
+                    *args++ =        sa.arg;
+                }
+                switch (srcProfile->A2B.input_channels) {
+                    case 1: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_1D_8 : clut_1D_16); break;
+                    case 2: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_2D_8 : clut_2D_16); break;
+                    case 3: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_3D_8 : clut_3D_16); break;
+                    case 4: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_4D_8 : clut_4D_16); break;
+                    default: return false;
+                }
+                *args++ = &srcProfile->A2B;
+            }
+
+            if (srcProfile->A2B.matrix_channels == 3) {
+                for (int i = 0; i < 3; i++) {
+                    StageAndArg sa = select_curve_stage(&srcProfile->A2B.matrix_curves[i], i);
+                    *ip++   = (void*)sa.stage;
+                    *args++ =        sa.arg;
+                }
+                *ip++   = (void*)matrix_3x4;
+                *args++ = &srcProfile->A2B.matrix;
+            }
+
+            if (srcProfile->A2B.output_channels == 3) {
+                for (int i = 0; i < 3; i++) {
+                    StageAndArg sa = select_curve_stage(&srcProfile->A2B.output_curves[i], i);
+                    *ip++   = (void*)sa.stage;
+                    *args++ =        sa.arg;
+                }
+            }
+
+            if (srcAlpha != skcms_AlphaFormat_Unpremul) {
+                // TODO: how do we handle other alpha formats in A2B?
+                assert(false);
+                return false;
+            }
         } else {
-            // TODO: A2B
+            return false;
         }
 
         // We only support destination gamuts that can be transformed from XYZD50.
