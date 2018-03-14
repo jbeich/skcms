@@ -130,15 +130,9 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
     if (has_single_tf) {
         dump_transfer_function(fp, "TRC", &tf);
     } else if (skcms_ApproximateCurves(profile->trc, 3, &tf, &max_error)) {
-        if (for_unit_test) {
-            // The approximated transfer function can vary significantly, due to FMA, etc. In unit
-            // test mode, we print at reduced precision, and omit 'd' entirely, which can vary in
-            // the first significant digit. This test just ensures that the values are somewhat
-            // close. More thorough testing occurs in test_Parse (via round-tripping).
-            fprintf(fp, "%4s : %.4g, %.4g, %.3g, %.2g, %.4g, %.4g\n",
-                    "~TRC", (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
-                    (double)tf.e, (double)tf.f);
-        } else {
+        // The approximated transfer function can vary significantly, due to FMA, etc. In unit
+        // test mode, skip printing, and rely on the testing in test_Parse (via round-tripping).
+        if (!for_unit_test || true) {
             fprintf(fp, "%4s : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g  (Max error: %.9g)\n",
                     "~TRC", (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
                     (double)tf.d, (double)tf.e, (double)tf.f, (double)max_error);
