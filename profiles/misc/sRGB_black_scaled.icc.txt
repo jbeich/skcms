@@ -38,7 +38,6 @@
  'cprt' : 'text' :     55 : 2948
  'chad' : 'sf32' :     44 : 3004
 
-~TRC : 2.4, 0.9478, 0.0522, 0.078, 0, 0
 rTRC : 16-bit table with 1024 entries
 gTRC : 16-bit table with 1024 entries
 bTRC : 16-bit table with 1024 entries
