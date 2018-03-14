@@ -442,6 +442,12 @@ static const skcms_TransferFunction gamma_1_transfer_fn =
     { 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static const skcms_TransferFunction linear_transfer_fn =
     { 0.0f, 1.0f, 0.0f, 1.0f, 2.0f, 0.0f, 0.0f };
+//static const skcms_TransferFunction printOpen_transfer_fn =
+//    { 1.848348f, 1.001089f, -0.004021f, 0.225138f, 0.149020f, 0.005314f, 0.0f };
+static const skcms_TransferFunction dotGain_transfer_fn =
+    { 1.737916f, 1.0f, 0.0f, 0.054949f, 0.019608f, 0.0f, 0.0f };
+//static const skcms_TransferFunction dotGainBad_transfer_fn =
+//    { 1.73784769f, 1.0f, 0.00110423286f, 1.0f, 0.0f, 0.0f, 0.0f };
 
 typedef struct {
     const char*                   filename;
@@ -449,6 +455,7 @@ typedef struct {
 } ProfileTestCase;
 
 static const ProfileTestCase profile_test_cases[] = {
+#if 0
     // iccMAX profiles that we can't parse at all
     { "profiles/color.org/sRGB_D65_colorimetric.icc", NULL },
     { "profiles/color.org/sRGB_D65_MAT.icc",          NULL },
@@ -465,14 +472,15 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/misc/Japan_Color_2001_Coated.icc",     NULL },
     { "profiles/misc/Lexmark_X110.icc",                NULL },
     { "profiles/misc/MartiMaria_browsertest_A2B.icc",  NULL },
-    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   NULL }, // Has kTRC.
+    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   &printOpen_transfer_fn }, // Has kTRC.
     { "profiles/misc/sRGB_ICC_v4_beta.icc",            NULL },
     { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     NULL },
     { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     NULL },
     { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      NULL },
+#endif
 
     // V2 monochrome output profiles that include kTRC but no A2B
-    { "profiles/misc/Dot_Gain_20_Grayscale.icc", NULL }, // kTRC table
+    { "profiles/misc/Dot_Gain_20_Grayscale.icc", &dotGain_transfer_fn }, // kTRC table
     { "profiles/misc/Gray_Gamma_22.icc",         NULL }, // kTRC gamma
 
     // V4 profiles with parametric TRC curves and XYZ

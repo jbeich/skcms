@@ -12,12 +12,20 @@
 #include <assert.h>
 #include <math.h>
 
+float _powf(float b, float e) {
+    return (float)pow((double)b, (double)e);
+}
+
+float _logf(float b) {
+    return (float)log((double)b);
+}
+
 float skcms_TransferFunction_evalUnclamped(const skcms_TransferFunction* fn, float x) {
     float sign = x < 0 ? -1.0f : 1.0f;
     x *= sign;
 
     return sign * (x < fn->d ? fn->c * x + fn->f
-                             : powf(fn->a * x + fn->b, fn->g) + fn->e);
+                             : _powf(fn->a * x + fn->b, fn->g) + fn->e);
 }
 
 float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
@@ -34,10 +42,10 @@ static void tf_eval_gradient_nonlinear(const skcms_TransferFunction* fn,
                                        float* d_fn_d_G_at_x) {
     float base = fn->a * x + fn->b;
     if (base > 0.0f) {
-        *d_fn_d_A_at_x = fn->g * x * powf(base, fn->g - 1.0f);
-        *d_fn_d_B_at_x = fn->g * powf(base, fn->g - 1.0f);
+        *d_fn_d_A_at_x = fn->g * x * _powf(base, fn->g - 1.0f);
+        *d_fn_d_B_at_x = fn->g * _powf(base, fn->g - 1.0f);
         *d_fn_d_E_at_x = 1.0f;
-        *d_fn_d_G_at_x = powf(base, fn->g) * logf(base);
+        *d_fn_d_G_at_x = _powf(base, fn->g) * _logf(base);
     } else {
         *d_fn_d_A_at_x = 0.0f;
         *d_fn_d_B_at_x = 0.0f;
@@ -370,7 +378,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // If both segments are present, they need to line up
     if (has_linear && has_nonlinear) {
         float l_at_d = src->c * src->d + src->f;
-        float n_at_d = powf(src->a * src->d + src->b, src->g) + src->e;
+        float n_at_d = _powf(src->a * src->d + src->b, src->g) + src->e;
         if (fabsf(l_at_d - n_at_d) > 0.0001f) {
             return false;
         }
@@ -385,7 +393,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // Invert nonlinear segment
     if (has_nonlinear) {
         fn_inv.g = 1.0f / src->g;
-        fn_inv.a = powf(1.0f / src->a, src->g);
+        fn_inv.a = _powf(1.0f / src->a, src->g);
         fn_inv.b = -fn_inv.a * src->e;
         fn_inv.e = -src->b / src->a;
     }
