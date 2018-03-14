@@ -129,7 +129,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
     float max_error;
     if (has_single_tf) {
         dump_transfer_function(fp, "TRC", &tf);
-    } else if (skcms_ApproximateTransferFunction(profile, &tf, &max_error)) {
+    } else if (skcms_ApproximateCurves(profile->trc, 3, &tf, &max_error)) {
         if (for_unit_test) {
             // The approximated transfer function can vary significantly, due to FMA, etc. In unit
             // test mode, we print at reduced precision, and omit 'd' entirely, which can vary in

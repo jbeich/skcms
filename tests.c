@@ -587,7 +587,7 @@ static void test_Parse(bool regen) {
 
         skcms_TransferFunction approx_tf;
         float max_error;
-        bool approx_tf_result = skcms_ApproximateTransferFunction(&profile, &approx_tf, &max_error);
+        bool approx_tf_result = skcms_ApproximateCurves(profile.trc, 3, &approx_tf, &max_error);
         expect(approx_tf_result == !!test->expect_approx_tf);
         if (approx_tf_result) {
             // For this check, run every byte value through the forward version of one TF, and

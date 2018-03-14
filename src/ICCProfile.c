@@ -285,19 +285,21 @@ static bool read_curve(const uint8_t* buf, uint32_t size,
     return false;
 }
 
-bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
-                                       skcms_TransferFunction* fn,
-                                       float* max_error) {
-    if (!profile || !fn) { return false; }
-
-    const skcms_Curve* curves = profile->trc;
-    if (!curves[0].table_16 || !curves[1].table_16 || !curves[2].table_16) {
+bool skcms_ApproximateCurves(const skcms_Curve* curves, uint32_t num_curves,
+                             skcms_TransferFunction* approx, float* max_error) {
+    if (!curves || !approx) {
         return false;
     }
 
-    uint64_t n = (uint64_t)curves[0].table_entries
-               + (uint64_t)curves[1].table_entries
-               + (uint64_t)curves[2].table_entries;
+    uint64_t n = 0;
+    for (uint32_t c = 0; c < num_curves; ++c) {
+        // TODO: Support approximating 8 bit curves
+        if (!curves[c].table_entries || !curves[c].table_16) {
+            return false;
+        }
+        n += (uint64_t)curves[c].table_entries;
+    }
+
     if (n > INT_MAX) {
         return false;
     }
@@ -316,7 +318,7 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
     float* t = data + n;
 
     // Merge all channels' tables into a single array.
-    for (int c = 0; c < 3; ++c) {
+    for (uint32_t c = 0; c < num_curves; ++c) {
         for (uint32_t i = 0; i < curves[c].table_entries; ++i) {
             *x++ = i / (curves[c].table_entries - 1.0f);
             *t++ = read_big_u16(curves[c].table_16 + 2 * i) * (1 / 65535.0f);
@@ -326,7 +328,7 @@ bool skcms_ApproximateTransferFunction(const skcms_ICCProfile* profile,
     x = data;
     t = data + n;
 
-    bool result = skcms_TransferFunction_approximate(fn, x, t, (int)n, max_error);
+    bool result = skcms_TransferFunction_approximate(approx, x, t, (int)n, max_error);
     free(data);
     return result;
 }
