@@ -11,6 +11,7 @@
 #include "TransferFunction.h"
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
 
 float skcms_TransferFunction_evalUnclamped(const skcms_TransferFunction* fn, float x) {
     float sign = x < 0 ? -1.0f : 1.0f;
@@ -47,11 +48,9 @@ static void tf_eval_gradient_nonlinear(const skcms_TransferFunction* fn,
 }
 
 // Take one Gauss-Newton step updating A, B, E, and G, given D.
-static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
-                                           float* error_Linfty_after,
-                                           const float* x,
-                                           const float* t,
-                                           int n) {
+static bool tf_gauss_newton_step_nonlinear_2(skcms_TableFunc* t, const void* ctx, int start, int n,
+                                             skcms_TransferFunction* fn,
+                                             float* error_Linfty_after) {
     // Let ne_lhs be the left hand side of the normal equations, and let ne_rhs
     // be the right hand side. Zero the diagonal [sic] of |ne_lhs| and all of |ne_rhs|.
     skcms_Matrix4x4 ne_lhs;
@@ -64,18 +63,14 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
     }
 
     // Add the contributions from each sample to the normal equations.
-    for (int i = 0; i < n; ++i) {
-        // Ignore points in the linear segment.
-        if (x[i] < fn->d) {
-            continue;
-        }
-
+    for (int i = start; i < n; ++i) {
+        float xi = i / (n - 1.0f);
         // Let J be the gradient of fn with respect to parameters A, B, E, and G,
         // evaulated at this point.
         skcms_Vector4 J;
-        tf_eval_gradient_nonlinear(fn, x[i], &J.vals[0], &J.vals[1], &J.vals[2], &J.vals[3]);
+        tf_eval_gradient_nonlinear(fn, xi, &J.vals[0], &J.vals[1], &J.vals[2], &J.vals[3]);
         // Let r be the residual at this point;
-        float r = t[i] - skcms_TransferFunction_eval(fn, x[i]);
+        float r = t(i, n, ctx) - skcms_TransferFunction_eval(fn, xi);
 
         // Update the normal equations left hand side with the outer product of J
         // with itself.
@@ -126,11 +121,10 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
 
     // Compute the Linfinity error.
     *error_Linfty_after = 0;
-    for (int i = 0; i < n; ++i) {
-        if (x[i] >= fn->d) {
-            float error = fabsf(t[i] - skcms_TransferFunction_eval(fn, x[i]));
-            *error_Linfty_after = fmaxf(error, *error_Linfty_after);
-        }
+    for (int i = start; i < n; ++i) {
+        float xi = i / (n - 1.0f);
+        float error = fabsf(t(i, n, ctx) - skcms_TransferFunction_eval(fn, xi));
+        *error_Linfty_after = fmaxf(error, *error_Linfty_after);
     }
 
     return true;
@@ -138,10 +132,8 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TransferFunction* fn,
 
 // Solve for A, B, E, and G, given D. The initial value of |fn| is the
 // point from which iteration starts.
-static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
-                               const float* x,
-                               const float* t,
-                               int n) {
+static bool tf_solve_nonlinear_2(skcms_TableFunc* t, const void* ctx, int start, int n,
+                                 skcms_TransferFunction* fn) {
     // Take a maximum of 16 Gauss-Newton steps.
     enum { kNumSteps = 16 };
 
@@ -150,7 +142,7 @@ static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
     int step = 0;
     for (;; ++step) {
         // If the normal equations are singular, we can't continue.
-        if (!tf_gauss_newton_step_nonlinear(fn, &step_error[step], x, t, n)) {
+        if (!tf_gauss_newton_step_nonlinear_2(t, ctx, start, n, fn, &step_error[step])) {
             return false;
         }
 
@@ -213,117 +205,76 @@ static bool tf_solve_nonlinear(skcms_TransferFunction* fn,
     return true;
 }
 
-bool skcms_TransferFunction_approximate(skcms_TransferFunction* fn,
-                                        const float* x,
-                                        const float* t,
-                                        int n,
-                                        float* max_error) {
-    // First, guess at a value of D. Assume that the nonlinear segment applies
-    // to all x >= 0.15. This is generally a safe assumption (D is usually less
-    // than 0.1).
-    const float kLinearSegmentMaximum = 0.15f;
-    fn->d = kLinearSegmentMaximum;
+bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int n,
+                                        skcms_TransferFunction* fn, float* max_error) {
+    if (n < 2) {
+        return false;
+    }
 
-    // Do a nonlinear regression on the nonlinear segment. Use a number of guesses
-    // for the initial value of G, because not all values will converge.
-    bool nonlinear_fit_converged = false;
-    {
+    // Walk along the data until we deviate from a linear approximation by too much
+    int lin_points = 2;
+    // Assume that the values started out as .16 fixed point, and we want them to be exactly linear
+    // in that representation.
+    // TODO: Allow 1 bit of wiggle in the fixed point? eg: 0, 2, 5, 7, 10, ...
+    const float kLinearTolerance = 0.5f / 65535.0f;
+    const float lin_slope = t(1, n, ctx) - t(0, n, ctx);
+    for (int i = 2; i < n; ++i) {
+        float segment_slope = t(i, n, ctx) - t(i - 1, n, ctx);
+        if (fabsf(segment_slope - lin_slope) > kLinearTolerance) {
+            lin_points = i;
+            break;
+        }
+    }
+
+    // Compute parameters for the linear portion.
+    const float x_scale = 1.0f / (n - 1);
+    // Pick d so that all points we found above are included (this requires nudging).
+    fn->d = nextafterf((lin_points - 1) * x_scale, 2.0f);
+    // If the linear portion only covers a very small fraction of points, omit it entirely.
+    // TODO: Better heuristic here? Consider FB profile, vs. table versions of pure gamma.
+    if (fn->d < 1.0f / 64.0f) {
+        fn->c = 0.0f;
+        fn->d = 0.0f;
+        fn->f = 0.0f;
+        lin_points = 0;
+    } else {
+        fn->f = t(0, n, ctx);
+        fn->c = (t(lin_points - 1, n, ctx) - fn->f) / fn->d;
+    }
+
+    // If we fit the entire thing with the linear portion, we're done.
+    if (lin_points < n) {
+        // TODO: Estimate starting g by examining shape of remaining points (endpoints + median)?
+        // Do a nonlinear regression on the nonlinear segment. Use a number of guesses
+        // for the initial value of G, because not all values will converge.
+        bool nonlinear_fit_converged = false;
         float initial_gammas[] = { 2.2f, 2.4f, 1.0f, 3.0f, 0.5f };
         for (int i = 0; i < ARRAY_COUNT(initial_gammas); ++i) {
             fn->g = initial_gammas[i];
             fn->a = 1;
             fn->b = 0;
-            fn->c = 1;
             fn->e = 0;
-            fn->f = 0;
-            if (tf_solve_nonlinear(fn, x, t, n)) {
+            if (tf_solve_nonlinear_2(t, ctx, lin_points, n, fn)) {
                 nonlinear_fit_converged = true;
                 break;
             }
         }
-    }
-    if (!nonlinear_fit_converged) {
-        return false;
-    }
-
-    // Now walk back D from our initial guess to the point where our nonlinear
-    // fit no longer fits (or all the way to 0 if it fits).
-    {
-        // Find the L-infinity error of this nonlinear fit (using our old D value).
-        float max_error_in_nonlinear_fit = 0;
-        for (int i = 0; i < n; ++i) {
-            if (x[i] < fn->d) {
-                continue;
-            }
-            float error_at_xi = fabsf(t[i] - skcms_TransferFunction_eval(fn, x[i]));
-            max_error_in_nonlinear_fit = fmaxf(max_error_in_nonlinear_fit, error_at_xi);
+        if (!nonlinear_fit_converged) {
+            return false;
         }
-
-        // Now find the maximum x value where this nonlinear fit is no longer
-        // accurate, no longer defined, or no longer nonnegative.
-        fn->d = 0.0f;
-        float max_x_where_nonlinear_does_not_fit = -1.0f;
-        for (int i = 0; i < n; ++i) {
-            if (x[i] >= kLinearSegmentMaximum) {
-                continue;
-            }
-
-            // The nonlinear segment is only undefined when A * x + B is
-            // nonnegative.
-            float fn_at_xi = -1;
-            if (fn->a * x[i] + fn->b >= 0) {
-                fn_at_xi = skcms_TransferFunction_evalUnclamped(fn, x[i]);
-            }
-
-            // If the value is negative (or undefined), say that the fit was bad.
-            bool nonlinear_fits_xi = true;
-            if (fn_at_xi < 0) {
-                nonlinear_fits_xi = false;
-            }
-
-            // Compute the error, and define "no longer accurate" as "has more than
-            // 10% more error than the maximum error in the fit segment".
-            if (nonlinear_fits_xi) {
-                float error_at_xi = fabsf(t[i] - fn_at_xi);
-                if (error_at_xi > 1.1f * max_error_in_nonlinear_fit) {
-                    nonlinear_fits_xi = false;
-                }
-            }
-
-            if (!nonlinear_fits_xi) {
-                max_x_where_nonlinear_does_not_fit =
-                    fmaxf(max_x_where_nonlinear_does_not_fit, x[i]);
-            }
-        }
-
-        // Now let D be the highest sample of x that is above the threshold where
-        // the nonlinear segment does not fit.
-        fn->d = 1.0f;
-        for (int i = 0; i < n; ++i) {
-            if (x[i] > max_x_where_nonlinear_does_not_fit) {
-                fn->d = fminf(fn->d, x[i]);
-            }
-        }
-    }
-
-    // Compute the linear segment, now that we have our definitive D.
-    if (fn->d <= 0) {
-        // If this has no linear segment, don't try to solve for one.
-        fn->c = 1;
-        fn->f = 0;
     } else {
-        // Set the linear portion such that it go through the origin and be
-        // continuous with the nonlinear segment.
-        float fn_at_D = skcms_TransferFunction_eval(fn, fn->d);
-        fn->c = fn_at_D / fn->d;
-        fn->f = 0;
+        fn->g = 1;
+        fn->b = t(0, n, ctx);
+        fn->a = t(n - 1, n, ctx) - fn->b;
+        fn->c = fn->d = fn->e = fn->f = 0;
     }
 
     if (max_error) {
         *max_error = 0;
         for (int i = 0; i < n; ++i) {
-            float fn_of_xi = skcms_TransferFunction_eval(fn, x[i]);
-            float error_at_xi = fabsf(t[i] - fn_of_xi);
+            float xi = i * x_scale;
+            float fn_of_xi = skcms_TransferFunction_eval(fn, xi);
+            float error_at_xi = fabsf(t(i, n, ctx) - fn_of_xi);
             *max_error = fmaxf(*max_error, error_at_xi);
         }
     }

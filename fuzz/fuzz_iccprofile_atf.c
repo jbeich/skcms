@@ -20,8 +20,10 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
     skcms_TransferFunction tf;
     float max_error;
-    (void)skcms_ApproximateCurves(p.trc, 3, &tf, &max_error);
-    (void)max_error;
+    for (int i = 0; i < 3; ++i) {
+        (void)skcms_ApproximateCurve(&p.trc[i], &tf, &max_error);
+        (void)max_error;
+    }
 
     return 0;
 }

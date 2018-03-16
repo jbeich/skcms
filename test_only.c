@@ -39,12 +39,35 @@ static bool is_sRGB(const skcms_TransferFunction* tf) {
         && tf->f ==      0 / 65536.0f;
 }
 
+static bool is_linear(const skcms_TransferFunction* tf) {
+    return tf->g == 1.0f
+        && tf->a == 1.0f
+        && tf->b == 0.0f
+        && tf->c == 0.0f
+        && tf->d == 0.0f
+        && tf->e == 0.0f
+        && tf->f == 0.0f;
+}
+
 static void dump_transfer_function(FILE* fp, const char* name, const skcms_TransferFunction* tf) {
     fprintf(fp, "%4s : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g", name,
            (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
            (double)tf->d, (double)tf->e, (double)tf->f);
     if (is_sRGB(tf)) {
         fprintf(fp, " (sRGB)");
+    } else if (is_linear(tf)) {
+        fprintf(fp, " (Linear)");
+    }
+    fprintf(fp, "\n");
+}
+
+static void dump_approx_transfer_function(FILE* fp, const skcms_TransferFunction* tf,
+                                          float max_error) {
+    fprintf(fp, "  ~= : %.3g, %.3g, %.3g, %.3g, %.3g, %.3g, %.3g  (Max error: %.2g)",
+            (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
+            (double)tf->d, (double)tf->e, (double)tf->f, (double)max_error);
+    if (is_linear(tf)) {
+        fprintf(fp, " (Linear)");
     }
     fprintf(fp, "\n");
 }
@@ -53,10 +76,28 @@ static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve) {
     if (curve->table_entries) {
         fprintf(fp, "%4s : %d-bit table with %u entries\n", name,
                 curve->table_8 ? 8 : 16, curve->table_entries);
+        skcms_TransferFunction tf;
+        float max_error;
+        if (skcms_ApproximateCurve(curve, &tf, &max_error)) {
+            dump_approx_transfer_function(fp, &tf, max_error);
+        }
     } else {
         dump_transfer_function(fp, name, &curve->parametric);
     }
 }
+
+#if 0
+    if (for_unit_test) {
+        // The approximated transfer function can vary significantly, due to FMA, etc. In unit
+        // test mode, we print at reduced precision, and omit 'd' entirely, which can vary in
+        // the first significant digit. This test just ensures that the values are somewhat
+        // close. More thorough testing occurs in test_Parse (via round-tripping).
+        fprintf(fp, "%4s : %.4g, %.4g, %.3g, %.2g, %.4g, %.4g\n",
+                "~TRC", (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
+                (double)tf.e, (double)tf.f);
+    }
+#endif
+
 
 static bool has_single_transfer_function(const skcms_ICCProfile* profile,
                                          skcms_TransferFunction* tf) {
@@ -78,6 +119,7 @@ static bool has_single_transfer_function(const skcms_ICCProfile* profile,
 }
 
 void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test) {
+    (void)for_unit_test;
     fprintf(fp, "%20s : 0x%08X : %u\n", "Size", profile->size, profile->size);
     dump_sig_field(fp, "CMM type", profile->cmm_type);
     fprintf(fp, "%20s : 0x%08X : %u.%u.%u\n", "Version", profile->version,
@@ -124,28 +166,9 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
     fprintf(fp, "\n");
 
     skcms_TransferFunction tf;
-    bool has_single_tf = has_single_transfer_function(profile, &tf);
-
-    float max_error;
-    if (has_single_tf) {
+    if (has_single_transfer_function(profile, &tf)) {
         dump_transfer_function(fp, "TRC", &tf);
-    } else if (skcms_ApproximateCurves(profile->trc, 3, &tf, &max_error)) {
-        if (for_unit_test) {
-            // The approximated transfer function can vary significantly, due to FMA, etc. In unit
-            // test mode, we print at reduced precision, and omit 'd' entirely, which can vary in
-            // the first significant digit. This test just ensures that the values are somewhat
-            // close. More thorough testing occurs in test_Parse (via round-tripping).
-            fprintf(fp, "%4s : %.4g, %.4g, %.3g, %.2g, %.4g, %.4g\n",
-                    "~TRC", (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
-                    (double)tf.e, (double)tf.f);
-        } else {
-            fprintf(fp, "%4s : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g  (Max error: %.9g)\n",
-                    "~TRC", (double)tf.g, (double)tf.a, (double)tf.b, (double)tf.c,
-                    (double)tf.d, (double)tf.e, (double)tf.f, (double)max_error);
-        }
-    }
-
-    if (!has_single_tf && profile->has_trc) {
+    } else if (profile->has_trc) {
         const char* trcNames[3] = { "rTRC", "gTRC", "bTRC" };
         for (int i = 0; i < 3; ++i) {
             dump_curve(fp, trcNames[i], &profile->trc[i]);
