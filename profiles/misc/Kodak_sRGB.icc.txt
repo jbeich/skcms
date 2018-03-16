@@ -36,10 +36,12 @@
  'gTRC' : 'curv' :    524 : 149844
  'bTRC' : 'curv' :    524 : 149844
 
-~TRC : 2.405, 0.9456, 0.0526, 0.15, 0.004353, 0
 rTRC : 16-bit table with 256 entries
+  ~= : 2.42, 0.939, 0.0592, 0, 0, 0.00309, 0  (Max error: 0.00039)
 gTRC : 16-bit table with 256 entries
+  ~= : 2.42, 0.939, 0.0592, 0, 0, 0.00309, 0  (Max error: 0.00039)
 bTRC : 16-bit table with 256 entries
+  ~= : 2.42, 0.939, 0.0592, 0, 0, 0.00309, 0  (Max error: 0.00039)
  XYZ : | 0.437637329 0.388412476 0.142410278 |
        | 0.214950562 0.712905884 0.072128296 |
        | 0.011260986 0.080718994 0.725875854 |
@@ -51,5 +53,8 @@ bTRC : 16-bit table with 256 entries
 CLUT : 8 x 8 x 8 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 1, 0.0332, 0, 0  (Max error: 0.0037)
   B1 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 1, 0.0332, 0, 0  (Max error: 0.0037)
   B2 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 1, 0.0332, 0, 0  (Max error: 0.0037)
