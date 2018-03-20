@@ -41,5 +41,8 @@
 CLUT : 9 x 9 x 9 x 9 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   B1 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   B2 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)

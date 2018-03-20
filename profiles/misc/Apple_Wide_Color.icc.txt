@@ -33,8 +33,11 @@
  A2B : "A", CLUT, "M", Matrix, "B"
  "A" : 3 inputs
   A0 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   A1 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   A2 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
 CLUT : 17 x 17 x 17 (16 bpp)
  "M" : 3 inputs
   M0 : 2.3999939, 0.947906494, 0.0520935059, 0.0773925781, 0.0393066406, 0, 0
@@ -45,5 +48,8 @@ Mtrx : | 0.253631592 0.150619507 0.077850342 0.000000000 |
        | 0.000228882 0.023696899 0.388580322 0.000000000 |
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   B1 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   B2 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)

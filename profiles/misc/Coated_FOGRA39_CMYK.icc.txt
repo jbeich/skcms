@@ -41,9 +41,13 @@
   A0 : 16-bit table with 256 entries
   A1 : 16-bit table with 256 entries
   A2 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0.0073 0  (Max error: 0.02)
   A3 : 16-bit table with 256 entries
 CLUT : 11 x 11 x 11 x 11 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   B1 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   B2 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)

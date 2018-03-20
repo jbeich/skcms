@@ -266,11 +266,6 @@ int main(int argc, char** argv) {
                            kSVGMarginLeft, kSVGMarginTop + kSVGScaleY, kSVGScaleX, -kSVGScaleY);
             svg_axes(fp);
             svg_curves(fp, 3, profile.trc, kSVG_RGB_Colors);
-            skcms_TransferFunction approx;
-            float max_error;
-            if (skcms_ApproximateCurves(profile.trc, 3, &approx, &max_error)) {
-                svg_transfer_function(fp, &approx, "magenta");
-            }
             svg_pop_group(fp);
             svg_close(fp);
         }

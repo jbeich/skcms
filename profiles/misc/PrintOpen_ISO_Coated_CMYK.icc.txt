@@ -38,11 +38,18 @@
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 6e-08)
   A1 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 6e-08)
   A2 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 6e-08)
   A3 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 6e-08)
 CLUT : 16 x 16 x 16 x 16 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 6e-08)
   B1 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 6e-08)
   B2 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 6e-08)

@@ -31,10 +31,16 @@
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
   A0 : 8-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   A1 : 8-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   A2 : 8-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
 CLUT : 17 x 17 x 17 (8 bpp)
  "B" : 3 outputs
   B0 : 8-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   B1 : 8-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
   B2 : 8-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0 0  (Max error: 0)
