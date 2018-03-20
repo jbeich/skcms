@@ -42,5 +42,8 @@
 CLUT : 16 x 16 x 16 x 16 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
+     : Approximate curve found
   B1 : 16-bit table with 2 entries
+     : Approximate curve found
   B2 : 16-bit table with 2 entries
+     : Approximate curve found

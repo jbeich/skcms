@@ -37,9 +37,13 @@
   A0 : 16-bit table with 256 entries
   A1 : 16-bit table with 256 entries
   A2 : 16-bit table with 256 entries
+     : Approximate curve found
   A3 : 16-bit table with 256 entries
 CLUT : 9 x 9 x 9 x 9 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
+     : Approximate curve found
   B1 : 16-bit table with 2 entries
+     : Approximate curve found
   B2 : 16-bit table with 2 entries
+     : Approximate curve found
