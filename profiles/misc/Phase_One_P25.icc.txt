@@ -35,7 +35,9 @@
  'tech' : 'sig ' :     12 : 219352
 
 rTRC : 16-bit table with 256 entries
+  ~= : 0.415, 1.38, 0, 0, 0, -0.134, 0  (Max error: 0.025)
 gTRC : 16-bit table with 256 entries
+  ~= : 0.318, 2, 0, 0, 0, -0.22, 0  (Max error: 0.033)
 bTRC : 16-bit table with 256 entries
  XYZ : | 0.647903442 0.357360840 0.156417847 |
        | 0.382919312 1.109725952 0.000000000 |
@@ -48,5 +50,8 @@ bTRC : 16-bit table with 256 entries
 CLUT : 33 x 33 x 33 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
   B1 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
   B2 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
