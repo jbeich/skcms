@@ -124,8 +124,8 @@ typedef struct {
 // will be used.
 bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
 
-bool skcms_ApproximateCurves(const skcms_Curve* curves, uint32_t num_curves,
-                             skcms_TransferFunction* approx, float* max_error);
+bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
+                            float* max_error);
 
 typedef struct {
     uint32_t       signature;

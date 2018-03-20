@@ -38,11 +38,18 @@
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
+     : Approximate curve found
   A1 : 16-bit table with 256 entries
+     : Approximate curve found
   A2 : 16-bit table with 256 entries
+     : Approximate curve found
   A3 : 16-bit table with 256 entries
+     : Approximate curve found
 CLUT : 16 x 16 x 16 x 16 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 256 entries
+     : Approximate curve found
   B1 : 16-bit table with 256 entries
+     : Approximate curve found
   B2 : 16-bit table with 256 entries
+     : Approximate curve found
