@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dab3bac_229039f2",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-23T19:47:47Z",
+      "side": 1,
+      "message": "Second NaN fix: After the first fix below, the .native bots would still end up with -nan, so I figured that ax+b protection was still failing in some cases. Clamping base here prevents that.",
+      "revId": "d0238d736ad58dd31605936e02e2fa2824ed3185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8c5ba12_17b0d253",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-23T19:47:47Z",
+      "side": 1,
+      "message": "First NaN fix: We were using \u0027d\u0027 from above, which was nextafter(), but then trying to eval the point at the actual d point. Now I set d here to be exact, as it\u0027s used to ensure that ax+b never goes negative at x\u003dd. This solved nearly all of the NaNs....",
+      "revId": "d0238d736ad58dd31605936e02e2fa2824ed3185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
