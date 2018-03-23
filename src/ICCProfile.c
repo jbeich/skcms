@@ -783,12 +783,20 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     }
 
     skcms_ICCTag a2b_tag;
-    if (skcms_GetTagBySignature(profile, make_signature('A', '2', 'B', '0'), &a2b_tag)) {
-        if (!read_a2b(&a2b_tag, &profile->A2B)) {
-            // Malformed A2B tag
-            return false;
+
+    // We prefer A2B1 (relative colormetric) over A2B0 (perceptual).
+    // This breaks with the ICC spec, but we think it's a good idea, given that TRC curves
+    // and all our known users are thinking exclusively in terms of relative colormetric.
+    const uint32_t sigs[] = { make_signature('A','2','B','1'), make_signature('A','2','B','0') };
+    for (int i = 0; i < ARRAY_COUNT(sigs); i++) {
+        if (skcms_GetTagBySignature(profile, sigs[i], &a2b_tag)) {
+            if (!read_a2b(&a2b_tag, &profile->A2B)) {
+                // Malformed A2B tag
+                return false;
+            }
+            profile->has_A2B = true;
+            break;
         }
-        profile->has_A2B = true;
     }
 
     return true;
