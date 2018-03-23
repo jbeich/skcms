@@ -36,6 +36,7 @@
 
 rTRC : 16-bit table with 255 entries
 gTRC : 16-bit table with 255 entries
+  ~= : 1, 0.00388, 0, 0, 0, 0, 0  (Max error: 2.3e-10)
 bTRC : 16-bit table with 255 entries
  XYZ : | 0.964202881 0.000000000 0.964202881 |
        | 1.000000000 0.000000000 1.000000000 |
