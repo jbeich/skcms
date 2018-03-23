@@ -424,7 +424,7 @@ static void test_FormatConversions_float() {
 static const skcms_TransferFunction srgb_transfer_fn =
     { 2.4f, 1 / 1.055f, 0.055f / 1.055f, 1 / 12.92f, 0.04045f, 0.0f, 0.0f };
 static const skcms_TransferFunction kodak_transfer_fn =
-    { 2.404834f, 0.945568f, 0.052557f, 0.151814f, 0.133333f, 0.004353f, 0.0f };
+    { 2.42f, 0.939f, 0.0596f, 0.0691f, 0.0392f, 0.00304f, 0.00392f };
 // static const skcms_TransferFunction gamma_1_8_transfer_fn =
 //     { 1.8f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static const skcms_TransferFunction gamma_2_2_transfer_fn =
@@ -537,6 +537,27 @@ static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd
     }
 }
 
+static bool has_single_approx_trc(const skcms_ICCProfile* profile, skcms_TransferFunction* approx,
+                                  float* max_error) {
+    if (!profile->has_trc) {
+        return false;
+    }
+
+    skcms_TransferFunction tf[3];
+    for (int i = 0; i < 3; ++i) {
+        if (!skcms_ApproximateCurve(&profile->trc[i], &tf[i], max_error)) {
+            return false;
+        }
+    }
+
+    if (0 != memcmp(&tf[0], &tf[1], sizeof(tf[0])) || 0 != memcmp(&tf[0], &tf[2], sizeof(tf[0]))) {
+        return false;
+    }
+
+    *approx = tf[0];
+    return true;
+}
+
 static void test_Parse(bool regen) {
     for (int i = 0; i < ARRAY_COUNT(profile_test_cases); ++i) {
         const ProfileTestCase* test = profile_test_cases + i;
@@ -587,7 +608,7 @@ static void test_Parse(bool regen) {
 
         skcms_TransferFunction approx_tf;
         float max_error;
-        bool approx_tf_result = skcms_ApproximateCurves(profile.trc, 3, &approx_tf, &max_error);
+        bool approx_tf_result = has_single_approx_trc(&profile, &approx_tf, &max_error);
         expect(approx_tf_result == !!test->expect_approx_tf);
         if (approx_tf_result) {
             // For this check, run every byte value through the forward version of one TF, and
@@ -609,6 +630,11 @@ static void test_Parse(bool regen) {
     }
 }
 
+static float table_func_tf_eval(int i, int n, const void* ctx) {
+    float xi = i / (n - 1.0f);
+    return skcms_TransferFunction_eval((const skcms_TransferFunction*)ctx, xi);
+}
+
 static void test_TransferFunction_approximate() {
     const skcms_TransferFunction* transfer_fns[] = {
 //        &gamma_1_8_transfer_fn,
@@ -624,32 +650,23 @@ static void test_TransferFunction_approximate() {
     };
     const int num_transfer_fns = ARRAY_COUNT(transfer_fns);
 
-    int table_sizes[] = { 512, 256, 128, 64, 16, 11, 8, 7, 6, 5, 4 };
+    int table_sizes[] = { 512, 256, 128, 64, 16, 11, 8, 7, 6, 5 };
     const int num_table_sizes = ARRAY_COUNT(table_sizes);
 
     for (int ts = 0; ts < num_table_sizes; ++ts) {
-        float* x = malloc((size_t)table_sizes[ts] * sizeof(float));
-        for (int i = 0; i < table_sizes[ts]; ++i) {
-            x[i] = (float)i / (table_sizes[ts] - 1);
-        }
-
-        float* t = malloc((size_t)table_sizes[ts] * sizeof(float));
         for (int tf = 0; tf < num_transfer_fns; ++tf) {
-            for (int i = 0; i < table_sizes[ts]; ++i) {
-                t[i] = skcms_TransferFunction_eval(transfer_fns[tf], x[i]);
-            }
-
             skcms_TransferFunction fn_approx;
             float max_error;
-            expect(skcms_TransferFunction_approximate(&fn_approx, x, t, table_sizes[ts],
-                                                      &max_error));
-
+            expect(skcms_TransferFunction_approximate(table_func_tf_eval, transfer_fns[tf],
+                                                      table_sizes[ts], &fn_approx, &max_error));
             expect(max_error < 3.f / 256.f);
         }
-
-        free(x);
-        free(t);
     }
+}
+
+static float table_func_float(int i, int n, const void* ctx) {
+    (void)n;
+    return ((const float*)ctx)[i];
 }
 
 static void test_TransferFunction_approximate_clamped() {
@@ -701,56 +718,50 @@ static void test_TransferFunction_approximate_clamped() {
         0.928161f, 0.936721f, 0.945327f, 0.953994f, 0.962692f, 0.971435f,
         0.980240f, 0.989075f, 0.997955f, 1.000000f,
     };
-    float x[256];
-    for (int i = 0; i < 256; ++i) {
-        x[i] = i / 255.f;
-    }
 
     skcms_TransferFunction fn_approx;
     float max_error;
-    expect(skcms_TransferFunction_approximate(&fn_approx, x, t, 256, &max_error));
+    expect(skcms_TransferFunction_approximate(table_func_float, t, 256, &fn_approx, &max_error));
 
-    // The approximation should be nearly exact.
-    expect(max_error < 1 / 4096.f);
+    // The approximation isn't very good.
+    expect(max_error < 1 / 128.0f);
 }
 
-static void test_TransferFunction_approximate_badMatch() {
-    const int kTableSize = 512;
-    const skcms_TransferFunction* transfer_fns[3] = {
-        &srgb_transfer_fn,
-        &gamma_2_2_transfer_fn,
-        &bt_709_transfer_fn,
+static float table_func_uint16(int i, int n, const void* ctx) {
+    (void)n;
+    return ((const uint16_t*)ctx)[i] / 65535.0f;
+}
+
+static void test_ApproximateHard() {
+    uint16_t t[256] = {
+        0, 16, 32, 48, 64, 80, 97, 127, 160, 197, 236, 279, 324, 373, 424, 478, 534, 594, 656, 720,
+        787, 857, 929, 1004, 1081, 1160, 1242, 1326, 1413, 1502, 1593, 1686, 1782, 1879, 1979, 2082,
+        2186, 2292, 2401, 2512, 2625, 2740, 2857, 2976, 3098, 3221, 3346, 3474, 3603, 3734, 3868,
+        4003, 4140, 4280, 4421, 4564, 4709, 4856, 5005, 5156, 5309, 5463, 5620, 5778, 5938, 6100,
+        6264, 6430, 6598, 6767, 6939, 7112, 7286, 7463, 7642, 7822, 8004, 8188, 8373, 8561, 8750,
+        8941, 9133, 9328, 9524, 9721, 9921, 10122, 10325, 10530, 10736, 10944, 11154, 11365, 11578,
+        11793, 12010, 12228, 12448, 12669, 12892, 13117, 13343, 13571, 13801, 14032, 14265, 14500,
+        14736, 14974, 15213, 15454, 15697, 15941, 16187, 16435, 16684, 16934, 17186, 17440, 17695,
+        17952, 18211, 18471, 18733, 18996, 19260, 19527, 19795, 20064, 20335, 20607, 20881, 21157,
+        21434, 21713, 21993, 22274, 22558, 22842, 23128, 23416, 23705, 23996, 24288, 24582, 24877,
+        25174, 25472, 25772, 26073, 26376, 26680, 26985, 27293, 27601, 27911, 28223, 28536, 28850,
+        29166, 29483, 29802, 30122, 30444, 30767, 31092, 31418, 31745, 32074, 32405, 32737, 33070,
+        33404, 33741, 34078, 34417, 34757, 35099, 35442, 35787, 36133, 36481, 36829, 37180, 37531,
+        37885, 38239, 38595, 38952, 39311, 39671, 40032, 40395, 40759, 41125, 41492, 41861, 42230,
+        42601, 42974, 43348, 43723, 44100, 44478, 44857, 45238, 45620, 46004, 46388, 46775, 47162,
+        47551, 47941, 48333, 48726, 49120, 49516, 49913, 50311, 50711, 51112, 51515, 51918, 52323,
+        52730, 53138, 53547, 53957, 54369, 54782, 55196, 55612, 56029, 56447, 56867, 57288, 57710,
+        58134, 58559, 58985, 59412, 59841, 60271, 60703, 61136, 61570, 62005, 62442, 62880, 63319,
+        63760, 64202, 64645, 65089, 65535,
     };
 
-    float* x = malloc(kTableSize * 3 * sizeof(float));
-    float* t = malloc(kTableSize * 3 * sizeof(float));
+    skcms_TransferFunction fn_approx;
+    float max_error;
+    expect(skcms_TransferFunction_approximate(table_func_uint16, t, 256, &fn_approx, &max_error));
 
-    // Create a table containing each of these functions
-    for (int tf = 0; tf < 3; ++tf) {
-        for (int i = 0; i < kTableSize; ++i) {
-            x[kTableSize * tf + i] = i / (kTableSize - 1.f);
-            t[kTableSize * tf + i] = skcms_TransferFunction_eval(transfer_fns[tf], x[i]);
-        }
-    }
-
-    // Now, try to fit a curve to just the first set of data, then the first & second (together),
-    // and finally all three sets. The first will have a perfect match. The second will be very
-    // close. The third will converge, but with an error of ~7/256.
-    for (int transfers_to_use = 1; transfers_to_use <= 3; ++transfers_to_use) {
-        skcms_TransferFunction fn_approx;
-        float max_error;
-        expect(skcms_TransferFunction_approximate(&fn_approx, x, t, kTableSize * transfers_to_use,
-                                                  &max_error));
-
-        float expected_error = 1.5f / 256.f;
-        if (transfers_to_use == 3) {
-            expected_error = 8.f / 256.f;
-        }
-        expect(max_error < expected_error);
-    }
-
-    free(x);
-    free(t);
+    // The approximation should be nearly exact.
+    fprintf(stderr, "DotGain error: %.7f\n", (double)max_error);
+    expect(max_error < 1 / 4096.0f);
 }
 
 static void expect_eq_Matrix3x3(skcms_Matrix3x3 a, skcms_Matrix3x3 b) {
@@ -1079,7 +1090,7 @@ int main(int argc, char** argv) {
     test_Parse(regenTestData);
     test_TransferFunction_approximate();
     test_TransferFunction_approximate_clamped();
-    test_TransferFunction_approximate_badMatch();
+    test_ApproximateHard();
     test_Matrix3x3_invert();
     test_SimpleRoundTrip();
     test_FloatRoundTrips();

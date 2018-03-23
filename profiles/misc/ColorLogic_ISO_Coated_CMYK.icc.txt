@@ -39,11 +39,18 @@
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
+  ~= : -nan(ind), 0, -nan(ind), 1.2, 0.01569, -nan(ind), 0  (Max error: 6.7e-06)
   A1 : 16-bit table with 256 entries
+  ~= : -nan(ind), 0, -nan(ind), 1.204, 0.01569, -nan(ind), 0  (Max error: 6.7e-06)
   A2 : 16-bit table with 256 entries
+  ~= : -nan(ind), 0, -nan(ind), 1.237, 0.01961, -nan(ind), 0  (Max error: 6.9e-06)
   A3 : 16-bit table with 256 entries
+  ~= : 0.704, 1.002, 0.01609, 0, 0, -0.08354, 0  (Max error: 0.071)
 CLUT : 17 x 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 256 entries
+  ~= : 1, 0.9961, 0, 0, 0, 0, 0  (Max error: 6e-08)
   B1 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08)
   B2 : 16-bit table with 256 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08)
