@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc876e1f_8c9a3301",
+        "filename": "src/LinearAlgebra.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-23T18:35:51Z",
+      "side": 1,
+      "message": "exactly -\u003e almost exactly",
+      "range": {
+        "startLine": 14,
+        "startChar": 35,
+        "endLine": 14,
+        "endChar": 42
+      },
+      "revId": "b281be3c3838e60b721030f4fac4d211ca1e65a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f69ac2cd_4d103ac7",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-23T18:35:51Z",
+      "side": 1,
+      "message": "Maybe clearer as INFINITY?",
+      "range": {
+        "startLine": 250,
+        "startChar": 51,
+        "endLine": 250,
+        "endChar": 55
+      },
+      "revId": "b281be3c3838e60b721030f4fac4d211ca1e65a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "176ad0d1_59a9c216",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-23T18:35:51Z",
+      "side": 1,
+      "message": "Maybe drop this?  1/64 seems arbitrary.",
+      "revId": "b281be3c3838e60b721030f4fac4d211ca1e65a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5b7b1d5_d36a2e59",
+        "filename": "tests.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-23T18:35:51Z",
+      "side": 1,
+      "message": "Move n into the ctx?",
+      "range": {
+        "startLine": 633,
+        "startChar": 40,
+        "endLine": 633,
+        "endChar": 61
+      },
+      "revId": "b281be3c3838e60b721030f4fac4d211ca1e65a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
