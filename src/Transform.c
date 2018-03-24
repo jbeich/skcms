@@ -1188,7 +1188,6 @@ bool skcms_Transform(const void*             src,
 
             if (srcAlpha != skcms_AlphaFormat_Unpremul) {
                 // TODO: how do we handle other alpha formats in A2B?
-                assert(false);
                 return false;
             }
         } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
