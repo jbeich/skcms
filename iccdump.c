@@ -183,6 +183,12 @@ static void svg_curve(FILE* fp, const skcms_Curve* curve, const char* color) {
         }
     }
     fprintf(fp, "\"/>\n");
+
+    skcms_TransferFunction approx_tf;
+    float max_error;
+    if (skcms_ApproximateCurve(curve, &approx_tf, &max_error)) {
+        svg_transfer_function(fp, &approx_tf, "magenta");
+    }
 }
 
 static void svg_curves(FILE* fp, uint32_t num_curves, const skcms_Curve* curves,
@@ -266,11 +272,6 @@ int main(int argc, char** argv) {
                            kSVGMarginLeft, kSVGMarginTop + kSVGScaleY, kSVGScaleX, -kSVGScaleY);
             svg_axes(fp);
             svg_curves(fp, 3, profile.trc, kSVG_RGB_Colors);
-            skcms_TransferFunction approx;
-            float max_error;
-            if (skcms_ApproximateCurves(profile.trc, 3, &approx, &max_error)) {
-                svg_transfer_function(fp, &approx, "magenta");
-            }
             svg_pop_group(fp);
             svg_close(fp);
         }
