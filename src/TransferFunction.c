@@ -342,7 +342,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     if (has_linear && has_nonlinear) {
         float l_at_d = src->c * src->d + src->f;
         float n_at_d = powf(src->a * src->d + src->b, src->g) + src->e;
-        if (fabsf(l_at_d - n_at_d) > 0.00015f) {
+        if (fabsf(l_at_d - n_at_d) > (1 / 512.0f)) {
             return false;
         }
     }
