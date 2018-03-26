@@ -59,6 +59,23 @@
     },
     {
       "key": {
+        "uuid": "474b4bb6_038abeb2",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T17:32:54Z",
+      "side": 1,
+      "message": "if (dcs \u003d\u003d \u0027GRAY\u0027 \u0026\u0026 skcms_GetTag(... kTRC )) {\n\nelse if (dcs \u003d\u003d \u0027RGB \u0027 \u0026\u0026 skcms_GetTag( ... r)) {\n\n}\n\n?",
+      "revId": "3d878b18f7402dde7c4e0928d2305759bc68a4f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c6c0c2ac_1e447f06",
         "filename": "src/ICCProfile.c",
         "patchSetId": 10
