@@ -270,7 +270,7 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         for (int i = 0; i < ARRAY_COUNT(initial_gammas); ++i) {
             // Include the 'D' point in the nonlinear regression, so the two pieces are more likely
             // to line up.
-            int start = lin_points > 0 ? lin_points - 1 : 0;
+            int start = max(lin_points - 2, 0);
             TF_Nonlinear tf = { initial_gammas[i], 1, 0, (double)(start * x_scale), 0 };
             if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
                 nonlinear_fit_converged = true;
@@ -342,7 +342,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     if (has_linear && has_nonlinear) {
         float l_at_d = src->c * src->d + src->f;
         float n_at_d = powf(src->a * src->d + src->b, src->g) + src->e;
-        if (fabsf(l_at_d - n_at_d) > 0.00015f) {
+        if (fabsf(l_at_d - n_at_d) > (1 / 256.0f)) {
             return false;
         }
     }

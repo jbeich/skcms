@@ -442,6 +442,12 @@ static const skcms_TransferFunction gamma_1_transfer_fn =
     { 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static const skcms_TransferFunction linear_transfer_fn =
     { 0.0f, 1.0f, 0.0f, 1.0f, 2.0f, 0.0f, 0.0f };
+static const skcms_TransferFunction color_logic_transfer_fn =
+    { 0.4884f, 2.456f, 0.4725f, 1.961f, 0.003922f, -0.6889f, 0.0f };
+static const skcms_TransferFunction print_open_transfer_fn =
+    { 1.863f, 0.9922f, 0.006927f, 0.1581f, 0.007843f, 0.001522f, 0.0f };
+static const skcms_TransferFunction dot_gain_transfer_fn =
+    { 1.737f, 1.0f, 0.0f, 0.0626f, 0.02353f, 0.0f, 0.0f };
 
 typedef struct {
     const char*                   filename;
@@ -461,18 +467,18 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/color.org/Upper_Right.icc",            NULL },
     { "profiles/misc/Apple_Wide_Color.icc",            NULL },
     { "profiles/misc/Coated_FOGRA39_CMYK.icc",         NULL },
-    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  NULL },
+    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  &color_logic_transfer_fn }, // Has kTRC.
     { "profiles/misc/Japan_Color_2001_Coated.icc",     NULL },
     { "profiles/misc/Lexmark_X110.icc",                NULL },
     { "profiles/misc/MartiMaria_browsertest_A2B.icc",  NULL },
-    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   NULL }, // Has kTRC.
+    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   &print_open_transfer_fn }, // Has kTRC.
     { "profiles/misc/sRGB_ICC_v4_beta.icc",            NULL },
     { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     NULL },
     { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     NULL },
     { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      NULL },
 
     // V2 monochrome output profiles that include kTRC but no A2B
-    { "profiles/misc/Dot_Gain_20_Grayscale.icc", NULL }, // kTRC table
+    { "profiles/misc/Dot_Gain_20_Grayscale.icc", &dot_gain_transfer_fn }, // kTRC table
     { "profiles/misc/Gray_Gamma_22.icc",         NULL }, // kTRC gamma
 
     // V4 profiles with parametric TRC curves and XYZ
@@ -606,25 +612,27 @@ static void test_Parse(bool regen) {
             free(ref_buf);
         }
 
-        skcms_TransferFunction approx_tf;
-        float max_error;
-        bool approx_tf_result = has_single_approx_trc(&profile, &approx_tf, &max_error);
-        expect(approx_tf_result == !!test->expect_approx_tf);
-        if (approx_tf_result) {
-            // For this check, run every byte value through the forward version of one TF, and
-            // the inverse of the other, and make sure it round-trips (using both combinations).
-            skcms_TransferFunction approx_inverse_tf;
-            skcms_TransferFunction expect_inverse_tf;
-            expect(skcms_TransferFunction_invert(&approx_tf, &approx_inverse_tf));
-            expect(skcms_TransferFunction_invert(test->expect_approx_tf, &expect_inverse_tf));
+        if (parsed) {
+            skcms_TransferFunction approx_tf;
+            float max_error;
+            bool approx_tf_result = has_single_approx_trc(&profile, &approx_tf, &max_error);
+            expect(approx_tf_result == !!test->expect_approx_tf);
+            if (approx_tf_result) {
+                // For this check, run every byte value through the forward version of one TF, and
+                // the inverse of the other, and make sure it round-trips (using both combinations).
+                skcms_TransferFunction approx_inverse_tf;
+                skcms_TransferFunction expect_inverse_tf;
+                expect(skcms_TransferFunction_invert(&approx_tf, &approx_inverse_tf));
+                expect(skcms_TransferFunction_invert(test->expect_approx_tf, &expect_inverse_tf));
 
-            // This function verifies that all bytes round-trip perfectly, but also takes a
-            // tolerance to further limit the error after round-trip. We can currently get this
-            // within ~30% of a byte (0.0011).
-            check_roundtrip_transfer_functions(&approx_tf, &expect_inverse_tf, 0.02f);
-            check_roundtrip_transfer_functions(test->expect_approx_tf, &approx_inverse_tf, 0.02f);
+                // This function verifies that all bytes round-trip perfectly, but also takes a
+                // tolerance to further limit the error after round-trip. We can currently get this
+                // within ~30% of a byte (0.0011).
+                check_roundtrip_transfer_functions(&approx_tf, &expect_inverse_tf, 0.02f);
+                check_roundtrip_transfer_functions(test->expect_approx_tf, &approx_inverse_tf,
+                                                   0.02f);
+            }
         }
-
         free(buf);
         free(dump_buf);
     }
