@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12f717e2_0616eec2",
+        "filename": "profiles/sRGB_Facebook.icc.txt",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-26T16:03:24Z",
+      "side": 1,
+      "message": "This is the (now obvious) counter-example to including the two previous points...",
+      "revId": "38eb0c9b3271e0d4adb10b2f3a8625c511059002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9eed0ef6_fe94a024",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-03-26T16:03:24Z",
+      "side": 1,
+      "message": "Including two points gets the difference at D down to below this threshold, which seems reasonable.\n\nI also think that we could just make approximate return false if this condition isn\u0027t true when it\u0027s finished. That would restore the closer fit on Facebook, etc...",
+      "revId": "38eb0c9b3271e0d4adb10b2f3a8625c511059002",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
