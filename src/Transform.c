@@ -1186,21 +1186,21 @@ bool skcms_Transform(const void*             src,
                 *ip++ = (void*)lab_to_xyz;
             }
 
-            if (srcAlpha != skcms_AlphaFormat_Unpremul) {
-                // TODO: how do we handle other alpha formats in A2B?
-                return false;
-            }
         } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
             for (int i = 0; i < 3; i++) {
                 StageAndArg sa = select_curve_stage(&srcProfile->trc[i], i);
                 *ip++   = (void*)sa.stage;
                 *args++ =        sa.arg;
             }
-            if (srcAlpha == skcms_AlphaFormat_PremulLinear) {
-                *ip++ = (void*)unpremul;
-            }
         } else {
             return false;
+        }
+
+        // At this point our source colors are linear, either RGB (XYZ-type profiles)
+        // or XYZ (A2B-type profiles). Unpremul is a linear operation (multiply by a
+        // constant 1/a), so either way we can do it now if needed.
+        if (srcAlpha == skcms_AlphaFormat_PremulLinear) {
+            *ip++ = (void*)unpremul;
         }
 
         // We only support destination gamuts that can be transformed from XYZD50.
