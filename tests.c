@@ -442,6 +442,8 @@ static const skcms_TransferFunction gamma_1_transfer_fn =
     { 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 static const skcms_TransferFunction linear_transfer_fn =
     { 0.0f, 1.0f, 0.0f, 1.0f, 2.0f, 0.0f, 0.0f };
+static const skcms_TransferFunction dot_gain_transfer_fn =
+    { 1.737f, 1.0f, 0.0f, 0.0626f, 0.02353f, 0.0f, 0.0f };
 
 typedef struct {
     const char*                   filename;
@@ -461,7 +463,7 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/color.org/Upper_Right.icc",            NULL },
     { "profiles/misc/Apple_Wide_Color.icc",            NULL },
     { "profiles/misc/Coated_FOGRA39_CMYK.icc",         NULL },
-    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  NULL },
+    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  NULL }, // Has kTRC.
     { "profiles/misc/Japan_Color_2001_Coated.icc",     NULL },
     { "profiles/misc/Lexmark_X110.icc",                NULL },
     { "profiles/misc/MartiMaria_browsertest_A2B.icc",  NULL },
@@ -472,7 +474,7 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      NULL },
 
     // V2 monochrome output profiles that include kTRC but no A2B
-    { "profiles/misc/Dot_Gain_20_Grayscale.icc", NULL }, // kTRC table
+    { "profiles/misc/Dot_Gain_20_Grayscale.icc", &dot_gain_transfer_fn }, // kTRC table
     { "profiles/misc/Gray_Gamma_22.icc",         NULL }, // kTRC gamma
 
     // V4 profiles with parametric TRC curves and XYZ
