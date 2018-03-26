@@ -285,52 +285,31 @@ static bool read_curve(const uint8_t* buf, uint32_t size,
     return false;
 }
 
-bool skcms_ApproximateCurves(const skcms_Curve* curves, uint32_t num_curves,
-                             skcms_TransferFunction* approx, float* max_error) {
-    if (!curves || !approx) {
+static float table_func_16(int i, const void* ctx) {
+    return read_big_u16((const uint8_t*)ctx + 2 * i) * (1 / 65535.0f);
+}
+
+static float table_func_8(int i, const void* ctx) {
+    return ((const uint8_t*)ctx)[i] * (1 / 255.0f);
+}
+
+bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
+                            float* max_error) {
+    if (!curve || !curve->table_entries || !approx) {
         return false;
     }
 
-    uint64_t n = 0;
-    for (uint32_t c = 0; c < num_curves; ++c) {
-        // TODO: Support approximating 8 bit curves
-        if (!curves[c].table_entries || !curves[c].table_16) {
-            return false;
-        }
-        n += (uint64_t)curves[c].table_entries;
-    }
-
-    if (n > INT_MAX) {
+    if (curve->table_entries > (uint32_t)INT_MAX) {
         return false;
     }
 
-    uint64_t buf_size = 2 * n * SAFE_SIZEOF(float);
-
-    if (buf_size != (size_t)buf_size) {
-        return false;
+    if (curve->table_16) {
+        return skcms_TransferFunction_approximate(table_func_16, curve->table_16,
+                                                  (int)curve->table_entries, approx, max_error);
+    } else {
+        return skcms_TransferFunction_approximate(table_func_8, curve->table_8,
+                                                  (int)curve->table_entries, approx, max_error);
     }
-    float* data = malloc((size_t)buf_size);
-    if (!data) {
-        return false;
-    }
-
-    float* x = data;
-    float* t = data + n;
-
-    // Merge all channels' tables into a single array.
-    for (uint32_t c = 0; c < num_curves; ++c) {
-        for (uint32_t i = 0; i < curves[c].table_entries; ++i) {
-            *x++ = i / (curves[c].table_entries - 1.0f);
-            *t++ = read_big_u16(curves[c].table_16 + 2 * i) * (1 / 65535.0f);
-        }
-    }
-
-    x = data;
-    t = data + n;
-
-    bool result = skcms_TransferFunction_approximate(approx, x, t, (int)n, max_error);
-    free(data);
-    return result;
 }
 
 // mft1 and mft2 share a large chunk of data
