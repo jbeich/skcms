@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0be5a62_290a28e8",
+        "filename": "test_only.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-26T14:18:30Z",
+      "side": 1,
+      "message": "Is this still true?",
+      "revId": "e0cfe3ee1f1243d671f7e54f5447ec5b2ff26673",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
