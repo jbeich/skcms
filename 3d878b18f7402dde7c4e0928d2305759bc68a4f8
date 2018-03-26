@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4cb3fa9_ba6fe17e",
+        "filename": "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-26T16:52:54Z",
+      "side": 1,
+      "message": "Remind me, what exactly is the interpretation of this profile?  It\u0027s got a grey TRC, but also CMYK A2B?  Is the kTRC the same as A3?  Like, \u0027k\u0027 means literally \u0027K\u0027?",
+      "revId": "3d878b18f7402dde7c4e0928d2305759bc68a4f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c18f182_9cd71a10",
+        "filename": "profiles/sRGB_Facebook.icc.txt",
+        "patchSetId": 10
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-26T16:52:54Z",
+      "side": 1,
+      "message": "I\u0027m not convinced that this is hugely bad.  Not long ago we had\n\n  2.405, 0.9464, 0.0537, 0.08, 0.04, 0, 0 (Max error: 0.00065)\n\nfor this.",
+      "range": {
+        "startLine": 36,
+        "startChar": 7,
+        "endLine": 36,
+        "endChar": 80
+      },
+      "revId": "3d878b18f7402dde7c4e0928d2305759bc68a4f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1a35bb8_09736e20",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-26T16:52:54Z",
+      "side": 1,
+      "message": "Just out of curiosity, is there a reason to prefer kTRC over {r,g,b}TRC?  Seems like should all four be present, we\u0027d want to use the RGB curves and ignore kTRC?",
+      "revId": "3d878b18f7402dde7c4e0928d2305759bc68a4f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6c0c2ac_1e447f06",
+        "filename": "src/ICCProfile.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-26T16:52:54Z",
+      "side": 1,
+      "message": "Think this belongs inside the else above, along with the rgb TRCs?",
+      "revId": "3d878b18f7402dde7c4e0928d2305759bc68a4f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4229f2b_8363e357",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-26T16:52:54Z",
+      "side": 1,
+      "message": "Include the \u0027D\u0027 and previous points ... ?",
+      "range": {
+        "startLine": 271,
+        "startChar": 14,
+        "endLine": 271,
+        "endChar": 36
+      },
+      "revId": "3d878b18f7402dde7c4e0928d2305759bc68a4f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "446f3045_9069edc7",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-03-26T16:52:54Z",
+      "side": 1,
+      "message": "Is 1/256 what we want in principle?  Or 1/512?",
+      "range": {
+        "startLine": 345,
+        "startChar": 37,
+        "endLine": 345,
+        "endChar": 49
+      },
+      "revId": "3d878b18f7402dde7c4e0928d2305759bc68a4f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
