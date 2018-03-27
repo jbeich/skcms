@@ -1223,14 +1223,17 @@ bool skcms_Transform(const void*             src,
             return false;
         }
 
-        // Sources with a toXYZD50 matrix still need to be transformed.
-        // Others (A2B) should already be in XYZD50 at this point.
+        // A2B sources should already be in XYZD50 at this point.
+        // Others still need to be transformed using their toXYZD50 matrix.
+        // N.B. There are profiles that contain both A2B tags and toXYZD50 matrices.
+        // If we use the A2B tags, we need to ignore the XYZD50 matrix entirely.
+        assert (srcProfile->has_A2B || srcProfile->has_toXYZD50);
         static const skcms_Matrix3x3 I = {{
             { 1.0f, 0.0f, 0.0f },
             { 0.0f, 1.0f, 0.0f },
             { 0.0f, 0.0f, 1.0f },
         }};
-        const skcms_Matrix3x3* to_xyz = srcProfile->has_toXYZD50 ? &srcProfile->toXYZD50 : &I;
+        const skcms_Matrix3x3* to_xyz = srcProfile->has_A2B ? &I : &srcProfile->toXYZD50;
 
         // There's a chance the source and destination gamuts are identical,
         // in which case we can skip the gamut transform.
