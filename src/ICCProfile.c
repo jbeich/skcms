@@ -508,7 +508,7 @@ typedef struct {
     uint8_t data                 [  ];
 } mABCLUT_Layout;
 
-static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b) {
+static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
     if (tag->size < SAFE_SIZEOF(mAB_Layout)) {
         return false;
     }
@@ -558,19 +558,20 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b) {
         if (tag->size < matrix_offset + 12 * SAFE_SIZEOF(uint32_t)) {
             return false;
         }
+        float encoding_factor = pcs_is_xyz ? 65535 / 32768.0f : 1.0f;
         const uint8_t* mtx_buf = tag->buf + matrix_offset;
-        a2b->matrix.vals[0][0] = read_big_fixed(mtx_buf + 0);
-        a2b->matrix.vals[0][1] = read_big_fixed(mtx_buf + 4);
-        a2b->matrix.vals[0][2] = read_big_fixed(mtx_buf + 8);
-        a2b->matrix.vals[1][0] = read_big_fixed(mtx_buf + 12);
-        a2b->matrix.vals[1][1] = read_big_fixed(mtx_buf + 16);
-        a2b->matrix.vals[1][2] = read_big_fixed(mtx_buf + 20);
-        a2b->matrix.vals[2][0] = read_big_fixed(mtx_buf + 24);
-        a2b->matrix.vals[2][1] = read_big_fixed(mtx_buf + 28);
-        a2b->matrix.vals[2][2] = read_big_fixed(mtx_buf + 32);
-        a2b->matrix.vals[0][3] = read_big_fixed(mtx_buf + 36);
-        a2b->matrix.vals[1][3] = read_big_fixed(mtx_buf + 40);
-        a2b->matrix.vals[2][3] = read_big_fixed(mtx_buf + 44);
+        a2b->matrix.vals[0][0] = encoding_factor * read_big_fixed(mtx_buf + 0);
+        a2b->matrix.vals[0][1] = encoding_factor * read_big_fixed(mtx_buf + 4);
+        a2b->matrix.vals[0][2] = encoding_factor * read_big_fixed(mtx_buf + 8);
+        a2b->matrix.vals[1][0] = encoding_factor * read_big_fixed(mtx_buf + 12);
+        a2b->matrix.vals[1][1] = encoding_factor * read_big_fixed(mtx_buf + 16);
+        a2b->matrix.vals[1][2] = encoding_factor * read_big_fixed(mtx_buf + 20);
+        a2b->matrix.vals[2][0] = encoding_factor * read_big_fixed(mtx_buf + 24);
+        a2b->matrix.vals[2][1] = encoding_factor * read_big_fixed(mtx_buf + 28);
+        a2b->matrix.vals[2][2] = encoding_factor * read_big_fixed(mtx_buf + 32);
+        a2b->matrix.vals[0][3] = encoding_factor * read_big_fixed(mtx_buf + 36);
+        a2b->matrix.vals[1][3] = encoding_factor * read_big_fixed(mtx_buf + 40);
+        a2b->matrix.vals[2][3] = encoding_factor * read_big_fixed(mtx_buf + 44);
     } else {
         if (0 != matrix_offset) {
             return false;
@@ -632,13 +633,13 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b) {
     return true;
 }
 
-static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b) {
+static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
     if (tag->type == make_signature('m', 'f', 't', '1')) {
         return read_tag_mft1(tag, a2b);
     } else if (tag->type == make_signature('m', 'f', 't', '2')) {
         return read_tag_mft2(tag, a2b);
     } else if (tag->type == make_signature('m', 'A', 'B', ' ')) {
-        return read_tag_mab(tag, a2b);
+        return read_tag_mab(tag, a2b, pcs_is_xyz);
     }
 
     return false;
@@ -736,6 +737,8 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     }
 
+    bool pcs_is_xyz = profile->pcs == make_signature('X', 'Y', 'Z', ' ');
+
     // Pre-parse commonly used tags.
     skcms_ICCTag kTRC;
     if (profile->data_color_space == make_signature('G', 'R', 'A', 'Y') &&
@@ -748,7 +751,7 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         profile->trc[2] = profile->trc[0];
         profile->has_trc = true;
 
-        if (profile->pcs == make_signature('X', 'Y', 'Z', ' ')) {
+        if (pcs_is_xyz) {
             profile->toXYZD50.vals[0][0] = profile->illuminant_X;
             profile->toXYZD50.vals[1][1] = profile->illuminant_Y;
             profile->toXYZD50.vals[2][2] = profile->illuminant_Z;
@@ -789,7 +792,7 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     const uint32_t sigs[] = { make_signature('A','2','B','0'), make_signature('A','2','B','1') };
     for (int i = 0; i < ARRAY_COUNT(sigs); i++) {
         if (skcms_GetTagBySignature(profile, sigs[i], &a2b_tag)) {
-            if (!read_a2b(&a2b_tag, &profile->A2B)) {
+            if (!read_a2b(&a2b_tag, &profile->A2B, pcs_is_xyz)) {
                 // Malformed A2B tag
                 return false;
             }
