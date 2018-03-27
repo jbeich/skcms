@@ -789,33 +789,45 @@ static void tf_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
 }
 
 SI F gather_8(const uint8_t* p, I32 ix) {
-    uint8_t buf[N];
 #if N == 1
-    buf[0] = p[ix];
-#else
-    for (int i = 0; i < N; i++) {
-        buf[i] = p[ix[i]];
-    }
+    U8 v = p[ix];
+#elif N == 4
+    U8 v = { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]] };
+#elif N == 8
+    U8 v = { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
+             p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]] };
+#elif N == 16
+    U8 v = { p[ix[ 0]], p[ix[ 1]], p[ix[ 2]], p[ix[ 3]],
+             p[ix[ 4]], p[ix[ 5]], p[ix[ 6]], p[ix[ 7]],
+             p[ix[ 8]], p[ix[ 9]], p[ix[10]], p[ix[11]],
+             p[ix[12]], p[ix[13]], p[ix[14]], p[ix[15]] };
 #endif
-
-    U8 v;
-    small_memcpy(&v, buf, sizeof(v));
     return CAST(F, v) * (1/255.0f);
 }
 
-SI F gather_16(const uint8_t* p, I32 ix) {
-    // TODO: plenty of opportunity to optimize here.
-    uint8_t buf[2*N];
-#if N == 1
-    small_memcpy(buf, p + 2*ix, 2);
-#else
-    for (int i = 0; i < N; i++) {
-        small_memcpy(buf + 2*i, p + 2*ix[i], 2);
-    }
-#endif
+// Helper for gather_16(), loading the ix'th big-endian 16-bit value from p.
+SI uint16_t load_16_be(const uint8_t* p, int ix) {
+    uint16_t v;
+    small_memcpy(&v, p + 2*ix, 2);
+    return v;
+}
 
-    U16 v;
-    small_memcpy(&v, buf, sizeof(v));
+SI F gather_16(const uint8_t* p, I32 ix) {
+#if N == 1
+    U16 v = load_16_be(p,ix);
+#elif N == 4
+    U16 v = { load_16_be(p,ix[0]), load_16_be(p,ix[1]), load_16_be(p,ix[2]), load_16_be(p,ix[3]) };
+#elif N == 8
+    U16 v = { load_16_be(p,ix[0]), load_16_be(p,ix[1]), load_16_be(p,ix[2]), load_16_be(p,ix[3]),
+              load_16_be(p,ix[4]), load_16_be(p,ix[5]), load_16_be(p,ix[6]), load_16_be(p,ix[7]) };
+#elif N == 16
+    U16 v = {
+        load_16_be(p,ix[ 0]), load_16_be(p,ix[ 1]), load_16_be(p,ix[ 2]), load_16_be(p,ix[ 3]),
+        load_16_be(p,ix[ 4]), load_16_be(p,ix[ 5]), load_16_be(p,ix[ 6]), load_16_be(p,ix[ 7]),
+        load_16_be(p,ix[ 8]), load_16_be(p,ix[ 9]), load_16_be(p,ix[10]), load_16_be(p,ix[11]),
+        load_16_be(p,ix[12]), load_16_be(p,ix[13]), load_16_be(p,ix[14]), load_16_be(p,ix[15]),
+    };
+#endif
 
     // The 16-bit tables are big-endian, so we byte swap before converting to float.
     // MSVC catches the "loss" of data here in the portable path, so we also make sure to mask.
