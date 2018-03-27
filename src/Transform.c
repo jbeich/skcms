@@ -788,7 +788,7 @@ static void tf_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-SI F gather_8(const uint8_t* p, I32 ix) {
+SI U8 gather_8(const uint8_t* p, I32 ix) {
 #if N == 1
     U8 v = p[ix];
 #elif N == 4
@@ -802,34 +802,39 @@ SI F gather_8(const uint8_t* p, I32 ix) {
              p[ix[ 8]], p[ix[ 9]], p[ix[10]], p[ix[11]],
              p[ix[12]], p[ix[13]], p[ix[14]], p[ix[15]] };
 #endif
-    return CAST(F, v) * (1/255.0f);
+    return v;
 }
 
-// Helper for gather_16(), loading the ix'th big-endian 16-bit value from p.
-SI uint16_t load_16_be(const uint8_t* p, int ix) {
+// Helper for gather_16(), loading the ix'th 16-bit value from p.
+SI uint16_t load_16(const uint8_t* p, int ix) {
     uint16_t v;
     small_memcpy(&v, p + 2*ix, 2);
     return v;
 }
 
-SI F gather_16(const uint8_t* p, I32 ix) {
+SI U16 gather_16(const uint8_t* p, I32 ix) {
 #if N == 1
-    U16 v = load_16_be(p,ix);
+    U16 v = load_16(p,ix);
 #elif N == 4
-    U16 v = { load_16_be(p,ix[0]), load_16_be(p,ix[1]), load_16_be(p,ix[2]), load_16_be(p,ix[3]) };
+    U16 v = { load_16(p,ix[0]), load_16(p,ix[1]), load_16(p,ix[2]), load_16(p,ix[3]) };
 #elif N == 8
-    U16 v = { load_16_be(p,ix[0]), load_16_be(p,ix[1]), load_16_be(p,ix[2]), load_16_be(p,ix[3]),
-              load_16_be(p,ix[4]), load_16_be(p,ix[5]), load_16_be(p,ix[6]), load_16_be(p,ix[7]) };
+    U16 v = { load_16(p,ix[0]), load_16(p,ix[1]), load_16(p,ix[2]), load_16(p,ix[3]),
+              load_16(p,ix[4]), load_16(p,ix[5]), load_16(p,ix[6]), load_16(p,ix[7]) };
 #elif N == 16
-    U16 v = {
-        load_16_be(p,ix[ 0]), load_16_be(p,ix[ 1]), load_16_be(p,ix[ 2]), load_16_be(p,ix[ 3]),
-        load_16_be(p,ix[ 4]), load_16_be(p,ix[ 5]), load_16_be(p,ix[ 6]), load_16_be(p,ix[ 7]),
-        load_16_be(p,ix[ 8]), load_16_be(p,ix[ 9]), load_16_be(p,ix[10]), load_16_be(p,ix[11]),
-        load_16_be(p,ix[12]), load_16_be(p,ix[13]), load_16_be(p,ix[14]), load_16_be(p,ix[15]),
-    };
+    U16 v = { load_16(p,ix[ 0]), load_16(p,ix[ 1]), load_16(p,ix[ 2]), load_16(p,ix[ 3]),
+              load_16(p,ix[ 4]), load_16(p,ix[ 5]), load_16(p,ix[ 6]), load_16(p,ix[ 7]),
+              load_16(p,ix[ 8]), load_16(p,ix[ 9]), load_16(p,ix[10]), load_16(p,ix[11]),
+              load_16(p,ix[12]), load_16(p,ix[13]), load_16(p,ix[14]), load_16(p,ix[15]) };
 #endif
+    return v;
+}
 
-    // The 16-bit tables are big-endian, so we byte swap before converting to float.
+SI F F_from_U8(U8 v) {
+    return CAST(F, v) * (1/255.0f);
+}
+
+SI F F_from_U16_BE(U16 v) {
+    // All 16-bit ICC values are big-endian, so we byte swap before converting to float.
     // MSVC catches the "loss" of data here in the portable path, so we also make sure to mask.
     v = (U16)( ((v<<8)|(v>>8)) & 0xffff );
     return CAST(F, v) * (1/65535.0f);
@@ -856,8 +861,8 @@ SI F table_8(const skcms_Curve* curve, F v) {
     // the same as in 'l' or adjacent.  We have a rough idea that's it'd always be safe
     // to read adjacent entries and perhaps underflow the table by a byte or two
     // (it'd be junk, but always safe to read).  Not sure how to lerp yet.
-    F l = gather_8(curve->table_8, lo),
-      h = gather_8(curve->table_8, hi);
+    F l = F_from_U8(gather_8(curve->table_8, lo)),
+      h = F_from_U8(gather_8(curve->table_8, hi));
     return l + (h-l)*t;
 }
 
@@ -871,8 +876,8 @@ SI F table_16(const skcms_Curve* curve, F v) {
 
     // TODO: as above, load l and h simultaneously?
     // Here we could even use AVX2-style 32-bit gathers.
-    F l = gather_16(curve->table_16, lo),
-      h = gather_16(curve->table_16, hi);
+    F l = F_from_U16_BE(gather_16(curve->table_16, lo)),
+      h = F_from_U16_BE(gather_16(curve->table_16, hi));
     return l + (h-l)*t;
 }
 
@@ -963,17 +968,17 @@ static void matrix_3x4(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
 // Color lookup tables, by input dimension and bit depth.
 SI void clut_0_8(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
     // TODO: gather_24()?
-    *r = gather_8(a2b->grid_8, 3*ix+0);
-    *g = gather_8(a2b->grid_8, 3*ix+1);
-    *b = gather_8(a2b->grid_8, 3*ix+2);
+    *r = F_from_U8(gather_8(a2b->grid_8, 3*ix+0));
+    *g = F_from_U8(gather_8(a2b->grid_8, 3*ix+1));
+    *b = F_from_U8(gather_8(a2b->grid_8, 3*ix+2));
     (void)a;
     (void)stride;
 }
 SI void clut_0_16(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
     // TODO: gather_48()?
-    *r = gather_16(a2b->grid_16, 3*ix+0);
-    *g = gather_16(a2b->grid_16, 3*ix+1);
-    *b = gather_16(a2b->grid_16, 3*ix+2);
+    *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
+    *g = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+1));
+    *b = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+2));
     (void)a;
     (void)stride;
 }
