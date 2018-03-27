@@ -727,6 +727,14 @@ static void swap_rb(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, b,g,r,a);
 }
 
+static void invert(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+    r = F1 - r;
+    g = F1 - g;
+    b = F1 - b;
+    a = F1 - a;
+    next_stage(i,ip,ctx, r,g,b,a);
+}
+
 static void unpremul(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     F scale = (F)if_then_else(F1 / a < INFINITY, F1 / a, F0);
     r *= scale;
@@ -1135,6 +1143,13 @@ bool skcms_Transform(const void*             src,
     if (srcFmt & 1) {
         *ip++ = (void*)swap_rb;
     }
+
+    if (srcProfile->data_color_space == 0x434D594B /*'CMYK*/) {
+        // Photoshop creates CMYK images as inverse CMYK.
+        // These happen to be the only ones we've _ever_ seen.
+        *ip++ = (void*)invert;
+    }
+
     if (srcAlpha == skcms_AlphaFormat_Opaque) {
         *ip++ = (void*)force_opaque;
     } else if (srcAlpha == skcms_AlphaFormat_PremulAsEncoded) {
