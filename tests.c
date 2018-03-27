@@ -1044,7 +1044,8 @@ static void test_ByteToLinearFloat() {
     free(srgb_ptr);
 }
 
-
+// This test is written with the expectation that we use A2B1, not A2B0.
+#if 0
 static void test_CLUT() {
     // Identity* transform from a v4 A2B profile to good old parametric sRGB.
     //   * Approximate identity, apparently?
@@ -1087,12 +1088,16 @@ static void test_CLUT() {
         if (src[i] == 0) {
             tol = 9;
         }
+        if (abs(dst[i] - src[i]) > tol) {
+            printf("%d: %d vs %d\n", i, dst[i], src[i]);
+        }
         expect(abs(dst[i] - src[i]) <= tol);
     }
 
     free(srgb_ptr);
     free(a2b_ptr);
 }
+#endif
 
 int main(int argc, char** argv) {
     bool regenTestData = false;
@@ -1120,7 +1125,9 @@ int main(int argc, char** argv) {
     test_ByteToLinearFloat();
     test_TRC_Table16();
     test_Premul();
+#if 0
     test_CLUT();
+#endif
 
     return 0;
 }
