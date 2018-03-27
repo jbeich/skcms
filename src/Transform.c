@@ -983,12 +983,18 @@ SI void clut_0_16(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F 
     (void)stride;
 }
 
+// __attribute__((always_inline)) hits some pathological case in GCC that makes
+// compilation way too slow for my patience.
+#if defined(__clang__)
+    #define MAYBE_SI static inline __attribute__((always_inline))
+#else
+    #define MAYBE_SI static inline
+#endif
+
 // These are all the same basic approach: handle one dimension, then the rest recursively.
 // We let "I" be the current dimension, and "J" the previous dimension, I-1.  "B" is the bit depth.
-// We use static inline here: __attribute__((always_inline)) hits some pathological
-// case in GCC that makes compilation way too slow for my patience.
 #define DEF_CLUT(I,J,B)                                                                       \
-    static inline                                                                             \
+    MAYBE_SI                                                                                  \
     void clut_##I##_##B(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {    \
         I32 limit = CAST(I32, F0);                                                            \
         limit += a2b->grid_points[I-1];                                                       \
