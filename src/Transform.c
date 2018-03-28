@@ -829,6 +829,34 @@ SI U16 gather_16(const uint8_t* p, I32 ix) {
     return v;
 }
 
+#if N <= 4
+    // Helper for gather_32(), loading the ix'th 32-bit value from p.
+    SI uint32_t load_32(const uint8_t* p, int ix) {
+        uint32_t v;
+        small_memcpy(&v, p + 4*ix, 4);
+        return v;
+    }
+#endif
+
+SI U32 gather_32(const uint8_t* p, I32 ix) {
+#if N == 1
+    U32 v = load_32(p,ix);
+#elif N == 4
+    U32 v = { load_32(p,ix[0]), load_32(p,ix[1]), load_32(p,ix[2]), load_32(p,ix[3]) };
+#elif N == 8
+    // I don't think the instruction behind _mm256_i32gather_epi32() needs any particular
+    // alignment, but the intrinsic takes a const int*.
+    const int* p4;
+    memcpy(&p4, &p, sizeof(p4));
+    U32 v = (U32)_mm256_i32gather_epi32(p4, (__m256i)ix, 4);
+#elif N == 16
+    // They fixed that annoyance about the pointer being const int* in AVX-512's intrinsics,
+    // but swapped the order of arguments.  :/
+    U32 v = (U32)_mm512_i32gather_epi32((__m512i)ix, p, 4);
+#endif
+    return v;
+}
+
 SI F F_from_U8(U8 v) {
     return CAST(F, v) * (1/255.0f);
 }
@@ -967,18 +995,28 @@ static void matrix_3x4(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
 
 // Color lookup tables, by input dimension and bit depth.
 SI void clut_0_8(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
-    // TODO: gather_24()?
-    *r = F_from_U8(gather_8(a2b->grid_8, 3*ix+0));
-    *g = F_from_U8(gather_8(a2b->grid_8, 3*ix+1));
-    *b = F_from_U8(gather_8(a2b->grid_8, 3*ix+2));
+    // Gather four bytes at ix, starting one byte back.  We'll end up with safe junk
+    // in the low byte, either the previous blue channel, or some tag metadata.
+    U32 xrgb = gather_32(a2b->grid_8-1, ix);
+
+    *r = CAST(F, (xrgb >>  8) & 0xff) * (1/255.0f);
+    *g = CAST(F, (xrgb >> 16) & 0xff) * (1/255.0f);
+    *b = CAST(F, (xrgb >> 24) & 0xff) * (1/255.0f);
+
     (void)a;
     (void)stride;
 }
 SI void clut_0_16(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
-    // TODO: gather_48()?
+    // TODO: same trick as above, using 64-bit loads or gathers to grab the 48 bits we need.
+#if 0
+    // Gather eight bytes at ix, two bytes back ...
+    U64 xrgb = gather_64(a2b->grid_16-2, ix);
+    // etc.
+#else
     *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
     *g = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+1));
     *b = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+2));
+#endif
     (void)a;
     (void)stride;
 }
