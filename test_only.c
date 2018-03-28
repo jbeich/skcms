@@ -85,7 +85,7 @@ static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve, boo
                 curve->table_8 ? 8 : 16, curve->table_entries);
         skcms_TransferFunction tf;
         float max_error;
-        if (show_approx && skcms_ApproximateCurve(curve, &tf, &max_error)) {
+        if ((show_approx || true) && skcms_ApproximateCurve(curve, &tf, &max_error)) {
             dump_approx_transfer_function(fp, &tf, max_error, for_unit_test);
         }
     } else {

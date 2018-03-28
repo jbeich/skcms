@@ -39,11 +39,18 @@
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
   A1 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
   A2 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
   A3 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
 CLUT : 17 x 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
   B1 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
   B2 : 16-bit table with 4096 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
