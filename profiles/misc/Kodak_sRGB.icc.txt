@@ -32,10 +32,16 @@ bTRC : 16-bit table with 256 entries
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
   A0 : 16-bit table with 256 entries
+  ~= : 0.693656, 1.57255, 0.520246, 0.698965, 0.0392157, -0.669963, 0  (Max error: 0.0083)
   A1 : 16-bit table with 256 entries
+  ~= : 0.693656, 1.57255, 0.520246, 0.698965, 0.0392157, -0.669963, 0  (Max error: 0.0083)
   A2 : 16-bit table with 256 entries
+  ~= : 0.693656, 1.57255, 0.520246, 0.698965, 0.0392157, -0.669963, 0  (Max error: 0.0083)
 CLUT : 8 x 8 x 8 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 4096 entries
+  ~= : -0.0376707, 1.01233, -0.0121889, 1, 0.996337, -0.00371204, 0  (Max error: 7.5e-05)
   B1 : 16-bit table with 4096 entries
+  ~= : -0.0376707, 1.01233, -0.0121889, 1, 0.996337, -0.00371204, 0  (Max error: 7.5e-05)
   B2 : 16-bit table with 4096 entries
+  ~= : -0.0376707, 1.01233, -0.0121889, 1, 0.996337, -0.00371204, 0  (Max error: 7.5e-05)
