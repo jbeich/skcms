@@ -1,22 +1,6 @@
                 Size : 0x00004288 : 17032
-            CMM type : 0x6170706C : 'appl'
-             Version : 0x02200000 : 2.2.0
-       Profile class : 0x73636E72 : 'scnr'
     Data color space : 0x52474220 : 'RGB '
                  PCS : 0x4C616220 : 'Lab '
-  Creation date/time :            : 2003-08-04 13:19:48
-           Signature : 0x61637370 : 'acsp'
-            Platform : 0x4150504C : 'APPL'
-               Flags : 0x00000000
- Device manufacturer : 0x4C45584D : 'LEXM'
-        Device model : 0x58313130 : 'X110'
-   Device attributes : 0x00000000
-                     : 0x00000000
-    Rendering intent : 0x00000000 : 0
-        Illuminant X :            : 0.964202881
-        Illuminant Y :            : 1
-        Illuminant Z :            : 0.824905396
-             Creator : 0x4C45584D : 'LEXM'
            Tag count : 0x00000006 : 6
 
  Tag    : Type   : Size   : Offset

@@ -69,36 +69,11 @@ typedef struct {
 } skcms_A2B;
 
 typedef struct {
-    uint16_t year;
-    uint16_t month;
-    uint16_t day;
-    uint16_t hour;
-    uint16_t minute;
-    uint16_t second;
-} skcms_ICCDateTime;
-
-typedef struct {
     const uint8_t* buffer;
 
     uint32_t size;
-    uint32_t cmm_type;
-    uint32_t version;
-    uint32_t profile_class;
     uint32_t data_color_space;
     uint32_t pcs;
-    skcms_ICCDateTime creation_date_time;
-    uint32_t signature;
-    uint32_t platform;
-    uint32_t flags;
-    uint32_t device_manufacturer;
-    uint32_t device_model;
-    uint64_t device_attributes;
-    uint32_t rendering_intent;
-    float illuminant_X;
-    float illuminant_Y;
-    float illuminant_Z;
-    uint32_t creator;
-    uint8_t profile_id[16];
     uint32_t tag_count;
 
     // skcms_Parse() will set commonly-used fields for you when possible:

@@ -1,22 +1,6 @@
                 Size : 0x00024B60 : 150368
-            CMM type : 0x4B434D53 : 'KCMS'
-             Version : 0x02000000 : 2.0.0
-       Profile class : 0x6D6E7472 : 'mntr'
     Data color space : 0x52474220 : 'RGB '
                  PCS : 0x4C616220 : 'Lab '
-  Creation date/time :            : 1996-06-23 20:15:04
-           Signature : 0x61637370 : 'acsp'
-            Platform : 0x53554E57 : 'SUNW'
-               Flags : 0x00000000
- Device manufacturer : 0x4B4F4441 : 'KODA'
-        Device model : 0x6E6F6E65 : 'none'
-   Device attributes : 0x00000000
-                     : 0x00000000
-    Rendering intent : 0x00000000 : 0
-        Illuminant X :            : 0.963684082
-        Illuminant Y :            : 1
-        Illuminant Z :            : 0.82409668
-             Creator : 0x00000000 : ''
            Tag count : 0x0000000E : 14
 
  Tag    : Type   : Size   : Offset

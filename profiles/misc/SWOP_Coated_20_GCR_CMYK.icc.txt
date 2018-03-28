@@ -1,22 +1,6 @@
                 Size : 0x000B0CAC : 724140
-            CMM type : 0x41444245 : 'ADBE'
-             Version : 0x02100000 : 2.1.0
-       Profile class : 0x70727472 : 'prtr'
     Data color space : 0x434D594B : 'CMYK'
                  PCS : 0x4C616220 : 'Lab '
-  Creation date/time :            : 2015-12-16 07:05:17
-           Signature : 0x61637370 : 'acsp'
-            Platform : 0x4150504C : 'APPL'
-               Flags : 0x00000000
- Device manufacturer : 0x6E6F6E65 : 'none'
-        Device model : 0x00000000 : ''
-   Device attributes : 0x00000000
-                     : 0x00000000
-    Rendering intent : 0x00000000 : 0
-        Illuminant X :            : 0.964202881
-        Illuminant Y :            : 1
-        Illuminant Z :            : 0.824890137
-             Creator : 0x41444245 : 'ADBE'
            Tag count : 0x0000000B : 11
 
  Tag    : Type   : Size   : Offset

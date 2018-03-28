@@ -1,22 +1,6 @@
                 Size : 0x0000EE20 : 60960
-            CMM type : 0x00000000 : ''
-             Version : 0x04200000 : 4.2.0
-       Profile class : 0x73706163 : 'spac'
     Data color space : 0x52474220 : 'RGB '
                  PCS : 0x4C616220 : 'Lab '
-  Creation date/time :            : 2007-07-25 00:05:37
-           Signature : 0x61637370 : 'acsp'
-            Platform : 0x00000000 : ''
-               Flags : 0x00000000
- Device manufacturer : 0x00000000 : ''
-        Device model : 0x00000000 : ''
-   Device attributes : 0x00000000
-                     : 0x00000000
-    Rendering intent : 0x00000000 : 0
-        Illuminant X :            : 0.964202881
-        Illuminant Y :            : 1
-        Illuminant Z :            : 0.824905396
-             Creator : 0x00000000 : ''
            Tag count : 0x00000009 : 9
 
  Tag    : Type   : Size   : Offset

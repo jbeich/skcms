@@ -114,31 +114,8 @@ static bool has_single_transfer_function(const skcms_ICCProfile* profile,
 
 void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test) {
     fprintf(fp, "%20s : 0x%08X : %u\n", "Size", profile->size, profile->size);
-    dump_sig_field(fp, "CMM type", profile->cmm_type);
-    fprintf(fp, "%20s : 0x%08X : %u.%u.%u\n", "Version", profile->version,
-            profile->version >> 24, (profile->version >> 20) & 0xF,
-            (profile->version >> 16) & 0xF);
-    dump_sig_field(fp, "Profile class", profile->profile_class);
     dump_sig_field(fp, "Data color space", profile->data_color_space);
     dump_sig_field(fp, "PCS", profile->pcs);
-    fprintf(fp, "%20s :            : %u-%02u-%02u %02u:%02u:%02u\n", "Creation date/time",
-            profile->creation_date_time.year, profile->creation_date_time.month,
-            profile->creation_date_time.day, profile->creation_date_time.hour,
-            profile->creation_date_time.minute, profile->creation_date_time.second);
-    dump_sig_field(fp, "Signature", profile->signature);
-    dump_sig_field(fp, "Platform", profile->platform);
-    fprintf(fp, "%20s : 0x%08X\n", "Flags", profile->flags);
-    dump_sig_field(fp, "Device manufacturer", profile->device_manufacturer);
-    dump_sig_field(fp, "Device model", profile->device_model);
-    fprintf(fp, "%20s : 0x%08X\n", "Device attributes",
-            (uint32_t)(profile->device_attributes & 0xFFFFFFFF));
-    fprintf(fp, "%20s : 0x%08X\n", "", (uint32_t)(profile->device_attributes >> 32));
-    fprintf(fp, "%20s : 0x%08X : %u\n", "Rendering intent", profile->rendering_intent,
-            profile->rendering_intent);
-    fprintf(fp, "%20s :            : %.9g\n", "Illuminant X", (double)profile->illuminant_X);
-    fprintf(fp, "%20s :            : %.9g\n", "Illuminant Y", (double)profile->illuminant_Y);
-    fprintf(fp, "%20s :            : %.9g\n", "Illuminant Z", (double)profile->illuminant_Z);
-    dump_sig_field(fp, "Creator", profile->creator);
     fprintf(fp, "%20s : 0x%08X : %u\n", "Tag count", profile->tag_count, profile->tag_count);
 
     fprintf(fp, "\n");
