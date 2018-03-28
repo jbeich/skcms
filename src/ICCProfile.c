@@ -147,8 +147,6 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
         *curve_size = SAFE_SIZEOF(para_Layout) + curve_bytes[function_type];
     }
 
-    curve->table_8       = NULL;
-    curve->table_16      = NULL;
     curve->table_entries = 0;
     curve->parametric.a  = 1.0f;
     curve->parametric.b  = 0.0f;
@@ -220,8 +218,6 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size,
     }
 
     if (value_count < 2) {
-        curve->table_8       = NULL;
-        curve->table_16      = NULL;
         curve->table_entries = 0;
         curve->parametric.a  = 1.0f;
         curve->parametric.b  = 0.0f;
@@ -237,7 +233,6 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size,
             curve->parametric.g = read_big_u16(curvTag->parameters) * (1.0f / 256.0f);
         }
     } else {
-        memset(&curve->parametric, 0, SAFE_SIZEOF(curve->parametric));
         curve->table_8       = NULL;
         curve->table_16      = curvTag->parameters;
         curve->table_entries = value_count;
