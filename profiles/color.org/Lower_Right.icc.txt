@@ -1,22 +1,6 @@
                 Size : 0x00000230 : 560
-            CMM type : 0x41444245 : 'ADBE'
-             Version : 0x02100000 : 2.1.0
-       Profile class : 0x6D6E7472 : 'mntr'
     Data color space : 0x52474220 : 'RGB '
                  PCS : 0x58595A20 : 'XYZ '
-  Creation date/time :            : 1999-06-03 00:00:00
-           Signature : 0x61637370 : 'acsp'
-            Platform : 0x4150504C : 'APPL'
-               Flags : 0x00000000
- Device manufacturer : 0x6E6F6E65 : 'none'
-        Device model : 0x00000000 : ''
-   Device attributes : 0x00000000
-                     : 0x00000000
-    Rendering intent : 0x00000001 : 1
-        Illuminant X :            : 0.964202881
-        Illuminant Y :            : 1
-        Illuminant Z :            : 0.824905396
-             Creator : 0x41444245 : 'ADBE'
            Tag count : 0x0000000A : 10
 
  Tag    : Type   : Size   : Offset

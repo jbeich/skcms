@@ -46,29 +46,8 @@ static int32_t read_big_i32(const uint8_t* ptr) {
     return (int32_t)read_big_u32(ptr);
 }
 
-static uint64_t read_big_u64(const uint8_t* ptr) {
-    uint64_t be;
-    memcpy(&be, ptr, sizeof(be));
-#if defined(_MSC_VER)
-    return _byteswap_uint64(be);
-#else
-    return __builtin_bswap64(be);
-#endif
-}
-
 static float read_big_fixed(const uint8_t* ptr) {
     return read_big_i32(ptr) * (1.0f / 65536.0f);
-}
-
-static skcms_ICCDateTime read_big_date_time(const uint8_t* ptr) {
-    skcms_ICCDateTime date_time;
-    date_time.year   = read_big_u16(ptr + 0);
-    date_time.month  = read_big_u16(ptr + 2);
-    date_time.day    = read_big_u16(ptr + 4);
-    date_time.hour   = read_big_u16(ptr + 6);
-    date_time.minute = read_big_u16(ptr + 8);
-    date_time.second = read_big_u16(ptr + 10);
-    return date_time;
 }
 
 // Maps to an in-memory profile so that fields line up to the locations specified
@@ -686,43 +665,29 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     const header_Layout* header = buf;
     profile->buffer              = buf;
     profile->size                = read_big_u32(header->size);
-    profile->cmm_type            = read_big_u32(header->cmm_type);
-    profile->version             = read_big_u32(header->version);
-    profile->profile_class       = read_big_u32(header->profile_class);
+    uint32_t version             = read_big_u32(header->version);
     profile->data_color_space    = read_big_u32(header->data_color_space);
     profile->pcs                 = read_big_u32(header->pcs);
-    profile->creation_date_time  = read_big_date_time(header->creation_date_time);
-    profile->signature           = read_big_u32(header->signature);
-    profile->platform            = read_big_u32(header->platform);
-    profile->flags               = read_big_u32(header->flags);
-    profile->device_manufacturer = read_big_u32(header->device_manufacturer);
-    profile->device_model        = read_big_u32(header->device_model);
-    profile->device_attributes   = read_big_u64(header->device_attributes);
-    profile->rendering_intent    = read_big_u32(header->rendering_intent);
-    profile->illuminant_X        = read_big_fixed(header->illuminant_X);
-    profile->illuminant_Y        = read_big_fixed(header->illuminant_Y);
-    profile->illuminant_Z        = read_big_fixed(header->illuminant_Z);
-    profile->creator             = read_big_u32(header->creator);
-
-    assert(SAFE_SIZEOF(profile->profile_id) == SAFE_SIZEOF(header->profile_id));
-
-    memcpy(profile->profile_id, header->profile_id, SAFE_SIZEOF(header->profile_id));
+    uint32_t signature           = read_big_u32(header->signature);
+    float illuminant_X           = read_big_fixed(header->illuminant_X);
+    float illuminant_Y           = read_big_fixed(header->illuminant_Y);
+    float illuminant_Z           = read_big_fixed(header->illuminant_Z);
     profile->tag_count           = read_big_u32(header->tag_count);
 
     // Validate signature, size (smaller than buffer, large enough to hold tag table),
     // and major version
     uint64_t tag_table_size = profile->tag_count * SAFE_SIZEOF(tag_Layout);
-    if (profile->signature != make_signature('a', 'c', 's', 'p') ||
+    if (signature != make_signature('a', 'c', 's', 'p') ||
         profile->size > len ||
         profile->size < SAFE_SIZEOF(header_Layout) + tag_table_size ||
-        (profile->version >> 24) > 4) {
+        (version >> 24) > 4) {
         return false;
     }
 
     // Validate that illuminant is D50 white
-    if (fabsf(profile->illuminant_X - 0.9642f) > 0.0100f ||
-        fabsf(profile->illuminant_Y - 1.0000f) > 0.0100f ||
-        fabsf(profile->illuminant_Z - 0.8249f) > 0.0100f) {
+    if (fabsf(illuminant_X - 0.9642f) > 0.0100f ||
+        fabsf(illuminant_Y - 1.0000f) > 0.0100f ||
+        fabsf(illuminant_Z - 0.8249f) > 0.0100f) {
         return false;
     }
 
@@ -752,9 +717,9 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         profile->has_trc = true;
 
         if (pcs_is_xyz) {
-            profile->toXYZD50.vals[0][0] = profile->illuminant_X;
-            profile->toXYZD50.vals[1][1] = profile->illuminant_Y;
-            profile->toXYZD50.vals[2][2] = profile->illuminant_Z;
+            profile->toXYZD50.vals[0][0] = illuminant_X;
+            profile->toXYZD50.vals[1][1] = illuminant_Y;
+            profile->toXYZD50.vals[2][2] = illuminant_Z;
             profile->has_toXYZD50 = true;
         }
     } else {

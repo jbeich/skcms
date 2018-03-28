@@ -1,22 +1,6 @@
                 Size : 0x001BE8D5 : 1829077
-            CMM type : 0x48444D20 : 'HDM '
-             Version : 0x02400000 : 2.4.0
-       Profile class : 0x70727472 : 'prtr'
     Data color space : 0x434D594B : 'CMYK'
                  PCS : 0x4C616220 : 'Lab '
-  Creation date/time :            : 2007-02-28 08:00:00
-           Signature : 0x61637370 : 'acsp'
-            Platform : 0x00000000 : ''
-               Flags : 0x00000000
- Device manufacturer : 0x00000000 : ''
-        Device model : 0x00000000 : ''
-   Device attributes : 0x00000000
-                     : 0x00000000
-    Rendering intent : 0x00000000 : 0
-        Illuminant X :            : 0.964202881
-        Illuminant Y :            : 1
-        Illuminant Z :            : 0.824905396
-             Creator : 0x48444D20 : 'HDM '
            Tag count : 0x0000000D : 13
 
  Tag    : Type   : Size   : Offset
