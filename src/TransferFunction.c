@@ -228,31 +228,31 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
 
     // Assume that the values started out as .16 fixed point, and we want them to be almost exactly
     // linear in that representation.
-    const float kLinearTolerance = 0.5f / 65535.0f;
-    const float x_scale = 1.0f / (n - 1);
-    const float y0 = t(0, ctx);
+    const double kLinearTolerance = 0.5 / 65535;
+    const double x_scale = 1.0 / (n - 1);
+    const double y0 = (double)t(0, ctx);
 
     int lin_points = 1;
-    float slope_min = -1E6F;
-    float slope_max = 1E6F;
+    double slope_min = -1E6;
+    double slope_max = 1E6;
     for (int i = 1; i < n; ++i, ++lin_points) {
-        float xi = i * x_scale;
-        float yi = t(i, ctx);
-        float slope_max_i = (yi + kLinearTolerance - y0) / xi;
-        float slope_min_i = (yi - kLinearTolerance - y0) / xi;
+        double xi = i * x_scale;
+        double yi = (double)t(i, ctx);
+        double slope_max_i = (yi + kLinearTolerance - y0) / xi;
+        double slope_min_i = (yi - kLinearTolerance - y0) / xi;
         if (slope_max_i < slope_min || slope_max < slope_min_i) {
             // Slope intervals no longer overlap.
             break;
         }
-        slope_max = fminf(slope_max, slope_max_i);
-        slope_min = fmaxf(slope_min, slope_min_i);
+        slope_max = fmin(slope_max, slope_max_i);
+        slope_min = fmax(slope_min, slope_min_i);
     }
 
     // Compute parameters for the linear portion.
     // Pick D so that all points we found above are included (this requires nudging).
-    fn->d = nextafterf((lin_points - 1) * x_scale, INFINITY);
-    fn->f = y0;
-    fn->c = (slope_min + slope_max) * 0.5f;
+    fn->d = nextafterf((lin_points - 1) * (float)x_scale, INFINITY);
+    fn->f = (float)y0;
+    fn->c = (float)(slope_min + slope_max) * 0.5f;
 
     // If the entire data set was linear, move the coefficients to the nonlinear portion with
     // G == 1. This lets use a canonical representation with D == 0.
@@ -271,7 +271,7 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
             // Include the 'D' point in the nonlinear regression, so the two pieces are more likely
             // to line up.
             int start = lin_points > 0 ? lin_points - 1 : 0;
-            TF_Nonlinear tf = { initial_gammas[i], 1, 0, (double)(start * x_scale), 0 };
+            TF_Nonlinear tf = { initial_gammas[i], 1, 0, (start * x_scale), 0 };
             if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
                 nonlinear_fit_converged = true;
                 fn->g = (float)tf.g;
@@ -289,7 +289,7 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
     if (max_error) {
         *max_error = 0;
         for (int i = 0; i < n; ++i) {
-            float xi = i * x_scale;
+            float xi = i * (float)x_scale;
             float fn_of_xi = skcms_TransferFunction_eval(fn, xi);
             float error_at_xi = fabsf(t(i, ctx) - fn_of_xi);
             *max_error = fmaxf(*max_error, error_at_xi);

@@ -78,14 +78,13 @@ static void dump_approx_transfer_function(FILE* fp, const skcms_TransferFunction
     fprintf(fp, "\n");
 }
 
-static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve, bool show_approx,
-                       bool for_unit_test) {
+static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve, bool for_unit_test) {
     if (curve->table_entries) {
         fprintf(fp, "%4s : %d-bit table with %u entries\n", name,
                 curve->table_8 ? 8 : 16, curve->table_entries);
         skcms_TransferFunction tf;
         float max_error;
-        if (show_approx && skcms_ApproximateCurve(curve, &tf, &max_error)) {
+        if (skcms_ApproximateCurve(curve, &tf, &max_error)) {
             dump_approx_transfer_function(fp, &tf, max_error, for_unit_test);
         }
     } else {
@@ -141,7 +140,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
     } else if (profile->has_trc) {
         const char* trcNames[3] = { "rTRC", "gTRC", "bTRC" };
         for (int i = 0; i < 3; ++i) {
-            dump_curve(fp, trcNames[i], &profile->trc[i], true, for_unit_test);
+            dump_curve(fp, trcNames[i], &profile->trc[i], for_unit_test);
         }
     }
 
@@ -163,8 +162,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
             fprintf(fp, "%4s : %u inputs\n", "\"A\"", a2b->input_channels);
             const char* curveNames[4] = { "A0", "A1", "A2", "A3" };
             for (uint32_t i = 0; i < a2b->input_channels; ++i) {
-                dump_curve(fp, curveNames[i], &a2b->input_curves[i], !for_unit_test,
-                           for_unit_test);
+                dump_curve(fp, curveNames[i], &a2b->input_curves[i], for_unit_test);
             }
             fprintf(fp, "%4s : ", "CLUT");
             const char* sep = "";
@@ -179,8 +177,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
             fprintf(fp, "%4s : %u inputs\n", "\"M\"", a2b->matrix_channels);
             const char* curveNames[4] = { "M0", "M1", "M2" };
             for (uint32_t i = 0; i < a2b->matrix_channels; ++i) {
-                dump_curve(fp, curveNames[i], &a2b->matrix_curves[i], !for_unit_test,
-                           for_unit_test);
+                dump_curve(fp, curveNames[i], &a2b->matrix_curves[i], for_unit_test);
             }
             const skcms_Matrix3x4* m = &a2b->matrix;
             fprintf(fp, "Mtrx : | %.9f %.9f %.9f %.9f |\n"
@@ -195,8 +192,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
             fprintf(fp, "%4s : %u outputs\n", "\"B\"", a2b->output_channels);
             const char* curveNames[3] = { "B0", "B1", "B2" };
             for (uint32_t i = 0; i < a2b->output_channels; ++i) {
-                dump_curve(fp, curveNames[i], &a2b->output_curves[i], !for_unit_test,
-                           for_unit_test);
+                dump_curve(fp, curveNames[i], &a2b->output_curves[i], for_unit_test);
             }
         }
     }
