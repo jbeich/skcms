@@ -1028,16 +1028,6 @@ DEF_CLUT(3,2,16)
 DEF_CLUT(4,3,16)
 
 // Now the stages that just call into the various implementations above.
-static void clut_1D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
-    const skcms_A2B* a2b = *ctx->args++;
-    clut_1_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
-    next_stage(i,ip,ctx, r,g,b,a);
-}
-static void clut_2D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
-    const skcms_A2B* a2b = *ctx->args++;
-    clut_2_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
-    next_stage(i,ip,ctx, r,g,b,a);
-}
 static void clut_3D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_A2B* a2b = *ctx->args++;
     clut_3_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
@@ -1048,17 +1038,6 @@ static void clut_4D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     clut_4_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
     // 'a' was really a CMYK K, so our output is actually opaque.
     next_stage(i,ip,ctx, r,g,b,F1);
-}
-
-static void clut_1D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
-    const skcms_A2B* a2b = *ctx->args++;
-    clut_1_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
-    next_stage(i,ip,ctx, r,g,b,a);
-}
-static void clut_2D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
-    const skcms_A2B* a2b = *ctx->args++;
-    clut_2_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
-    next_stage(i,ip,ctx, r,g,b,a);
 }
 static void clut_3D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_A2B* a2b = *ctx->args++;
@@ -1193,8 +1172,6 @@ bool skcms_Transform(const void*             src,
                     *args++ =        sa.arg;
                 }
                 switch (srcProfile->A2B.input_channels) {
-                    case 1: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_1D_8 : clut_1D_16); break;
-                    case 2: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_2D_8 : clut_2D_16); break;
                     case 3: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_3D_8 : clut_3D_16); break;
                     case 4: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_4D_8 : clut_4D_16); break;
                     default: return false;
