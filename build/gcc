@@ -1,5 +1,5 @@
 cc     = gcc
-cflags = -fdiagnostics-color -Wall -Wextra
+cflags = -std=c11 -fdiagnostics-color -Wall -Wextra
 out    = out/gcc$mode
 
 include build/local
