@@ -28,3 +28,16 @@ CLUT : 17 x 17 x 17 (8 bpp)
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
   B2 : 8-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+252 random bytes transformed to linear XYZD50 bytes:
+	6fa094 d8f243 a7d043 825cbe 8365c0 a39f15 5c8161
+	a871bd 5a5249 aa8b81 d2f028 a6cb1b 729e83 937fb7
+	eef4d1 8cbccd eafab5 97ba4e 8c67be c3d51b c9aec8
+	a166b5 4236bc effcbc b88dc4 e3f77a 6659b1 9dc9af
+	898f6a 917bb7 8563c0 edf9b5 e5f6d3 bf9ac6 73bf25
+	e0f4d2 8cad4d 733c2e 618371 282e29 4e54c0 6168af
+	5350ae 6b790f 8fbdce 353366 7ab533 7d6244 ddd4cd
+	eefbb7 e7e6d1 926a79 608470 95c2a2 603f77 8ccb4f
+	97c267 bac41a 7c5daa 767528 4a40bd 2f1ca0 796760
+	cfc8cc ac90bc 8ecc2e 9d6eb0 8852a9 7175b1 c2dad0
+	81b95a 8a86c5 5644a3 774525 a6d92b 180c68 9bbbcd
+	9fcf42 9a6fb3 7d8a7c 90726d 8fbeab 7f6259 9cb4cb
