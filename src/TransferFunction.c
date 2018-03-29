@@ -11,6 +11,7 @@
 #include "TransferFunction.h"
 #include <assert.h>
 #include <math.h>
+#include <string.h>
 
 // Enable to do thorough logging of the nonlinear regression to stderr
 #if 0
@@ -46,6 +47,54 @@ typedef struct {
     double e;
 } TF_Nonlinear;
 
+#if defined(__clang__) || defined(__GNUC__)
+    #define small_memcpy __builtin_memcpy
+#else
+    #define small_memcpy memcpy
+#endif
+
+static double log2d(double dx) {
+    float x = (float)dx;
+
+    // The first approximation of log2(x) is its exponent 'e', minus 127.
+    int32_t bits;
+    small_memcpy(&bits, &x, sizeof(bits));
+
+    float e = (float)bits * (1.0f / (1<<23));
+
+    // If we use the mantissa too we can refine the error signficantly.
+    int32_t m_bits = (bits & 0x007fffff) | 0x3f000000;
+    float m;
+    small_memcpy(&m, &m_bits, sizeof(m));
+
+    return (double)(e - 124.225514990f
+                      -   1.498030302f*m
+                      -   1.725879990f/(0.3520887068f + m));
+}
+
+static double exp2d(double dx) {
+    float x = (float)dx;
+
+    float fract = x - floorf(x);
+
+    int32_t bits = (int32_t)((1.0f * (1<<23)) * (x + 121.274057500f
+                                                   -   1.490129070f*fract
+                                                   +  27.728023300f/(4.84252568f - fract)));
+    small_memcpy(&x, &bits, sizeof(x));
+    return (double)x;
+}
+
+static double powd(double x, double y) {
+    // Handling all the integral powers first increases our precision a little.
+    double r = 1.0;
+    while (y >= 1.0) {
+        r *= x;
+        y -= 1.0;
+    }
+
+    return (x == 0) || (x == 1) ? x : r * exp2d(log2d(x) * y);
+}
+
 float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
     float sign = x < 0 ? -1.0f : 1.0f;
     x *= sign;
@@ -57,7 +106,7 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
 static double TF_Nonlinear_eval(const TF_Nonlinear* fn, double x) {
     // We strive to never allow negative ax+b, but values can drift slightly. Guard against NaN.
     double base = fmax(fn->a * x + fn->b, 0.0);
-    return pow(base, fn->g) + fn->e;
+    return powd(base, fn->g) + fn->e;
 }
 
 // Evaluate the gradient of the nonlinear component of fn
@@ -69,10 +118,11 @@ static void tf_eval_gradient_nonlinear(const TF_Nonlinear* fn,
                                        double* d_fn_d_G_at_x) {
     double base = fn->a * x + fn->b;
     if (base > 0.0) {
-        *d_fn_d_A_at_x = fn->g * x * pow(base, fn->g - 1.0);
-        *d_fn_d_B_at_x = fn->g * pow(base, fn->g - 1.0);
+        *d_fn_d_A_at_x = fn->g * x * powd(base, fn->g - 1.0);
+        *d_fn_d_B_at_x = fn->g * powd(base, fn->g - 1.0);
         *d_fn_d_E_at_x = 1.0;
-        *d_fn_d_G_at_x = pow(base, fn->g) * log(base);
+        // Scale by 1/log_2(e)
+        *d_fn_d_G_at_x = powd(base, fn->g) * log2d(base) * 0.69314718;
     } else {
         *d_fn_d_A_at_x = 0.0;
         *d_fn_d_B_at_x = 0.0;
