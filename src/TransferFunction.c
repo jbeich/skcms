@@ -262,26 +262,24 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         fn->a = fn->c;
         fn->c = fn->d = fn->e = fn->f = 0;
     } else {
-        // Do a nonlinear regression on the nonlinear segment. Use a number of guesses for the
-        // initial value of G, because not all values will converge.
-        // TODO: Estimate starting g by examining shape of remaining points (endpoints + median)?
-        bool nonlinear_fit_converged = false;
-        double initial_gammas[] = { 2.2, 2.4, 1.0, 3.0, 0.5 };
-        for (int i = 0; i < ARRAY_COUNT(initial_gammas); ++i) {
-            // Include the 'D' point in the nonlinear regression, so the two pieces are more likely
-            // to line up.
-            int start = lin_points > 0 ? lin_points - 1 : 0;
-            TF_Nonlinear tf = { initial_gammas[i], 1, 0, (double)(start * x_scale), 0 };
-            if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
-                nonlinear_fit_converged = true;
-                fn->g = (float)tf.g;
-                fn->a = (float)tf.a;
-                fn->b = (float)tf.b;
-                fn->e = (float)tf.e;
-                break;
-            }
-        }
-        if (!nonlinear_fit_converged) {
+        // Do a nonlinear regression on the nonlinear segment. Include the 'D' point in the
+        // nonlinear regression, so the two pieces are more likely to line up.
+        int start = lin_points > 0 ? lin_points - 1 : 0;
+
+        // We need G to be in right vicinity, or the regression may not converge. Solve exactly for
+        // for midpoint of the nonlinear range, assuming B = E = 0 & A = 1.
+        int mid = (start + n) / 2;
+        double mid_x = mid / (n - 1.0);
+        double mid_y = (double)t(mid, ctx);
+        double mid_g = log(mid_y) / log(mid_x);
+        TF_Nonlinear tf = { mid_g, 1, 0, (double)(start * x_scale), 0 };
+
+        if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
+            fn->g = (float)tf.g;
+            fn->a = (float)tf.a;
+            fn->b = (float)tf.b;
+            fn->e = (float)tf.e;
+        } else {
             return false;
         }
     }
