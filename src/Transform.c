@@ -197,13 +197,13 @@ SI I32 to_fixed(F f) { return CAST(I32, f + 0.5f); }
     SI U16 swap_endian_16(U16 v) {
         return (U16)vrev16_u8((uint8x8_t) v);
     }
-#else
-    // Passing by U64* instead of U64 avoids ABI warnings.  It's all moot when inlined.
-    SI void swap_endian_16x4(U64* rgba) {
-        *rgba = (*rgba & 0x00ff00ff00ff00ff) << 8
-              | (*rgba & 0xff00ff00ff00ff00) >> 8;
-    }
 #endif
+
+// Passing by U64* instead of U64 avoids ABI warnings.  It's all moot when inlined.
+SI void swap_endian_16x4(U64* rgba) {
+    *rgba = (*rgba & 0x00ff00ff00ff00ff) << 8
+          | (*rgba & 0xff00ff00ff00ff00) >> 8;
+}
 
 #if defined(USING_NEON)
     SI F min_(F x, F y) { return vminq_f32(x,y); }
@@ -830,10 +830,15 @@ SI U16 gather_16(const uint8_t* p, I32 ix) {
 }
 
 #if !defined(__AVX2__)
-    // Helper for gather_24(), loading the ix'th 24-bit value from p, and one extra byte.
+    // Helpers for gather_24/48(), loading the ix'th 24/48-bit value from p, and 1/2 extra bytes.
     SI uint32_t load_24_32(const uint8_t* p, int ix) {
         uint32_t v;
         small_memcpy(&v, p + 3*ix, 4);
+        return v;
+    }
+    SI uint64_t load_48_64(const uint8_t* p, int ix) {
+        uint64_t v;
+        small_memcpy(&v, p + 6*ix, 8);
         return v;
     }
 #endif
@@ -841,7 +846,7 @@ SI U16 gather_16(const uint8_t* p, I32 ix) {
 SI U32 gather_24(const uint8_t* p, I32 ix) {
     // First, back up a byte.  Any place we're gathering from has a safe junk byte to read
     // in front of it, either a previous table value, or some tag metadata.
-    p--;
+    p -= 1;
 
     // Now load multiples of 4 bytes (a junk byte, then r,g,b).
 #if N == 1
@@ -855,18 +860,48 @@ SI U32 gather_24(const uint8_t* p, I32 ix) {
     // I don't think the instruction behind _mm256_i32gather_epi32() needs any particular
     // alignment, but the intrinsic takes a const int*.
     const int* p4;
-    memcpy(&p4, &p, sizeof(p4));
+    small_memcpy(&p4, &p, sizeof(p4));
     U32 v = (U32)_mm256_i32gather_epi32(p4, (__m256i)(3*ix), 1);
 #elif N == 16
     // The intrinsic is supposed to take const void* now, but it takes const int*, just like AVX2.
     // And AVX-512 swapped the order of arguments.  :/
     const int* p4;
-    memcpy(&p4, &p, sizeof(p4));
+    small_memcpy(&p4, &p, sizeof(p4));
     U32 v = (U32)_mm512_i32gather_epi32((__m512i)(3*ix), p4, 1);
 #endif
 
     // Shift off the junk byte, leaving r,g,b in low 24 bits (and zero in the top 8).
     return v >> 8;
+}
+
+SI void gather_48(const uint8_t* p, I32 ix, U64* v) {
+    // As in gather_24(), with everything doubled.
+    p -= 2;
+
+#if N == 1
+    *v = load_48_64(p,ix);
+#elif N == 4
+    *v = (U64){load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3])};
+#elif N == 8 && !defined(__AVX2__)
+    *v = (U64){load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
+               load_48_64(p,ix[4]), load_48_64(p,ix[5]), load_48_64(p,ix[6]), load_48_64(p,ix[7])};
+#elif N == 8
+    const long long int* p8;
+    small_memcpy(&p8, &p, sizeof(p8));
+    __m256i lo = _mm256_i32gather_epi64(p8, _mm256_extracti128_si256((__m256i)(6*ix), 0), 1),
+            hi = _mm256_i32gather_epi64(p8, _mm256_extracti128_si256((__m256i)(6*ix), 1), 1);
+    small_memcpy((char*)v +  0, &lo, 32);
+    small_memcpy((char*)v + 32, &hi, 32);
+#elif N == 16
+    const long long int* p8;
+    small_memcpy(&p8, &p, sizeof(p8));
+    __m512i lo = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 0), p8, 1),
+            hi = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 1), p8, 1);
+    small_memcpy((char*)v +  0, &lo, 64);
+    small_memcpy((char*)v + 64, &hi, 64);
+#endif
+
+    *v >>= 16;
 }
 
 SI F F_from_U8(U8 v) {
@@ -1024,15 +1059,14 @@ SI void clut_0_8(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a
     (void)stride;
 }
 SI void clut_0_16(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
-    // TODO: same trick as above, using 64-bit loads or gathers to grab the 48 bits we need.
-#if 0
-    U64 rgb = gather_48(a2b->grid_16, ix);
-    // etc.
-#else
-    *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
-    *g = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+1));
-    *b = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+2));
-#endif
+    U64 rgb;
+    gather_48(a2b->grid_16, ix, &rgb);
+    swap_endian_16x4(&rgb);
+
+    *r = CAST(F, (rgb >>  0) & 0xffff) * (1/65535.0f);
+    *g = CAST(F, (rgb >> 16) & 0xffff) * (1/65535.0f);
+    *b = CAST(F, (rgb >> 32) & 0xffff) * (1/65535.0f);
+
     (void)a;
     (void)stride;
 }
