@@ -1,0 +1,56 @@
+                Size : 0x000B4D98 : 740760
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+           Tag count : 0x00000018 : 24
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'desc' :    140 : 420
+ 'cprt' : 'text' :     74 : 560
+ 'dmnd' : 'desc' :    115 : 636
+ 'dmdd' : 'desc' :    101 : 752
+ 'lumi' : 'XYZ ' :     20 : 856
+ 'wtpt' : 'XYZ ' :     20 : 876
+ 'bkpt' : 'XYZ ' :     20 : 896
+ 'vcgt' : 'vcgt' :   1554 : 916
+ 'A2B0' : 'mft2' : 227980 : 2472
+ 'rXYZ' : 'XYZ ' :     20 : 230452
+ 'gXYZ' : 'XYZ ' :     20 : 230472
+ 'bXYZ' : 'XYZ ' :     20 : 230492
+ 'rTRC' : 'curv' :    524 : 230512
+ 'gTRC' : 'curv' :    524 : 231036
+ 'bTRC' : 'curv' :    524 : 231560
+ 'A2B1' : 'mft2' : 227980 : 2472
+ 'B2A1' : 'mft2' : 241786 : 232084
+ 'B2A0' : 'mft2' : 241786 : 473872
+ 'targ' : 'text' :  22712 : 715660
+ 'DevD' : 'text' :  22712 : 715660
+ 'CIED' : 'text' :  22712 : 715660
+ 'chrm' : 'chrm' :     36 : 738372
+ 'mmod' : 'mmod' :     40 : 738408
+ 'meta' : 'dict' :   2312 : 738448
+
+rTRC : 16-bit table with 256 entries
+  ~= : 2.05393, 1.08636, -0.0255615, 0.00834955, 0.0235294, 0.00275461, 0  (Max error: 0.13)
+gTRC : 16-bit table with 256 entries
+  ~= : 2.03839, 1.08862, -0.0256145, 0.00496109, 0.0235294, 0.00242891, 0  (Max error: 0.14)
+bTRC : 16-bit table with 256 entries
+  ~= : 2.06593, 1.08316, -0.0254861, 0, 0.0235294, 0, 0  (Max error: 0.12)
+ XYZ : | 0.436737061 0.380325317 0.147140503 |
+       | 0.217636108 0.729843140 0.052520752 |
+       | 0.002655029 0.064407349 0.757827759 |
+ A2B : "A", CLUT, "B"
+ "A" : 3 inputs
+  A0 : 16-bit table with 2049 entries
+  ~= : 0.987597, 1.01032, -0.100686, 1.00002, 0.125, 0.0916993, 0  (Max error: 0.015)
+  A1 : 16-bit table with 2049 entries
+  ~= : 0.99358, 1.00296, -0.0904871, 1.00002, 0.125, 0.0864261, 0  (Max error: 0.014)
+  A2 : 16-bit table with 2049 entries
+CLUT : 33 x 33 x 33 (16 bpp)
+ "B" : 3 outputs
+  B0 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  B1 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  B2 : 16-bit table with 2 entries
+  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)

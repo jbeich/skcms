@@ -503,6 +503,9 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/misc/sRGB_HP.icc",           &srgb_transfer_fn },
     { "profiles/misc/sRGB_HP_2.icc",         &srgb_transfer_fn },
 
+    // Calibrated monitor profile with non-monotonic TRC tables. We approximate, but badly.
+    { "profiles/misc/DisplayCal_ASUS_NonMonotonic.icc", NULL },
+
     // Hard test profile. Non-invertible XYZ, three separate tables that fail to approximate
     { "profiles/misc/MartiMaria_browsertest_HARD.icc", NULL },
 
