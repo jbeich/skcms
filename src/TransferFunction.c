@@ -10,7 +10,9 @@
 #include "Macros.h"
 #include "TransferFunction.h"
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
+#include <string.h>
 
 // Enable to do thorough logging of the nonlinear regression to stderr
 #if 0
@@ -46,18 +48,86 @@ typedef struct {
     double e;
 } TF_Nonlinear;
 
+#if defined(__clang__) || defined(__GNUC__)
+    #define small_memcpy __builtin_memcpy
+#else
+    #define small_memcpy memcpy
+#endif
+
+static float approx_log2f(float x) {
+    // The first approximation of log2(x) is its exponent 'e', minus 127.
+    int32_t bits;
+    small_memcpy(&bits, &x, sizeof(bits));
+
+    float e = (float)bits * (1.0f / (1<<23));
+
+    // If we use the mantissa too we can refine the error signficantly.
+    int32_t m_bits = (bits & 0x007fffff) | 0x3f000000;
+    float m;
+    small_memcpy(&m, &m_bits, sizeof(m));
+
+    return (e - 124.225514990f
+              -   1.498030302f*m
+              -   1.725879990f/(0.3520887068f + m));
+}
+
+static float approx_exp2f(float x) {
+    float fract = x - floorf(x);
+
+    float fbits = (1.0f * (1<<23)) * (x + 121.274057500f
+                                        -   1.490129070f*fract
+                                        +  27.728023300f/(4.84252568f - fract));
+    if (fbits > INT_MAX) {
+        return INFINITY;
+    }
+    int32_t bits = (int32_t)fbits;
+    small_memcpy(&x, &bits, sizeof(x));
+    return x;
+}
+
+static float approx_powf(float x, float y) {
+    // Handling all the integral powers first increases our precision a little.
+    float r = 1.0f;
+    while (y >= 1.0f) {
+        r *= x;
+        y -= 1.0f;
+    }
+
+    return (x == 0) || (x == 1) ? x : r * approx_exp2f(approx_log2f(x) * y);
+}
+
+static double approx_log2d(double x) {
+    return (double)approx_log2f((float)x);
+}
+
+static double approx_exp2d(double x) {
+    return (double)approx_exp2f((float)x);
+}
+
+static double approx_powd(double x, double y) {
+    (void)approx_powf;
+    // Handling all the integral powers first increases our precision a little.
+    double r = 1.0;
+    while (y >= 1.0) {
+        r *= x;
+        y -= 1.0;
+    }
+
+    return (x == 0) || (x == 1) ? x : r * approx_exp2d(approx_log2d(x) * y);
+}
+
 float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
     float sign = x < 0 ? -1.0f : 1.0f;
     x *= sign;
 
     return sign * (x < fn->d ? fn->c * x + fn->f
-                             : powf(fn->a * x + fn->b, fn->g) + fn->e);
+                             : approx_powf(fn->a * x + fn->b, fn->g) + fn->e);
 }
 
 static double TF_Nonlinear_eval(const TF_Nonlinear* fn, double x) {
     // We strive to never allow negative ax+b, but values can drift slightly. Guard against NaN.
     double base = fmax(fn->a * x + fn->b, 0.0);
-    return pow(base, fn->g) + fn->e;
+    return approx_powd(base, fn->g) + fn->e;
 }
 
 // Evaluate the gradient of the nonlinear component of fn
@@ -69,10 +139,11 @@ static void tf_eval_gradient_nonlinear(const TF_Nonlinear* fn,
                                        double* d_fn_d_G_at_x) {
     double base = fn->a * x + fn->b;
     if (base > 0.0) {
-        *d_fn_d_A_at_x = fn->g * x * pow(base, fn->g - 1.0);
-        *d_fn_d_B_at_x = fn->g * pow(base, fn->g - 1.0);
+        *d_fn_d_A_at_x = fn->g * x * approx_powd(base, fn->g - 1.0);
+        *d_fn_d_B_at_x = fn->g * approx_powd(base, fn->g - 1.0);
         *d_fn_d_E_at_x = 1.0;
-        *d_fn_d_G_at_x = pow(base, fn->g) * log(base);
+        // Scale by 1/log_2(e)
+        *d_fn_d_G_at_x = approx_powd(base, fn->g) * approx_log2d(base) * 0.69314718;
     } else {
         *d_fn_d_A_at_x = 0.0;
         *d_fn_d_B_at_x = 0.0;

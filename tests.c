@@ -503,6 +503,9 @@ static const ProfileTestCase profile_test_cases[] = {
     { "profiles/misc/sRGB_HP.icc",           &srgb_transfer_fn },
     { "profiles/misc/sRGB_HP_2.icc",         &srgb_transfer_fn },
 
+    // Calibrated monitor profile with non-monotonic TRC tables. We approximate, but badly.
+    { "profiles/misc/DisplayCal_ASUS_NonMonotonic.icc", NULL },
+
     // Hard test profile. Non-invertible XYZ, three separate tables that fail to approximate
     { "profiles/misc/MartiMaria_browsertest_HARD.icc", NULL },
 
@@ -898,9 +901,6 @@ static void test_sRGB_AllBytes() {
     for (int i = 0; i < 256; i++) {
         float linear = skcms_TransferFunction_eval(&sRGB.trc[0].parametric, i * (1/255.0f));
         uint8_t expected = (uint8_t)(linear * 255.0f + 0.5f);
-
-        // There is one known failure today:
-        if (i == 220) { expect(expected == 183); expected = 182; }
 
         if (dst[i] != expected) {
             fprintf(stderr, "%d -> %u, want %u\n", i, dst[i], expected);
