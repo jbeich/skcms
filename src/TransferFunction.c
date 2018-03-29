@@ -12,6 +12,32 @@
 #include <assert.h>
 #include <math.h>
 
+// Enable to do thorough logging of the nonlinear regression to stderr
+#if 0
+    #include <stdio.h>
+    #define LOG(...) fprintf(stderr, __VA_ARGS__)
+#else
+    #define LOG(...) do {} while(false)
+#endif
+
+#define LOG_TF(tf)                                              \
+    LOG("[%.25g %.25g %.25g %.25g]\n",                          \
+        tf->g, tf->a, tf->b, tf->e)
+
+#define LOG_VEC(v)                                              \
+    LOG("[%.25g %.25g %.25g %.25g]\n",                          \
+        v.vals[0], v.vals[1], v.vals[2], v.vals[3])
+
+#define LOG_MTX(m)                                              \
+    LOG("| %.25g %.25g %.25g %.25g |\n"                         \
+        "| %.25g %.25g %.25g %.25g |\n"                         \
+        "| %.25g %.25g %.25g %.25g |\n"                         \
+        "| %.25g %.25g %.25g %.25g |\n",                        \
+        m.vals[0][0], m.vals[0][1], m.vals[0][2], m.vals[0][3], \
+        m.vals[1][0], m.vals[1][1], m.vals[1][2], m.vals[1][3], \
+        m.vals[2][0], m.vals[2][1], m.vals[2][2], m.vals[2][3], \
+        m.vals[3][0], m.vals[3][1], m.vals[3][2], m.vals[3][3])
+
 typedef struct {
     double g;
     double a;
@@ -58,6 +84,9 @@ static void tf_eval_gradient_nonlinear(const TF_Nonlinear* fn,
 // Take one Gauss-Newton step updating A, B, E, and G, given D.
 static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, int start, int n,
                                            TF_Nonlinear* fn, double* error_Linfty_after) {
+    LOG("tf_gauss_newton_step_nonlinear (%d, %d)\n", start, n);
+    LOG("fn: "); LOG_TF(fn);
+
     // Let ne_lhs be the left hand side of the normal equations, and let ne_rhs
     // be the right hand side. Zero the diagonal [sic] of |ne_lhs| and all of |ne_rhs|.
     skcms_Matrix4x4 ne_lhs;
@@ -72,13 +101,17 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     // Add the contributions from each sample to the normal equations.
     for (int i = start; i < n; ++i) {
         double xi = i / (n - 1.0);
+        LOG("%d (%.25g)\n", i, xi);
+
         // Let J be the gradient of fn with respect to parameters A, B, E, and G,
         // evaulated at this point.
         skcms_Vector4 J;
         tf_eval_gradient_nonlinear(fn, xi, &J.vals[0], &J.vals[1], &J.vals[2], &J.vals[3]);
+        LOG("J: "); LOG_VEC(J);
 
         // Let r be the residual at this point;
         double r = (double)t(i, ctx) - TF_Nonlinear_eval(fn, xi);
+        LOG("r: %.25g\n", r);
 
         // Update the normal equations left hand side with the outer product of J
         // with itself.
@@ -91,6 +124,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
             // residual
             ne_rhs.vals[row] += J.vals[row] * r;
         }
+        LOG("LHS/RHS:\n"); LOG_MTX(ne_lhs); LOG_VEC(ne_rhs);
     }
 
     // Note that if G = 1, then the normal equations will be singular
@@ -98,6 +132,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     // To avoid problems, fix E (row/column 3) in these circumstances.
     double kEpsilonForG = 1.0 / 1024.0;
     if (fabs(fn->g - 1.0) < kEpsilonForG) {
+        LOG("G ~= 1, pinning E\n");
         for (int row = 0; row < 4; ++row) {
             double value = (row == 2) ? 1.0 : 0.0;
             ne_lhs.vals[row][2] = value;
@@ -111,8 +146,10 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     if (!skcms_Matrix4x4_invert(&ne_lhs, &ne_lhs_inv)) {
         return false;
     }
+    LOG("LHS Inverse:\n"); LOG_MTX(ne_lhs_inv);
 
     skcms_Vector4 step = skcms_Matrix4x4_Vector4_mul(&ne_lhs_inv, &ne_rhs);
+    LOG("step: "); LOG_VEC(step);
 
     // Update the transfer function.
     fn->a += step.vals[0];
@@ -125,7 +162,9 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
 
     // Ensure that fn be defined at D.
     if (fn->a * fn->d + fn->b < 0.0) {
+        LOG("AD+B = %.25g, ", fn->a * fn->d + fn->b);
         fn->b = -fn->a * fn->d;
+        LOG("B -> %.25g\n", fn->b);
     }
 
     // Compute the Linfinity error.
