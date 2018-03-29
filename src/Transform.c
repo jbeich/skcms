@@ -252,7 +252,7 @@ SI F approx_log2(F x) {
              -   1.725879990f/(0.3520887068f + m);
 }
 
-SI F approx_pow2(F x) {
+SI F approx_exp2(F x) {
     F fract = x - floor_(x);
 
     I32 bits = CAST(I32, (1.0f * (1<<23)) * (x + 121.274057500f
@@ -262,7 +262,7 @@ SI F approx_pow2(F x) {
     return x;
 }
 
-SI F approx_powf(F x, float y) {
+SI F approx_pow(F x, float y) {
     // Handling all the integral powers first increases our precision a little.
     F r = F1;
     while (y >= 1.0f) {
@@ -272,7 +272,7 @@ SI F approx_powf(F x, float y) {
 
     // TODO: The rest of this could perhaps be specialized further knowing 0 <= y < 1.
     assert (0 <= y && y < 1);
-    return (F)if_then_else((x == F0) | (x == F1), x, r * approx_pow2(approx_log2(x) * y));
+    return (F)if_then_else((x == F0) | (x == F1), x, r * approx_exp2(approx_log2(x) * y));
 }
 
 // Return tf(x).
@@ -281,7 +281,7 @@ SI F apply_transfer_function(const skcms_TransferFunction* tf, F x) {
     x *= sign;
 
     F linear    =             tf->c*x + tf->f;
-    F nonlinear = approx_powf(tf->a*x + tf->b, tf->g) + tf->e;
+    F nonlinear = approx_pow(tf->a*x + tf->b, tf->g) + tf->e;
 
     return sign * (F)if_then_else(x < tf->d, linear, nonlinear);
 }
