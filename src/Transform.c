@@ -103,6 +103,13 @@
     #endif
 #endif
 
+// On ARMv7 we tweak the stage calling convention a little to allow passing more registers.
+#if defined(__arm__) && defined(USING_NEON)
+    #define ABI __attribute__((pcs("aapcs-vfp")))
+#else
+    #define ABI
+#endif
+
 // It helps codegen to call __builtin_memcpy() when we know the byte count at compile time.
 #if defined(__clang__) || defined(__GNUC__)
     #define small_memcpy __builtin_memcpy
@@ -335,7 +342,7 @@ typedef struct {
     const void** args; // Pointers to arguments for other stages, in order.
 } Context;
 
-typedef void (*Stage)(int i, void** ip, Context* ctx, F r, F g, F b, F a);
+typedef void (ABI *Stage)(int i, void** ip, Context* ctx, F r, F g, F b, F a);
 
 SI void next_stage(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     Stage next;
@@ -347,7 +354,7 @@ SI void next_stage(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next(i,ip,ctx, r,g,b,a);
 }
 
-static void load_565(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_565(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U16 rgb;
     small_memcpy(&rgb, ctx->src + 2*i, 2*N);
 
@@ -358,7 +365,7 @@ static void load_565(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const uint8_t* rgb = (const uint8_t*)(ctx->src + 3*i);
 #if defined(USING_NEON)
     // There's no uint8x4x3_t or vld3 load for it, so we'll load each rgb pixel one at at time.
@@ -384,7 +391,7 @@ static void load_888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_8888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_8888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U32 rgba;
     small_memcpy(&rgba, ctx->src + 4*i, 4*N);
 
@@ -395,7 +402,7 @@ static void load_8888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_1010102(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_1010102(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U32 rgba;
     small_memcpy(&rgba, ctx->src + 4*i, 4*N);
 
@@ -406,7 +413,7 @@ static void load_1010102(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
@@ -428,7 +435,7 @@ static void load_161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_16161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_16161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 8*i);
     assert( (ptr & 1) == 0 );                    // The src pointer must be 2-byte aligned
     const uint16_t* rgba = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
@@ -451,7 +458,7 @@ static void load_16161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_hhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_hhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 6*i);
     assert( (ptr & 1) == 0 );                   // The src pointer must be 2-byte aligned
     const uint16_t* rgb = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
@@ -472,7 +479,7 @@ static void load_hhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_hhhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_hhhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 8*i);
     assert( (ptr & 1) == 0 );                    // The src pointer must be 2-byte aligned
     const uint16_t* rgba = (const uint16_t*)ptr; // for this cast to const uint16_t* to be safe.
@@ -497,7 +504,7 @@ static void load_hhhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_fff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_fff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 12*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
     const float* rgb = (const float*)ptr;       // for this cast to const float* to be safe.
@@ -515,7 +522,7 @@ static void load_fff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void load_ffff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void load_ffff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->src + 16*i);
     assert( (ptr & 3) == 0 );                   // The src pointer must be 4-byte aligned
     const float* rgba = (const float*)ptr;      // for this cast to const float* to be safe.
@@ -534,7 +541,7 @@ static void load_ffff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void store_565(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_565(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U16 rgb = CAST(U16, to_fixed(r * 31) <<  0 )
             | CAST(U16, to_fixed(g * 63) <<  5 )
             | CAST(U16, to_fixed(b * 31) << 11 );
@@ -543,7 +550,7 @@ static void store_565(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uint8_t* rgb = (uint8_t*)ctx->dst + 3*i;
 #if defined(USING_NEON)
     // Same deal as load_888 but in reverse... we'll store using uint8x8x3_t, but
@@ -567,7 +574,7 @@ static void store_888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_8888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_8888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U32 rgba = CAST(U32, to_fixed(r * 255) <<  0)
              | CAST(U32, to_fixed(g * 255) <<  8)
              | CAST(U32, to_fixed(b * 255) << 16)
@@ -576,7 +583,7 @@ static void store_8888(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_1010102(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_1010102(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     U32 rgba = CAST(U32, to_fixed(r * 1023) <<  0)
              | CAST(U32, to_fixed(g * 1023) << 10)
              | CAST(U32, to_fixed(b * 1023) << 20)
@@ -585,7 +592,7 @@ static void store_1010102(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 6*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
@@ -608,7 +615,7 @@ static void store_161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_16161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_16161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 8*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgba = (uint16_t*)ptr;            // for this cast to uint16_t* to be safe.
@@ -631,7 +638,7 @@ static void store_16161616(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_hhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_hhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 6*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;             // for this cast to uint16_t* to be safe.
@@ -655,7 +662,7 @@ static void store_hhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_hhhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_hhhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 8*i);
     assert( (ptr & 1) == 0 );                   // The dst pointer must be 2-byte aligned
     uint16_t* rgba = (uint16_t*)ptr;            // for this cast to uint16_t* to be safe.
@@ -682,7 +689,7 @@ static void store_hhhh(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_fff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_fff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 12*i);
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgb = (float*)ptr;                   // for this cast to float* to be safe.
@@ -702,7 +709,7 @@ static void store_fff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void store_ffff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void store_ffff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     uintptr_t ptr = (uintptr_t)(ctx->dst + 16*i);
     assert( (ptr & 3) == 0 );                   // The dst pointer must be 4-byte aligned
     float* rgba = (float*)ptr;                  // for this cast to float* to be safe.
@@ -723,11 +730,11 @@ static void store_ffff(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     (void)ip;
 }
 
-static void swap_rb(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void swap_rb(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, b,g,r,a);
 }
 
-static void invert(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void invert(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     r = F1 - r;
     g = F1 - g;
     b = F1 - b;
@@ -735,7 +742,7 @@ static void invert(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void unpremul(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void unpremul(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     F scale = (F)if_then_else(F1 / a < INFINITY, F1 / a, F0);
     r *= scale;
     g *= scale;
@@ -743,14 +750,14 @@ static void unpremul(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void premul(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void premul(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     r *= a;
     g *= a;
     b *= a;
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void clamp(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void clamp(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     r = max_(F0, min_(r, F1));
     g = max_(F0, min_(g, F1));
     b = max_(F0, min_(b, F1));
@@ -758,31 +765,31 @@ static void clamp(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void force_opaque(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void force_opaque(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     a = F1;
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void tf_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void tf_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
     r = apply_transfer_function(tf, r);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void tf_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void tf_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
     g = apply_transfer_function(tf, g);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void tf_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void tf_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
     b = apply_transfer_function(tf, b);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
 // Applied to the 'a' channel when using 4-channel input, i.e. CMYK.  So think 'tf_K'.
-static void tf_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void tf_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_TransferFunction* tf = *ctx->args++;
     a = apply_transfer_function(tf, a);
     next_stage(i,ip,ctx, r,g,b,a);
@@ -956,39 +963,39 @@ SI F table_16(const skcms_Curve* curve, F v) {
     return l + (h-l)*t;
 }
 
-static void table_8_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void table_8_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     r = table_8(*ctx->args++, r);
     next_stage(i,ip,ctx, r,g,b,a);
 }
-static void table_16_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void table_16_r(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     r = table_16(*ctx->args++, r);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void table_8_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void table_8_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     g = table_8(*ctx->args++, g);
     next_stage(i,ip,ctx, r,g,b,a);
 }
-static void table_16_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void table_16_g(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     g = table_16(*ctx->args++, g);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
-static void table_8_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void table_8_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     b = table_8(*ctx->args++, b);
     next_stage(i,ip,ctx, r,g,b,a);
 }
-static void table_16_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void table_16_b(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     b = table_16(*ctx->args++, b);
     next_stage(i,ip,ctx, r,g,b,a);
 }
 
 // Applied to the 'a' channel when using 4-channel input, i.e. CMYK.  So think 'table_{8,16}_K'.
-static void table_8_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void table_8_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     a = table_8(*ctx->args++, a);
     next_stage(i,ip,ctx, r,g,b,a);
 }
-static void table_16_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void table_16_a(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     a = table_16(*ctx->args++, a);
     next_stage(i,ip,ctx, r,g,b,a);
 }
@@ -1025,7 +1032,7 @@ SI StageAndArg select_curve_stage(const skcms_Curve* curve, int channel) {
     return (StageAndArg){NULL,NULL};
 }
 
-static void matrix_3x3(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void matrix_3x3(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_Matrix3x3* matrix = *ctx->args++;
     const float* m = &matrix->vals[0][0];
 
@@ -1036,7 +1043,7 @@ static void matrix_3x3(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     next_stage(i,ip,ctx, R,G,B,a);
 }
 
-static void matrix_3x4(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void matrix_3x4(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_Matrix3x4* matrix = *ctx->args++;
     const float* m = &matrix->vals[0][0];
 
@@ -1116,30 +1123,30 @@ DEF_CLUT(3,2,16)
 DEF_CLUT(4,3,16)
 
 // Now the stages that just call into the various implementations above.
-static void clut_3D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void clut_3D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_A2B* a2b = *ctx->args++;
     clut_3_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
     next_stage(i,ip,ctx, r,g,b,a);
 }
-static void clut_4D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void clut_4D_8(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_A2B* a2b = *ctx->args++;
     clut_4_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
     // 'a' was really a CMYK K, so our output is actually opaque.
     next_stage(i,ip,ctx, r,g,b,F1);
 }
-static void clut_3D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void clut_3D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_A2B* a2b = *ctx->args++;
     clut_3_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
     next_stage(i,ip,ctx, r,g,b,a);
 }
-static void clut_4D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void clut_4D_16(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     const skcms_A2B* a2b = *ctx->args++;
     clut_4_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
     // 'a' was really a CMYK K, so our output is actually opaque.
     next_stage(i,ip,ctx, r,g,b,F1);
 }
 
-static void lab_to_xyz(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
+ABI static void lab_to_xyz(int i, void** ip, Context* ctx, F r, F g, F b, F a) {
     // The L*a*b values are in r,g,b, but have been normalized to [0,1].  Reconstruct them:
     F L = r * 100.0f,
       A = g * 255.0f - 128.0f,
