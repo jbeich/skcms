@@ -1007,6 +1007,10 @@ SI StageAndArg select_curve_stage(const skcms_Curve* curve, int channel) {
     };
 
     if (curve->table_entries == 0) {
+        static const skcms_TransferFunction I = {1,1,0,0,0,0,0};
+        if (0 == memcmp(&I, &curve->parametric, sizeof(I))) {
+            return (StageAndArg){NULL,NULL};
+        }
         return (StageAndArg){ stages[channel].parametric, &curve->parametric };
     } else if (curve->table_8) {
         return (StageAndArg){ stages[channel].table_8,  curve };
@@ -1249,8 +1253,10 @@ bool skcms_Transform(const void*             src,
             if (srcProfile->A2B.input_channels) {
                 for (int i = 0; i < (int)srcProfile->A2B.input_channels; i++) {
                     StageAndArg sa = select_curve_stage(&srcProfile->A2B.input_curves[i], i);
-                    *ip++   = (void*)sa.stage;
-                    *args++ =        sa.arg;
+                    if (sa.stage) {
+                        *ip++   = (void*)sa.stage;
+                        *args++ =        sa.arg;
+                    }
                 }
                 switch (srcProfile->A2B.input_channels) {
                     case 3: *ip++ = (void*)(srcProfile->A2B.grid_8 ? clut_3D_8 : clut_3D_16); break;
@@ -1263,18 +1269,30 @@ bool skcms_Transform(const void*             src,
             if (srcProfile->A2B.matrix_channels == 3) {
                 for (int i = 0; i < 3; i++) {
                     StageAndArg sa = select_curve_stage(&srcProfile->A2B.matrix_curves[i], i);
-                    *ip++   = (void*)sa.stage;
-                    *args++ =        sa.arg;
+                    if (sa.stage) {
+                        *ip++   = (void*)sa.stage;
+                        *args++ =        sa.arg;
+                    }
                 }
-                *ip++   = (void*)matrix_3x4;
-                *args++ = &srcProfile->A2B.matrix;
+
+                static const skcms_Matrix3x4 I = {{
+                    {1,0,0,0},
+                    {0,1,0,0},
+                    {0,0,1,0},
+                }};
+                if (0 != memcmp(&I, &srcProfile->A2B.matrix, sizeof(I))) {
+                    *ip++   = (void*)matrix_3x4;
+                    *args++ = &srcProfile->A2B.matrix;
+                }
             }
 
             if (srcProfile->A2B.output_channels == 3) {
                 for (int i = 0; i < 3; i++) {
                     StageAndArg sa = select_curve_stage(&srcProfile->A2B.output_curves[i], i);
-                    *ip++   = (void*)sa.stage;
-                    *args++ =        sa.arg;
+                    if (sa.stage) {
+                        *ip++   = (void*)sa.stage;
+                        *args++ =        sa.arg;
+                    }
                 }
             }
 
@@ -1285,8 +1303,10 @@ bool skcms_Transform(const void*             src,
         } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
             for (int i = 0; i < 3; i++) {
                 StageAndArg sa = select_curve_stage(&srcProfile->trc[i], i);
-                *ip++   = (void*)sa.stage;
-                *args++ =        sa.arg;
+                if (sa.stage) {
+                    *ip++   = (void*)sa.stage;
+                    *args++ =        sa.arg;
+                }
             }
         } else {
             return false;
