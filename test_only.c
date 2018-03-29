@@ -68,21 +68,21 @@ static void dump_transform_to_XYZD50(FILE* fp, const skcms_ICCProfile* profile) 
         npixels = 63;
     }
 
-    uint8_t dst[252];
+    uint16_t dst[252];
 
-    if (!skcms_Transform(k252_bytes,                fmt, skcms_AlphaFormat_Unpremul, profile,
-                         dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &XYZD50,
+    if (!skcms_Transform(k252_bytes,                   fmt, skcms_AlphaFormat_Unpremul, profile,
+                         dst, skcms_PixelFormat_RGB_161616, skcms_AlphaFormat_Unpremul, &XYZD50,
                          npixels)) {
         fprintf(fp, "We can parse this profile, but not transform it XYZD50!\n");
         return;
     }
 
-    fprintf(fp, "252 random bytes transformed to linear XYZD50 bytes:\n");
+    fprintf(fp, "252 random bytes transformed to linear XYZD50 big-endian 16-bit values:\n");
     // 252 = 3 * 3 * 7 * 4, so we will print either 9 or 12 rows of 7 XYZ values here.
     for (size_t i = 0; i < npixels; i += 7) {
         fprintf(fp, "\t"
-                    "%02x%02x%02x %02x%02x%02x %02x%02x%02x %02x%02x%02x "
-                    "%02x%02x%02x %02x%02x%02x %02x%02x%02x\n",
+                    "%04x%04x%04x %04x%04x%04x %04x%04x%04x %04x%04x%04x "
+                    "%04x%04x%04x %04x%04x%04x %04x%04x%04x\n",
                 dst[3*i+ 0], dst[3*i+ 1], dst[3*i+ 2],
                 dst[3*i+ 3], dst[3*i+ 4], dst[3*i+ 5],
                 dst[3*i+ 6], dst[3*i+ 7], dst[3*i+ 8],
