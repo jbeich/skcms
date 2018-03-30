@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6def3c2d_f4684021",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-03-30T13:51:32Z",
+      "side": 1,
+      "message": "Walk me through this one?\n\nHere\u0027s my thinking backwards:\n   1) We\u0027re dividing by zero.\n   2) log(mid_x) \u003d\u003d 0\n   3) mid_x \u003d\u003d 1\n   4) mid \u003d\u003d n - 1\n   5) start \u003d\u003d n - 2\n\nThat means we\u0027ve got two points for the non-linear segment, right?  We can just set g \u003d\u003d 1 and calculate a,b,e to fit the line between the two?",
+      "revId": "bfb2b55061cfa2dbaba090b50563165d1da30f66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
