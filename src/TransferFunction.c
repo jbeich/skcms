@@ -10,6 +10,7 @@
 #include "Macros.h"
 #include "TransferFunction.h"
 #include <assert.h>
+#include <float.h>
 #include <limits.h>
 #include <math.h>
 #include <string.h>
@@ -88,9 +89,10 @@ static float approx_exp2f(float x) {
 }
 
 static float approx_powf(float x, float y) {
-    // Handling all the integral powers first increases our precision a little.
+    // Handling all the integral powers first increases our precision a little. If y is very large,
+    // this loop may never terminate, but for any reasonably large y, the approximation is fine.
     float r = 1.0f;
-    while (y >= 1.0f) {
+    while (y >= 1.0f && y < 32) {
         r *= x;
         y -= 1.0f;
     }
@@ -361,6 +363,12 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         fn->b = fn->f;
         fn->a = fn->c;
         fn->c = fn->d = fn->e = fn->f = 0;
+    } else if (lin_points == n - 1) {
+        // Degenerate case with only two points in the nonlinear segment. Solve directly.
+        fn->g = 1;
+        fn->a = (t(n - 1, ctx) - t(n - 2, ctx)) * (n - 1);
+        fn->b = t(n - 2, ctx) - (fn->a * (n - 2) * x_scale);
+        fn->e = 0;
     } else {
         // Do a nonlinear regression on the nonlinear segment. Include the 'D' point in the
         // nonlinear regression, so the two pieces are more likely to line up.
