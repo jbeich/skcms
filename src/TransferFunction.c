@@ -10,6 +10,7 @@
 #include "Macros.h"
 #include "TransferFunction.h"
 #include <assert.h>
+#include <float.h>
 #include <limits.h>
 #include <math.h>
 #include <string.h>
@@ -88,9 +89,10 @@ static float approx_exp2f(float x) {
 }
 
 static float approx_powf(float x, float y) {
-    // Handling all the integral powers first increases our precision a little.
+    // Handling all the integral powers first increases our precision a little. If y is very large,
+    // this loop may never terminate, but for any reasonably large y, the approximation is fine.
     float r = 1.0f;
-    while (y >= 1.0f) {
+    while (y >= 1.0f && y < 32) {
         r *= x;
         y -= 1.0f;
     }
@@ -371,7 +373,7 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         int mid = (start + n) / 2;
         double mid_x = mid / (n - 1.0);
         double mid_y = (double)t(mid, ctx);
-        double mid_g = log(mid_y) / log(mid_x);
+        double mid_g = log(mid_y) / fmin(log(mid_x), -FLT_MIN);
         TF_Nonlinear tf = { mid_g, 1, 0, (double)(start * x_scale), 0 };
 
         if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
