@@ -650,14 +650,87 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
     return (OpAndArg){Op_noop,NULL};
 }
 
-static void exec_ops(const Op* ops, const void** args,
-                     const char* src, char* dst, int i) {
+#define kMaxOps 32
+
+static void exec_ops(const Op* ops, int nops, const void** args,
+                     const char* src, char* dst, const int i) {
     F r = F0, g = F0, b = F0, a = F0;
+
+#if defined(__GNUC__) || defined(__clang__)
+    // We can use computed goto to accelerate Op dispatch.
+    static const void* kAllLabels[] = {
+        &&L_Op_noop,
+
+        &&L_Op_load_565,
+        &&L_Op_load_888,
+        &&L_Op_load_8888,
+        &&L_Op_load_1010102,
+        &&L_Op_load_161616,
+        &&L_Op_load_16161616,
+        &&L_Op_load_hhh,
+        &&L_Op_load_hhhh,
+        &&L_Op_load_fff,
+        &&L_Op_load_ffff,
+
+        &&L_Op_swap_rb,
+        &&L_Op_clamp,
+        &&L_Op_invert,
+        &&L_Op_force_opaque,
+        &&L_Op_premul,
+        &&L_Op_unpremul,
+
+        &&L_Op_matrix_3x3,
+        &&L_Op_matrix_3x4,
+        &&L_Op_lab_to_xyz,
+
+        &&L_Op_tf_r,
+        &&L_Op_tf_g,
+        &&L_Op_tf_b,
+        &&L_Op_tf_a,
+        &&L_Op_table_8_r,
+        &&L_Op_table_8_g,
+        &&L_Op_table_8_b,
+        &&L_Op_table_8_a,
+        &&L_Op_table_16_r,
+        &&L_Op_table_16_g,
+        &&L_Op_table_16_b,
+        &&L_Op_table_16_a,
+
+        &&L_Op_clut_3D_8,
+        &&L_Op_clut_3D_16,
+        &&L_Op_clut_4D_8,
+        &&L_Op_clut_4D_16,
+
+        &&L_Op_store_565,
+        &&L_Op_store_888,
+        &&L_Op_store_8888,
+        &&L_Op_store_1010102,
+        &&L_Op_store_161616,
+        &&L_Op_store_16161616,
+        &&L_Op_store_hhh,
+        &&L_Op_store_hhhh,
+        &&L_Op_store_fff,
+        &&L_Op_store_ffff,
+    };
+    const void* labels[kMaxOps];
+    for (int j = 0; j < nops; j++) {
+        labels[j] = kAllLabels[ops[j]];
+    }
+    const void** label = labels;
+    #define CASE(op) L_##op: case op
+    #define NEXT_OP goto **label++
+    NEXT_OP;
+#else
+    // Just an ordinary big old switch.
+    #define CASE(op) case op
+    #define NEXT_OP  break
+#endif
+
     while (true) {
         switch (*ops++) {
-            case Op_noop: break;
+            CASE(Op_noop): NEXT_OP;
 
-            case Op_load_565:{
+            CASE(Op_load_565):{
                 U16 rgb;
                 small_memcpy(&rgb, src + 2*i, 2*N);
 
@@ -665,9 +738,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = CAST(F, rgb & (63<< 5)) * (1.0f / (63<< 5));
                 b = CAST(F, rgb & (31<<11)) * (1.0f / (31<<11));
                 a = F1;
-            } break;
+            } NEXT_OP;
 
-            case Op_load_888:{
+            CASE(Op_load_888):{
                 const uint8_t* rgb = (const uint8_t*)(src + 3*i);
             #if defined(USING_NEON)
                 // There's no uint8x4x3_t or vld3 load for it, so we'll load each rgb pixel one at
@@ -691,9 +764,9 @@ static void exec_ops(const Op* ops, const void** args,
                 b = CAST(F, LOAD_3(U32, rgb+2) ) * (1/255.0f);
             #endif
                 a = F1;
-            } break;
+            } NEXT_OP;
 
-            case Op_load_8888:{
+            CASE(Op_load_8888):{
                 U32 rgba;
                 small_memcpy(&rgba, src + 4*i, 4*N);
 
@@ -701,9 +774,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = CAST(F, (rgba >>  8) & 0xff) * (1/255.0f);
                 b = CAST(F, (rgba >> 16) & 0xff) * (1/255.0f);
                 a = CAST(F, (rgba >> 24) & 0xff) * (1/255.0f);
-            } break;
+            } NEXT_OP;
 
-            case Op_load_1010102:{
+            CASE(Op_load_1010102):{
                 U32 rgba;
                 small_memcpy(&rgba, src + 4*i, 4*N);
 
@@ -711,9 +784,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = CAST(F, (rgba >> 10) & 0x3ff) * (1/1023.0f);
                 b = CAST(F, (rgba >> 20) & 0x3ff) * (1/1023.0f);
                 a = CAST(F, (rgba >> 30) & 0x3  ) * (1/   3.0f);
-            } break;
+            } NEXT_OP;
 
-            case Op_load_161616:{
+            CASE(Op_load_161616):{
                 uintptr_t ptr = (uintptr_t)(src + 6*i);
                 assert( (ptr & 1) == 0 );                   // src must be 2-byte aligned for this
                 const uint16_t* rgb = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
@@ -732,9 +805,9 @@ static void exec_ops(const Op* ops, const void** args,
                 b = CAST(F, (B & 0x00ff)<<8 | (B & 0xff00)>>8) * (1/65535.0f);
             #endif
                 a = F1;
-            } break;
+            } NEXT_OP;
 
-            case Op_load_16161616:{
+            CASE(Op_load_16161616):{
                 uintptr_t ptr = (uintptr_t)(src + 8*i);
                 assert( (ptr & 1) == 0 );                    // src must be 2-byte aligned for this
                 const uint16_t* rgba = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
@@ -754,9 +827,9 @@ static void exec_ops(const Op* ops, const void** args,
                 b = CAST(F, (px >> 32) & 0xffff) * (1/65535.0f);
                 a = CAST(F, (px >> 48) & 0xffff) * (1/65535.0f);
             #endif
-            } break;
+            } NEXT_OP;
 
-            case Op_load_hhh:{
+            CASE(Op_load_hhh):{
                 uintptr_t ptr = (uintptr_t)(src + 6*i);
                 assert( (ptr & 1) == 0 );                   // src must be 2-byte aligned for this
                 const uint16_t* rgb = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
@@ -774,9 +847,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = F_from_Half(G);
                 b = F_from_Half(B);
                 a = F1;
-            } break;
+            } NEXT_OP;
 
-            case Op_load_hhhh:{
+            CASE(Op_load_hhhh):{
                 uintptr_t ptr = (uintptr_t)(src + 8*i);
                 assert( (ptr & 1) == 0 );                    // src must be 2-byte aligned for this
                 const uint16_t* rgba = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
@@ -798,9 +871,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = F_from_Half(G);
                 b = F_from_Half(B);
                 a = F_from_Half(A);
-            } break;
+            } NEXT_OP;
 
-            case Op_load_fff:{
+            CASE(Op_load_fff):{
                 uintptr_t ptr = (uintptr_t)(src + 12*i);
                 assert( (ptr & 3) == 0 );                   // src must be 4-byte aligned for this
                 const float* rgb = (const float*)ptr;       // cast to const float* to be safe.
@@ -815,9 +888,9 @@ static void exec_ops(const Op* ops, const void** args,
                 b = LOAD_3(F, rgb+2);
             #endif
                 a = F1;
-            } break;
+            } NEXT_OP;
 
-            case Op_load_ffff:{
+            CASE(Op_load_ffff):{
                 uintptr_t ptr = (uintptr_t)(src + 16*i);
                 assert( (ptr & 3) == 0 );                   // src must be 4-byte aligned for this
                 const float* rgba = (const float*)ptr;      // cast to const float* to be safe.
@@ -833,46 +906,46 @@ static void exec_ops(const Op* ops, const void** args,
                 b = LOAD_4(F, rgba+2);
                 a = LOAD_4(F, rgba+3);
             #endif
-            } break;
+            } NEXT_OP;
 
-            case Op_swap_rb:{
+            CASE(Op_swap_rb):{
                 F t = r;
                 r = b;
                 b = t;
-            } break;
+            } NEXT_OP;
 
-            case Op_clamp:{
+            CASE(Op_clamp):{
                 r = max_(F0, min_(r, F1));
                 g = max_(F0, min_(g, F1));
                 b = max_(F0, min_(b, F1));
                 a = max_(F0, min_(a, F1));
-            } break;
+            } NEXT_OP;
 
-            case Op_invert:{
+            CASE(Op_invert):{
                 r = F1 - r;
                 g = F1 - g;
                 b = F1 - b;
                 a = F1 - a;
-            } break;
+            } NEXT_OP;
 
-            case Op_force_opaque:{
+            CASE(Op_force_opaque):{
                 a = F1;
-            } break;
+            } NEXT_OP;
 
-            case Op_premul:{
+            CASE(Op_premul):{
                 r *= a;
                 g *= a;
                 b *= a;
-            } break;
+            } NEXT_OP;
 
-            case Op_unpremul:{
+            CASE(Op_unpremul):{
                 F scale = (F)if_then_else(F1 / a < INFINITY, F1 / a, F0);
                 r *= scale;
                 g *= scale;
                 b *= scale;
-            } break;
+            } NEXT_OP;
 
-            case Op_matrix_3x3:{
+            CASE(Op_matrix_3x3):{
                 const skcms_Matrix3x3* matrix = *args++;
                 const float* m = &matrix->vals[0][0];
 
@@ -883,9 +956,9 @@ static void exec_ops(const Op* ops, const void** args,
                 r = R;
                 g = G;
                 b = B;
-            } break;
+            } NEXT_OP;
 
-            case Op_matrix_3x4:{
+            CASE(Op_matrix_3x4):{
                 const skcms_Matrix3x4* matrix = *args++;
                 const float* m = &matrix->vals[0][0];
 
@@ -896,9 +969,9 @@ static void exec_ops(const Op* ops, const void** args,
                 r = R;
                 g = G;
                 b = B;
-            } break;
+            } NEXT_OP;
 
-            case Op_lab_to_xyz:{
+            CASE(Op_lab_to_xyz):{
                 // The L*a*b values are in r,g,b, but normalized to [0,1].  Reconstruct them:
                 F L = r * 100.0f,
                   A = g * 255.0f - 128.0f,
@@ -917,57 +990,57 @@ static void exec_ops(const Op* ops, const void** args,
                 r = X * 0.9642f;
                 g = Y          ;
                 b = Z * 0.8249f;
-            } break;
+            } NEXT_OP;
 
-            case Op_tf_r:{ r = apply_transfer_function(*args++, r); } break;
-            case Op_tf_g:{ g = apply_transfer_function(*args++, g); } break;
-            case Op_tf_b:{ b = apply_transfer_function(*args++, b); } break;
-            case Op_tf_a:{ a = apply_transfer_function(*args++, a); } break;
+            CASE(Op_tf_r):{ r = apply_transfer_function(*args++, r); } NEXT_OP;
+            CASE(Op_tf_g):{ g = apply_transfer_function(*args++, g); } NEXT_OP;
+            CASE(Op_tf_b):{ b = apply_transfer_function(*args++, b); } NEXT_OP;
+            CASE(Op_tf_a):{ a = apply_transfer_function(*args++, a); } NEXT_OP;
 
-            case Op_table_8_r: { r = table_8 (*args++, r); } break;
-            case Op_table_8_g: { g = table_8 (*args++, g); } break;
-            case Op_table_8_b: { b = table_8 (*args++, b); } break;
-            case Op_table_8_a: { a = table_8 (*args++, a); } break;
+            CASE(Op_table_8_r): { r = table_8 (*args++, r); } NEXT_OP;
+            CASE(Op_table_8_g): { g = table_8 (*args++, g); } NEXT_OP;
+            CASE(Op_table_8_b): { b = table_8 (*args++, b); } NEXT_OP;
+            CASE(Op_table_8_a): { a = table_8 (*args++, a); } NEXT_OP;
 
-            case Op_table_16_r:{ r = table_16(*args++, r); } break;
-            case Op_table_16_g:{ g = table_16(*args++, g); } break;
-            case Op_table_16_b:{ b = table_16(*args++, b); } break;
-            case Op_table_16_a:{ a = table_16(*args++, a); } break;
+            CASE(Op_table_16_r):{ r = table_16(*args++, r); } NEXT_OP;
+            CASE(Op_table_16_g):{ g = table_16(*args++, g); } NEXT_OP;
+            CASE(Op_table_16_b):{ b = table_16(*args++, b); } NEXT_OP;
+            CASE(Op_table_16_a):{ a = table_16(*args++, a); } NEXT_OP;
 
-            case Op_clut_3D_8:{
+            CASE(Op_clut_3D_8):{
                 const skcms_A2B* a2b = *args++;
                 clut_3_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
-            } break;
+            } NEXT_OP;
 
-            case Op_clut_3D_16:{
+            CASE(Op_clut_3D_16):{
                 const skcms_A2B* a2b = *args++;
                 clut_3_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
-            } break;
+            } NEXT_OP;
 
-            case Op_clut_4D_8:{
+            CASE(Op_clut_4D_8):{
                 const skcms_A2B* a2b = *args++;
                 clut_4_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
-            } break;
+            } NEXT_OP;
 
-            case Op_clut_4D_16:{
+            CASE(Op_clut_4D_16):{
                 const skcms_A2B* a2b = *args++;
                 clut_4_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
-            } break;
+            } NEXT_OP;
 
     // Notice, from here on down the store_ ops all return, ending the loop.
 
-            case Op_store_565: {
+            CASE(Op_store_565): {
                 U16 rgb = CAST(U16, to_fixed(r * 31) <<  0 )
                         | CAST(U16, to_fixed(g * 63) <<  5 )
                         | CAST(U16, to_fixed(b * 31) << 11 );
                 small_memcpy(dst + 2*i, &rgb, 2*N);
             } return;
 
-            case Op_store_888: {
+            CASE(Op_store_888): {
                 uint8_t* rgb = (uint8_t*)dst + 3*i;
             #if defined(USING_NEON)
                 // Same deal as load_888 but in reverse... we'll store using uint8x8x3_t, but
@@ -989,7 +1062,7 @@ static void exec_ops(const Op* ops, const void** args,
             #endif
             } return;
 
-            case Op_store_8888: {
+            CASE(Op_store_8888): {
                 U32 rgba = CAST(U32, to_fixed(r * 255) <<  0)
                          | CAST(U32, to_fixed(g * 255) <<  8)
                          | CAST(U32, to_fixed(b * 255) << 16)
@@ -997,7 +1070,7 @@ static void exec_ops(const Op* ops, const void** args,
                 small_memcpy(dst + 4*i, &rgba, 4*N);
             } return;
 
-            case Op_store_1010102: {
+            CASE(Op_store_1010102): {
                 U32 rgba = CAST(U32, to_fixed(r * 1023) <<  0)
                          | CAST(U32, to_fixed(g * 1023) << 10)
                          | CAST(U32, to_fixed(b * 1023) << 20)
@@ -1005,7 +1078,7 @@ static void exec_ops(const Op* ops, const void** args,
                 small_memcpy(dst + 4*i, &rgba, 4*N);
             } return;
 
-            case Op_store_161616: {
+            CASE(Op_store_161616): {
                 uintptr_t ptr = (uintptr_t)(dst + 6*i);
                 assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
                 uint16_t* rgb = (uint16_t*)ptr;          // for this cast to uint16_t* to be safe.
@@ -1027,7 +1100,7 @@ static void exec_ops(const Op* ops, const void** args,
 
             } return;
 
-            case Op_store_16161616: {
+            CASE(Op_store_16161616): {
                 uintptr_t ptr = (uintptr_t)(dst + 8*i);
                 assert( (ptr & 1) == 0 );               // The dst pointer must be 2-byte aligned
                 uint16_t* rgba = (uint16_t*)ptr;        // for this cast to uint16_t* to be safe.
@@ -1049,7 +1122,7 @@ static void exec_ops(const Op* ops, const void** args,
             #endif
             } return;
 
-            case Op_store_hhh: {
+            CASE(Op_store_hhh): {
                 uintptr_t ptr = (uintptr_t)(dst + 6*i);
                 assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
                 uint16_t* rgb = (uint16_t*)ptr;          // for this cast to uint16_t* to be safe.
@@ -1071,7 +1144,7 @@ static void exec_ops(const Op* ops, const void** args,
             #endif
             } return;
 
-            case Op_store_hhhh: {
+            CASE(Op_store_hhhh): {
                 uintptr_t ptr = (uintptr_t)(dst + 8*i);
                 assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
                 uint16_t* rgba = (uint16_t*)ptr;         // for this cast to uint16_t* to be safe.
@@ -1098,7 +1171,7 @@ static void exec_ops(const Op* ops, const void** args,
 
             } return;
 
-            case Op_store_fff: {
+            CASE(Op_store_fff): {
                 uintptr_t ptr = (uintptr_t)(dst + 12*i);
                 assert( (ptr & 3) == 0 );                // The dst pointer must be 4-byte aligned
                 float* rgb = (float*)ptr;                // for this cast to float* to be safe.
@@ -1116,7 +1189,7 @@ static void exec_ops(const Op* ops, const void** args,
             #endif
             } return;
 
-            case Op_store_ffff: {
+            CASE(Op_store_ffff): {
                 uintptr_t ptr = (uintptr_t)(dst + 16*i);
                 assert( (ptr & 3) == 0 );                // The dst pointer must be 4-byte aligned
                 float* rgba = (float*)ptr;               // for this cast to float* to be safe.
@@ -1185,8 +1258,8 @@ bool skcms_Transform(const void*             src,
     // TODO: this check lazilly disallows U16 <-> F16, but that would actually be fine.
     // TODO: more careful alias rejection (like, dst == src + 1)?
 
-    Op          program  [32];
-    const void* arguments[32];
+    Op          program  [kMaxOps];
+    const void* arguments[kMaxOps];
 
     Op*          ops  = program;
     const void** args = arguments;
@@ -1373,9 +1446,11 @@ bool skcms_Transform(const void*             src,
         case skcms_PixelFormat_RGBA_ffff     >> 1: *ops++ = Op_store_ffff;     break;
     }
 
+    const int nops = (int)(ops-program);
+
     int i = 0;
     while (n >= N) {
-        exec_ops(program, arguments, src, dst, i);
+        exec_ops(program, nops, arguments, src, dst, i);
         i += N;
         n -= N;
     }
@@ -1384,7 +1459,7 @@ bool skcms_Transform(const void*             src,
              tmp_dst[4*4*N] = {0};
 
         memcpy(tmp_src, (const char*)src + (size_t)i*src_bpp, (size_t)n*src_bpp);
-        exec_ops(program, arguments, tmp_src, tmp_dst, 0);
+        exec_ops(program, nops, arguments, tmp_src, tmp_dst, 0);
         memcpy((char*)dst + (size_t)i*dst_bpp, tmp_dst, (size_t)n*dst_bpp);
     }
     return true;

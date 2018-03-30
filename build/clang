@@ -1,5 +1,5 @@
 cc     = clang
-cflags = -fcolor-diagnostics -Weverything -Wno-padded -Wno-float-equal
+cflags = -fcolor-diagnostics -Weverything -Wno-padded -Wno-float-equal -Wno-gnu-label-as-value
 out    = out/clang$mode
 
 include build/local
