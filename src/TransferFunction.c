@@ -192,7 +192,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     // Note that if G = 1, then the normal equations will be singular
     // (because when G = 1, B and E are equivalent parameters).
     // To avoid problems, fix E (row/column 3) in these circumstances.
-    double kEpsilonForG = 1.0 / 1024.0;
+    const double kEpsilonForG = 1.0 / 1024.0;
     if (fabs(fn->g - 1.0) < kEpsilonForG) {
         LOG("G ~= 1, pinning E\n");
         for (int row = 0; row < 4; ++row) {
@@ -262,7 +262,7 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
         }
 
         // Stop if our error is tiny.
-        double kEarlyOutTinyErrorThreshold = (1.0 / 16.0) / 256.0;
+        const double kEarlyOutTinyErrorThreshold = (1.0 / 16.0) / 256.0;
         if (step_error[step] < kEarlyOutTinyErrorThreshold) {
             break;
         }
@@ -292,25 +292,9 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
     }
 
     // Declare failure if our error is obviously too high.
-    double kDidNotConvergeThreshold = 64.0 / 256.0;
+    const double kDidNotConvergeThreshold = 64.0 / 256.0;
     if (step_error[step] > kDidNotConvergeThreshold) {
         return false;
-    }
-
-    // We've converged to a reasonable solution. If some of the parameters are
-    // extremely close to 0 or 1, set them to 0 or 1.
-    const double kRoundEpsilon = 1.0 / 1024.0;
-    if (fabs(fn->a - 1.0) < kRoundEpsilon) {
-        fn->a = 1.0;
-    }
-    if (fabs(fn->b) < kRoundEpsilon) {
-        fn->b = 0;
-    }
-    if (fabs(fn->e) < kRoundEpsilon) {
-        fn->e = 0;
-    }
-    if (fabs(fn->g - 1.0) < kRoundEpsilon) {
-        fn->g = 1.0;
     }
 
     return true;
