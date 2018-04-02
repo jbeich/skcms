@@ -322,38 +322,46 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         return false;
     }
 
-    // Idea: We fit the first N points to the linear portion of the TF. We always construct the
-    // line to pass through the first point. We walk along the points, and find the minimum and
-    // maximum slope of the line before the error would exceed kLinearTolerance. Once the range
-    // [slope_min, slope_max] would be empty, we can't add any more points, so we're done.
+    // Idea: We fit the first N points to the linear portion of the TF. We want the line to pass
+    // through the first and last points exactly, and have a maximum error of kLinearTolerance.
+    //
+    // We walk along the points, and find the minimum and maximum slope of the line before the
+    // error would exceed our tolerance. Once the range [slope_min, slope_max] would be empty,
+    // we definitely can't add any more points, so we're done.
+    //
+    // However, some points error intervals' may intersect the running interval, but not lie within
+    // it. So we keep track of the last point we saw that is a valid candidate for being the end
+    // point, and once the search is done, back up to build the line through *that* point.
 
     // Assume that the values started out as .16 fixed point, and we want them to be almost exactly
     // linear in that representation.
-    const float kLinearTolerance = 0.5f / 65535.0f;
+    const float kLinearTolerance = 1.5f / 65535.0f;
     const float x_scale = 1.0f / (n - 1);
-    const float y0 = t(0, ctx);
 
     int lin_points = 1;
-    float slope_min = -1E6F;
-    float slope_max = 1E6F;
-    for (int i = 1; i < n; ++i, ++lin_points) {
+    fn->f = t(0, ctx);
+    float slope_min = -INFINITY;
+    float slope_max = INFINITY;
+    for (int i = 1; i < n; ++i) {
         float xi = i * x_scale;
         float yi = t(i, ctx);
-        float slope_max_i = (yi + kLinearTolerance - y0) / xi;
-        float slope_min_i = (yi - kLinearTolerance - y0) / xi;
+        float slope_max_i = (yi + kLinearTolerance - fn->f) / xi;
+        float slope_min_i = (yi - kLinearTolerance - fn->f) / xi;
         if (slope_max_i < slope_min || slope_max < slope_min_i) {
             // Slope intervals no longer overlap.
             break;
         }
         slope_max = fminf(slope_max, slope_max_i);
         slope_min = fmaxf(slope_min, slope_min_i);
+        float cur_slope = (yi - fn->f) / xi;
+        if (slope_min <= cur_slope && cur_slope <= slope_max) {
+            lin_points = i + 1;
+            fn->c = cur_slope;
+        }
     }
 
-    // Compute parameters for the linear portion.
     // Pick D so that all points we found above are included (this requires nudging).
     fn->d = nextafterf((lin_points - 1) * x_scale, INFINITY);
-    fn->f = y0;
-    fn->c = (slope_min + slope_max) * 0.5f;
 
     // If the entire data set was linear, move the coefficients to the nonlinear portion with
     // G == 1. This lets use a canonical representation with D == 0.
