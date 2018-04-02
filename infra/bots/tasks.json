@@ -102,13 +102,19 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:7"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:5"
         }
       ],
       "command": [
         "python",
         "skcms/infra/bots/bot.py",
         "ninja",
-        "t"
+        "t",
+        "clang_win"
       ],
       "dimensions": [
         "os:Windows-2016Server",
