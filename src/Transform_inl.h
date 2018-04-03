@@ -1073,6 +1073,11 @@ static void NS(run_program)(const Op* program, const void** arguments,
         NS(exec_ops)(program, arguments, tmp_src, tmp_dst, 0);
         memcpy((char*)dst + (size_t)i*dst_bpp, tmp_dst, (size_t)n*dst_bpp);
     }
+
+    // Clang's pretty good at knowing where to put vzeroupper, but GCC needs a little help.
+#if defined(__GNUC__) && !defined(__clang__) && defined(__AVX__)
+    _mm256_vzeroupper();
+#endif
 }
 
 // Clean up any #defines we may have set so that we can be #included again.
