@@ -380,54 +380,60 @@ SI ATTR U32 NS(gather_24_)(const uint8_t* p, I32 ix) {
 }
 #define gather_24 NS(gather_24_)
 
-SI ATTR void NS(gather_48_)(const uint8_t* p, I32 ix, U64* v) {
-    // As in gather_24(), with everything doubled.
-    p -= 2;
+#if !defined(__arm__)
+    SI ATTR void NS(gather_48_)(const uint8_t* p, I32 ix, U64* v) {
+        // As in gather_24(), with everything doubled.
+        p -= 2;
 
-#if N == 1
-    *v = load_48_64(p,ix);
-#elif N == 4
-    *v = (U64){load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3])};
-#elif N == 8 && !defined(__AVX2__)
-    *v = (U64){load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
-               load_48_64(p,ix[4]), load_48_64(p,ix[5]), load_48_64(p,ix[6]), load_48_64(p,ix[7])};
-#elif N == 8
-    typedef int32_t   __attribute__((vector_size(16))) Half_I32;
-    typedef long long __attribute__((vector_size(32))) Half_I64;
+    #if N == 1
+        *v = load_48_64(p,ix);
+    #elif N == 4
+        *v = (U64){
+            load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
+        };
+    #elif N == 8 && !defined(__AVX2__)
+        *v = (U64){
+            load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
+            load_48_64(p,ix[4]), load_48_64(p,ix[5]), load_48_64(p,ix[6]), load_48_64(p,ix[7]),
+        };
+    #elif N == 8
+        typedef int32_t   __attribute__((vector_size(16))) Half_I32;
+        typedef long long __attribute__((vector_size(32))) Half_I64;
 
-    // The gather instruction here doesn't need any particular alignment,
-    // but the intrinsic takes a const long long*.
-    const long long int* p8;
-    small_memcpy(&p8, &p, sizeof(p8));
+        // The gather instruction here doesn't need any particular alignment,
+        // but the intrinsic takes a const long long*.
+        const long long int* p8;
+        small_memcpy(&p8, &p, sizeof(p8));
 
-    Half_I64 zero = { 0, 0, 0, 0},
-             mask = {-1,-1,-1,-1};
+        Half_I64 zero = { 0, 0, 0, 0},
+                 mask = {-1,-1,-1,-1};
 
-    ix *= 6;
-    Half_I32 ix_lo = { ix[0], ix[1], ix[2], ix[3] },
-             ix_hi = { ix[4], ix[5], ix[6], ix[7] };
+        ix *= 6;
+        Half_I32 ix_lo = { ix[0], ix[1], ix[2], ix[3] },
+                 ix_hi = { ix[4], ix[5], ix[6], ix[7] };
 
-    #if defined(__clang__)
-        Half_I64 lo = (Half_I64)__builtin_ia32_gatherd_q256(zero, p8, ix_lo, mask, 1),
-                 hi = (Half_I64)__builtin_ia32_gatherd_q256(zero, p8, ix_hi, mask, 1);
-    #elif defined(__GNUC__)
-        Half_I64 lo = (Half_I64)__builtin_ia32_gathersiv4di(zero, p8, ix_lo, mask, 1),
-                 hi = (Half_I64)__builtin_ia32_gathersiv4di(zero, p8, ix_hi, mask, 1);
+        #if defined(__clang__)
+            Half_I64 lo = (Half_I64)__builtin_ia32_gatherd_q256(zero, p8, ix_lo, mask, 1),
+                     hi = (Half_I64)__builtin_ia32_gatherd_q256(zero, p8, ix_hi, mask, 1);
+        #elif defined(__GNUC__)
+            Half_I64 lo = (Half_I64)__builtin_ia32_gathersiv4di(zero, p8, ix_lo, mask, 1),
+                     hi = (Half_I64)__builtin_ia32_gathersiv4di(zero, p8, ix_hi, mask, 1);
+        #endif
+        small_memcpy((char*)v +  0, &lo, 32);
+        small_memcpy((char*)v + 32, &hi, 32);
+    #elif N == 16
+        const long long int* p8;
+        small_memcpy(&p8, &p, sizeof(p8));
+        __m512i lo = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 0), p8, 1),
+                hi = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 1), p8, 1);
+        small_memcpy((char*)v +  0, &lo, 64);
+        small_memcpy((char*)v + 64, &hi, 64);
     #endif
-    small_memcpy((char*)v +  0, &lo, 32);
-    small_memcpy((char*)v + 32, &hi, 32);
-#elif N == 16
-    const long long int* p8;
-    small_memcpy(&p8, &p, sizeof(p8));
-    __m512i lo = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 0), p8, 1),
-            hi = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 1), p8, 1);
-    small_memcpy((char*)v +  0, &lo, 64);
-    small_memcpy((char*)v + 64, &hi, 64);
-#endif
 
-    *v >>= 16;
-}
-#define gather_48 NS(gather_48_)
+        *v >>= 16;
+    }
+    #define gather_48 NS(gather_48_)
+#endif
 
 SI ATTR F NS(F_from_U8_)(U8 v) {
     return CAST(F, v) * (1/255.0f);
@@ -496,14 +502,21 @@ SI ATTR void NS(clut_0_8_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g,
     (void)stride;
 }
 SI ATTR void NS(clut_0_16_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
-    U64 rgb;
-    gather_48(a2b->grid_16, ix, &rgb);
-    swap_endian_16x4(&rgb);
+    #if defined(__arm__)
+        // This is up to 2x faster on 32-bit ARM than the #else-case fast path.
+        *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
+        *g = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+1));
+        *b = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+2));
+    #else
+        // This strategy is much faster for 64-bit builds, and fine for 32-bit x86 too.
+        U64 rgb;
+        gather_48(a2b->grid_16, ix, &rgb);
+        swap_endian_16x4(&rgb);
 
-    *r = CAST(F, (rgb >>  0) & 0xffff) * (1/65535.0f);
-    *g = CAST(F, (rgb >> 16) & 0xffff) * (1/65535.0f);
-    *b = CAST(F, (rgb >> 32) & 0xffff) * (1/65535.0f);
-
+        *r = CAST(F, (rgb >>  0) & 0xffff) * (1/65535.0f);
+        *g = CAST(F, (rgb >> 16) & 0xffff) * (1/65535.0f);
+        *b = CAST(F, (rgb >> 32) & 0xffff) * (1/65535.0f);
+    #endif
     (void)a;
     (void)stride;
 }
