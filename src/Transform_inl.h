@@ -496,14 +496,21 @@ SI ATTR void NS(clut_0_8_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g,
     (void)stride;
 }
 SI ATTR void NS(clut_0_16_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
-    U64 rgb;
-    gather_48(a2b->grid_16, ix, &rgb);
-    swap_endian_16x4(&rgb);
+    if (sizeof(void*) == 8) {
+        // This strategy is much faster for 64-bit builds, but up to 2x slower for 32-bit builds.
+        U64 rgb;
+        gather_48(a2b->grid_16, ix, &rgb);
+        swap_endian_16x4(&rgb);
 
-    *r = CAST(F, (rgb >>  0) & 0xffff) * (1/65535.0f);
-    *g = CAST(F, (rgb >> 16) & 0xffff) * (1/65535.0f);
-    *b = CAST(F, (rgb >> 32) & 0xffff) * (1/65535.0f);
-
+        *r = CAST(F, (rgb >>  0) & 0xffff) * (1/65535.0f);
+        *g = CAST(F, (rgb >> 16) & 0xffff) * (1/65535.0f);
+        *b = CAST(F, (rgb >> 32) & 0xffff) * (1/65535.0f);
+    } else {
+        // It's especially important to take this path for 32-bit ARM builds.
+        *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
+        *g = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+1));
+        *b = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+2));
+    }
     (void)a;
     (void)stride;
 }
