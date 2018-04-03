@@ -18,3 +18,5 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction*, skcms_Transfer
 typedef float skcms_TableFunc(int, const void*);
 bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int n,
                                         skcms_TransferFunction*, float* max_error);
+bool skcms_TF23_approximate(skcms_TableFunc* t, const void* ctx, int n,
+                            skcms_TF23*, float* max_error);

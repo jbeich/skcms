@@ -267,6 +267,17 @@ static float table_func_8(int i, const void* ctx) {
     return ((const uint8_t*)ctx)[i] * (1 / 255.0f);
 }
 
+typedef struct {
+    const skcms_TransferFunction* tf;
+    int n;
+} TransferFunctionAndSampleCount;
+
+static float table_func_tf_eval(int i, const void* ctx) {
+    const TransferFunctionAndSampleCount* tfasc = (const TransferFunctionAndSampleCount*)ctx;
+    float xi = i / (tfasc->n - 1.0f);
+    return skcms_TransferFunction_eval(tfasc->tf, xi);
+}
+
 bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
                             float* max_error) {
     if (!curve || !curve->table_entries || !approx) {
@@ -284,6 +295,26 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* ap
         return skcms_TransferFunction_approximate(table_func_8, curve->table_8,
                                                   (int)curve->table_entries, approx, max_error);
     }
+}
+
+bool skcms_ApproximateCurve23(const skcms_Curve* curve, skcms_TF23* approx, float* max_error) {
+    if (!curve || !approx) {
+        return false;
+    }
+
+    if (curve->table_entries == 0) {
+        TransferFunctionAndSampleCount ctx = { &curve->parametric, 256 };
+        return skcms_TF23_approximate(table_func_tf_eval, &ctx, ctx.n,
+                                      approx, max_error);
+    } else if (curve->table_8  && curve->table_entries <= (uint32_t)INT_MAX) {
+        return skcms_TF23_approximate(table_func_8 , curve->table_8 , (int)curve->table_entries,
+                                      approx, max_error);
+    } else if (curve->table_16 && curve->table_entries <= (uint32_t)INT_MAX) {
+        return skcms_TF23_approximate(table_func_16, curve->table_16, (int)curve->table_entries,
+                                      approx, max_error);
+    }
+
+    return false;
 }
 
 // mft1 and mft2 share a large chunk of data

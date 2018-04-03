@@ -420,3 +420,30 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     *dst = fn_inv;
     return true;
 }
+
+// t(x) = target function (table8, table16, 7-parameter parametric) at x
+//
+// f(x) = Ax^3 + Bx^2 + (1-A-B)
+//   df/dA = x^3 - 1
+//   df/dB = x^2 - 1
+//
+// Let e(x) = Σx  ( f(x) - t(x) )^2     (with the L-2 norm chosen for easy differentiation)
+//
+// Gauss-Newton update step is
+//    [A,B]' = [A,B] + ((Jf^T Jf)^-1 Jf^T) r([A,B])
+
+// f(x) in notes above.
+float skcms_TF23_eval(const skcms_TF23* tf, float x) {
+    return (x*x)*(tf->A*x + tf->B)
+         + (1 - tf->A - tf->B);
+}
+
+bool skcms_TF23_approximate(skcms_TableFunc* t, const void* ctx, int n,
+                            skcms_TF23* approx, float* max_error) {
+    (void)t;
+    (void)ctx;
+    (void)n;
+    (void)approx;
+    (void)max_error;
+    return false;
+}

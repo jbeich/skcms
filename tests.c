@@ -1099,6 +1099,26 @@ static void test_CLUT() {
 }
 #endif
 
+static void test_TF23() {
+    skcms_TF23 tf;
+
+    // All cubic.
+    tf = (skcms_TF23){ 1.0f, 0.0f };
+    expect( skcms_TF23_eval(&tf, 0.5f) == 0.125f );
+
+    // All quadratic.
+    tf = (skcms_TF23){ 0.0f, 1.0f };
+    expect( skcms_TF23_eval(&tf, 0.5f) == 0.25f );
+
+    // Somewhere in the middle.
+    tf = (skcms_TF23){ 0.5f, 0.5f };
+    expect( skcms_TF23_eval(&tf, 0.5f) == 0.1875f );
+
+    // Somewhere in the middle, with a bias.
+    tf = (skcms_TF23){ 0.25f, 0.5f };
+    expect( skcms_TF23_eval(&tf, 0.5f) == 0.40625f );
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1128,6 +1148,7 @@ int main(int argc, char** argv) {
 #if 0
     test_CLUT();
 #endif
+    test_TF23();
 
     return 0;
 }

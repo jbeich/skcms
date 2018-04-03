@@ -109,6 +109,13 @@ bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
 bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
                             float* max_error);
 
+// TF23 is a parametric representation of a pure-gamma transfer function where 2 ≤ g ≤ 3.
+typedef struct {
+    float A,B;
+} skcms_TF23;
+float skcms_TF23_eval(const skcms_TF23*, float);
+bool skcms_ApproximateCurve23(const skcms_Curve* curve, skcms_TF23* approx, float* max_error);
+
 typedef struct {
     uint32_t       signature;
     uint32_t       type;
