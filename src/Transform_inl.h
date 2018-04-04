@@ -163,7 +163,7 @@ SI ATTR void NS(swap_endian_16x4_)(U64* rgba) {
 
 SI ATTR F NS(floor__)(F x) {
 #if N == 1
-    return floorf(x);
+    return floorf_(x);
 #elif defined(__aarch64__)
     return vrndmq_f32(x);
 #elif defined(__AVX512F__)
@@ -782,7 +782,7 @@ static void NS(exec_ops)(const Op* ops, const void** args,
             } break;
 
             case Op_unpremul:{
-                F scale = (F)if_then_else(F1 / a < INFINITY, F1 / a, F0);
+                F scale = (F)if_then_else(F1 / a < INFINITY_, F1 / a, F0);
                 r *= scale;
                 g *= scale;
                 b *= scale;

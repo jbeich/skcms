@@ -8,10 +8,9 @@
 #include "../skcms.h"
 #include "LinearAlgebra.h"
 #include "Macros.h"
+#include "PortableMath.h"
 #include "TransferFunction.h"
 #include <assert.h>
-#include <limits.h>
-#include <math.h>
 #include <string.h>
 
 // Enable to do thorough logging of the nonlinear regression to stderr
@@ -48,77 +47,18 @@ typedef struct {
     double e;
 } TF_Nonlinear;
 
-#if defined(__clang__) || defined(__GNUC__)
-    #define small_memcpy __builtin_memcpy
-#else
-    #define small_memcpy memcpy
-#endif
-
-static float approx_log2f(float x) {
-    // The first approximation of log2(x) is its exponent 'e', minus 127.
-    int32_t bits;
-    small_memcpy(&bits, &x, sizeof(bits));
-
-    float e = (float)bits * (1.0f / (1<<23));
-
-    // If we use the mantissa too we can refine the error signficantly.
-    int32_t m_bits = (bits & 0x007fffff) | 0x3f000000;
-    float m;
-    small_memcpy(&m, &m_bits, sizeof(m));
-
-    return (e - 124.225514990f
-              -   1.498030302f*m
-              -   1.725879990f/(0.3520887068f + m));
-}
-
-static float approx_exp2f(float x) {
-    float fract = x - floorf(x);
-
-    float fbits = (1.0f * (1<<23)) * (x + 121.274057500f
-                                        -   1.490129070f*fract
-                                        +  27.728023300f/(4.84252568f - fract));
-    if (fbits > INT_MAX) {
-        return INFINITY;
-    } else if (fbits < INT_MIN) {
-        return -INFINITY;
-    }
-    int32_t bits = (int32_t)fbits;
-    small_memcpy(&x, &bits, sizeof(x));
-    return x;
-}
-
-static float approx_powf(float x, float y) {
-    // Handling all the integral powers first increases our precision a little. If y is very large,
-    // this loop may never terminate, but for any reasonably large y, the approximation is fine.
-    float r = 1.0f;
-    while (y >= 1.0f && y < 32) {
-        r *= x;
-        y -= 1.0f;
-    }
-
-    return (x == 0) || (x == 1) ? x : r * approx_exp2f(approx_log2f(x) * y);
-}
-
-static double approx_log2d(double x) {
-    return (double)approx_log2f((float)x);
-}
-
-static double approx_powd(double x, double y) {
-    return (double)approx_powf((float)x, (float)y);
-}
-
 float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
     float sign = x < 0 ? -1.0f : 1.0f;
     x *= sign;
 
     return sign * (x < fn->d ? fn->c * x + fn->f
-                             : approx_powf(fn->a * x + fn->b, fn->g) + fn->e);
+                             : powf_(fn->a * x + fn->b, fn->g) + fn->e);
 }
 
 static double TF_Nonlinear_eval(const TF_Nonlinear* fn, double x) {
     // We strive to never allow negative ax+b, but values can drift slightly. Guard against NaN.
-    double base = fmax(fn->a * x + fn->b, 0.0);
-    return approx_powd(base, fn->g) + fn->e;
+    double base = fmaxd_(fn->a * x + fn->b, 0.0);
+    return powd_(base, fn->g) + fn->e;
 }
 
 // Evaluate the gradient of the nonlinear component of fn
@@ -130,11 +70,11 @@ static void tf_eval_gradient_nonlinear(const TF_Nonlinear* fn,
                                        double* d_fn_d_G_at_x) {
     double base = fn->a * x + fn->b;
     if (base > 0.0) {
-        *d_fn_d_A_at_x = fn->g * x * approx_powd(base, fn->g - 1.0);
-        *d_fn_d_B_at_x = fn->g * approx_powd(base, fn->g - 1.0);
+        *d_fn_d_A_at_x = fn->g * x * powd_(base, fn->g - 1.0);
+        *d_fn_d_B_at_x = fn->g * powd_(base, fn->g - 1.0);
         *d_fn_d_E_at_x = 1.0;
         // Scale by 1/log_2(e)
-        *d_fn_d_G_at_x = approx_powd(base, fn->g) * approx_log2d(base) * 0.69314718;
+        *d_fn_d_G_at_x = powd_(base, fn->g) * log2d_(base) * 0.69314718;
     } else {
         *d_fn_d_A_at_x = 0.0;
         *d_fn_d_B_at_x = 0.0;
@@ -203,7 +143,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     // (because when G = 1, B and E are equivalent parameters).
     // To avoid problems, fix E (row/column 3) in these circumstances.
     const double kEpsilonForG = 1.0 / 1024.0;
-    if (fabs(fn->g - 1.0) < kEpsilonForG) {
+    if (fabsd_(fn->g - 1.0) < kEpsilonForG) {
         LOG("G ~= 1, pinning E\n");
         for (int row = 0; row < 4; ++row) {
             double value = (row == 2) ? 1.0 : 0.0;
@@ -230,7 +170,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     fn->g += step.vals[3];
 
     // A should always be positive.
-    fn->a = fmax(fn->a, 0.0);
+    fn->a = fmaxd_(fn->a, 0.0);
 
     // Ensure that fn be defined at D.
     if (fn->a * fn->d + fn->b < 0.0) {
@@ -243,8 +183,8 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     *error_Linfty_after = 0;
     for (int i = start; i < n; ++i) {
         double xi = i / (n - 1.0);
-        double error = fabs((double)t(i, ctx) - TF_Nonlinear_eval(fn, xi));
-        *error_Linfty_after = fmax(error, *error_Linfty_after);
+        double error = fabsd_((double)t(i, ctx) - TF_Nonlinear_eval(fn, xi));
+        *error_Linfty_after = fmaxd_(error, *error_Linfty_after);
     }
 
     return true;
@@ -267,7 +207,7 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
         }
 
         // If the error is inf or nan, we are clearly not converging.
-        if (!isfinite_(step_error[step])) {
+        if (!isfinited_(step_error[step])) {
             return false;
         }
 
@@ -290,7 +230,7 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
             const double kEarlyOutByPercentChangeThreshold = 32.0 / 256.0;
             const double kMinimumPercentChange = 1.0 / 128.0;
             double percent_change =
-                fabs(step_error[step] - step_error[step - 1]) / step_error[step];
+                fabsd_(step_error[step] - step_error[step - 1]) / step_error[step];
             if (percent_change < kMinimumPercentChange &&
                 step_error[step] < kEarlyOutByPercentChangeThreshold) {
                 break;
@@ -334,8 +274,8 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
 
     int lin_points = 1;
     fn->f = t(0, ctx);
-    float slope_min = -INFINITY;
-    float slope_max = INFINITY;
+    float slope_min = -INFINITY_;
+    float slope_max = INFINITY_;
     for (int i = 1; i < n; ++i) {
         float xi = i * x_scale;
         float yi = t(i, ctx);
@@ -345,8 +285,8 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
             // Slope intervals no longer overlap.
             break;
         }
-        slope_max = fminf(slope_max, slope_max_i);
-        slope_min = fmaxf(slope_min, slope_min_i);
+        slope_max = fminf_(slope_max, slope_max_i);
+        slope_min = fmaxf_(slope_min, slope_min_i);
         float cur_slope = (yi - fn->f) / xi;
         if (slope_min <= cur_slope && cur_slope <= slope_max) {
             lin_points = i + 1;
@@ -355,7 +295,7 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
     }
 
     // Pick D so that all points we found above are included (this requires nudging).
-    fn->d = nextafterf((lin_points - 1) * x_scale, INFINITY);
+    fn->d = nextafterf_((lin_points - 1) * x_scale);
 
     // If the entire data set was linear, move the coefficients to the nonlinear portion with
     // G == 1. This lets use a canonical representation with D == 0.
@@ -380,7 +320,7 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         int mid = (start + n) / 2;
         double mid_x = mid / (n - 1.0);
         double mid_y = (double)t(mid, ctx);
-        double mid_g = approx_log2d(mid_y) / approx_log2d(mid_x);
+        double mid_g = log2d_(mid_y) / log2d_(mid_x);
         TF_Nonlinear tf = { mid_g, 1, 0, (double)(start * x_scale), 0 };
 
         if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
@@ -398,8 +338,8 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         for (int i = 0; i < n; ++i) {
             float xi = i * x_scale;
             float fn_of_xi = skcms_TransferFunction_eval(fn, xi);
-            float error_at_xi = fabsf(t(i, ctx) - fn_of_xi);
-            *max_error = fmaxf(*max_error, error_at_xi);
+            float error_at_xi = fabsf_(t(i, ctx) - fn_of_xi);
+            *max_error = fmaxf_(*max_error, error_at_xi);
         }
     }
 
@@ -428,7 +368,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     skcms_TransferFunction fn_inv = { 0, 0, 0, 0, 0, 0, 0 };
 
     // Reject obviously malformed inputs
-    if (!isfinite_((double)(src->a + src->b + src->c + src->d + src->e + src->f + src->g))) {
+    if (!isfinitef_(src->a + src->b + src->c + src->d + src->e + src->f + src->g)) {
         return false;
     }
 
@@ -448,8 +388,8 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // If both segments are present, they need to line up
     if (has_linear && has_nonlinear) {
         float l_at_d = src->c * src->d + src->f;
-        float n_at_d = approx_powf(src->a * src->d + src->b, src->g) + src->e;
-        if (fabsf(l_at_d - n_at_d) > (1 / 512.0f)) {
+        float n_at_d = powf_(src->a * src->d + src->b, src->g) + src->e;
+        if (fabsf_(l_at_d - n_at_d) > (1 / 512.0f)) {
             return false;
         }
     }
@@ -463,7 +403,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // Invert nonlinear segment
     if (has_nonlinear) {
         fn_inv.g = 1.0f / src->g;
-        fn_inv.a = approx_powf(1.0f / src->a, src->g);
+        fn_inv.a = powf_(1.0f / src->a, src->g);
         fn_inv.b = -fn_inv.a * src->e;
         fn_inv.e = -src->b / src->a;
     }
