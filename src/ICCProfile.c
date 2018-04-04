@@ -7,10 +7,10 @@
 
 #include "../skcms.h"
 #include "Macros.h"
+#include "PortableMath.h"
 #include "TransferFunction.h"
 #include <assert.h>
 #include <limits.h>
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -680,9 +680,9 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     }
 
     // Validate that illuminant is D50 white
-    if (fabsf(illuminant_X - 0.9642f) > 0.0100f ||
-        fabsf(illuminant_Y - 1.0000f) > 0.0100f ||
-        fabsf(illuminant_Z - 0.8249f) > 0.0100f) {
+    if (fabsf_(illuminant_X - 0.9642f) > 0.0100f ||
+        fabsf_(illuminant_Y - 1.0000f) > 0.0100f ||
+        fabsf_(illuminant_Z - 0.8249f) > 0.0100f) {
         return false;
     }
 
