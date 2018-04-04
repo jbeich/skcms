@@ -39,5 +39,3 @@ static inline double powd_(double x, double y) { return (double)powf_((float)x, 
 
 bool isfinitef_(float);
 bool isfinited_(double);
-
-float nextafterf_(float x);

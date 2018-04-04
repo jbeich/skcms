@@ -294,8 +294,8 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         }
     }
 
-    // Pick D so that all points we found above are included (this requires nudging).
-    fn->d = nextafterf_((lin_points - 1) * x_scale);
+    // Set D to the last point from above
+    fn->d = (lin_points - 1) * x_scale;
 
     // If the entire data set was linear, move the coefficients to the nonlinear portion with
     // G == 1. This lets use a canonical representation with D == 0.

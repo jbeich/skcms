@@ -72,11 +72,3 @@ bool isfinited_(double x) {
     small_memcpy(&bits, &x, sizeof(bits));
     return (bits & 0x7ff0000000000000) != 0x7ff0000000000000;
 }
-
-float nextafterf_(float x) {
-    uint32_t bits;
-    small_memcpy(&bits, &x, sizeof(bits));
-    bits++;
-    small_memcpy(&x, &bits, sizeof(bits));
-    return x;
-}
