@@ -7,12 +7,11 @@
 
 #include "../skcms.h"
 #include "LinearAlgebra.h"
-#include <math.h>
 
 static bool Matrix4x4_isfinite(const skcms_Matrix4x4* m) {
     for (int r = 0; r < 4; ++r)
     for (int c = 0; c < 4; ++c) {
-        if (!isfinite(m->vals[r][c])) {
+        if (!isfinite_(m->vals[r][c])) {
             return false;
         }
     }
@@ -62,7 +61,7 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
     }
 
     double invdet = 1.0 / determinant;
-    if (!isfinite(invdet)) {
+    if (!isfinite_(invdet)) {
         return false;
     }
 
