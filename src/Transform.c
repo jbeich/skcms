@@ -7,11 +7,11 @@
 
 #include "../skcms.h"
 #include "LinearAlgebra.h"
+#include "PortableMath.h"
 #include "TransferFunction.h"
 #include "Transform.h"
 #include <assert.h>
 #include <limits.h>
-#include <math.h>
 #include <stdint.h>
 #include <string.h>
 
