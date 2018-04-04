@@ -380,7 +380,7 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         int mid = (start + n) / 2;
         double mid_x = mid / (n - 1.0);
         double mid_y = (double)t(mid, ctx);
-        double mid_g = log(mid_y) / log(mid_x);
+        double mid_g = approx_log2d(mid_y) / approx_log2d(mid_x);
         TF_Nonlinear tf = { mid_g, 1, 0, (double)(start * x_scale), 0 };
 
         if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
@@ -448,7 +448,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // If both segments are present, they need to line up
     if (has_linear && has_nonlinear) {
         float l_at_d = src->c * src->d + src->f;
-        float n_at_d = powf(src->a * src->d + src->b, src->g) + src->e;
+        float n_at_d = approx_powf(src->a * src->d + src->b, src->g) + src->e;
         if (fabsf(l_at_d - n_at_d) > (1 / 512.0f)) {
             return false;
         }
@@ -463,7 +463,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // Invert nonlinear segment
     if (has_nonlinear) {
         fn_inv.g = 1.0f / src->g;
-        fn_inv.a = powf(1.0f / src->a, src->g);
+        fn_inv.a = approx_powf(1.0f / src->a, src->g);
         fn_inv.b = -fn_inv.a * src->e;
         fn_inv.e = -src->b / src->a;
     }
