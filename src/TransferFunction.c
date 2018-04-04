@@ -175,6 +175,16 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
         double r = (double)t(i, ctx) - TF_Nonlinear_eval(fn, xi);
         LOG("r: %.25g\n", r);
 
+        if (i == start) {
+            // Weight the D point much higher, so that the two pieces of the approximation line up
+            double w = (n - start) * 0.5;
+            J.vals[0] *= w;
+            J.vals[1] *= w;
+            J.vals[2] *= w;
+            J.vals[3] *= w;
+            r *= w;
+        }
+
         // Update the normal equations left hand side with the outer product of J
         // with itself.
         for (int row = 0; row < 4; ++row) {
