@@ -21,3 +21,6 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4*, skcms_Matrix4x4*);
 bool skcms_Matrix3x3_invert(const skcms_Matrix3x3*, skcms_Matrix3x3*);
 
 skcms_Vector4 skcms_Matrix4x4_Vector4_mul(const skcms_Matrix4x4*, const skcms_Vector4*);
+
+// A workaround for oversensitive warnings from isfinite() on some platforms.
+bool skcms_isfinite(double);

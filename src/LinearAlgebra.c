@@ -9,10 +9,22 @@
 #include "LinearAlgebra.h"
 #include <math.h>
 
+bool skcms_isfinite(double v) {
+#if defined(__clang__)
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wconversion"
+    #pragma clang diagnostic ignored "-Wdouble-promotion"
+    return isfinite(v);
+    #pragma clang diagnostic pop
+#else
+    return isfinite(v);
+#endif
+}
+
 static bool Matrix4x4_isfinite(const skcms_Matrix4x4* m) {
     for (int r = 0; r < 4; ++r)
     for (int c = 0; c < 4; ++c) {
-        if (!isfinite(m->vals[r][c])) {
+        if (!skcms_isfinite(m->vals[r][c])) {
             return false;
         }
     }
@@ -62,7 +74,7 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
     }
 
     double invdet = 1.0 / determinant;
-    if (!isfinite(invdet)) {
+    if (!skcms_isfinite(invdet)) {
         return false;
     }
 
