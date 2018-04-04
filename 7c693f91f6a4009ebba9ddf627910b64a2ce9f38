@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb5543b0_aa7f1fb3",
+        "filename": "test_only.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-04T14:30:50Z",
+      "side": 1,
+      "message": "Might want to call it d-gap?  Delta can mean lots of things.  :)",
+      "range": {
+        "startLine": 159,
+        "startChar": 23,
+        "endLine": 159,
+        "endChar": 28
+      },
+      "revId": "7c693f91f6a4009ebba9ddf627910b64a2ce9f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
