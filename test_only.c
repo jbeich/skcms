@@ -12,6 +12,7 @@
 #include "skcms.h"
 #include "src/TransferFunction.h"
 #include "test_only.h"
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -150,6 +151,12 @@ static void dump_approx_transfer_function(FILE* fp, const skcms_TransferFunction
         fprintf(fp, "  ~= : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g  (Max error: %.9g)",
                 (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
                 (double)tf->d, (double)tf->e, (double)tf->f, (double)max_error);
+    }
+    if (tf->d > 0) {
+        // Has both linear and nonlinear sections, include the discontinuity at D
+        float l_at_d = (tf->c * tf->d + tf->f);
+        float n_at_d = powf(tf->a * tf->d + tf->b, tf->g) + tf->e;
+        fprintf(fp, " (Delta: %.*g)", for_unit_test ? 2 : 9, (double)(n_at_d - l_at_d));
     }
     if (is_linear(tf)) {
         fprintf(fp, " (Linear)");
