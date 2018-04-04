@@ -267,7 +267,7 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
         }
 
         // If the error is inf or nan, we are clearly not converging.
-        if (isnan(step_error[step]) || isinf(step_error[step])) {
+        if (!isfinite_(step_error[step])) {
             return false;
         }
 
@@ -428,7 +428,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     skcms_TransferFunction fn_inv = { 0, 0, 0, 0, 0, 0, 0 };
 
     // Reject obviously malformed inputs
-    if (!isfinite(src->a + src->b + src->c + src->d + src->e + src->f + src->g)) {
+    if (!isfinite_((double)(src->a + src->b + src->c + src->d + src->e + src->f + src->g))) {
         return false;
     }
 
