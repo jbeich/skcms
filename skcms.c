@@ -9,5 +9,6 @@
 
 #include "src/ICCProfile.c"
 #include "src/LinearAlgebra.c"
+#include "src/PortableMath.c"
 #include "src/TransferFunction.c"
 #include "src/Transform.c"

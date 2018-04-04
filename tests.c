@@ -13,9 +13,9 @@
 #include "skcms.h"
 #include "src/LinearAlgebra.h"
 #include "src/Macros.h"
+#include "src/PortableMath.h"
 #include "test_only.h"
 #include "src/TransferFunction.h"
-#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -538,7 +538,7 @@ static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd
         float t = i / 255.0f;
         float x = skcms_TransferFunction_eval(rev, skcms_TransferFunction_eval(fwd, t));
         expect((int)(x * 255.0f + 0.5f) == i);
-        expect(fabsf(x - t) < tol);
+        expect(fabsf_(x - t) < tol);
     }
 }
 
