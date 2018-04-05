@@ -11,6 +11,7 @@
 #include "PortableMath.h"
 #include "TransferFunction.h"
 #include <assert.h>
+#include <math.h>
 #include <string.h>
 
 // Enable to do thorough logging of the nonlinear regression to stderr
@@ -418,7 +419,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // Invert nonlinear segment
     if (has_nonlinear) {
         fn_inv.g = 1.0f / src->g;
-        fn_inv.a = powf_(1.0f / src->a, src->g);
+        fn_inv.a = powf(1.0f / src->a, src->g);
         fn_inv.b = -fn_inv.a * src->e;
         fn_inv.e = -src->b / src->a;
     }
