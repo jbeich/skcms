@@ -99,28 +99,6 @@ bool skcms_Matrix4x4_invert(const skcms_Matrix4x4* src, skcms_Matrix4x4* dst) {
     return Matrix4x4_isfinite(dst);
 }
 
-bool skcms_Matrix3x3_invert(const skcms_Matrix3x3* src, skcms_Matrix3x3* dst) {
-    // TODO: I am being _very_ lazy.
-    skcms_Matrix4x4 m = {{
-        { src->vals[0][0], src->vals[0][1], src->vals[0][2], 0.0f },
-        { src->vals[1][0], src->vals[1][1], src->vals[1][2], 0.0f },
-        { src->vals[2][0], src->vals[2][1], src->vals[2][2], 0.0f },
-        {            0.0f,            0.0f,            0.0f, 1.0f },
-    }};
-
-    skcms_Matrix4x4 inv;
-    if (!skcms_Matrix4x4_invert(&m, &inv)) {
-        return false;
-    }
-
-    *dst = (skcms_Matrix3x3){{
-        { inv.vals[0][0], inv.vals[0][1], inv.vals[0][2] },
-        { inv.vals[1][0], inv.vals[1][1], inv.vals[1][2] },
-        { inv.vals[2][0], inv.vals[2][1], inv.vals[2][2] },
-    }};
-    return true;
-}
-
 skcms_Vector4 skcms_Matrix4x4_Vector4_mul(const skcms_Matrix4x4* m, const skcms_Vector4* v) {
     skcms_Vector4 dst = {{0,0,0,0}};
     for (int row = 0; row < 4; ++row) {
@@ -130,4 +108,61 @@ skcms_Vector4 skcms_Matrix4x4_Vector4_mul(const skcms_Matrix4x4* m, const skcms_
                       + m->vals[row][3] * v->vals[3];
     }
     return dst;
+}
+
+bool skcms_Matrix3x3_invert(const skcms_Matrix3x3* src, skcms_Matrix3x3* dst) {
+    double a00 = (double)src->vals[0][0],
+           a01 = (double)src->vals[1][0],
+           a02 = (double)src->vals[2][0],
+           a10 = (double)src->vals[0][1],
+           a11 = (double)src->vals[1][1],
+           a12 = (double)src->vals[2][1],
+           a20 = (double)src->vals[0][2],
+           a21 = (double)src->vals[1][2],
+           a22 = (double)src->vals[2][2];
+
+    double b0 = a00*a11 - a01*a10,
+           b1 = a00*a12 - a02*a10,
+           b2 = a01*a12 - a02*a11,
+           b3 = a20,
+           b4 = a21,
+           b5 = a22;
+
+    double determinant = b0*b5
+                       - b1*b4
+                       + b2*b3;
+
+    if (determinant == 0) {
+        return false;
+    }
+
+    double invdet = 1.0 / determinant;
+    if (!isfinitef_((float)invdet)) {
+        return false;
+    }
+
+    b0 *= invdet;
+    b1 *= invdet;
+    b2 *= invdet;
+    b3 *= invdet;
+    b4 *= invdet;
+    b5 *= invdet;
+
+    dst->vals[0][0] = (float)( a11*b5 - a12*b4 );
+    dst->vals[1][0] = (float)( a02*b4 - a01*b5 );
+    dst->vals[2][0] = (float)(        +     b2 );
+    dst->vals[0][1] = (float)( a12*b3 - a10*b5 );
+    dst->vals[1][1] = (float)( a00*b5 - a02*b3 );
+    dst->vals[2][1] = (float)(        -     b1 );
+    dst->vals[0][2] = (float)( a10*b4 - a11*b3 );
+    dst->vals[1][2] = (float)( a01*b3 - a00*b4 );
+    dst->vals[2][2] = (float)(        +     b0 );
+
+    for (int r = 0; r < 3; ++r)
+    for (int c = 0; c < 3; ++c) {
+        if (!isfinitef_(dst->vals[r][c])) {
+            return false;
+        }
+    }
+    return true;
 }
