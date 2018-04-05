@@ -10,10 +10,10 @@
 #include <stdbool.h>
 
 // A row-major 4x4 matrix (ie vals[row][col])
-typedef struct { double vals[4][4]; } skcms_Matrix4x4;
-// (skcms_Matrix3x3 is in skcms.h, almost exactly analogous to skcms_Matrix4x4.)
+typedef struct { float vals[4][4]; } skcms_Matrix4x4;
+// (skcms_Matrix3x3 is in skcms.h, exactly analogous to skcms_Matrix4x4.)
 
-typedef struct { double vals[4]; } skcms_Vector4;
+typedef struct { float vals[4]; } skcms_Vector4;
 
 
 // It is _not_ safe to alias the pointers to invert in-place.

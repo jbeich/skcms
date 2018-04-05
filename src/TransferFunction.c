@@ -40,11 +40,11 @@
         m.vals[3][0], m.vals[3][1], m.vals[3][2], m.vals[3][3])
 
 typedef struct {
-    double g;
-    double a;
-    double b;
-    double d;
-    double e;
+    float g;
+    float a;
+    float b;
+    float d;
+    float e;
 } TF_Nonlinear;
 
 float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
@@ -55,37 +55,37 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
                              : powf_(fn->a * x + fn->b, fn->g) + fn->e);
 }
 
-static double TF_Nonlinear_eval(const TF_Nonlinear* fn, double x) {
+static float TF_Nonlinear_eval(const TF_Nonlinear* fn, float x) {
     // We strive to never allow negative ax+b, but values can drift slightly. Guard against NaN.
-    double base = fmaxd_(fn->a * x + fn->b, 0.0);
-    return powd_(base, fn->g) + fn->e;
+    float base = fmaxf_(fn->a * x + fn->b, 0.0f);
+    return powf_(base, fn->g) + fn->e;
 }
 
 // Evaluate the gradient of the nonlinear component of fn
 static void tf_eval_gradient_nonlinear(const TF_Nonlinear* fn,
-                                       double x,
-                                       double* d_fn_d_A_at_x,
-                                       double* d_fn_d_B_at_x,
-                                       double* d_fn_d_E_at_x,
-                                       double* d_fn_d_G_at_x) {
-    double base = fn->a * x + fn->b;
-    if (base > 0.0) {
-        *d_fn_d_A_at_x = fn->g * x * powd_(base, fn->g - 1.0);
-        *d_fn_d_B_at_x = fn->g * powd_(base, fn->g - 1.0);
-        *d_fn_d_E_at_x = 1.0;
+                                       float x,
+                                       float* d_fn_d_A_at_x,
+                                       float* d_fn_d_B_at_x,
+                                       float* d_fn_d_E_at_x,
+                                       float* d_fn_d_G_at_x) {
+    float base = fn->a * x + fn->b;
+    if (base > 0.0f) {
+        *d_fn_d_A_at_x = fn->g * x * powf_(base, fn->g - 1.0f);
+        *d_fn_d_B_at_x = fn->g * powf_(base, fn->g - 1.0f);
+        *d_fn_d_E_at_x = 1.0f;
         // Scale by 1/log_2(e)
-        *d_fn_d_G_at_x = powd_(base, fn->g) * log2d_(base) * 0.69314718;
+        *d_fn_d_G_at_x = powf_(base, fn->g) * log2f_(base) * 0.69314718f;
     } else {
-        *d_fn_d_A_at_x = 0.0;
-        *d_fn_d_B_at_x = 0.0;
-        *d_fn_d_E_at_x = 0.0;
-        *d_fn_d_G_at_x = 0.0;
+        *d_fn_d_A_at_x = 0.0f;
+        *d_fn_d_B_at_x = 0.0f;
+        *d_fn_d_E_at_x = 0.0f;
+        *d_fn_d_G_at_x = 0.0f;
     }
 }
 
 // Take one Gauss-Newton step updating A, B, E, and G, given D.
 static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, int start, int n,
-                                           TF_Nonlinear* fn, double* error_Linfty_after) {
+                                           TF_Nonlinear* fn, float* error_Linfty_after) {
     LOG("tf_gauss_newton_step_nonlinear (%d, %d)\n", start, n);
     LOG("fn: "); LOG_TF(fn);
 
@@ -102,7 +102,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
 
     // Add the contributions from each sample to the normal equations.
     for (int i = start; i < n; ++i) {
-        double xi = i / (n - 1.0);
+        float xi = i / (n - 1.0f);
         LOG("%d (%.25g)\n", i, xi);
 
         // Let J be the gradient of fn with respect to parameters A, B, E, and G,
@@ -112,12 +112,12 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
         LOG("J: "); LOG_VEC(J);
 
         // Let r be the residual at this point;
-        double r = (double)t(i, ctx) - TF_Nonlinear_eval(fn, xi);
+        float r = t(i, ctx) - TF_Nonlinear_eval(fn, xi);
         LOG("r: %.25g\n", r);
 
         if (i == start) {
             // Weight the D point much higher, so that the two pieces of the approximation line up
-            double w = (n - start) * 0.5;
+            float w = (n - start) * 0.5f;
             J.vals[0] *= w;
             J.vals[1] *= w;
             J.vals[2] *= w;
@@ -142,15 +142,15 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     // Note that if G = 1, then the normal equations will be singular
     // (because when G = 1, B and E are equivalent parameters).
     // To avoid problems, fix E (row/column 3) in these circumstances.
-    const double kEpsilonForG = 1.0 / 1024.0;
-    if (fabsd_(fn->g - 1.0) < kEpsilonForG) {
+    const float kEpsilonForG = 1.0f / 1024.0f;
+    if (fabsf_(fn->g - 1.0f) < kEpsilonForG) {
         LOG("G ~= 1, pinning E\n");
         for (int row = 0; row < 4; ++row) {
-            double value = (row == 2) ? 1.0 : 0.0;
+            float value = (row == 2) ? 1.0f : 0.0f;
             ne_lhs.vals[row][2] = value;
             ne_lhs.vals[2][row] = value;
         }
-        ne_rhs.vals[2] = 0.0;
+        ne_rhs.vals[2] = 0.0f;
     }
 
     // Solve the normal equations.
@@ -170,10 +170,10 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     fn->g += step.vals[3];
 
     // A should always be positive.
-    fn->a = fmaxd_(fn->a, 0.0);
+    fn->a = fmaxf_(fn->a, 0.0f);
 
     // Ensure that fn be defined at D.
-    if (fn->a * fn->d + fn->b < 0.0) {
+    if (fn->a * fn->d + fn->b < 0.0f) {
         LOG("AD+B = %.25g, ", fn->a * fn->d + fn->b);
         fn->b = -fn->a * fn->d;
         LOG("B -> %.25g\n", fn->b);
@@ -182,9 +182,9 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     // Compute the Linfinity error.
     *error_Linfty_after = 0;
     for (int i = start; i < n; ++i) {
-        double xi = i / (n - 1.0);
-        double error = fabsd_((double)t(i, ctx) - TF_Nonlinear_eval(fn, xi));
-        *error_Linfty_after = fmaxd_(error, *error_Linfty_after);
+        float xi = i / (n - 1.0f);
+        float error = fabsf_(t(i, ctx) - TF_Nonlinear_eval(fn, xi));
+        *error_Linfty_after = fmaxf_(error, *error_Linfty_after);
     }
 
     return true;
@@ -198,7 +198,7 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
     enum { kNumSteps = 16 };
 
     // The L-infinity error after each step.
-    double step_error[kNumSteps] = { 0 };
+    float step_error[kNumSteps] = { 0 };
     int step = 0;
     for (;; ++step) {
         // If the normal equations are singular, we can't continue.
@@ -207,12 +207,12 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
         }
 
         // If the error is inf or nan, we are clearly not converging.
-        if (!isfinited_(step_error[step])) {
+        if (!isfinitef_(step_error[step])) {
             return false;
         }
 
         // Stop if our error is tiny.
-        const double kEarlyOutTinyErrorThreshold = (1.0 / 16.0) / 256.0;
+        const float kEarlyOutTinyErrorThreshold = (1.0f / 16.0f) / 256.0f;
         if (step_error[step] < kEarlyOutTinyErrorThreshold) {
             break;
         }
@@ -221,16 +221,16 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
         if (step > 1) {
             // If our error is is huge for two iterations, we're probably not in the
             // region of convergence.
-            if (step_error[step] > 1.0 && step_error[step - 1] > 1.0) {
+            if (step_error[step] > 1.0f && step_error[step - 1] > 1.0f) {
                 return false;
             }
 
             // If our error didn't change by ~1%, assume we've converged as much as we
             // are going to.
-            const double kEarlyOutByPercentChangeThreshold = 32.0 / 256.0;
-            const double kMinimumPercentChange = 1.0 / 128.0;
-            double percent_change =
-                fabsd_(step_error[step] - step_error[step - 1]) / step_error[step];
+            const float kEarlyOutByPercentChangeThreshold = 32.0f / 256.0f;
+            const float kMinimumPercentChange = 1.0f / 128.0f;
+            float percent_change =
+                fabsf_(step_error[step] - step_error[step - 1]) / step_error[step];
             if (percent_change < kMinimumPercentChange &&
                 step_error[step] < kEarlyOutByPercentChangeThreshold) {
                 break;
@@ -242,7 +242,7 @@ static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, i
     }
 
     // Declare failure if our error is obviously too high.
-    const double kDidNotConvergeThreshold = 64.0 / 256.0;
+    const float kDidNotConvergeThreshold = 64.0f / 256.0f;
     if (step_error[step] > kDidNotConvergeThreshold) {
         return false;
     }
@@ -318,16 +318,16 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         // We need G to be in right vicinity, or the regression may not converge. Solve exactly for
         // for midpoint of the nonlinear range, assuming B = E = 0 & A = 1.
         int mid = (start + n) / 2;
-        double mid_x = mid / (n - 1.0);
-        double mid_y = (double)t(mid, ctx);
-        double mid_g = log2d_(mid_y) / log2d_(mid_x);
-        TF_Nonlinear tf = { mid_g, 1, 0, (double)(start * x_scale), 0 };
+        float mid_x = mid / (n - 1.0f);
+        float mid_y = t(mid, ctx);
+        float mid_g = log2f_(mid_y) / log2f_(mid_x);
+        TF_Nonlinear tf = { mid_g, 1, 0, start * x_scale, 0 };
 
         if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
-            fn->g = (float)tf.g;
-            fn->a = (float)tf.a;
-            fn->b = (float)tf.b;
-            fn->e = (float)tf.e;
+            fn->g = tf.g;
+            fn->a = tf.a;
+            fn->b = tf.b;
+            fn->e = tf.e;
         } else {
             return false;
         }

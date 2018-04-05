@@ -66,9 +66,3 @@ bool isfinitef_(float x) {
     small_memcpy(&bits, &x, sizeof(bits));
     return (bits & 0x7f800000) != 0x7f800000;
 }
-
-bool isfinited_(double x) {
-    uint64_t bits;
-    small_memcpy(&bits, &x, sizeof(bits));
-    return (bits & 0x7ff0000000000000) != 0x7ff0000000000000;
-}
