@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9f8dfc6_f78e01f6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-05T14:58:46Z",
+      "side": 1,
+      "message": "(upper)",
+      "range": {
+        "startLine": 21,
+        "startChar": 7,
+        "endLine": 21,
+        "endChar": 12
+      },
+      "revId": "abc0c241d97b39a085150bf23caad3cfe7ad7d70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5b6066c_79ca093a",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-05T14:58:46Z",
+      "side": 1,
+      "message": "I think this is kind of a tautology.",
+      "range": {
+        "startLine": 249,
+        "startChar": 48,
+        "endLine": 249,
+        "endChar": 77
+      },
+      "revId": "abc0c241d97b39a085150bf23caad3cfe7ad7d70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "575de758_1ace5bb9",
+        "filename": "src/TransferFunction.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-05T14:58:46Z",
+      "side": 1,
+      "message": "If you write this the other way around, it looks pretty:\n\n  if (best_error \u003e err) {\n      best_error \u003d err;\n      *fn \u003d tf;\n  }\n\n:)\n\nMight also be nice to call it min_error instead to remind us what is best.",
+      "range": {
+        "startLine": 348,
+        "startChar": 7,
+        "endLine": 349,
+        "endChar": 29
+      },
+      "revId": "abc0c241d97b39a085150bf23caad3cfe7ad7d70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
