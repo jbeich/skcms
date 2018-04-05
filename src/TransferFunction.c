@@ -39,14 +39,6 @@
         m.vals[2][0], m.vals[2][1], m.vals[2][2], m.vals[2][3], \
         m.vals[3][0], m.vals[3][1], m.vals[3][2], m.vals[3][3])
 
-typedef struct {
-    float g;
-    float a;
-    float b;
-    float d;
-    float e;
-} TF_Nonlinear;
-
 float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
     float sign = x < 0 ? -1.0f : 1.0f;
     x *= sign;
@@ -55,14 +47,14 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* fn, float x) {
                              : powf_(fn->a * x + fn->b, fn->g) + fn->e);
 }
 
-static float TF_Nonlinear_eval(const TF_Nonlinear* fn, float x) {
+static float TransferFunction_eval_nonlinear(const skcms_TransferFunction* fn, float x) {
     // We strive to never allow negative ax+b, but values can drift slightly. Guard against NaN.
     float base = fmaxf_(fn->a * x + fn->b, 0.0f);
     return powf_(base, fn->g) + fn->e;
 }
 
 // Evaluate the gradient of the nonlinear component of fn
-static void tf_eval_gradient_nonlinear(const TF_Nonlinear* fn,
+static void tf_eval_gradient_nonlinear(const skcms_TransferFunction* fn,
                                        float x,
                                        float* d_fn_d_A_at_x,
                                        float* d_fn_d_B_at_x,
@@ -85,7 +77,7 @@ static void tf_eval_gradient_nonlinear(const TF_Nonlinear* fn,
 
 // Take one Gauss-Newton step updating A, B, E, and G, given D.
 static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, int start, int n,
-                                           TF_Nonlinear* fn, float* error_Linfty_after) {
+                                           skcms_TransferFunction* fn, float* error_Linfty_after) {
     LOG("tf_gauss_newton_step_nonlinear (%d, %d)\n", start, n);
     LOG("fn: "); LOG_TF(fn);
 
@@ -112,7 +104,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
         LOG("J: "); LOG_VEC(J);
 
         // Let r be the residual at this point;
-        float r = t(i, ctx) - TF_Nonlinear_eval(fn, xi);
+        float r = t(i, ctx) - TransferFunction_eval_nonlinear(fn, xi);
         LOG("r: %.25g\n", r);
 
         if (i == start) {
@@ -183,7 +175,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
     *error_Linfty_after = 0;
     for (int i = start; i < n; ++i) {
         float xi = i / (n - 1.0f);
-        float error = fabsf_(t(i, ctx) - TF_Nonlinear_eval(fn, xi));
+        float error = fabsf_(t(i, ctx) - TransferFunction_eval_nonlinear(fn, xi));
         *error_Linfty_after = fmaxf_(error, *error_Linfty_after);
     }
 
@@ -193,7 +185,7 @@ static bool tf_gauss_newton_step_nonlinear(skcms_TableFunc* t, const void* ctx, 
 // Solve for A, B, E, and G, given D. The initial value of |fn| is the
 // point from which iteration starts.
 static bool tf_solve_nonlinear(skcms_TableFunc* t, const void* ctx, int start, int n,
-                               TF_Nonlinear* fn) {
+                               skcms_TransferFunction* fn) {
     // Take a maximum of 16 Gauss-Newton steps.
     enum { kNumSteps = 16 };
 
@@ -321,7 +313,7 @@ bool skcms_TransferFunction_approximate(skcms_TableFunc* t, const void* ctx, int
         float mid_x = mid / (n - 1.0f);
         float mid_y = t(mid, ctx);
         float mid_g = log2f_(mid_y) / log2f_(mid_x);
-        TF_Nonlinear tf = { mid_g, 1, 0, start * x_scale, 0 };
+        skcms_TransferFunction tf = { mid_g, 1, 0, 0, start * x_scale, 0, 0 };
 
         if (tf_solve_nonlinear(t, ctx, start, n, &tf)) {
             fn->g = tf.g;
