@@ -20,22 +20,11 @@ static inline float floorf_(float x) {
 }
 
 static inline float fmaxf_(float x, float y) { return x > y ? x : y; }
-static inline double fmaxd_(double x, double y) { return x > y ? x : y; }
-
 static inline float fminf_(float x, float y) { return x < y ? x : y; }
-static inline double fmind_(double x, double y) { return x < y ? x : y; }
-
 static inline float fabsf_(float x) { return x < 0 ? -x : x; }
-static inline double fabsd_(double x) { return x < 0 ? -x : x; }
 
 float log2f_(float);
-static inline double log2d_(double x) { return (double)log2f_((float)x); }
-
 float exp2f_(float);
-static inline double exp2d_(double x) { return (double)exp2f_((float)x); }
-
 float powf_(float, float);
-static inline double powd_(double x, double y) { return (double)powf_((float)x, (float)y); }
 
 bool isfinitef_(float);
-bool isfinited_(double);
