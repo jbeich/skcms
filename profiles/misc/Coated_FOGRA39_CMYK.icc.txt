@@ -23,6 +23,7 @@
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
+  ~= : 0.968403, 1.06641, 0.0476338, 0.935616, 0.294118, -0.0979506, 0  (Max error: 0.012) (D-gap: -3.7e-05)
   A1 : 16-bit table with 256 entries
   ~= : 1.08106, 1.04424, -0.00819014, 0.766537, 0.00784314, 0.0741637, 0  (Max error: 0.11) (D-gap: 0.068)
   A2 : 16-bit table with 256 entries
