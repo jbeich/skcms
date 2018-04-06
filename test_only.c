@@ -164,6 +164,13 @@ static void dump_approx_transfer_function(FILE* fp, const skcms_TransferFunction
     fprintf(fp, "\n");
 }
 
+static void dump_approx_tf23(FILE* fp, const skcms_TF23* tf,
+                             float max_error, bool for_unit_test) {
+    (void)for_unit_test;
+    fprintf(fp, "  ~= : %.4gx^3 + %.4gx^2 + %.4g (Max error: %.4g)\n",
+            (double)tf->A, (double)tf->B, (double)(1 - tf->A - tf->B), (double)max_error);
+}
+
 static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve, bool for_unit_test) {
     if (curve->table_entries) {
         fprintf(fp, "%4s : %d-bit table with %u entries\n", name,
@@ -172,6 +179,10 @@ static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve, boo
         float max_error;
         if (skcms_ApproximateCurve(curve, &tf, &max_error)) {
             dump_approx_transfer_function(fp, &tf, max_error, for_unit_test);
+        }
+        skcms_TF23 tf23;
+        if (skcms_ApproximateCurve23(curve, &tf23, &max_error)) {
+            dump_approx_tf23(fp, &tf23, max_error, for_unit_test);
         }
     } else {
         dump_transfer_function(fp, name, &curve->parametric);
