@@ -23,20 +23,27 @@
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
+  ~= : 0.851047x^4 + -1.469953x^3 + 0.378493x^2 + 1.240414x (Max error: 0.01557)
   A1 : 16-bit table with 256 entries
   ~= : 0.741035, 0.963444, -0.0709743, 1.24477, 0.337255, 0.0336971, 0  (Max error: 0.047) (D-gap: -0.024)
+  ~= : 0.845066x^4 + -1.458974x^3 + 0.372879x^2 + 1.241029x (Max error: 0.01568)
   A2 : 16-bit table with 256 entries
   ~= : 0.703794, 1.0482, -0.068751, 1.24155, 0.14902, 0.00502586, 0  (Max error: 0.017) (D-gap: -8.5e-06)
+  ~= : 0.858649x^4 + -1.485320x^3 + 0.388438x^2 + 1.238234x (Max error: 0.01564)
   A3 : 16-bit table with 256 entries
   ~= : 0.673778, 1.10422, 0.073473, 1.18288, 0.0156863, -0.18047, 0  (Max error: 0.064) (D-gap: -0.00044)
+  ~= : 2.196812x^4 + -3.417465x^3 + 1.032447x^2 + 1.188206x (Max error: 0.02201)
 CLUT : 17 x 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 256 entries
   ~= : 1, 0.996109, 0, 0, 0, 0, 0  (Max error: 6e-08)
+  ~= : 0.081695x^4 + -0.136155x^3 + 0.068075x^2 + 0.986384x (Max error: 0.003891)
   B1 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
+  ~= : 0.000002x^4 + -0.000003x^3 + 0.000002x^2 + 1.000000x (Max error: 5.96e-08)
   B2 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
+  ~= : 0.000002x^4 + -0.000003x^3 + 0.000002x^2 + 1.000000x (Max error: 5.96e-08)
 252 random bytes transformed to linear XYZD50 bytes:
 	101b21 382210 0c0d06 1a1318 1b1205 18210c 231e11
 	26243c 000102 101514 232e4a 492f21 2c2d1e 030201

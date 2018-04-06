@@ -29,8 +29,10 @@ build $out/fuzz_iccprofile_transform$exe:  link $out/fuzz/fuzz_iccprofile_transf
                                                 $out/fuzz/fuzz_main.o $
                                                 $out/skcms.o
 
+build $out/src/GaussNewton.o:      compile src/GaussNewton.c
 build $out/src/ICCProfile.o:       compile src/ICCProfile.c
 build $out/src/LinearAlgebra.o:    compile src/LinearAlgebra.c
 build $out/src/PortableMath.o:     compile src/PortableMath.c
+build $out/src/TF14.o:             compile src/TF14.c
 build $out/src/TransferFunction.o: compile src/TransferFunction.c
 build $out/src/Transform.o:        compile src/Transform.c
