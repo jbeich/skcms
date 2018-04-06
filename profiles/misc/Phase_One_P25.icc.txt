@@ -20,17 +20,23 @@
 
 rTRC : 16-bit table with 256 entries
   ~= : 0.557427, 0.823753, -0.0355345, 3.73293, 0.0431373, 0.142111, 0  (Max error: 0.019) (D-gap: -0.019)
+  ~= : -1.642x^3 + 2.326x^2 + 0.3168 (Max error: 0.32)
 gTRC : 16-bit table with 256 entries
   ~= : 0.400724, 1.03417, -0.022065, 5.60534, 0.027451, 0.0223994, 0  (Max error: 0.027) (D-gap: -1.7e-05)
+  ~= : -1.732x^3 + 2.35x^2 + 0.3812 (Max error: 0.38)
 bTRC : 16-bit table with 256 entries
+  ~= : -1.325x^3 + 2.066x^2 + 0.2597 (Max error: 0.26)
  XYZ : | 0.647903442 0.357360840 0.156417847 |
        | 0.382919312 1.109725952 0.000000000 |
        | 0.083267212 0.679275513 0.523422241 |
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
   A0 : 16-bit table with 256 entries
+  ~= : -0.8807x^3 + 1.436x^2 + 0.4448 (Max error: 0.44)
   A1 : 16-bit table with 256 entries
+  ~= : -0.8807x^3 + 1.436x^2 + 0.4448 (Max error: 0.44)
   A2 : 16-bit table with 256 entries
+  ~= : -0.8807x^3 + 1.436x^2 + 0.4448 (Max error: 0.44)
 CLUT : 33 x 33 x 33 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries

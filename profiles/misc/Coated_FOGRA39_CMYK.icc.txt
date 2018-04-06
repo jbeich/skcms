@@ -24,11 +24,15 @@
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
   ~= : 0.968403, 1.06641, 0.0476338, 0.935616, 0.294118, -0.0979506, 0  (Max error: 0.012) (D-gap: -3.7e-05)
+  ~= : -1.253x^3 + 2.163x^2 + 0.09044 (Max error: 0.09)
   A1 : 16-bit table with 256 entries
   ~= : 1.08106, 1.04424, -0.00819014, 0.766537, 0.00784314, 0.0741637, 0  (Max error: 0.11) (D-gap: 0.068)
+  ~= : -1.231x^3 + 2.151x^2 + 0.0799 (Max error: 0.08)
   A2 : 16-bit table with 256 entries
   ~= : 1.15888, 1.00891, 0.0094616, 0.708171, 0.00784314, -0.00356377, 0  (Max error: 0.018) (D-gap: 7.3e-06)
+  ~= : -1.121x^3 + 2.048x^2 + 0.07377 (Max error: 0.074)
   A3 : 16-bit table with 256 entries
+  ~= : -0.7394x^3 + 1.659x^2 + 0.0805 (Max error: 0.081)
 CLUT : 11 x 11 x 11 x 11 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
