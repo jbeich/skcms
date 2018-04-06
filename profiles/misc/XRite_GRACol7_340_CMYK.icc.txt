@@ -24,20 +24,27 @@
  "A" : 4 inputs
   A0 : 16-bit table with 4096 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
+  ~= : -0.066068x^4 + 0.143373x^3 + -0.100575x^2 + 1.024660x + -0.001390 (Max error: 0.00139)
   A1 : 16-bit table with 4096 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
+  ~= : -0.066068x^4 + 0.143373x^3 + -0.100575x^2 + 1.024660x + -0.001390 (Max error: 0.00139)
   A2 : 16-bit table with 4096 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
+  ~= : -0.066068x^4 + 0.143373x^3 + -0.100575x^2 + 1.024660x + -0.001390 (Max error: 0.00139)
   A3 : 16-bit table with 4096 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
+  ~= : -0.066068x^4 + 0.143373x^3 + -0.100575x^2 + 1.024660x + -0.001390 (Max error: 0.00139)
 CLUT : 17 x 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 4096 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
+  ~= : -0.066068x^4 + 0.143373x^3 + -0.100575x^2 + 1.024660x + -0.001390 (Max error: 0.00139)
   B1 : 16-bit table with 4096 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
+  ~= : -0.066068x^4 + 0.143373x^3 + -0.100575x^2 + 1.024660x + -0.001390 (Max error: 0.00139)
   B2 : 16-bit table with 4096 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 7.7e-06) (Linear)
+  ~= : -0.066068x^4 + 0.143373x^3 + -0.100575x^2 + 1.024660x + -0.001390 (Max error: 0.00139)
 252 random bytes transformed to linear XYZD50 bytes:
 	121d23 3b2510 0c0e07 1c151b 1e1607 17210e 252013
 	242239 010102 111616 212b45 493020 26281a 030201
