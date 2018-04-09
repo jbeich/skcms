@@ -109,13 +109,13 @@ bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
 bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
                             float* max_error);
 
-// A specialized approximation for transfer functions with gamma between 1 and 5.
-//     f(x) = Ax^5 + Bx^4 + Cx^3 + Dx^2 + (1 - A - B - C - D)x
+// A specialized approximation for transfer functions with gamma between 1 and 3.
+//     f(x) = Ax^3 + Bx^2 + (1-A-B)x
 typedef struct {
-    float A,B,C,D;
-} skcms_TF15;
+    float A,B;
+} skcms_TF13;
 
-bool skcms_ApproximateCurve15(const skcms_Curve* curve, skcms_TF15* approx, float* max_error);
+bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, float* max_error);
 
 typedef struct {
     uint32_t       signature;

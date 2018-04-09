@@ -23,27 +23,27 @@
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
-  ~= : -0.000019x^5 + 0.000049x^4 + -0.000044x^3 + 0.000016x^2 + 0.999998x (Max error: 8.941e-08)
+  ~= : 3.766e-07x^3 + -4.643e-07x^2 + 1x (Max error: 1.192e-07)
   A1 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
-  ~= : -0.000019x^5 + 0.000049x^4 + -0.000044x^3 + 0.000016x^2 + 0.999998x (Max error: 8.941e-08)
+  ~= : 3.766e-07x^3 + -4.643e-07x^2 + 1x (Max error: 1.192e-07)
   A2 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
-  ~= : -0.000019x^5 + 0.000049x^4 + -0.000044x^3 + 0.000016x^2 + 0.999998x (Max error: 8.941e-08)
+  ~= : 3.766e-07x^3 + -4.643e-07x^2 + 1x (Max error: 1.192e-07)
   A3 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
-  ~= : -0.000019x^5 + 0.000049x^4 + -0.000044x^3 + 0.000016x^2 + 0.999998x (Max error: 8.941e-08)
+  ~= : 3.766e-07x^3 + -4.643e-07x^2 + 1x (Max error: 1.192e-07)
 CLUT : 16 x 16 x 16 x 16 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
-  ~= : -0.000019x^5 + 0.000049x^4 + -0.000044x^3 + 0.000016x^2 + 0.999998x (Max error: 8.941e-08)
+  ~= : 3.766e-07x^3 + -4.643e-07x^2 + 1x (Max error: 1.192e-07)
   B1 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
-  ~= : -0.000019x^5 + 0.000049x^4 + -0.000044x^3 + 0.000016x^2 + 0.999998x (Max error: 8.941e-08)
+  ~= : 3.766e-07x^3 + -4.643e-07x^2 + 1x (Max error: 1.192e-07)
   B2 : 16-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 6e-08) (Linear)
-  ~= : -0.000019x^5 + 0.000049x^4 + -0.000044x^3 + 0.000016x^2 + 0.999998x (Max error: 8.941e-08)
+  ~= : 3.766e-07x^3 + -4.643e-07x^2 + 1x (Max error: 1.192e-07)
 252 random bytes transformed to linear XYZD50 bytes:
 	162328 3a2310 090a05 1d151d 1b1306 18230c 211b10
 	2a2742 000101 101615 253047 4c3123 27291b 020201
