@@ -21,7 +21,7 @@
 rTRC : 16-bit table with 255 entries
   ~= : 5.615x^3 + -10.81x^2 + 6.19x (Max error: 0.2712)
 gTRC : 16-bit table with 255 entries
-  ~= : 1, 0.00387579, 0, 0, 0, 0, 0  (Max error: 2.3e-10)
+  ~= : 1, 0.00387579, 0, 0, 0, 0, 0  (Max error: 1.5e-05)
   ~= : 6.972x^3 + -7.968x^2 + 1.996x (Max error: 0.9961)
 bTRC : 16-bit table with 255 entries
   ~= : 5.615x^3 + -10.81x^2 + 6.19x (Max error: 0.2712)
