@@ -19,12 +19,12 @@
  'A2B2' : 'mft2' :  29554 : 2184
 
 rTRC : 16-bit table with 255 entries
-  ~= : 11.378673x^5 + -39.503075x^4 + 52.381248x^3 + -32.764713x^2 + 9.507866x (Max error: 0.2382)
+  ~= : 5.615x^3 + -10.81x^2 + 6.19x (Max error: 0.2712)
 gTRC : 16-bit table with 255 entries
   ~= : 1, 0.00387579, 0, 0, 0, 0, 0  (Max error: 2.3e-10)
-  ~= : 65.688660x^5 + -143.307236x^4 + 107.468880x^3 + -31.838594x^2 + 2.988291x (Max error: 0.9961)
+  ~= : 6.972x^3 + -7.968x^2 + 1.996x (Max error: 0.9961)
 bTRC : 16-bit table with 255 entries
-  ~= : 11.378673x^5 + -39.503075x^4 + 52.381248x^3 + -32.764713x^2 + 9.507866x (Max error: 0.2382)
+  ~= : 5.615x^3 + -10.81x^2 + 6.19x (Max error: 0.2712)
  XYZ : | 0.964202881 0.000000000 0.964202881 |
        | 1.000000000 0.000000000 1.000000000 |
        | 0.824905396 0.000000000 0.824905396 |
@@ -32,18 +32,24 @@ bTRC : 16-bit table with 255 entries
  "A" : 3 inputs
   A0 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   A1 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   A2 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
 CLUT : 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   B1 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   B2 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
 252 random bytes transformed to linear XYZD50 bytes:
 	181915 7b8069 7b8069 7b8069 7b8069 7b8069 090a08
 	7b8069 7b8069 7b8069 7b8069 7b8069 7b8069 7b8069

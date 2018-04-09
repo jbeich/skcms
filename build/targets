@@ -33,6 +33,6 @@ build $out/src/GaussNewton.o:      compile src/GaussNewton.c
 build $out/src/ICCProfile.o:       compile src/ICCProfile.c
 build $out/src/LinearAlgebra.o:    compile src/LinearAlgebra.c
 build $out/src/PortableMath.o:     compile src/PortableMath.c
-build $out/src/TF15.o:             compile src/TF15.c
+build $out/src/TF13.o:             compile src/TF13.c
 build $out/src/TransferFunction.o: compile src/TransferFunction.c
 build $out/src/Transform.o:        compile src/Transform.c

@@ -16,18 +16,24 @@
  "A" : 3 inputs
   A0 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   A1 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   A2 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
 CLUT : 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   B1 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   B2 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
 252 random bytes transformed to linear XYZD50 bytes:
 	181915 7b8069 7b8069 7b8069 7b8069 7b8069 090a08
 	7b8069 7b8069 7b8069 7b8069 7b8069 7b8069 7b8069

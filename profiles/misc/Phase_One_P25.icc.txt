@@ -20,31 +20,34 @@
 
 rTRC : 16-bit table with 256 entries
   ~= : 0.557427, 0.823753, -0.0355345, 3.73293, 0.0431373, 0.142111, 0  (Max error: 0.019) (D-gap: -0.019)
-  ~= : 10.371853x^5 + -29.808578x^4 + 31.703903x^3 + -15.693880x^2 + 4.426702x (Max error: 0.01161)
+  ~= : 1.474x^3 + -3.205x^2 + 2.731x (Max error: 0.0825)
 gTRC : 16-bit table with 256 entries
   ~= : 0.400724, 1.03417, -0.022065, 5.60534, 0.027451, 0.0223994, 0  (Max error: 0.027) (D-gap: -1.7e-05)
-  ~= : 16.163185x^5 + -45.403114x^4 + 46.883369x^3 + -22.263912x^2 + 5.620472x (Max error: 0.0367)
+  ~= : 1.873x^3 + -4.076x^2 + 3.203x (Max error: 0.1346)
 bTRC : 16-bit table with 256 entries
-  ~= : 4.839172x^5 + -15.317191x^4 + 18.225716x^3 + -10.121508x^2 + 3.373812x (Max error: 0.01237)
+  ~= : 1.302x^3 + -2.583x^2 + 2.281x (Max error: 0.05044)
  XYZ : | 0.647903442 0.357360840 0.156417847 |
        | 0.382919312 1.109725952 0.000000000 |
        | 0.083267212 0.679275513 0.523422241 |
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
   A0 : 16-bit table with 256 entries
-  ~= : 20.854698x^5 + -59.823750x^4 + 63.662682x^3 + -30.689857x^2 + 6.996227x (Max error: 0.09414)
+  ~= : 3.103x^3 + -5.715x^2 + 3.611x (Max error: 0.2053)
   A1 : 16-bit table with 256 entries
-  ~= : 20.854698x^5 + -59.823750x^4 + 63.662682x^3 + -30.689857x^2 + 6.996227x (Max error: 0.09414)
+  ~= : 3.103x^3 + -5.715x^2 + 3.611x (Max error: 0.2053)
   A2 : 16-bit table with 256 entries
-  ~= : 20.854698x^5 + -59.823750x^4 + 63.662682x^3 + -30.689857x^2 + 6.996227x (Max error: 0.09414)
+  ~= : 3.103x^3 + -5.715x^2 + 3.611x (Max error: 0.2053)
 CLUT : 33 x 33 x 33 (16 bpp)
  "B" : 3 outputs
   B0 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   B1 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
   B2 : 16-bit table with 2 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
+  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
 252 random bytes transformed to linear XYZD50 bytes:
 	1d5c40 86f80b 4a7913 2e1551 341674 8a6006 38a75e
 	b45e34 2f2417 af6d2b b4ae06 547302 1f4c33 6822be

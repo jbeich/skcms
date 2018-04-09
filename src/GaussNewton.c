@@ -11,11 +11,10 @@
 #include <assert.h>
 
 bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* t_ctx,
-                             float (*     f)(float x, const float    P[4]),
-                             void  (*grad_f)(float x,       float dfdP[4]),
+                             float (*     f)(float x, const float P[4]),
+                             void  (*grad_f)(float x, const float P[4], float dfdP[4]),
                              float P[4],
-                             float x0, float x1, int N,
-                             void  (*fixup)(skcms_Matrix4x4*, const float P[4])) {
+                             float x0, float x1, int N) {
     // We'll sample x from the range [x0,x1] (both inclusive) N times with even spacing.
     //
     // We want to do P' = P + (Jf^T Jf)^-1 Jf^T r(P),
@@ -62,18 +61,7 @@ bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* 
         float resid = t(x,t_ctx) - f(x,P);
 
         float dfdP[4] = {0,0,0,0};
-        grad_f(x, dfdP);
-
-        // TODO: allow a bias(x) function?
-        // As-is, this bias(x) can be folded into t(x), f(x), and grad_f(x).
-    #if 0
-        float b = bias(x, bias_ctx);
-        resid   *= b;
-        dfdP[0] *= b;
-        dfdP[1] *= b;
-        dfdP[2] *= b;
-        dfdP[3] *= b;
-    #endif
+        grad_f(x,P, dfdP);
 
         for (int r = 0; r < 4; r++) {
             for (int c = 0; c < 4; c++) {
@@ -83,10 +71,16 @@ bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* 
         }
     }
 
-    // 3) invert lhs
-    if (fixup) {
-        fixup(&lhs, P);
+    // If any of the 4 P parameters are unused, this matrix will be singular.
+    // Detect those cases and fix them up to indentity instead, so we can invert.
+    for (int k = 0; k < 4; k++) {
+        if (lhs.vals[0][k]==0 && lhs.vals[1][k]==0 && lhs.vals[2][k]==0 && lhs.vals[3][k]==0 &&
+            lhs.vals[k][0]==0 && lhs.vals[k][1]==0 && lhs.vals[k][2]==0 && lhs.vals[k][3]==0) {
+            lhs.vals[k][k] = 1;
+        }
     }
+
+    // 3) invert lhs
     skcms_Matrix4x4 lhs_inv;
     if (!skcms_Matrix4x4_invert(&lhs, &lhs_inv)) {
         return false;

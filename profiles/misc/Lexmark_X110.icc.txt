@@ -16,24 +16,24 @@
  "A" : 3 inputs
   A0 : 8-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : -0.000002x^5 + 0.000006x^4 + -0.000005x^3 + 0.000002x^2 + 1.000000x (Max error: 1.788e-07)
+  ~= : 4.678e-08x^3 + -6.455e-08x^2 + 1x (Max error: 0)
   A1 : 8-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : -0.000002x^5 + 0.000006x^4 + -0.000005x^3 + 0.000002x^2 + 1.000000x (Max error: 1.788e-07)
+  ~= : 4.678e-08x^3 + -6.455e-08x^2 + 1x (Max error: 0)
   A2 : 8-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : -0.000002x^5 + 0.000006x^4 + -0.000005x^3 + 0.000002x^2 + 1.000000x (Max error: 1.788e-07)
+  ~= : 4.678e-08x^3 + -6.455e-08x^2 + 1x (Max error: 0)
 CLUT : 17 x 17 x 17 (8 bpp)
  "B" : 3 outputs
   B0 : 8-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : -0.000002x^5 + 0.000006x^4 + -0.000005x^3 + 0.000002x^2 + 1.000000x (Max error: 1.788e-07)
+  ~= : 4.678e-08x^3 + -6.455e-08x^2 + 1x (Max error: 0)
   B1 : 8-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : -0.000002x^5 + 0.000006x^4 + -0.000005x^3 + 0.000002x^2 + 1.000000x (Max error: 1.788e-07)
+  ~= : 4.678e-08x^3 + -6.455e-08x^2 + 1x (Max error: 0)
   B2 : 8-bit table with 256 entries
   ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : -0.000002x^5 + 0.000006x^4 + -0.000005x^3 + 0.000002x^2 + 1.000000x (Max error: 1.788e-07)
+  ~= : 4.678e-08x^3 + -6.455e-08x^2 + 1x (Max error: 0)
 252 random bytes transformed to linear XYZD50 bytes:
 	6fa094 d8f243 a7d043 825cbe 8365c0 a39f15 5c8161
 	a871bd 5a5249 aa8b81 d2f028 a6cb1b 729e83 937fb7
