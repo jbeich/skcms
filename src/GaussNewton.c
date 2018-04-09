@@ -8,7 +8,9 @@
 #include "../skcms.h"
 #include "GaussNewton.h"
 #include "LinearAlgebra.h"
+#include "TransferFunction.h"
 #include <assert.h>
+#include <string.h>
 
 bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* t_ctx,
                              float (*     f)(float x, const float P[4]),
@@ -93,4 +95,25 @@ bool skcms_gauss_newton_step(float (*     t)(float x, const void*), const void* 
     P[2] += dP.vals[2];
     P[3] += dP.vals[3];
     return true;
+}
+
+float skcms_eval_curve(float x, const void* vctx) {
+    const skcms_Curve* curve = (const skcms_Curve*)vctx;
+
+    if (curve->table_entries == 0) {
+        return skcms_TransferFunction_eval(&curve->parametric, x);
+    }
+
+    // TODO: today we should always hit an entry exactly, but if that changes, lerp?
+    int ix = (int)( x * (curve->table_entries - 1) );
+
+    if (curve->table_8) {
+        return curve->table_8[ix] * (1/255.0f);
+    } else {
+        uint16_t be;
+        memcpy(&be, curve->table_16 + 2*ix, 2);
+
+        uint16_t le = ((be << 8) | (be >> 8)) & 0xffff;
+        return le * (1/65535.0f);
+    }
 }
