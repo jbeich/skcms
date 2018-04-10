@@ -682,7 +682,7 @@ static void test_ApproximateCurve_clamped() {
     expect(skcms_ApproximateCurve(&curve, &tf, &max_error));
 
     // The approximation isn't very good.
-    expect(max_error < 1 / 128.0f);
+    expect(max_error < 1 / 40.0f);
 }
 
 static void expect_eq_Matrix3x3(skcms_Matrix3x3 a, skcms_Matrix3x3 b) {
