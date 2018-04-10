@@ -131,8 +131,7 @@ static bool is_linear(const skcms_TransferFunction* tf) {
 
 static void dump_transfer_function(FILE* fp, const char* name, const skcms_TransferFunction* tf) {
     fprintf(fp, "%4s : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g", name,
-           (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
-           (double)tf->d, (double)tf->e, (double)tf->f);
+           tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f);
     if (is_sRGB(tf)) {
         fprintf(fp, " (sRGB)");
     } else if (is_linear(tf)) {
@@ -145,18 +144,16 @@ static void dump_approx_transfer_function(FILE* fp, const skcms_TransferFunction
                                           float max_error, bool for_unit_test) {
     if (for_unit_test) {
         fprintf(fp, "  ~= : %.6g, %.6g, %.6g, %.6g, %.6g, %.6g, %.6g  (Max error: %.2g)",
-                (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
-                (double)tf->d, (double)tf->e, (double)tf->f, (double)max_error);
+                tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f, max_error);
     } else {
         fprintf(fp, "  ~= : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g  (Max error: %.9g)",
-                (double)tf->g, (double)tf->a, (double)tf->b, (double)tf->c,
-                (double)tf->d, (double)tf->e, (double)tf->f, (double)max_error);
+                tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f, max_error);
     }
     if (tf->d > 0) {
         // Has both linear and nonlinear sections, include the discontinuity at D
         float l_at_d = (tf->c * tf->d + tf->f);
         float n_at_d = powf_(tf->a * tf->d + tf->b, tf->g) + tf->e;
-        fprintf(fp, " (D-gap: %.*g)", for_unit_test ? 2 : 9, (double)(n_at_d - l_at_d));
+        fprintf(fp, " (D-gap: %.*g)", for_unit_test ? 2 : 9, (n_at_d - l_at_d));
     }
     if (is_linear(tf)) {
         fprintf(fp, " (Linear)");
@@ -168,8 +165,7 @@ static void dump_approx_tf13(FILE* fp, const skcms_TF13* tf,
                              float max_error, bool for_unit_test) {
     (void)for_unit_test;
     fprintf(fp, "  ~= : %.4gx^3 + %.4gx^2 + %.4gx (Max error: %.4g)\n",
-            (double)tf->A, (double)tf->B, (double)(1 - tf->A - tf->B),
-            (double)max_error);
+            tf->A, tf->B, (1 - tf->A - tf->B), max_error);
 }
 
 static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve, bool for_unit_test) {
@@ -247,9 +243,9 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
         fprintf(fp, " XYZ : | %.9f %.9f %.9f |\n"
                     "       | %.9f %.9f %.9f |\n"
                     "       | %.9f %.9f %.9f |\n",
-               (double)toXYZ.vals[0][0], (double)toXYZ.vals[0][1], (double)toXYZ.vals[0][2],
-               (double)toXYZ.vals[1][0], (double)toXYZ.vals[1][1], (double)toXYZ.vals[1][2],
-               (double)toXYZ.vals[2][0], (double)toXYZ.vals[2][1], (double)toXYZ.vals[2][2]);
+               toXYZ.vals[0][0], toXYZ.vals[0][1], toXYZ.vals[0][2],
+               toXYZ.vals[1][0], toXYZ.vals[1][1], toXYZ.vals[1][2],
+               toXYZ.vals[2][0], toXYZ.vals[2][1], toXYZ.vals[2][2]);
     }
 
     if (profile->has_A2B) {
@@ -281,9 +277,9 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
             fprintf(fp, "Mtrx : | %.9f %.9f %.9f %.9f |\n"
                         "       | %.9f %.9f %.9f %.9f |\n"
                         "       | %.9f %.9f %.9f %.9f |\n",
-                   (double)m->vals[0][0], (double)m->vals[0][1], (double)m->vals[0][2], (double)m->vals[0][3],
-                   (double)m->vals[1][0], (double)m->vals[1][1], (double)m->vals[1][2], (double)m->vals[1][3],
-                   (double)m->vals[2][0], (double)m->vals[2][1], (double)m->vals[2][2], (double)m->vals[2][3]);
+                   m->vals[0][0], m->vals[0][1], m->vals[0][2], m->vals[0][3],
+                   m->vals[1][0], m->vals[1][1], m->vals[1][2], m->vals[1][3],
+                   m->vals[2][0], m->vals[2][1], m->vals[2][2], m->vals[2][3]);
         }
 
         {

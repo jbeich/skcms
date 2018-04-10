@@ -4,7 +4,8 @@ arch    = arch-arm
 ndk_api = 24
 
 cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang -target $target
-cflags  = -fcolor-diagnostics -Weverything -Wno-padded -Wno-float-equal -Wno-vector-conversion $
+cflags  = -fcolor-diagnostics -Weverything $
+          -Wno-padded -Wno-double-promotion -Wno-float-equal -Wno-vector-conversion $
           -march=armv7-a -mthumb $
           --sysroot $ndk/sysroot $
           -I $ndk/sysroot/usr/include/$target
