@@ -160,11 +160,23 @@ static void desmos_transfer_function(FILE* fp, const skcms_TransferFunction* tf,
     fprintf(fp, " \"id\": \"%d\",\n", desmos_id++);
     fprintf(fp, " \"color\": \"%s\",\n", color);
     fprintf(fp, " \"latex\": \"\\\\left\\\\{"
-            "0 \\\\le x < %.5f: %.5f*x + %.5f, "                    // 0 <= x < d: cx + f
-            "%.5f \\\\le x \\\\le 1: (%.5f*x + %.5f)^{%.5f} + %.5f" // d <= x <= 1: (ax + b)^g + e
+            "0 \\\\le x < %.5f: %.5fx + %.5f, "                    // 0 <= x < d: cx + f
+            "%.5f \\\\le x \\\\le 1: (%.5fx + %.5f)^{%.5f} + %.5f" // d <= x <= 1: (ax + b)^g + e
             "\\\\right\\\\}\"\n",
             (double)tf->d, (double)tf->c, (double)tf->f,
             (double)tf->d, (double)tf->a, (double)tf->b, (double)tf->g, (double)tf->e);
+    fprintf(fp, "},\n");
+}
+
+static void desmos_TF13(FILE* fp, const skcms_TF13* tf, const char* color) {
+    double A = tf->A,
+           B = tf->B;
+    fprintf(fp, "{\n");
+    fprintf(fp, " \"type\": \"expression\",\n");
+    fprintf(fp, " \"id\": \"%d\",\n", desmos_id++);
+    fprintf(fp, " \"color\": \"%s\",\n", color);
+    fprintf(fp, " \"latex\": \"%.5fx^3 + %.5fx^2 + %.5fx"
+            "\\\\left\\\\{0 \\\\le x \\\\le 1 \\\\right\\\\}\"\n", A, B, (1 - A - B));
     fprintf(fp, "},\n");
 }
 
@@ -233,16 +245,17 @@ static void desmos_curve(FILE* fp, const skcms_Curve* curve, const char* color) 
     fprintf(fp, "},\n");
 
 
+    char approx_color[64];
+    (void)snprintf(approx_color, sizeof(approx_color), "Dark%s", color);
+
     skcms_TransferFunction approx_tf;
     float max_error;
     if (skcms_ApproximateCurve(curve, &approx_tf, &max_error)) {
-        char approx_color[64];
-        (void)snprintf(approx_color, sizeof(approx_color), "Dark%s", color);
         desmos_transfer_function(fp, &approx_tf, approx_color);
     }
     skcms_TF13 tf13;
     if (skcms_ApproximateCurve13(curve, &tf13, &max_error)) {
-        // TODO
+        desmos_TF13(fp, &tf13, approx_color);
     }
 }
 
