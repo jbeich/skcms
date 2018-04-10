@@ -163,14 +163,14 @@ static void desmos_transfer_function(FILE* fp, const skcms_TransferFunction* tf,
             "0 \\\\le x < %.5f: %.5fx + %.5f, "                    // 0 <= x < d: cx + f
             "%.5f \\\\le x \\\\le 1: (%.5fx + %.5f)^{%.5f} + %.5f" // d <= x <= 1: (ax + b)^g + e
             "\\\\right\\\\}\"\n",
-            (double)tf->d, (double)tf->c, (double)tf->f,
-            (double)tf->d, (double)tf->a, (double)tf->b, (double)tf->g, (double)tf->e);
+            tf->d, tf->c, tf->f,
+            tf->d, tf->a, tf->b, tf->g, tf->e);
     fprintf(fp, "},\n");
 }
 
 static void desmos_TF13(FILE* fp, const skcms_TF13* tf, const char* color) {
-    double A = (double)tf->A,
-           B = (double)tf->B;
+    double A = tf->A,
+           B = tf->B;
     fprintf(fp, "{\n");
     fprintf(fp, " \"type\": \"expression\",\n");
     fprintf(fp, " \"id\": \"%d\",\n", desmos_id++);
@@ -312,7 +312,7 @@ static void svg_transfer_function(FILE* fp, const skcms_TransferFunction* tf, co
     for (int i = 0; i < 256; ++i) {
         float x = i / 255.0f;
         float t = skcms_TransferFunction_eval(tf, x);
-        fprintf(fp, "%g, %g\n", (double)x, (double)t);
+        fprintf(fp, "%g, %g\n", x, t);
     }
     fprintf(fp, "\"/>\n");
 }
@@ -423,9 +423,9 @@ int main(int argc, char** argv) {
             float bSum = m->vals[0][2] + m->vals[1][2] + m->vals[2][2];
             fprintf(fp, "<polygon fill=\"none\" stroke=\"black\" "
                     "vector-effect=\"non-scaling-stroke\" points=\"%g,%g %g,%g %g,%g\"/>\n",
-                    (double)(m->vals[0][0] / rSum), (double)(m->vals[1][0] / rSum),
-                    (double)(m->vals[0][1] / gSum), (double)(m->vals[1][1] / gSum),
-                    (double)(m->vals[0][2] / bSum), (double)(m->vals[1][2] / bSum));
+                    (m->vals[0][0] / rSum), (m->vals[1][0] / rSum),
+                    (m->vals[0][1] / gSum), (m->vals[1][1] / gSum),
+                    (m->vals[0][2] / bSum), (m->vals[1][2] / bSum));
 
             svg_pop_group(fp);
             svg_close(fp);
