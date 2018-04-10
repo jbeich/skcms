@@ -112,6 +112,147 @@ static uint16_t read_big_u16(const uint8_t* ptr) {
 #endif
 }
 
+// TODO: Put state into struct with FP
+static int desmos_id = 0;
+
+static FILE* desmos_open(const char* filename) {
+    FILE* fp = fopen(filename, "wb");
+    if (!fp) {
+        fatal("Unable to open output file");
+    }
+
+    fprintf(fp, "<!DOCTYPE html>\n");
+    fprintf(fp, "<html>\n");
+    fprintf(fp, "<head>\n");
+    fprintf(fp, "<script src=\"https://www.desmos.com/api/v1.1/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6\"></script>\n");
+    fprintf(fp, "<style>\n");
+    fprintf(fp, "  html, body{ width: 100%%; height: 100%%; margin: 0; padding: 0; overflow: hidden; }\n");
+    fprintf(fp, "  #calculator { width: 100%%; height: 100%%; }\n");
+    fprintf(fp, "</style>\n");
+    fprintf(fp, "</head>\n");
+    fprintf(fp, "<body>\n");
+    fprintf(fp, "<div id=\"calculator\"></div>\n");
+    fprintf(fp, "<script>\n");
+    fprintf(fp, "var elt = document.getElementById('calculator');\n");
+    fprintf(fp, "var c = Desmos.GraphingCalculator(elt);\n");
+    fprintf(fp, "c.setState({\n");
+    fprintf(fp, "\"version\": 5,\n");
+    fprintf(fp, "\"expressions\": {\n");
+    fprintf(fp, "\"list\": [\n");
+
+    desmos_id = 0;
+    return fp;
+}
+
+static void desmos_close(FILE* fp) {
+    fprintf(fp, "] } } );\n");
+    fprintf(fp, "c.setMathBounds({left: -0.1, right: 1.1, bottom: -0.1, top: 1.1});\n");
+    fprintf(fp, "</script>\n");
+    fprintf(fp, "</body>\n");
+    fprintf(fp, "</html>\n");
+    fclose(fp);
+}
+
+static void desmos_transfer_function(FILE* fp, const skcms_TransferFunction* tf,
+                                     const char* color) {
+    fprintf(fp, "{\n");
+    fprintf(fp, " \"type\": \"expression\",\n");
+    fprintf(fp, " \"id\": \"%d\",\n", desmos_id++);
+    fprintf(fp, " \"color\": \"%s\",\n", color);
+    fprintf(fp, " \"latex\": \"\\\\left\\\\{"
+            "0 \\\\le x < %.5f: %.5f*x + %.5f, "                    // 0 <= x < d: cx + f
+            "%.5f \\\\le x \\\\le 1: (%.5f*x + %.5f)^{%.5f} + %.5f" // d <= x <= 1: (ax + b)^g + e
+            "\\\\right\\\\}\"\n",
+            (double)tf->d, (double)tf->c, (double)tf->f,
+            (double)tf->d, (double)tf->a, (double)tf->b, (double)tf->g, (double)tf->e);
+    fprintf(fp, "},\n");
+}
+
+static void desmos_curve(FILE* fp, const skcms_Curve* curve, const char* color) {
+    if (!curve->table_entries) {
+        desmos_transfer_function(fp, &curve->parametric, color);
+        return;
+    }
+
+    int folder_id = desmos_id++,
+        table_id  = desmos_id++;
+
+    // Folder
+    fprintf(fp, "{\n");
+    fprintf(fp, " \"type\": \"folder\",\n");
+    fprintf(fp, " \"id\": \"%d\",\n", folder_id);
+    fprintf(fp, " \"title\": \"%s Table\",\n", color);
+    fprintf(fp, " \"collapsed\": true,\n");
+    fprintf(fp, " \"memberIds\": { \"%d\": true }\n", table_id);
+    fprintf(fp, "},\n");
+
+    // Table
+    fprintf(fp, "{\n");
+    fprintf(fp, " \"type\": \"table\",\n");
+    fprintf(fp, " \"id\": \"%d\",\n", table_id);
+    fprintf(fp, " \"columns\": [\n");
+
+    double xScale = 1.0 / (curve->table_entries - 1.0);
+
+    // X Column
+    fprintf(fp, " {\n");
+    fprintf(fp, "  \"values\": [");
+
+    for (uint32_t i = 0; i < curve->table_entries; ++i) {
+        if (i % 6 == 0) {
+            fprintf(fp, "\n  ");
+        }
+        fprintf(fp, " \"%.5f\",", xScale * i);
+    }
+
+    fprintf(fp, "  ],\n");
+    fprintf(fp, "  \"hidden\": true,\n");
+    fprintf(fp, "  \"id\": \"%d\",\n", desmos_id++);
+    fprintf(fp, "  \"color\": \"%s\",\n", color);
+    fprintf(fp, "  \"latex\": \"x_%c\"\n", color[0]);
+    fprintf(fp, " },\n");
+
+    // Y Column
+    fprintf(fp, " {\n");
+    fprintf(fp, "  \"values\": [\n");
+
+    for (uint32_t i = 0; i < curve->table_entries; ++i) {
+        if (i % 6 == 0) {
+            fprintf(fp, "\n  ");
+        }
+        fprintf(fp, " \"%.5f\",",
+                curve->table_8 ? curve->table_8[i] / 255.0
+                               : read_big_u16(curve->table_16 + 2 * i) / 65535.0);
+    }
+    fprintf(fp, "  ],\n");
+    fprintf(fp, "  \"id\": \"%d\",\n", desmos_id++);
+    fprintf(fp, "  \"color\": \"%s\",\n", color);
+    fprintf(fp, "  \"latex\": \"y_%c\"\n", color[0]);
+    fprintf(fp, " }\n");
+    fprintf(fp, " ]\n");
+    fprintf(fp, "},\n");
+
+
+    skcms_TransferFunction approx_tf;
+    float max_error;
+    if (skcms_ApproximateCurve(curve, &approx_tf, &max_error)) {
+        char approx_color[64];
+        (void)snprintf(approx_color, sizeof(approx_color), "Dark%s", color);
+        desmos_transfer_function(fp, &approx_tf, approx_color);
+    }
+    skcms_TF13 tf13;
+    if (skcms_ApproximateCurve13(curve, &tf13, &max_error)) {
+        // TODO
+    }
+}
+
+static void desmos_curves(FILE* fp, uint32_t num_curves, const skcms_Curve* curves,
+                          const char** colors) {
+    for (uint32_t c = 0; c < num_curves; ++c) {
+        desmos_curve(fp, curves + c, colors[c]);
+    }
+}
+
 static const double kSVGMarginLeft   = 100.0;
 static const double kSVGMarginRight  = 10.0;
 static const double kSVGMarginTop    = 10.0;
@@ -120,7 +261,7 @@ static const double kSVGMarginBottom = 50.0;
 static const double kSVGScaleX = 800.0;
 static const double kSVGScaleY = 800.0;
 
-static const char* kSVG_RGB_Colors[3] = { "red", "green", "blue" };
+static const char* kSVG_RGB_Colors[3] = { "Red", "Green", "Blue" };
 static const char* kSVG_CMYK_Colors[4] = { "cyan", "magenta", "yellow", "black" };
 
 static FILE* svg_open(const char* filename) {
@@ -211,10 +352,13 @@ static void dump_curves_svg(const char* filename, uint32_t num_curves, const skc
 int main(int argc, char** argv) {
     const char* filename = NULL;
     bool svg = false;
+    bool desmos = false;
 
     for (int i = 1; i < argc; ++i) {
         if (0 == strcmp(argv[i], "-s")) {
             svg = true;
+        } else if (0 == strcmp(argv[i], "-d")) {
+            desmos = true;
         } else {
             filename = argv[i];
         }
@@ -237,6 +381,14 @@ int main(int argc, char** argv) {
     }
 
     dump_profile(&profile, stdout, false);
+
+    if (desmos) {
+        if (profile.has_trc) {
+            FILE* fp = desmos_open("TRC_curves.html");
+            desmos_curves(fp, 3, profile.trc, kSVG_RGB_Colors);
+            desmos_close(fp);
+        }
+    }
 
     if (svg) {
         if (profile.has_toXYZD50) {
