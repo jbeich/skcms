@@ -49,9 +49,9 @@ static void dump_transform_to_XYZD50(FILE* fp, const skcms_ICCProfile* profile) 
         .has_A2B          = false,
 
         .trc = {
-            {{{0, {1,1,0,0,0,0,0}}}},
-            {{{0, {1,1,0,0,0,0,0}}}},
-            {{{0, {1,1,0,0,0,0,0}}}},
+            {{0, {1,1,0,0,0,0,0}}},
+            {{0, {1,1,0,0,0,0,0}}},
+            {{0, {1,1,0,0,0,0,0}}},
         },
 
         .toXYZD50 = {{
