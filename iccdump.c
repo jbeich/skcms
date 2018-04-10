@@ -169,14 +169,14 @@ static void desmos_transfer_function(FILE* fp, const skcms_TransferFunction* tf,
 }
 
 static void desmos_TF13(FILE* fp, const skcms_TF13* tf, const char* color) {
-    double A = tf->A,
-           B = tf->B;
+    double A = (double)tf->A,
+           B = (double)tf->B;
     fprintf(fp, "{\n");
     fprintf(fp, " \"type\": \"expression\",\n");
     fprintf(fp, " \"id\": \"%d\",\n", desmos_id++);
     fprintf(fp, " \"color\": \"%s\",\n", color);
     fprintf(fp, " \"latex\": \"%.5fx^3 + %.5fx^2 + %.5fx"
-            "\\\\left\\\\{0 \\\\le x \\\\le 1 \\\\right\\\\}\"\n", A, B, (1 - A - B));
+            "\\\\left\\\\{0 \\\\le x \\\\le 1 \\\\right\\\\}\"\n", A, B, (1.0 - A - B));
     fprintf(fp, "},\n");
 }
 
