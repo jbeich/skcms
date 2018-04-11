@@ -226,7 +226,7 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size,
         curve->parametric.e  = 0.0f;
         curve->parametric.f  = 0.0f;
         if (value_count == 0) {
-            // Empty tables are a shorthand for linear
+            // Empty tables are a shorthand for an identity curve
             curve->parametric.g = 1.0f;
         } else {
             // Single entry tables are a shorthand for simple gamma
@@ -236,8 +236,21 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size,
         curve->table_8       = NULL;
         curve->table_16      = curvTag->parameters;
         curve->table_entries = value_count;
-    }
 
+        // Detect and canonicalize identity tables.
+        if (value_count && value_count <= (uint32_t)INT_MAX) {
+            int N = (int)value_count;
+
+            skcms_TransferFunction tf;
+            if (N == skcms_fit_linear(curve, N, 1.0f/(2*N), &tf)
+                && tf.c == 1.0f
+                && tf.f == 0.0f) {
+                curve->table_entries = 0;
+                curve->table_16      = NULL;
+                curve->parametric    = (skcms_TransferFunction){1,1,0,0,0,0,0};
+            }
+        }
+    }
     return true;
 }
 
