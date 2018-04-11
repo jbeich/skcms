@@ -16,6 +16,24 @@
       "revId": "e753c6da13b0605518d4f0ef93f13ea8b8d79a99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91446e23_fb0c65ab",
+        "filename": "profiles/misc/Apple_Wide_Color.icc.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-11T13:46:20Z",
+      "side": 0,
+      "message": "Yeah, I have a feeling that\u0027s an artifact of the initial guess, which is also x^2.",
+      "parentUuid": "be1ce8f8_354ea527",
+      "revId": "e753c6da13b0605518d4f0ef93f13ea8b8d79a99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
