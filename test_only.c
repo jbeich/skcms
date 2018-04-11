@@ -292,6 +292,10 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
     }
 
     dump_transform_to_XYZD50(fp, profile);
+
+    if (skcms_ApproximatelyEqualProfiles(profile, &skcms_sRGB_profile)) {
+        fprintf(fp, "This profile ≈ sRGB.\n");
+    }
 }
 
 bool load_file_fp(FILE* fp, void** buf, size_t* len) {
