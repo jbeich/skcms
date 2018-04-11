@@ -500,6 +500,7 @@ static const ProfileTestCase profile_test_cases[] = {
 
     // Bad profiles found inn the wild
     { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc", NULL }, // Broken tag table, and A2B0 fails to parse
+    { "profiles/misc/bad_pcs.icc",                   NULL }, // PCS is 'RGB '
 
     // fuzzer generated profiles that found parsing bugs
 
