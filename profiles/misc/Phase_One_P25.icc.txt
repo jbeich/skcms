@@ -40,15 +40,9 @@ bTRC : 16-bit table with 256 entries
   ~= : 3.103x^3 + -5.715x^2 + 3.611x (Max error: 0.2053)
 CLUT : 33 x 33 x 33 (16 bpp)
  "B" : 3 outputs
-  B0 : 16-bit table with 2 entries
-  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
-  B1 : 16-bit table with 2 entries
-  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
-  B2 : 16-bit table with 2 entries
-  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
 252 random bytes transformed to linear XYZD50 bytes:
 	1d5c40 86f80b 4a7913 2e1551 341674 8a6006 38a75e
 	b45e34 2f2417 af6d2b b4ae06 547302 1f4c33 6822be
