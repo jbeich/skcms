@@ -35,15 +35,9 @@
   ~= : 0.1588x^3 + 0.08634x^2 + 0.7548x (Max error: 0.001332)
 CLUT : 11 x 11 x 11 x 11 (16 bpp)
  "B" : 3 outputs
-  B0 : 16-bit table with 2 entries
-  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
-  B1 : 16-bit table with 2 entries
-  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
-  B2 : 16-bit table with 2 entries
-  ~= : 1, 1, 0, 0, 0, 0, 0  (Max error: 0) (Linear)
-  ~= : 0x^3 + 1x^2 + 0x (Max error: 0)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
 252 random bytes transformed to linear XYZD50 bytes:
 	111c23 3a220f 0c0e06 1b131a 1c1305 18220c 251f11
 	27253e 000102 101615 232f4c 4a2f21 2c2e1e 030201
