@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad741ebf_7f0ab41f",
+        "filename": "skcms.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-04-16T17:59:24Z",
+      "side": 1,
+      "message": "What do you think of\n\n   // Return true if this profile can be used as a destination in skcms_Transform().\n   bool skcms_UsableAsDestination(const skcms_ICCProfile*);\n\n   // Rewrite this profile, sometimes dramatically, so that skcms_UsableAsDestination()\n   // returns true, approximating the original to the best of our ability.\n   void skcms_EnsureUsableAsDestination(skcms_ICCProfile*);\n\n   // A step beyond skcms_EnsureUsableAsDestination(),\n   // with all color channels using the same transfer curve.\n   void skcms_EnsureUsableAsSimpleDestination(skcms_ICCProfile*);\n\n\n?  I ask because I\u0027ve been toying with this sort of idea,\n\n   // Profiles skcms_Parse() writes are optimized for quality. This lets you trade\n   // a small amount of that quality for better skcms_Transform() performance.\n   void skcms_OptimizeForTransformSpeed(skcms_ICCProfile*);",
+      "revId": "7c2cc01943968743d0c0ba1ba76896353c24f3f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
