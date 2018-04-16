@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     }
 
     clock_t ticks = clock() - start;
-    printf("%d loops in %g ticks, %.3g ns / pixel\n",
+    printf("%d loops in %g clock ticks, %.3g ns / pixel\n",
             loops, (double)ticks, ticks / (CLOCKS_PER_SEC * 1e-9) / (loops * NPIXELS));
 
     free(src_buf);

@@ -15,6 +15,47 @@
 #include <stdint.h>
 #include <string.h>
 
+#if defined(SKCMS_PROFILE)
+    // Basic profiling tools to time each Op.  Not at all thread safe.
+
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    #define COUNT(op) +1
+
+    static uint64_t cycles[FOREACH_Op(COUNT)];
+
+    static void profile_dump_stats() {
+    #define STRINGIFY(op) #op,
+        static const char* names[] = { FOREACH_Op(STRINGIFY) };
+    #undef STRINGIFY
+        for (int i = 0; i < FOREACH_Op(COUNT); i++) {
+            if (cycles[i]) {
+                fprintf(stderr, "%16s: %12llu cycles\n", names[i], cycles[i]);
+            }
+        }
+    }
+
+    static Op profile_next_op(Op op) {
+        static uint64_t start    = 0;
+        static uint64_t* current = NULL;
+
+        if (!current) {
+            atexit(profile_dump_stats);
+        } else {
+            *current += __builtin_readcyclecounter() - start;
+        }
+
+        current = &cycles[op];
+        start   = __builtin_readcyclecounter();
+        return op;
+    }
+#else
+    static inline Op profile_next_op(Op op) {
+        return op;
+    }
+#endif
+
 #if defined(__clang__)
     typedef float    __attribute__((ext_vector_type(4)))   Fx4;
     typedef int32_t  __attribute__((ext_vector_type(4))) I32x4;
