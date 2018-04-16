@@ -214,6 +214,9 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
         }
     }
 
+    skcms_TransferFunction best_tf = skcms_BestTransferFunction(profile);
+    dump_transfer_function(fp, "Best", &best_tf, 0.0f);
+
     if (profile->has_toXYZD50) {
         skcms_Matrix3x3 toXYZ = profile->toXYZD50;
         fprintf(fp, " XYZ : | %.9f %.9f %.9f |\n"
