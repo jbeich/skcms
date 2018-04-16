@@ -393,7 +393,7 @@ int main(int argc, char** argv) {
         fatal("Unable to parse ICC profile");
     }
 
-    dump_profile(&profile, stdout, false);
+    dump_profile(&profile, stdout);
 
     if (desmos) {
         if (profile.has_trc) {

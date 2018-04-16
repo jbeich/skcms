@@ -21,15 +21,15 @@
 
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
-  A0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  A1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  A2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  A3 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  A0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  A1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  A2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  A3 : 1, 1, 0, 0, 0, 0, 0 (Identity)
 CLUT : 16 x 16 x 16 x 16 (16 bpp)
  "B" : 3 outputs
-  B0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  B1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  B2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
 252 random bytes transformed to linear XYZD50 bytes:
 	162328 3a2310 090a05 1d151d 1b1306 18230c 211b10
 	2a2742 000101 101615 253047 4c3123 27291b 020201

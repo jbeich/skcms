@@ -17,21 +17,21 @@
 
  A2B : "A", CLUT, "M", Matrix, "B"
  "A" : 3 inputs
-  A0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  A1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  A2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  A0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  A1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  A2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
 CLUT : 17 x 17 x 17 (16 bpp)
  "M" : 3 inputs
-  M0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  M1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  M2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  M0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  M1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  M2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
 Mtrx : | 1.000000000 0.000000000 0.000000000 0.000000000 |
        | 0.000000000 1.000000000 0.000000000 0.000000000 |
        | 0.000000000 0.000000000 1.000000000 0.000000000 |
  "B" : 3 outputs
-  B0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  B1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  B2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
 252 random bytes transformed to linear XYZD50 bytes:
 	0f2b1c 97bd13 445b15 190e29 1d113f 5f4706 1d4a14
 	6b3928 1f1912 764e26 b3a80d 424e05 1d3325 3b236d

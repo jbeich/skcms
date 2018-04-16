@@ -10,7 +10,7 @@
 #include "skcms.h"
 #include <stdio.h>
 
-void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test);
+void dump_profile(const skcms_ICCProfile* profile, FILE* fp);
 
 bool load_file_fp(FILE* fp, void** buf, size_t* len);
 bool load_file(const char* filename, void** buf, size_t* len);
