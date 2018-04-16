@@ -119,7 +119,7 @@ static bool is_sRGB(const skcms_TransferFunction* tf) {
         && tf->f ==      0 / 65536.0f;
 }
 
-static bool is_linear(const skcms_TransferFunction* tf) {
+static bool is_identity(const skcms_TransferFunction* tf) {
     return tf->g == 1.0f
         && tf->a == 1.0f
         && tf->b == 0.0f
@@ -129,83 +129,62 @@ static bool is_linear(const skcms_TransferFunction* tf) {
         && tf->f == 0.0f;
 }
 
-static void dump_transfer_function(FILE* fp, const char* name, const skcms_TransferFunction* tf) {
-    fprintf(fp, "%4s : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g", name,
-            tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f);
-    if (is_sRGB(tf)) {
-        fprintf(fp, " (sRGB)");
-    } else if (is_linear(tf)) {
-        fprintf(fp, " (Linear)");
-    }
-    fprintf(fp, "\n");
+static void dump_approx_tf13(FILE* fp, const skcms_TF13* tf, float max_error) {
+    fprintf(fp, "  ~= : %.6gx^3 + %.6gx^2 + %.6gx (Max error: %.6g)\n",
+            tf->A, tf->B, (1 - tf->A - tf->B), max_error);
 }
 
-static void dump_approx_transfer_function(FILE* fp, const skcms_TransferFunction* tf,
-                                          float max_error, bool for_unit_test) {
-    if (for_unit_test) {
-        fprintf(fp, "  ~= : %.6g, %.6g, %.6g, %.6g, %.6g, %.6g, %.6g  (Max error: %.2g)",
-                tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f, max_error);
-    } else {
-        fprintf(fp, "  ~= : %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g  (Max error: %.9g)",
-                tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f, max_error);
+static void dump_transfer_function(FILE* fp, const char* name,
+                                   const skcms_TransferFunction* tf, float max_error) {
+    fprintf(fp, "%4s : %.6g, %.6g, %.6g, %.6g, %.6g, %.6g, %.6g", name,
+            tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f);
+
+    if (max_error > 0) {
+        fprintf(fp, " (Max error: %.6g)", max_error);
     }
+
     if (tf->d > 0) {
         // Has both linear and nonlinear sections, include the discontinuity at D
         float l_at_d = (tf->c * tf->d + tf->f);
         float n_at_d = powf_(tf->a * tf->d + tf->b, tf->g) + tf->e;
-        fprintf(fp, " (D-gap: %.*g)", for_unit_test ? 2 : 9, (n_at_d - l_at_d));
+        fprintf(fp, " (D-gap: %.6g)", (n_at_d - l_at_d));
     }
-    if (is_linear(tf)) {
-        fprintf(fp, " (Linear)");
+
+    if (is_sRGB(tf)) {
+        fprintf(fp, " (sRGB)");
+    } else if (is_identity(tf)) {
+        fprintf(fp, " (Identity)");
     }
     fprintf(fp, "\n");
+
+    if (max_error == 0 && !is_identity(tf)) {
+        skcms_TF13 tf13;
+        skcms_Curve curve = { {0, *tf} };
+        if (skcms_ApproximateCurve13(&curve, &tf13, &max_error)) {
+            dump_approx_tf13(fp, &tf13, max_error);
+        }
+    }
 }
 
-static void dump_approx_tf13(FILE* fp, const skcms_TF13* tf,
-                             float max_error, bool for_unit_test) {
-    (void)for_unit_test;
-    fprintf(fp, "  ~= : %.4gx^3 + %.4gx^2 + %.4gx (Max error: %.4g)\n",
-            tf->A, tf->B, (1 - tf->A - tf->B), max_error);
-}
-
-static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve, bool for_unit_test) {
-    if (curve->table_entries) {
+static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve) {
+    if (curve->table_entries == 0) {
+        dump_transfer_function(fp, name, &curve->parametric, 0);
+    } else {
         fprintf(fp, "%4s : %d-bit table with %u entries\n", name,
                 curve->table_8 ? 8 : 16, curve->table_entries);
-        skcms_TransferFunction tf;
         float max_error;
+        skcms_TransferFunction tf;
         if (skcms_ApproximateCurve(curve, &tf, &max_error)) {
-            dump_approx_transfer_function(fp, &tf, max_error, for_unit_test);
+            dump_transfer_function(fp, "~=", &tf, max_error);
         }
         skcms_TF13 tf13;
         if (skcms_ApproximateCurve13(curve, &tf13, &max_error)) {
-            dump_approx_tf13(fp, &tf13, max_error, for_unit_test);
+            dump_approx_tf13(fp, &tf13, max_error);
         }
-    } else {
-        dump_transfer_function(fp, name, &curve->parametric);
     }
 }
 
-static bool has_single_transfer_function(const skcms_ICCProfile* profile,
-                                         skcms_TransferFunction* tf) {
-    const skcms_Curve* trc = profile->trc;
-    if (profile->has_trc &&
-            trc[0].table_entries == 0 &&
-            trc[1].table_entries == 0 &&
-            trc[2].table_entries == 0) {
-
-        if (0 != memcmp(&trc[0].parametric, &trc[1].parametric, sizeof(skcms_TransferFunction)) ||
-            0 != memcmp(&trc[0].parametric, &trc[2].parametric, sizeof(skcms_TransferFunction))) {
-            return false;
-        }
-
-        memcpy(tf, &trc[0].parametric, sizeof(skcms_TransferFunction));
-        return true;
-    }
-    return false;
-}
-
-void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test) {
+void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
     fprintf(fp, "%20s : 0x%08X : %u\n", "Size", profile->size, profile->size);
     dump_sig_field(fp, "Data color space", profile->data_color_space);
     dump_sig_field(fp, "PCS", profile->pcs);
@@ -228,13 +207,10 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
 
     fprintf(fp, "\n");
 
-    skcms_TransferFunction tf;
-    if (has_single_transfer_function(profile, &tf)) {
-        dump_transfer_function(fp, "TRC", &tf);
-    } else if (profile->has_trc) {
+    if (profile->has_trc) {
         const char* trcNames[3] = { "rTRC", "gTRC", "bTRC" };
         for (int i = 0; i < 3; ++i) {
-            dump_curve(fp, trcNames[i], &profile->trc[i], for_unit_test);
+            dump_curve(fp, trcNames[i], &profile->trc[i]);
         }
     }
 
@@ -256,7 +232,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
             fprintf(fp, "%4s : %u inputs\n", "\"A\"", a2b->input_channels);
             const char* curveNames[4] = { "A0", "A1", "A2", "A3" };
             for (uint32_t i = 0; i < a2b->input_channels; ++i) {
-                dump_curve(fp, curveNames[i], &a2b->input_curves[i], for_unit_test);
+                dump_curve(fp, curveNames[i], &a2b->input_curves[i]);
             }
             fprintf(fp, "%4s : ", "CLUT");
             const char* sep = "";
@@ -271,7 +247,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
             fprintf(fp, "%4s : %u inputs\n", "\"M\"", a2b->matrix_channels);
             const char* curveNames[4] = { "M0", "M1", "M2" };
             for (uint32_t i = 0; i < a2b->matrix_channels; ++i) {
-                dump_curve(fp, curveNames[i], &a2b->matrix_curves[i], for_unit_test);
+                dump_curve(fp, curveNames[i], &a2b->matrix_curves[i]);
             }
             const skcms_Matrix3x4* m = &a2b->matrix;
             fprintf(fp, "Mtrx : | %.9f %.9f %.9f %.9f |\n"
@@ -286,7 +262,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp, bool for_unit_test)
             fprintf(fp, "%4s : %u outputs\n", "\"B\"", a2b->output_channels);
             const char* curveNames[3] = { "B0", "B1", "B2" };
             for (uint32_t i = 0; i < a2b->output_channels; ++i) {
-                dump_curve(fp, curveNames[i], &a2b->output_curves[i], for_unit_test);
+                dump_curve(fp, curveNames[i], &a2b->output_curves[i]);
             }
         }
     }

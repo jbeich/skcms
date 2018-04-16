@@ -20,18 +20,18 @@
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
-  ~= : -0.004962x^3 + 0.313x^2 + 0.692x (Max error: 0.04012)
+  ~= : -0.00496159x^3 + 0.312951x^2 + 0.692011x (Max error: 0.0401169)
   A1 : 16-bit table with 256 entries
-  ~= : 0.3427x^3 + -0.04205x^2 + 0.6993x (Max error: 0.02761)
+  ~= : 0.342737x^3 + -0.0420505x^2 + 0.699314x (Max error: 0.0276145)
   A2 : 16-bit table with 256 entries
-  ~= : 0.3427x^3 + -0.04205x^2 + 0.6993x (Max error: 0.02761)
+  ~= : 0.342737x^3 + -0.0420505x^2 + 0.699314x (Max error: 0.0276145)
   A3 : 16-bit table with 256 entries
-  ~= : 0.3427x^3 + -0.04205x^2 + 0.6993x (Max error: 0.02761)
+  ~= : 0.342737x^3 + -0.0420505x^2 + 0.699314x (Max error: 0.0276145)
 CLUT : 16 x 16 x 16 x 16 (16 bpp)
  "B" : 3 outputs
-  B0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  B1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  B2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
 252 random bytes transformed to linear XYZD50 bytes:
 	121d22 36200e 090a05 191117 181106 131d0a 221d12
 	252136 000000 0e1312 242d47 472e1f 252618 010100

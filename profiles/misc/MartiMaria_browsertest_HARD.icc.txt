@@ -19,25 +19,25 @@
  'A2B2' : 'mft2' :  29554 : 2184
 
 rTRC : 16-bit table with 255 entries
-  ~= : 5.627x^3 + -10.82x^2 + 6.198x (Max error: 0.2705)
+  ~= : 5.62674x^3 + -10.8243x^2 + 6.19753x (Max error: 0.270479)
 gTRC : 16-bit table with 255 entries
-  ~= : 1, 0.00387579, 0, 0, 0, 0, 0  (Max error: 6e-08)
-  ~= : 6.972x^3 + -7.968x^2 + 1.996x (Max error: 0.9961)
+  ~= : 1, 0.00387579, 0, 0, 0, 0, 0 (Max error: 5.96046e-08)
+  ~= : 6.97233x^3 + -7.96823x^2 + 1.99589x (Max error: 0.996124)
 bTRC : 16-bit table with 255 entries
-  ~= : 5.627x^3 + -10.82x^2 + 6.198x (Max error: 0.2705)
+  ~= : 5.62674x^3 + -10.8243x^2 + 6.19753x (Max error: 0.270479)
  XYZ : | 0.964202881 0.000000000 0.964202881 |
        | 1.000000000 0.000000000 1.000000000 |
        | 0.824905396 0.000000000 0.824905396 |
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
-  A0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  A1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  A2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  A0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  A1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  A2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
 CLUT : 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
-  B0 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  B1 : 1, 1, 0, 0, 0, 0, 0 (Linear)
-  B2 : 1, 1, 0, 0, 0, 0, 0 (Linear)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
 252 random bytes transformed to linear XYZD50 bytes:
 	181915 7b8069 7b8069 7b8069 7b8069 7b8069 090a08
 	7b8069 7b8069 7b8069 7b8069 7b8069 7b8069 7b8069

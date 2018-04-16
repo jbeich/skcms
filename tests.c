@@ -561,7 +561,7 @@ static void test_Parse(bool regen) {
         expect(dump);
 
         if (parsed) {
-            dump_profile(&profile, dump, true);
+            dump_profile(&profile, dump);
         } else {
             fprintf(dump, "Unable to parse ICC profile\n");
         }
