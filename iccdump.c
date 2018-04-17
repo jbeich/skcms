@@ -14,12 +14,20 @@
 #endif
 
 #include "skcms.h"
-#include "test_only.h"
 #include "src/Macros.h"
 #include "src/TransferFunction.h"
+#include "test_only.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if !defined(__has_include)
+    #define  __has_include(x)
+#endif
+
+#if __has_include(<zlib.h>)
+    #include <zlib.h>
+#endif
 
 SKCMS_NORETURN
 static void fatal(const char* msg) {
@@ -109,6 +117,16 @@ static uint16_t read_big_u16(const uint8_t* ptr) {
     return _byteswap_ushort(be);
 #else
     return __builtin_bswap16(be);
+#endif
+}
+
+static uint32_t read_big_u32(const uint8_t* ptr) {
+    uint32_t be;
+    memcpy(&be, ptr, sizeof(be));
+#if defined(_MSC_VER)
+    return _byteswap_ulong(be);
+#else
+    return __builtin_bswap32(be);
 #endif
 }
 
@@ -362,6 +380,68 @@ static void dump_curves_svg(const char* filename, uint32_t num_curves, const skc
     svg_close(fp);
 }
 
+static const uint8_t png_signature[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a };
+
+#if defined(ZLIB_H)
+    static bool parse_png_profile(const uint8_t* buf, size_t len, skcms_ICCProfile* profile) {
+        const uint8_t* end = buf+len;
+
+        // skip over signature
+        buf += sizeof(png_signature);
+
+        const uint32_t IEND = 0x49454e44,
+                       iCCP = 0x69434350;
+
+        uint32_t size, tag = 0;
+
+        while (buf < end && tag != IEND) {
+            size = read_big_u32(buf+0);
+            tag  = read_big_u32(buf+4);
+            buf += 8;
+
+            if (tag == iCCP) {
+                const char* name = (const char*)buf;
+                printf("Profile name from .png: '%s'\n", name);
+
+                size_t header = strlen(name)
+                              + 1/*NUL*/
+                              + 1/*PNG compression method, always 0 == zlib*/;
+
+                unsigned long inf_size,
+                              guess = len;
+                void* inflated = NULL;
+
+                int err;
+                do {
+                    inf_size = guess;
+                    inflated = realloc(inflated, inf_size);
+
+                    err = uncompress(inflated, &inf_size,
+                                     (const uint8_t*)name+header, size-header);
+                    guess *= 2;
+                } while (err == Z_BUF_ERROR);
+
+                bool ok = err == Z_OK
+                       && skcms_Parse(inflated, inf_size, profile);
+                free(inflated);
+                return ok;
+            }
+
+            buf += size;
+            buf += 4/*skip the PNG CRC*/;
+        }
+        return false;
+    }
+#else
+    static bool parse_png_profile(const uint8_t* buf, size_t len, skcms_ICCProfile* profile) {
+        (void)buf;
+        (void)len;
+        (void)profile;
+        (void)read_big_u32;
+        return false;
+    }
+#endif
+
 int main(int argc, char** argv) {
     const char* filename = NULL;
     bool svg = false;
@@ -389,7 +469,11 @@ int main(int argc, char** argv) {
     }
 
     skcms_ICCProfile profile;
-    if (!skcms_Parse(buf, len, &profile)) {
+    if (len >= sizeof(png_signature) && 0 == memcmp(buf, png_signature, sizeof(png_signature))) {
+        if (!parse_png_profile(buf, len, &profile)) {
+            fatal("Could not find an ICC profile in this .png");
+        }
+    } else if (!skcms_Parse(buf, len, &profile)) {
         fatal("Unable to parse ICC profile");
     }
 
