@@ -16,6 +16,8 @@ def append(path, line):
 print "Hello from {platform} in {cwd}!".format(platform=sys.platform,
                                                cwd=os.getcwd())
 
+call('git -C skcms submodule update')
+
 if 'darwin' in sys.platform:
   # Our Mac bots don't have a real GCC installed.
   append('skcms/build/gcc', 'disabled = true')

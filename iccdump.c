@@ -13,10 +13,11 @@
     #define SKCMS_NORETURN noreturn
 #endif
 
+#include "ext/lodepng/lodepng.h"
 #include "skcms.h"
-#include "test_only.h"
 #include "src/Macros.h"
 #include "src/TransferFunction.h"
+#include "test_only.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -362,6 +363,39 @@ static void dump_curves_svg(const char* filename, uint32_t num_curves, const skc
     svg_close(fp);
 }
 
+static const uint8_t png_signature[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a };
+
+static bool parse_png_profile(const uint8_t* buf, size_t len, skcms_ICCProfile* profile) {
+    const uint8_t* end = buf+len;
+
+    // skip over signature
+    buf += sizeof(png_signature);
+
+    while (!lodepng_chunk_type_equals(buf, "IEND") && buf < end) {
+        if (lodepng_chunk_type_equals(buf, "iCCP")) {
+
+            const char* name = (const char*)lodepng_chunk_data_const(buf);
+            printf("Profile name from .png: '%s'\n", name);
+            size_t header = strlen(name)
+                          + 1/*NUL*/
+                          + 1/*PNG compression method, always 0 == zlib*/;
+            size_t size = lodepng_chunk_length(buf);
+
+            uint8_t* prof = NULL;
+            size_t prof_len = 0;
+            lodepng_zlib_decompress(&prof, &prof_len,
+                                    (const uint8_t*)name + header,  size - header,
+                                    &lodepng_default_decompress_settings);
+
+            bool ok = skcms_Parse(prof, prof_len, profile);
+            free(prof);
+            return ok;
+        }
+        buf = lodepng_chunk_next_const(buf);
+    }
+    return false;
+}
+
 int main(int argc, char** argv) {
     const char* filename = NULL;
     bool svg = false;
@@ -389,7 +423,11 @@ int main(int argc, char** argv) {
     }
 
     skcms_ICCProfile profile;
-    if (!skcms_Parse(buf, len, &profile)) {
+    if (len >= sizeof(png_signature) && 0 == memcmp(buf, png_signature, sizeof(png_signature))) {
+        if (!parse_png_profile(buf, len, &profile)) {
+            fatal("Could not find an ICC profile in this .png");
+        }
+    } else if (!skcms_Parse(buf, len, &profile)) {
         fatal("Unable to parse ICC profile");
     }
 
@@ -457,3 +495,22 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+#if defined(__clang__)
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wcast-qual"
+    #pragma clang diagnostic ignored "-Wconversion"
+    #pragma clang diagnostic ignored "-Wcovered-switch-default"
+    #pragma clang diagnostic ignored "-Wmissing-prototypes"
+    #pragma clang diagnostic ignored "-Wunused-macros"
+#endif
+
+#define LODEPNG_NO_COMPILE_ENCODER
+#define LODEPNG_NO_COMPILE_ERROR_TEXT
+#define LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
+#define LODEPNG_NO_COMPILE_CPP
+#include "ext/lodepng/lodepng.cpp"
+
+#if defined(__clang__)
+    #pragma clang diagnostic pop
+#endif
