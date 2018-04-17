@@ -1,0 +1,3 @@
+[submodule "ext/lodepng"]
+	path = ext/lodepng
+	url = https://github.com/lvandeve/lodepng
