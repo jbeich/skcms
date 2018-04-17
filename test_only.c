@@ -88,7 +88,7 @@ static bool is_identity(const skcms_TransferFunction* tf) {
 }
 
 static void dump_approx_tf13(FILE* fp, const skcms_TF13* tf, float max_error) {
-    fprintf(fp, "  ~= : %.6gx^3 + %.6gx^2 + %.6gx (Max error: %.6g)\n",
+    fprintf(fp, " ~13 : %.6gx^3 + %.6gx^2 + %.6gx (Max error: %.6g)\n",
             tf->A, tf->B, (1 - tf->A - tf->B), max_error);
 }
 
