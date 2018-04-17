@@ -9,7 +9,7 @@ rule compile
     description = compile $out
 
 rule link
-    command = $disabled && touch $out || $cc $ldflags $extra_ldflags -pthread $in -o $out
+    command = $disabled && touch $out || $cc $ldflags $extra_ldflags -lz -pthread $in -o $out
     description = link $out
 
 include build/targets
