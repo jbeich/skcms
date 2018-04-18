@@ -202,6 +202,11 @@ bool skcms_Transform(const void*             src,
                      const skcms_ICCProfile* dstProfile,
                      size_t                  npixels);
 
+// If profile cannot be used as a destintaion profile in skcms_Transform(),
+// rewrite it with approximations where reasonable or by pulling from fallback
+// (e.g. skcms_sRGB_Profile) where not.
+void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile, const skcms_ICCProfile* fallback);
+
 #ifdef __cplusplus
 }
 #endif
