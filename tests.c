@@ -1045,6 +1045,37 @@ static void test_CLUT() {
 }
 #endif
 
+static void test_EnsureUsableAsDestination() {
+    void*  ptr;
+    size_t len;
+    expect(load_file("profiles/mobile/sRGB_LUT.icc", &ptr, &len));
+
+    skcms_ICCProfile profile;
+    expect(skcms_Parse(ptr, len, &profile));
+
+    uint32_t src = 0xffaaccee, dst;
+
+    // We can't transform to table-based profiles (yet?).
+    expect(!skcms_Transform(
+                &src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &skcms_sRGB_profile,
+                &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+                1));
+
+    // We take care to use a fallback profile that is not sRGB. :)
+    skcms_EnsureUsableAsDestination(&profile, &skcms_XYZD50_profile);
+
+    // Now the transform should work.
+    expect(skcms_Transform(
+               &src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &skcms_sRGB_profile,
+               &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+               1));
+
+    // This should be pretty much an identity transform.
+    expect(dst == 0xffaaccee);
+
+    free(ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1070,6 +1101,7 @@ int main(int argc, char** argv) {
     test_ByteToLinearFloat();
     test_TRC_Table16();
     test_Premul();
+    test_EnsureUsableAsDestination();
 #if 0
     test_CLUT();
 #endif
