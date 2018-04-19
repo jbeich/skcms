@@ -421,139 +421,102 @@ static void test_FormatConversions_float() {
     expect(fff[9] == 12); expect(fff[10] == 13); expect(fff[11] == 14);
 }
 
-static const skcms_TransferFunction srgb_transfer_fn =
-    { 2.4f, 1 / 1.055f, 0.055f / 1.055f, 1 / 12.92f, 0.04045f, 0.0f, 0.0f };
-static const skcms_TransferFunction kodak_transfer_fn =
-    { 2.42f, 0.939f, 0.0595f, 0.0691f, 0.0392f, 0.00305f, 0.00392f };
-static const skcms_TransferFunction dot_gain_transfer_fn =
-    { 1.737f, 1.0f, 0.0f, 0.0626f, 0.02353f, 0.0f, 0.0f };
-
-typedef struct {
-    const char*                   filename;
-    const skcms_TransferFunction* expect_approx_tf;
-} ProfileTestCase;
-
-static const ProfileTestCase profile_test_cases[] = {
+static const char* profile_test_cases[] = {
     // iccMAX profiles that we can't parse at all
-    { "profiles/color.org/sRGB_D65_colorimetric.icc", NULL },
-    { "profiles/color.org/sRGB_D65_MAT.icc",          NULL },
-    { "profiles/color.org/sRGB_ISO22028.icc",         NULL },
+    "profiles/color.org/sRGB_D65_colorimetric.icc",
+    "profiles/color.org/sRGB_D65_MAT.icc",
+    "profiles/color.org/sRGB_ISO22028.icc",
 
     // V2 or V4 profiles that only include A2B/B2A tags (no TRC or XYZ)
-    { "profiles/color.org/sRGB_ICC_v4_Appearance.icc", NULL },
-    { "profiles/color.org/sRGB_v4_ICC_preference.icc", NULL },
-    { "profiles/color.org/Upper_Left.icc",             NULL },
-    { "profiles/color.org/Upper_Right.icc",            NULL },
-    { "profiles/misc/Apple_Wide_Color.icc",            NULL },
-    { "profiles/misc/Coated_FOGRA39_CMYK.icc",         NULL },
-    { "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  NULL }, // Has kTRC.
-    { "profiles/misc/Japan_Color_2001_Coated.icc",     NULL },
-    { "profiles/misc/Lexmark_X110.icc",                NULL },
-    { "profiles/misc/MartiMaria_browsertest_A2B.icc",  NULL },
-    { "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   NULL }, // Has kTRC.
-    { "profiles/misc/sRGB_ICC_v4_beta.icc",            NULL },
-    { "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",     NULL },
-    { "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",     NULL },
-    { "profiles/misc/XRite_GRACol7_340_CMYK.icc",      NULL },
+    "profiles/color.org/sRGB_ICC_v4_Appearance.icc",
+    "profiles/color.org/sRGB_v4_ICC_preference.icc",
+    "profiles/color.org/Upper_Left.icc",
+    "profiles/color.org/Upper_Right.icc",
+    "profiles/misc/Apple_Wide_Color.icc",
+    "profiles/misc/Coated_FOGRA39_CMYK.icc",
+    "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  // Has kTRC.
+    "profiles/misc/Japan_Color_2001_Coated.icc",
+    "profiles/misc/Lexmark_X110.icc",
+    "profiles/misc/MartiMaria_browsertest_A2B.icc",
+    "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",   // Has kTRC.
+    "profiles/misc/sRGB_ICC_v4_beta.icc",
+    "profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",
+    "profiles/misc/US_Web_Coated_SWOP_CMYK.icc",
+    "profiles/misc/XRite_GRACol7_340_CMYK.icc",
 
     // V2 monochrome output profiles that include kTRC but no A2B
-    { "profiles/misc/Dot_Gain_20_Grayscale.icc", &dot_gain_transfer_fn }, // kTRC table
-    { "profiles/misc/Gray_Gamma_22.icc",         NULL }, // kTRC gamma
+    "profiles/misc/Dot_Gain_20_Grayscale.icc",  // kTRC table
+    "profiles/misc/Gray_Gamma_22.icc",          // kTRC gamma
 
     // V4 profiles with parametric TRC curves and XYZ
-    { "profiles/mobile/Display_P3_parametric.icc", NULL },
-    { "profiles/mobile/sRGB_parametric.icc",       NULL },
-    { "profiles/mobile/iPhone7p.icc",              NULL },
-    { "profiles/misc/sRGB_lcms.icc",               NULL },
+    "profiles/mobile/Display_P3_parametric.icc",
+    "profiles/mobile/sRGB_parametric.icc",
+    "profiles/mobile/iPhone7p.icc",
+    "profiles/misc/sRGB_lcms.icc",
 
     // V4 profiles with LUT TRC curves and XYZ
-    { "profiles/mobile/Display_P3_LUT.icc", &srgb_transfer_fn },
-    { "profiles/mobile/sRGB_LUT.icc",       &srgb_transfer_fn },
+    "profiles/mobile/Display_P3_LUT.icc",
+    "profiles/mobile/sRGB_LUT.icc",
 
     // V2 profiles with gamma TRC and XYZ
-    { "profiles/color.org/Lower_Left.icc",      NULL },
-    { "profiles/color.org/Lower_Right.icc",     NULL },
-    { "profiles/misc/AdobeRGB.icc",             NULL },
-    { "profiles/misc/Color_Spin_Gamma_18.icc",  NULL },
-    { "profiles/misc/Generic_RGB_Gamma_18.icc", NULL },
+    "profiles/color.org/Lower_Left.icc",
+    "profiles/color.org/Lower_Right.icc",
+    "profiles/misc/AdobeRGB.icc",
+    "profiles/misc/AdobeColorSpin.icc",
+    "profiles/misc/Color_Spin_Gamma_18.icc",
+    "profiles/misc/Generic_RGB_Gamma_18.icc",
 
     // V2 profiles with LUT TRC and XYZ
-    { "profiles/color.org/sRGB2014.icc",     &srgb_transfer_fn },
-    { "profiles/sRGB_Facebook.icc",          &srgb_transfer_fn },
-    { "profiles/misc/Apple_Color_LCD.icc",   &srgb_transfer_fn },
-    { "profiles/misc/HD_709.icc",            &srgb_transfer_fn },
-    { "profiles/misc/sRGB_black_scaled.icc", &srgb_transfer_fn },
-    { "profiles/misc/sRGB_HP.icc",           &srgb_transfer_fn },
-    { "profiles/misc/sRGB_HP_2.icc",         &srgb_transfer_fn },
+    "profiles/color.org/sRGB2014.icc",
+    "profiles/sRGB_Facebook.icc",
+    "profiles/misc/Apple_Color_LCD.icc",
+    "profiles/misc/HD_709.icc",
+    "profiles/misc/sRGB_black_scaled.icc",
+    "profiles/misc/sRGB_HP.icc",
+    "profiles/misc/sRGB_HP_2.icc",
+
+    // Calibrated monitor profile with identical sRGB-ish tables.
+    "profiles/misc/sRGB_Calibrated_Homogeneous.icc",
+
+    // Calibrated monitor profile with slightly different sRGB-like tables for each channel.
+    "profiles/misc/sRGB_Calibrated_Heterogeneous.icc",
 
     // Calibrated monitor profile with non-monotonic TRC tables. We approximate, but badly.
-    { "profiles/misc/DisplayCal_ASUS_NonMonotonic.icc", NULL },
+    "profiles/misc/DisplayCal_ASUS_NonMonotonic.icc",
 
     // Hard test profile. Non-invertible XYZ, three separate tables that fail to approximate
-    { "profiles/misc/MartiMaria_browsertest_HARD.icc", NULL },
+    "profiles/misc/MartiMaria_browsertest_HARD.icc",
 
     // Camera profile with three separate tables that fail to approximate
-    { "profiles/misc/Phase_One_P25.icc", NULL },
+    "profiles/misc/Phase_One_P25.icc",
 
     // Profile claims to be sRGB, but seems quite different
-    { "profiles/misc/Kodak_sRGB.icc", &kodak_transfer_fn },
+    "profiles/misc/Kodak_sRGB.icc",
 
     // Bad profiles found inn the wild
-    { "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc", NULL }, // Broken tag table, and A2B0 fails to parse
-    { "profiles/misc/bad_pcs.icc",                   NULL }, // PCS is 'RGB '
+    "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",  // Broken tag table, and A2B0 fails to parse
+    "profiles/misc/bad_pcs.icc",                    // PCS is 'RGB '
 
     // fuzzer generated profiles that found parsing bugs
 
     // Bad tag table data - these should not parse
-    { "profiles/fuzz/last_tag_too_small.icc",  NULL }, // skia:7592
-    { "profiles/fuzz/named_tag_too_small.icc", NULL }, // skia:7592
+    "profiles/fuzz/last_tag_too_small.icc",   // skia:7592
+    "profiles/fuzz/named_tag_too_small.icc",  // skia:7592
 
     // Bad tag data - these should not parse
-    { "profiles/fuzz/curv_size_overflow.icc",          NULL }, // skia:7593
-    { "profiles/fuzz/truncated_curv_tag.icc",          NULL }, // oss-fuzz:6103
-    { "profiles/fuzz/zero_a.icc",                      NULL }, // oss-fuzz:????
-    { "profiles/fuzz/a2b_too_many_input_channels.icc", NULL }, // oss-fuzz:6521
+    "profiles/fuzz/curv_size_overflow.icc",           // skia:7593
+    "profiles/fuzz/truncated_curv_tag.icc",           // oss-fuzz:6103
+    "profiles/fuzz/zero_a.icc",                       // oss-fuzz:????
+    "profiles/fuzz/a2b_too_many_input_channels.icc",  // oss-fuzz:6521
 };
-
-static void check_roundtrip_transfer_functions(const skcms_TransferFunction* fwd,
-                                               const skcms_TransferFunction* rev,
-                                               float tol) {
-    for (int i = 0; i < 256; ++i) {
-        float t = i / 255.0f;
-        float x = skcms_TransferFunction_eval(rev, skcms_TransferFunction_eval(fwd, t));
-        expect((int)(x * 255.0f + 0.5f) == i);
-        expect(fabsf_(x - t) < tol);
-    }
-}
-
-static bool has_single_approx_trc(const skcms_ICCProfile* profile, skcms_TransferFunction* approx,
-                                  float* max_error) {
-    if (!profile->has_trc) {
-        return false;
-    }
-
-    skcms_TransferFunction tf[3];
-    for (int i = 0; i < 3; ++i) {
-        if (!skcms_ApproximateCurve(&profile->trc[i], &tf[i], max_error)) {
-            return false;
-        }
-    }
-
-    if (0 != memcmp(&tf[0], &tf[1], sizeof(tf[0])) || 0 != memcmp(&tf[0], &tf[2], sizeof(tf[0]))) {
-        return false;
-    }
-
-    *approx = tf[0];
-    return true;
-}
 
 static void test_Parse(bool regen) {
     for (int i = 0; i < ARRAY_COUNT(profile_test_cases); ++i) {
-        const ProfileTestCase* test = profile_test_cases + i;
+        const char* filename = profile_test_cases[i];
 
         void* buf = NULL;
         size_t len = 0;
-        expect(load_file(test->filename, &buf, &len));
+        expect(load_file(filename, &buf, &len));
         skcms_ICCProfile profile;
         bool parsed = skcms_Parse(buf, len, &profile);
 
@@ -572,7 +535,7 @@ static void test_Parse(bool regen) {
         fclose(dump);
 
         char ref_filename[256];
-        if (snprintf(ref_filename, sizeof(ref_filename), "%s.txt", test->filename) < 0) {
+        if (snprintf(ref_filename, sizeof(ref_filename), "%s.txt", filename) < 0) {
             expect(false);
         }
 
@@ -587,31 +550,12 @@ static void test_Parse(bool regen) {
 
             if (dump_len != ref_len || memcmp(dump_buf, ref_buf, dump_len) != 0) {
                 // Write out the new data on a mismatch
-                fprintf(stderr, "Parse mismatch for %s:\n", test->filename);
+                fprintf(stderr, "Parse mismatch for %s:\n", filename);
                 fwrite(dump_buf, 1, dump_len, stderr);
                 fprintf(stderr, "\n");
                 expect(false);
             }
             free(ref_buf);
-        }
-
-        skcms_TransferFunction approx_tf;
-        float max_error;
-        bool approx_tf_result = has_single_approx_trc(&profile, &approx_tf, &max_error);
-        expect(approx_tf_result == !!test->expect_approx_tf);
-        if (approx_tf_result) {
-            // For this check, run every byte value through the forward version of one TF, and
-            // the inverse of the other, and make sure it round-trips (using both combinations).
-            skcms_TransferFunction approx_inverse_tf;
-            skcms_TransferFunction expect_inverse_tf;
-            expect(skcms_TransferFunction_invert(&approx_tf, &approx_inverse_tf));
-            expect(skcms_TransferFunction_invert(test->expect_approx_tf, &expect_inverse_tf));
-
-            // This function verifies that all bytes round-trip perfectly, but also takes a
-            // tolerance to further limit the error after round-trip. We can currently get this
-            // within ~30% of a byte (0.0011).
-            check_roundtrip_transfer_functions(&approx_tf, &expect_inverse_tf, 0.02f);
-            check_roundtrip_transfer_functions(test->expect_approx_tf, &approx_inverse_tf, 0.02f);
         }
 
         free(buf);
