@@ -1,6 +1,6 @@
 cc     = clang -arch arm64 -isysroot `xcrun --sdk iphoneos --show-sdk-path`
 cflags = -fcolor-diagnostics -Weverything $
-         -Wno-padded -Wno-double-promotion -Wno-float-equal -Wno-vector-conversion
+         -Wno-padded -Wno-double-promotion -Wno-float-equal
 out    = out/ios$mode
 
 rule run

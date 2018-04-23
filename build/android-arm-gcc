@@ -5,7 +5,7 @@ ndk_api = 24
 
 cc      = $ndk/toolchains/${target}-4.9/prebuilt/*/bin/${target}-gcc
 cflags  = -fdiagnostics-color -Wall -Wextra -Wno-abi -Wno-type-limits $
-          -std=c11 -flax-vector-conversions $
+          -std=c11 $
           -march=armv7-a -mfpu=neon -mthumb -mfloat-abi=softfp $
           --sysroot $ndk/sysroot $
           -I $ndk/sysroot/usr/include/$target
