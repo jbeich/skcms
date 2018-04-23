@@ -44,24 +44,32 @@ static float src_pixels[NPIXELS * 4],
              dst_pixels[NPIXELS * 4];
 
 int main(int argc, char** argv) {
-    bool running_under_profiler = false;
+    int           n = 100000;
+    const char* src = "profiles/mobile/sRGB_parametric.icc";
+    const char* dst = "profiles/mobile/Display_P3_parametric.icc";
+    bool   optimize = false;
 
-    const char* XPC_SERVICE_NAME = getenv("XPC_SERVICE_NAME");
-    if (XPC_SERVICE_NAME && NULL != strstr(XPC_SERVICE_NAME, "Instruments")) {
-        running_under_profiler = true;
+    for (int i = 0; i < argc; i++) {
+        if (0 == strcmp(argv[i], "-n")) { n   = atoi(argv[++i]); }
+        if (0 == strcmp(argv[i], "-s")) { src =      argv[++i] ; }
+        if (0 == strcmp(argv[i], "-d")) { dst =      argv[++i] ; }
+        if (0 == strcmp(argv[i], "-o")) { optimize = true      ; }
     }
-
-    int loops = argc > 1 ? atoi(argv[1]) : 100000;
 
     void  *src_buf, *dst_buf;
     size_t src_len,  dst_len;
-    load_file(argc > 2 ? argv[2] : "profiles/mobile/sRGB_parametric.icc",       &src_buf, &src_len);
-    load_file(argc > 3 ? argv[3] : "profiles/mobile/Display_P3_parametric.icc", &dst_buf, &dst_len);
+    load_file(src, &src_buf, &src_len);
+    load_file(dst, &dst_buf, &dst_len);
 
     skcms_ICCProfile src_profile, dst_profile;
     if (!skcms_Parse(src_buf, src_len, &src_profile) ||
         !skcms_Parse(dst_buf, dst_len, &dst_profile)) {
         return 1;
+    }
+
+    if (optimize) {
+        skcms_OptimizeForSpeed(&src_profile);
+        skcms_OptimizeForSpeed(&dst_profile);
     }
 
     // We'll rotate through pixel formats to get samples from all the various stages.
@@ -70,7 +78,7 @@ int main(int argc, char** argv) {
     const int wrap = skcms_PixelFormat_BGRA_ffff+1;
 
     clock_t start = clock();
-    for (int i = 0; running_under_profiler || i < loops; i++) {
+    for (int i = 0; i < n; i++) {
         (void)skcms_Transform(src_pixels, src_fmt, skcms_AlphaFormat_Unpremul, &src_profile,
                               dst_pixels, dst_fmt, skcms_AlphaFormat_Unpremul, &dst_profile,
                               NPIXELS);
@@ -80,7 +88,7 @@ int main(int argc, char** argv) {
 
     clock_t ticks = clock() - start;
     printf("%d loops in %g clock ticks, %.3g ns / pixel\n",
-            loops, (double)ticks, ticks / (CLOCKS_PER_SEC * 1e-9) / (loops * NPIXELS));
+            n, (double)ticks, ticks / (CLOCKS_PER_SEC * 1e-9) / (n * NPIXELS));
 
     free(src_buf);
     free(dst_buf);
