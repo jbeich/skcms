@@ -508,6 +508,7 @@ static const char* profile_test_cases[] = {
     "profiles/fuzz/truncated_curv_tag.icc",           // oss-fuzz:6103
     "profiles/fuzz/zero_a.icc",                       // oss-fuzz:????
     "profiles/fuzz/a2b_too_many_input_channels.icc",  // oss-fuzz:6521
+    "profiles/fuzz/mangled_trc_tags.icc",             // chromium:835666
 };
 
 static void test_Parse(bool regen) {
