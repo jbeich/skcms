@@ -217,6 +217,15 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
     if (skcms_ApproximatelyEqualProfiles(profile, &skcms_sRGB_profile)) {
         fprintf(fp, "This profile ≈ sRGB.\n");
     }
+
+    skcms_ICCProfile opt = *profile;
+    skcms_OptimizeForSpeed(&opt);
+    for (int i = 0; i < 3; i++) {
+        if (opt.has_poly_tf[i]) {
+            fprintf(fp, "polyTF[%d] = %.4g %.4g %.4g %.4g\n",
+                    i, opt.poly_tf[i].A, opt.poly_tf[i].B, opt.poly_tf[i].C, opt.poly_tf[i].D);
+        }
+    }
 }
 
 bool load_file_fp(FILE* fp, void** buf, size_t* len) {
