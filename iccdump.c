@@ -179,20 +179,20 @@ static void desmos_transfer_function(FILE* fp, const skcms_TransferFunction* tf,
     fprintf(fp, "},\n");
 }
 
-static void desmos_curve(FILE* fp, const skcms_Curve* curve, const char* color) {
-    if (!curve->table_entries) {
-        desmos_transfer_function(fp, &curve->parametric, color);
-        return;
-    }
+typedef double table_func(int i, const void* ctx);
 
+static void desmos_table(FILE* fp, int N, const char* label, const char* color,
+                         table_func* x, const void* x_ctx,
+                         table_func* y, const void* y_ctx) {
     int folder_id = desmos_id++,
-        table_id  = desmos_id++;
+        table_id  = desmos_id++,
+        subscript = desmos_id++;
 
     // Folder
     fprintf(fp, "{\n");
     fprintf(fp, " \"type\": \"folder\",\n");
     fprintf(fp, " \"id\": \"%d\",\n", folder_id);
-    fprintf(fp, " \"title\": \"%s Table\",\n", color);
+    fprintf(fp, " \"title\": \"%s\",\n", label);
     fprintf(fp, " \"collapsed\": true,\n");
     fprintf(fp, " \"memberIds\": { \"%d\": true }\n", table_id);
     fprintf(fp, "},\n");
@@ -203,46 +203,67 @@ static void desmos_curve(FILE* fp, const skcms_Curve* curve, const char* color) 
     fprintf(fp, " \"id\": \"%d\",\n", table_id);
     fprintf(fp, " \"columns\": [\n");
 
-    double xScale = 1.0 / (curve->table_entries - 1.0);
-
     // X Column
     fprintf(fp, " {\n");
     fprintf(fp, "  \"values\": [");
 
-    for (uint32_t i = 0; i < curve->table_entries; ++i) {
+    for (int i = 0; i < N; ++i) {
         if (i % 6 == 0) {
             fprintf(fp, "\n  ");
         }
-        fprintf(fp, " \"%.5f\",", xScale * i);
+        fprintf(fp, " \"%.5f\",", x(i, x_ctx));
     }
 
     fprintf(fp, "  ],\n");
     fprintf(fp, "  \"hidden\": true,\n");
     fprintf(fp, "  \"id\": \"%d\",\n", desmos_id++);
     fprintf(fp, "  \"color\": \"%s\",\n", color);
-    fprintf(fp, "  \"latex\": \"x_%c\"\n", color[0]);
+    fprintf(fp, "  \"latex\": \"x_{%d}\"\n", subscript);
     fprintf(fp, " },\n");
 
     // Y Column
     fprintf(fp, " {\n");
     fprintf(fp, "  \"values\": [\n");
 
-    for (uint32_t i = 0; i < curve->table_entries; ++i) {
+    for (int i = 0; i < N; ++i) {
         if (i % 6 == 0) {
             fprintf(fp, "\n  ");
         }
-        fprintf(fp, " \"%.5f\",",
-                curve->table_8 ? curve->table_8[i] / 255.0
-                               : read_big_u16(curve->table_16 + 2 * i) / 65535.0);
+        fprintf(fp, " \"%.5f\",", y(i, y_ctx));
     }
     fprintf(fp, "  ],\n");
     fprintf(fp, "  \"id\": \"%d\",\n", desmos_id++);
     fprintf(fp, "  \"color\": \"%s\",\n", color);
-    fprintf(fp, "  \"latex\": \"y_%c\"\n", color[0]);
+    fprintf(fp, "  \"latex\": \"y_{%d}\"\n", subscript);
     fprintf(fp, " }\n");
     fprintf(fp, " ]\n");
     fprintf(fp, "},\n");
+}
 
+static double uniform_scale_table_func(int i, const void* ctx) {
+    double scale = *((const double*)ctx);
+    return i * scale;
+}
+
+static double curve_table_func(int i, const void* ctx) {
+    const skcms_Curve* curve = (const skcms_Curve*)ctx;
+    return curve->table_8 ? curve->table_8[i] / 255.0
+                          : read_big_u16(curve->table_16 + 2*i) / 65535.0;
+}
+
+static void desmos_curve(FILE* fp, const skcms_Curve* curve, const char* color) {
+    if (!curve->table_entries) {
+        desmos_transfer_function(fp, &curve->parametric, color);
+        return;
+    }
+
+    char label[64];
+    (void)snprintf(label, sizeof(label), "%s Table", color);
+
+    double xScale = 1.0 / (curve->table_entries - 1.0);
+    desmos_table(fp, (int)curve->table_entries, label, color,
+                 uniform_scale_table_func, &xScale,
+                 curve_table_func, curve);
 
     char approx_color[64];
     (void)snprintf(approx_color, sizeof(approx_color), "Dark%s", color);
@@ -258,6 +279,43 @@ static void desmos_curves(FILE* fp, uint32_t num_curves, const skcms_Curve* curv
                           const char** colors) {
     for (uint32_t c = 0; c < num_curves; ++c) {
         desmos_curve(fp, curves + c, colors[c]);
+    }
+}
+
+static void desmos_inv_curve(FILE* fp, const skcms_Curve* curve, const char* color) {
+    if (!curve->table_entries) {
+        skcms_TransferFunction inv;
+        if (skcms_TransferFunction_invert(&curve->parametric, &inv)) {
+            desmos_transfer_function(fp, &inv, color);
+        }
+        return;
+    }
+
+    char label[64];
+    (void)snprintf(label, sizeof(label), "%s Inverse Table", color);
+
+    double xScale = 1.0 / (curve->table_entries - 1.0);
+    desmos_table(fp, (int)curve->table_entries, label, color,
+                 curve_table_func, curve,
+                 uniform_scale_table_func, &xScale);
+
+    char approx_color[64];
+    (void)snprintf(approx_color, sizeof(approx_color), "Dark%s", color);
+
+    skcms_TransferFunction approx_tf;
+    float max_error;
+    if (skcms_ApproximateCurve(curve, &approx_tf, &max_error)) {
+        skcms_TransferFunction inv;
+        if (skcms_TransferFunction_invert(&approx_tf, &inv)) {
+            desmos_transfer_function(fp, &inv, approx_color);
+        }
+    }
+}
+
+static void desmos_inv_curves(FILE* fp, uint32_t num_curves, const skcms_Curve* curves,
+                              const char** colors) {
+    for (uint32_t c = 0; c < num_curves; ++c) {
+        desmos_inv_curve(fp, curves + c, colors[c]);
     }
 }
 
@@ -473,6 +531,7 @@ int main(int argc, char** argv) {
         if (profile.has_trc) {
             FILE* fp = desmos_open("TRC_curves.html");
             desmos_curves(fp, 3, profile.trc, kSVG_RGB_Colors);
+            desmos_inv_curves(fp, 3, profile.trc, kSVG_RGB_Colors);
             desmos_close(fp);
         }
     }
