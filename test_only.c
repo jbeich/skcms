@@ -87,11 +87,6 @@ static bool is_identity(const skcms_TransferFunction* tf) {
         && tf->f == 0.0f;
 }
 
-static void dump_approx_tf13(FILE* fp, const skcms_TF13* tf, float max_error) {
-    fprintf(fp, " ~13 : %.6gx^3 + %.6gx^2 + %.6gx (Max error: %.6g)\n",
-            tf->A, tf->B, (1 - tf->A - tf->B), max_error);
-}
-
 static void dump_transfer_function(FILE* fp, const char* name,
                                    const skcms_TransferFunction* tf, float max_error) {
     fprintf(fp, "%4s : %.6g, %.6g, %.6g, %.6g, %.6g, %.6g, %.6g", name,
@@ -114,14 +109,6 @@ static void dump_transfer_function(FILE* fp, const char* name,
         fprintf(fp, " (Identity)");
     }
     fprintf(fp, "\n");
-
-    if (max_error == 0 && !is_identity(tf)) {
-        skcms_TF13 tf13;
-        skcms_Curve curve = { {0, *tf} };
-        if (skcms_ApproximateCurve13(&curve, &tf13, &max_error)) {
-            dump_approx_tf13(fp, &tf13, max_error);
-        }
-    }
 }
 
 static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve) {
@@ -134,10 +121,6 @@ static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve) {
         skcms_TransferFunction tf;
         if (skcms_ApproximateCurve(curve, &tf, &max_error)) {
             dump_transfer_function(fp, "~=", &tf, max_error);
-        }
-        skcms_TF13 tf13;
-        if (skcms_ApproximateCurve13(curve, &tf13, &max_error)) {
-            dump_approx_tf13(fp, &tf13, max_error);
         }
     }
 }
