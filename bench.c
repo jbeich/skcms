@@ -43,6 +43,8 @@ static void load_file(const char* filename, void** buf, size_t* len) {
 static float src_pixels[NPIXELS * 4],
              dst_pixels[NPIXELS * 4];
 
+extern bool g_skcms_dump_profile;
+
 int main(int argc, char** argv) {
     int           n = 100000;
     const char* src = "profiles/mobile/sRGB_parametric.icc";
@@ -53,7 +55,8 @@ int main(int argc, char** argv) {
         if (0 == strcmp(argv[i], "-n")) { n   = atoi(argv[++i]); }
         if (0 == strcmp(argv[i], "-s")) { src =      argv[++i] ; }
         if (0 == strcmp(argv[i], "-d")) { dst =      argv[++i] ; }
-        if (0 == strcmp(argv[i], "-o")) { optimize = true      ; }
+        if (0 == strcmp(argv[i], "-o")) { optimize             = true; }
+        if (0 == strcmp(argv[i], "-p")) { g_skcms_dump_profile = true; }
     }
 
     void  *src_buf, *dst_buf;
