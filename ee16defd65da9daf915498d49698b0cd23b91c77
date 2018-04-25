@@ -16,6 +16,24 @@
       "revId": "ee16defd65da9daf915498d49698b0cd23b91c77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f91d564f_d8efa770",
+        "filename": "src/PolyTF.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-04-25T14:21:40Z",
+      "side": 1,
+      "message": "Ugh, having gotten it wrong twice now, I\u0027m not happy with how subtle this logic needs to be.  Maybe I should just drop this case and not fit it, going back to just the D \u003d\u003d 1 check for div-by-zero protection?",
+      "parentUuid": "f5dca455_37f3aea5",
+      "revId": "ee16defd65da9daf915498d49698b0cd23b91c77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
