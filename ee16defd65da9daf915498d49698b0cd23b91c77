@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5dca455_37f3aea5",
+        "filename": "src/PolyTF.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-04-25T14:09:07Z",
+      "side": 1,
+      "message": "Any concern about D !\u003d 0? It\u0027s possible to have a discontinuous function (C !\u003d A). skcms_ApproximateCurve can\u0027t produce that, because it\u0027s not invertible, but parametrics could look like that.",
+      "revId": "ee16defd65da9daf915498d49698b0cd23b91c77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
