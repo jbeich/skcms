@@ -17,7 +17,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void dump_transform_to_XYZD50(FILE* fp, const skcms_ICCProfile* profile) {
+static void dump_transform_to_XYZD50(FILE* fp,
+                                     const skcms_ICCProfile* profile,
+                                     const skcms_ICCProfile* optimized) {
     // Interpret as RGB_888 if data color space is RGB or GRAY, RGBA_8888 if CMYK.
     skcms_PixelFormat fmt = skcms_PixelFormat_RGB_888;
     size_t npixels = 84;
@@ -49,6 +51,32 @@ static void dump_transform_to_XYZD50(FILE* fp, const skcms_ICCProfile* profile) 
                 dst[3*i+12], dst[3*i+13], dst[3*i+14],
                 dst[3*i+15], dst[3*i+16], dst[3*i+17],
                 dst[3*i+18], dst[3*i+19], dst[3*i+20]);
+    }
+
+    // Print out optimize profile diff if relevant.
+    if (0 == memcmp(profile, optimized, sizeof(*profile))) {
+        return;
+    }
+
+    uint8_t opt[252];
+    if (!skcms_Transform(
+                skcms_252_random_bytes,    fmt, skcms_AlphaFormat_Unpremul, optimized,
+                opt, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &skcms_XYZD50_profile,
+                npixels)) {
+        fprintf(fp, "We cannot transform the optimized profile!  THIS IS REALLY BAD.\n");
+        return;
+    }
+
+    bool print = true;
+    for (int i = 0; i < 252; i++) {
+        if (opt[i] != dst[i]) {
+            if (print) {
+                fprintf(fp, "summary of diffs at each byte when profile is optimized:\n");
+                print = false;
+            }
+            fprintf(fp, "  %3d: %02x -> %02x, %+d\n",
+                    i, dst[i], opt[i], opt[i] - dst[i]);
+        }
     }
 }
 
@@ -212,19 +240,19 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
         }
     }
 
-    dump_transform_to_XYZD50(fp, profile);
+    skcms_ICCProfile opt = *profile;
+    skcms_OptimizeForSpeed(&opt);
+
+    dump_transform_to_XYZD50(fp, profile, &opt);
+    for (int i = 0; i < 3; i++) {
+        if (opt.has_poly_tf[i]) {
+            fprintf(fp, "polyTF[%d] = %g %g %g %g\n",
+                    i, opt.poly_tf[i].A, opt.poly_tf[i].B, opt.poly_tf[i].C, opt.poly_tf[i].D);
+        }
+    }
 
     if (skcms_ApproximatelyEqualProfiles(profile, &skcms_sRGB_profile)) {
         fprintf(fp, "This profile ≈ sRGB.\n");
-    }
-
-    skcms_ICCProfile opt = *profile;
-    skcms_OptimizeForSpeed(&opt);
-    for (int i = 0; i < 3; i++) {
-        if (opt.has_poly_tf[i]) {
-            fprintf(fp, "polyTF[%d] = %.4g %.4g %.4g %.4g\n",
-                    i, opt.poly_tf[i].A, opt.poly_tf[i].B, opt.poly_tf[i].C, opt.poly_tf[i].D);
-        }
     }
 }
 
