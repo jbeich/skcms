@@ -1022,6 +1022,35 @@ static void test_EnsureUsableAsDestination() {
     free(ptr);
 }
 
+static void test_sqrt_ftrt() {
+    static const struct { float x,s,f; } cases[] = {
+        {  0.0f, 0.0f, 0.0f },
+        {  1.0f, 1.0f, 1.0f },
+        { 16.0f, 4.0f, 2.0f },
+    };
+
+    // We want to make sure we're accurate to about 12 bits,
+    // so we'll scale up and then down by bias, forcing the low mantissa bits to round.
+
+    const float bias = (float)(1<<24);
+    for (int i = 0; i < ARRAY_COUNT(cases); i++) {
+        float s,f;
+        sqrt_ftrt_(cases[i].x, &s, &f);
+        s *= bias;
+        f *= bias;
+        s *= (1/bias);
+        f *= (1/bias);
+
+        uint32_t S,F;
+        memcpy(&S, &s, 4);
+        memcpy(&F, &f, 4);
+
+        fprintf(stderr, "%g %g (%08x) %g (%08x)\n", cases[i].x, s,S,f,F);
+        expect(s == cases[i].s);
+        expect(f == cases[i].f);
+    }
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1030,6 +1059,7 @@ int main(int argc, char** argv) {
         }
     }
 
+    test_sqrt_ftrt();
     test_ICCProfile();
     test_FormatConversions();
     test_FormatConversions_565();

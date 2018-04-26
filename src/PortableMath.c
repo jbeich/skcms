@@ -16,6 +16,10 @@
     #define small_memcpy memcpy
 #endif
 
+#if defined(__SSE__)
+    #include <immintrin.h>
+#endif
+
 float log2f_(float x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
     int32_t bits;
@@ -65,4 +69,34 @@ bool isfinitef_(float x) {
     uint32_t bits;
     small_memcpy(&bits, &x, sizeof(bits));
     return (bits & 0x7f800000) != 0x7f800000;
+}
+
+void sqrt_ftrt_(float x, float* s, float* f) {
+    // Hard guarantee that 0->0 and 1->1, no matter the platform.
+    if (x == 0.0f || x == 1.0f) {
+        *s = x;
+        *f = x;
+        return;
+    }
+
+#if 0 && defined(__SSE__)
+    __m128 rsqrt = _mm_rsqrt_ss(_mm_set_ss(x));
+    *s = _mm_cvtss_f32(_mm_rcp_ss  (rsqrt));
+    *f = _mm_cvtss_f32(_mm_rsqrt_ss(rsqrt));
+#elif 0 && defined(__ARM_NEON)
+    // TODO
+#else
+    const int kSteps = 4;
+    // We'll use Newton's Method to minimize F(s) = s^2 - x.
+    // s' = s - F(s)/F'(s) = s - (s^2 - x)/2s.
+    *s = x;
+    for (int i = 0; i < kSteps; i++) {
+        *s -= (*s * *s - x) / (2 * *s);
+    }
+    // Now the same to minimize F(f) = f^2 - s.
+    *f = *s;
+    for (int i = 0; i < kSteps; i++) {
+        *f -= (*f * *f - *s) / (2 * *f);
+    }
+#endif
 }

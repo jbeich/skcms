@@ -61,6 +61,32 @@ static void grad_poly_tf(float x, const void* ctx, const float P[4], float dfdP[
     dfdP[0] = (x*x*x - 1) - (x*x-1)*(D*D*D-1)/(D*D-1);
 }
 
+// g(x) = skcms_PolyTF{A,B,C,D}(x) =
+//     Cx                                x < D
+//     A(x^0.25 - 1) + B(x^0.5 - 1) + 1  x ≥ D
+//
+// This is not the inverse of f(x) above, but some parts are related.
+// We should be able to use the same D, and this C is the reciprocal of C for f(x).
+//
+// That again leaves A and B to fit, and we try to eliminate one by
+// constraining the two parts of the function to meet at D:
+//
+//         CD - A(D^0.25 - 1) - 1
+//    B =  ----------------------
+//               D^0.5 - 1
+//
+//                          x^0.5 - 1
+//  g(x) =  A(x^0.25 - 1) + --------- [CD - A(D^0.25 - 1) - 1] + 1
+//                          D^0.5 - 1
+//
+//                        (x^0.5 - 1) (D^0.25 - 1)
+//  ∂g/∂A = x^0.25 - 1  - ------------------------
+//                                D^0.5 - 1
+//
+//  We have the same concerns about evaluating (x^0.25 - 1) and (x^0.5 - 1)
+//  as we do with (x^3 - 1) and (x^2 - 1) above, with the additional concern
+//  that if we approximate x^0.25 or x^0.5, we need to make sure 1 maps to 1.
+
 static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     if (curve->table_entries > (uint32_t)INT_MAX) {
         return false;

@@ -27,4 +27,6 @@ float log2f_(float);
 float exp2f_(float);
 float powf_(float, float);
 
+void sqrt_ftrt_(float, float* s, float* f);
+
 bool isfinitef_(float);
