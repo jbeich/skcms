@@ -659,7 +659,7 @@ static float max_roundtrip_error(const skcms_TransferFunction* inv_tf, const skc
     float err = 0;
     for (int i = 0; i < N; i++) {
         float x = i * x_scale,
-              y = skcms_eval_curve(x, curve);
+              y = skcms_eval_curve(curve, x);
         err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(inv_tf, y)));
     }
     return err;

@@ -143,8 +143,17 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 //    ∂tf/∂b =  g(ax + b)^(g-1)
 //           -  g(ad + b)^(g-1)
 
-static float eval_nonlinear(float x, const void* ctx, const float P[3]) {
-    const skcms_TransferFunction* tf = (const skcms_TransferFunction*)ctx;
+typedef struct {
+    const skcms_Curve*            curve;
+    const skcms_TransferFunction* tf;
+} rg_nonlinear_arg;
+
+// Return the residual of the skcms_Curve and skcms_TransferFunction with parameters P,
+// and fill out the gradient of the residual into dfdP.
+static float rg_nonlinear(float x, const void* ctx, const float P[3], float dfdP[3]) {
+    const rg_nonlinear_arg* arg = (const rg_nonlinear_arg*)ctx;
+
+    const skcms_TransferFunction* tf = arg->tf;
 
     const float g = P[0],  a = P[1],  b = P[2],
                 c = tf->c, d = tf->d, f = tf->f;
@@ -153,27 +162,19 @@ static float eval_nonlinear(float x, const void* ctx, const float P[3]) {
                 D = a*d+b;
     assert (X >= 0 && D >= 0);
 
-    // (Notice how a large amount of this work is independent of x.)
-    return powf_(X, g)
-         - powf_(D, g)
-         + c*d + f;
-}
-static void grad_nonlinear(float x, const void* ctx, const float P[3], float dfdP[3]) {
-    const skcms_TransferFunction* tf = (const skcms_TransferFunction*)ctx;
-
-    const float g = P[0], a = P[1], b = P[2],
-                d = tf->d;
-
-    const float X = a*x+b,
-                D = a*d+b;
-    assert (X >= 0 && D >= 0);
-
+    // The gradient.
     dfdP[0] = 0.69314718f*log2f_(X)*powf_(X, g)
             - 0.69314718f*log2f_(D)*powf_(D, g);
     dfdP[1] = x*g*powf_(X, g-1)
             - d*g*powf_(D, g-1);
     dfdP[2] =   g*powf_(X, g-1)
             -   g*powf_(D, g-1);
+
+    // The residual.
+     const float t = powf_(X, g)
+                   - powf_(D, g)
+                   + c*d + f;
+    return skcms_eval_curve(arg->curve, x) - t;
 }
 
 int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float* d, float* f) {
@@ -191,13 +192,13 @@ int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float
     const float x_scale = 1.0f / (N - 1);
 
     int lin_points = 1;
-    *f = skcms_eval_curve(0, curve);
+    *f = skcms_eval_curve(curve,0);
 
     float slope_min = -INFINITY_;
     float slope_max = +INFINITY_;
     for (int i = 1; i < N; ++i) {
         float x = i * x_scale;
-        float y = skcms_eval_curve(x, curve);
+        float y = skcms_eval_curve(curve,x);
 
         float slope_max_i = (y + tol - *f) / x,
               slope_min_i = (y - tol - *f) / x;
@@ -232,9 +233,8 @@ static bool fit_nonlinear(const skcms_Curve* curve, int start, int N, skcms_Tran
         assert (P[1] >= 0 &&
                 P[1] * tf->d + P[2] >= 0);
 
-        if (!skcms_gauss_newton_step(skcms_eval_curve, curve,
-                                     eval_nonlinear, tf,
-                                     grad_nonlinear, tf,
+        rg_nonlinear_arg arg = { curve, tf};
+        if (!skcms_gauss_newton_step(rg_nonlinear, &arg,
                                      P,
                                      start*x_scale, 1, N-start)) {
             return false;
@@ -294,16 +294,16 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         } else if (L == N - 1) {
             // Degenerate case with only two points in the nonlinear segment. Solve directly.
             tf.g = 1;
-            tf.a = (skcms_eval_curve((N-1)*x_scale, curve) - skcms_eval_curve((N-2)*x_scale, curve))
+            tf.a = (skcms_eval_curve(curve, (N-1)*x_scale) - skcms_eval_curve(curve, (N-2)*x_scale))
                  * (N-1);
-            tf.b = skcms_eval_curve((N-1)*x_scale, curve)
+            tf.b = skcms_eval_curve(curve, (N-1)*x_scale)
                  - tf.a * (N-2) * x_scale;
             tf.e = 0;
         } else {
             // Start by guessing a gamma-only curve through the midpoint.
             int mid = (L + N) / 2;
             float mid_x = mid / (N - 1.0f);
-            float mid_y = skcms_eval_curve(mid_x, curve);
+            float mid_y = skcms_eval_curve(curve, mid_x);
             tf.g = log2f_(mid_y) / log2f_(mid_x);;
             tf.a = 1;
             tf.b = 0;
@@ -326,7 +326,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         float err = 0;
         for (int i = 0; i < N; i++) {
             float x = i * x_scale,
-                  y = skcms_eval_curve(x, curve);
+                  y = skcms_eval_curve(curve, x);
             err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(&inv, y)));
         }
         if (*max_error > err) {
