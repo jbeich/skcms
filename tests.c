@@ -1022,6 +1022,27 @@ static void test_EnsureUsableAsDestination() {
     free(ptr);
 }
 
+static void test_sRGB_profile_has_poly_tf() {
+    // If we can find an skcms_PolyTF for anything, it'd better be sRGB.
+    skcms_ICCProfile srgb = skcms_sRGB_profile;
+    for (int i = 0; i < 3; i++) {
+        srgb.has_poly_tf[i] = false;
+        srgb.poly_tf[i] = (skcms_PolyTF){0,0,0,0};
+    }
+
+    skcms_OptimizeForSpeed(&srgb);
+    for (int i = 0; i < 3; i++) {
+        expect(srgb.has_poly_tf[i]);
+        expect(srgb.poly_tf[i].A == 0.293833881617f);
+        expect(srgb.poly_tf[i].B == 0.704207003117f);
+        expect(srgb.poly_tf[i].C == 0.077399380505f);
+        expect(srgb.poly_tf[i].D == 0.040449999273f);
+    }
+
+    // This is mostly a reminder to update skcms_sRGB_profile when skcms_OptimizeForSpeed() changes.
+    expect(0 == memcmp(&srgb, &skcms_sRGB_profile, sizeof(srgb)));
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1048,6 +1069,7 @@ int main(int argc, char** argv) {
     test_TRC_Table16();
     test_Premul();
     test_EnsureUsableAsDestination();
+    test_sRGB_profile_has_poly_tf();
 #if 0
     test_CLUT();
 #endif
