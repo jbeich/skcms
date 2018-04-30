@@ -112,7 +112,11 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
     // If the curve isn't parametric and we approximated instead, this should be exact.
     const int L = (int)(tf->D * (N-1)) + 1;
 
-    // TODO: handle special case of L == N-1 to avoid /0 in Gauss-Newton.
+    if (L == N-1) {
+        // All points but one fit the linear section.
+        // We could connect the last point with a quadratic, but let's just be lazy.
+        return false;
+    }
 
     skcms_TransferFunction inv;
     if (!skcms_TransferFunction_invert(&baseline, &inv)) {

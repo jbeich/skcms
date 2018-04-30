@@ -1057,6 +1057,22 @@ static void test_sRGB_profile_has_poly_tf() {
     expect(0 == memcmp(&srgb, &skcms_sRGB_profile, sizeof(srgb)));
 }
 
+static void test_AlmostLinear() {
+    // A regression test for oss-fuzz:8061.
+    // I was not able to extract an ICC profile from its fuzzed image, but this is its curve.
+    uint8_t table_16[] = { 0x50, 0x50, 0x50, 0x63 };
+
+    skcms_ICCProfile p = skcms_sRGB_profile;
+    p.trc[0].table_entries = 2;
+    p.trc[0].table_8       = NULL;
+    p.trc[0].table_16      = table_16;
+
+    p.has_poly_tf[0] = false;
+    skcms_OptimizeForSpeed(&p);
+
+    expect(!p.has_poly_tf[0]);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1084,6 +1100,7 @@ int main(int argc, char** argv) {
     test_Premul();
     test_EnsureUsableAsDestination();
     test_sRGB_profile_has_poly_tf();
+    test_AlmostLinear();
 #if 0
     test_CLUT();
 #endif
