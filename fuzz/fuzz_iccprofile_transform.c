@@ -73,24 +73,30 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         // a big fuss about it (exiting kills libfuzzer, as if it crashed).
         exit(1);
     }
-    uint8_t src[256],
-            dst[256];
-    for (skcms_AlphaFormat srcAlpha = skcms_AlphaFormat_Opaque;
-         srcAlpha <= skcms_AlphaFormat_PremulLinear; ++srcAlpha) {
-        for (skcms_AlphaFormat dstAlpha = skcms_AlphaFormat_Opaque;
-             dstAlpha <= skcms_AlphaFormat_PremulLinear; ++dstAlpha) {
-            for (int i = 0; i < 256; i++) {
-                src[i] = (uint8_t)i;
-            }
-            skcms_Transform(src, skcms_PixelFormat_RGBA_8888, srcAlpha, &srgb,
-                            dst, skcms_PixelFormat_RGBA_8888, dstAlpha, &p,
-                            64);
 
-            skcms_Transform(src, skcms_PixelFormat_RGBA_8888, srcAlpha, &p,
-                            dst, skcms_PixelFormat_RGBA_8888, dstAlpha, &srgb,
-                            64);
+    for (int optimize = 0; optimize < 2; optimize++) {
+        if (optimize) {
+            skcms_OptimizeForSpeed(&p);
+        }
+
+        uint8_t src[256],
+                dst[256];
+        for (skcms_AlphaFormat srcAlpha = skcms_AlphaFormat_Opaque;
+             srcAlpha <= skcms_AlphaFormat_PremulLinear; ++srcAlpha) {
+            for (skcms_AlphaFormat dstAlpha = skcms_AlphaFormat_Opaque;
+                 dstAlpha <= skcms_AlphaFormat_PremulLinear; ++dstAlpha) {
+                for (int i = 0; i < 256; i++) {
+                    src[i] = (uint8_t)i;
+                }
+                skcms_Transform(src, skcms_PixelFormat_RGBA_8888, srcAlpha, &srgb,
+                                dst, skcms_PixelFormat_RGBA_8888, dstAlpha, &p,
+                                64);
+
+                skcms_Transform(src, skcms_PixelFormat_RGBA_8888, srcAlpha, &p,
+                                dst, skcms_PixelFormat_RGBA_8888, dstAlpha, &srgb,
+                                64);
+            }
         }
     }
-
     return 0;
 }
