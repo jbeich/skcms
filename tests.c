@@ -1022,6 +1022,29 @@ static void test_EnsureUsableAsDestination() {
     free(ptr);
 }
 
+static void test_EnsureUsableAsDestinationAdobe() {
+    void*  ptr;
+    size_t len;
+    expect(load_file("profiles/misc/AdobeRGB.icc", &ptr, &len));
+
+    skcms_ICCProfile profile;
+    expect(skcms_Parse(ptr, len, &profile));
+
+    skcms_ICCProfile usable_as_dst = profile;
+    skcms_EnsureUsableAsDestination(&usable_as_dst, &skcms_sRGB_profile);
+
+    // These profiles should behave nearly (or exactly) identical.
+    // If we let any part of sRGB (eg PolyTF) leak into usable_as_dst, this will fail.
+    expect(skcms_ApproximatelyEqualProfiles(&profile, &usable_as_dst));
+
+    // Same sequence as above, using the more aggressive SingleCurve version.
+    skcms_ICCProfile single_curve = profile;
+    skcms_EnsureUsableAsDestinationWithSingleCurve(&single_curve, &skcms_sRGB_profile);
+    expect(skcms_ApproximatelyEqualProfiles(&profile, &single_curve));
+
+    free(ptr);
+}
+
 static void test_sRGB_profile_has_poly_tf() {
     // If we can find an skcms_PolyTF for anything, it'd better be sRGB.
     skcms_ICCProfile srgb = skcms_sRGB_profile;
@@ -1114,6 +1137,7 @@ int main(int argc, char** argv) {
     test_TRC_Table16();
     test_Premul();
     test_EnsureUsableAsDestination();
+    test_EnsureUsableAsDestinationAdobe();
     test_sRGB_profile_has_poly_tf();
     test_AlmostLinear2();
     test_AlmostLinear3();
