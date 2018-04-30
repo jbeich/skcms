@@ -132,49 +132,57 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 // Our overall strategy is then:
 //    For a couple tolerances,
 //       - skcms_fit_linear(): fit c,d,f iteratively to as many points as our tolerance allows
-//       - fit_nonlinear():    fit g,a,b using Gauss-Newton given c,d,f (and by constraint, e)
+//       - invert c,d,f
+//       - fit_nonlinear():    fit g,a,b using Gauss-Newton given those inverted c,d,f
+//                             (and by constraint, inverted e) to the inverse of the table.
 //    Return the parameters with least maximum error.
 //
-// To run Gauss-Newton to find g,a,b, we'll also need the gradient of the non-linear piece:
-//    ∂tf/∂g = ln(ax + b)*(ax + b)^g
-//           - ln(ad + b)*(ad + b)^g
-//    ∂tf/∂a = xg(ax + b)^(g-1)
-//           - dg(ad + b)^(g-1)
-//    ∂tf/∂b =  g(ax + b)^(g-1)
-//           -  g(ad + b)^(g-1)
+// To run Gauss-Newton to find g,a,b, we'll also need the gradient of the residuals
+// of round-trip f_inv(x), the inverse of the non-linear piece of f(x).
+//
+//    let y = Table(x)
+//    r(x) = x - f_inv(y)
+//
+//    ∂r/∂g = ln(ay + b)*(ay + b)^g
+//          - ln(ad + b)*(ad + b)^g
+//    ∂r/∂a = yg(ay + b)^(g-1)
+//          - dg(ad + b)^(g-1)
+//    ∂r/∂b =  g(ay + b)^(g-1)
+//          -  g(ad + b)^(g-1)
 
 typedef struct {
     const skcms_Curve*            curve;
     const skcms_TransferFunction* tf;
 } rg_nonlinear_arg;
 
-// Return the residual of the skcms_Curve and skcms_TransferFunction with parameters P,
+// Return the residual of roundtripping skcms_Curve(x) through f_inv(y) with parameters P,
 // and fill out the gradient of the residual into dfdP.
 static float rg_nonlinear(float x, const void* ctx, const float P[3], float dfdP[3]) {
     const rg_nonlinear_arg* arg = (const rg_nonlinear_arg*)ctx;
 
-    const skcms_TransferFunction* tf = arg->tf;
+    const float y = skcms_eval_curve(x, arg->curve);
 
+    const skcms_TransferFunction* tf = arg->tf;
     const float g = P[0],  a = P[1],  b = P[2],
                 c = tf->c, d = tf->d, f = tf->f;
 
-    const float X = a*x+b,
-                D = a*d+b;
-    assert (X >= 0 && D >= 0);
+    const float Y = fmaxf_(a*y + b, 0.0f),
+                D =        a*d + b;
+    assert (D >= 0);
 
     // The gradient.
-    dfdP[0] = 0.69314718f*log2f_(X)*powf_(X, g)
+    dfdP[0] = 0.69314718f*log2f_(Y)*powf_(Y, g)
             - 0.69314718f*log2f_(D)*powf_(D, g);
-    dfdP[1] = x*g*powf_(X, g-1)
+    dfdP[1] = y*g*powf_(Y, g-1)
             - d*g*powf_(D, g-1);
-    dfdP[2] =   g*powf_(X, g-1)
+    dfdP[2] =   g*powf_(Y, g-1)
             -   g*powf_(D, g-1);
 
     // The residual.
-     const float t = powf_(X, g)
-                   - powf_(D, g)
-                   + c*d + f;
-    return skcms_eval_curve(x, arg->curve) - t;
+    const float f_inv = powf_(Y, g)
+                      - powf_(D, g)
+                      + c*d + f;
+    return x - f_inv;
 }
 
 int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float* d, float* f) {
@@ -307,8 +315,23 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             tf.g = log2f_(mid_y) / log2f_(mid_x);;
             tf.a = 1;
             tf.b = 0;
+            tf.e =    tf.c*tf.d + tf.f
+              - powf_(tf.a*tf.d + tf.b, tf.g);
 
-            if (!fit_nonlinear(curve, L,N, &tf)) {
+
+            skcms_TransferFunction tf_inv;
+            if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
+                //__builtin_debugtrap();
+                continue;
+            }
+
+            if (!fit_nonlinear(curve, L,N, &tf_inv)) {
+                //__builtin_debugtrap();
+                continue;
+            }
+
+            if (!skcms_TransferFunction_invert(&tf_inv, &tf)) {
+                //__builtin_debugtrap();
                 continue;
             }
         }
