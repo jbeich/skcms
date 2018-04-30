@@ -625,6 +625,7 @@ static void assert_usable_as_destination(const skcms_ICCProfile* profile) {
 void skcms_EnsureUsableAsDestination(skcms_ICCProfile* profile, const skcms_ICCProfile* fallback) {
     assert_usable_as_destination(fallback);
     skcms_ICCProfile ok = *fallback;
+    ok.has_poly_tf[0] = ok.has_poly_tf[1] = ok.has_poly_tf[2] = false;
 
     skcms_Matrix3x3 fromXYZD50;
     if (profile->has_toXYZD50 && skcms_Matrix3x3_invert(&profile->toXYZD50, &fromXYZD50)) {
