@@ -1006,16 +1006,16 @@ static void test_EnsureUsableAsDestination() {
 
     // We can't transform to table-based profiles (yet?).
     expect(!skcms_Transform(
-                &src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &skcms_sRGB_profile,
+                &src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, skcms_sRGB_profile(),
                 &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                 1));
 
     // We take care to use a fallback profile that is not sRGB. :)
-    skcms_EnsureUsableAsDestination(&profile, &skcms_XYZD50_profile);
+    skcms_EnsureUsableAsDestination(&profile, skcms_XYZD50_profile());
 
     // Now the transform should work.
     expect(skcms_Transform(
-               &src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &skcms_sRGB_profile,
+               &src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, skcms_sRGB_profile(),
                &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                1));
 
@@ -1034,7 +1034,7 @@ static void test_EnsureUsableAsDestinationAdobe() {
     expect(skcms_Parse(ptr, len, &profile));
 
     skcms_ICCProfile usable_as_dst = profile;
-    skcms_EnsureUsableAsDestination(&usable_as_dst, &skcms_sRGB_profile);
+    skcms_EnsureUsableAsDestination(&usable_as_dst, skcms_sRGB_profile());
 
     // These profiles should behave nearly (or exactly) identical.
     // If we let any part of sRGB (eg PolyTF) leak into usable_as_dst, this will fail.
@@ -1042,7 +1042,7 @@ static void test_EnsureUsableAsDestinationAdobe() {
 
     // Same sequence as above, using the more aggressive SingleCurve version.
     skcms_ICCProfile single_curve = profile;
-    skcms_EnsureUsableAsDestinationWithSingleCurve(&single_curve, &skcms_sRGB_profile);
+    skcms_EnsureUsableAsDestinationWithSingleCurve(&single_curve, skcms_sRGB_profile());
     expect(skcms_ApproximatelyEqualProfiles(&profile, &single_curve));
 
     free(ptr);
@@ -1050,7 +1050,7 @@ static void test_EnsureUsableAsDestinationAdobe() {
 
 static void test_sRGB_profile_has_poly_tf() {
     // If we can find an skcms_PolyTF for anything, it'd better be sRGB.
-    skcms_ICCProfile srgb = skcms_sRGB_profile;
+    skcms_ICCProfile srgb = *skcms_sRGB_profile();
 
     // First, test skcms_OptimizeForSpeed() is a no-op if the has_poly_tf bits are already set.
     for (int i = 0; i < 3; i++) {
@@ -1080,7 +1080,7 @@ static void test_sRGB_profile_has_poly_tf() {
     }
 
     // Mostly a reminder to update skcms_sRGB_profile when skcms_OptimizeForSpeed() changes.
-    expect(0 == memcmp(&srgb, &skcms_sRGB_profile, sizeof(srgb)));
+    expect(0 == memcmp(&srgb, skcms_sRGB_profile(), sizeof(srgb)));
 }
 
 static void test_AlmostLinear2() {
@@ -1089,7 +1089,7 @@ static void test_AlmostLinear2() {
     // This table will fit with a b+e offset that's non-zero, and cannot be fit with a PolyTF.
     uint8_t table_16[] = { 0x50, 0x50, 0x50, 0x63 };
 
-    skcms_ICCProfile p = skcms_sRGB_profile;
+    skcms_ICCProfile p = *skcms_sRGB_profile();
     p.trc[0].table_entries = 2;
     p.trc[0].table_8       = NULL;
     p.trc[0].table_16      = table_16;
@@ -1103,7 +1103,7 @@ static void test_AlmostLinear2() {
 static void test_AlmostLinear3() {
     uint8_t table_8[] = { 0x00, 0x50, 0xff };
 
-    skcms_ICCProfile p = skcms_sRGB_profile;
+    skcms_ICCProfile p = *skcms_sRGB_profile();
     p.trc[0].table_entries = 3;
     p.trc[0].table_8       = table_8;
     p.trc[0].table_16      = NULL;
