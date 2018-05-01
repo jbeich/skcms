@@ -32,7 +32,7 @@ static void dump_transform_to_XYZD50(FILE* fp,
 
     if (!skcms_Transform(
                 skcms_252_random_bytes,    fmt, skcms_AlphaFormat_Unpremul, profile,
-                dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &skcms_XYZD50_profile,
+                dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
                 npixels)) {
         fprintf(fp, "We can parse this profile, but not transform it XYZD50!\n");
         return;
@@ -61,7 +61,7 @@ static void dump_transform_to_XYZD50(FILE* fp,
     uint8_t opt[252];
     if (!skcms_Transform(
                 skcms_252_random_bytes,    fmt, skcms_AlphaFormat_Unpremul, optimized,
-                opt, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &skcms_XYZD50_profile,
+                opt, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
                 npixels)) {
         fprintf(fp, "We cannot transform the optimized profile!  THIS IS REALLY BAD.\n");
         return;
@@ -184,7 +184,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
     }
 
     skcms_ICCProfile best_single_curve = *profile;
-    skcms_EnsureUsableAsDestinationWithSingleCurve(&best_single_curve, &skcms_sRGB_profile);
+    skcms_EnsureUsableAsDestinationWithSingleCurve(&best_single_curve, skcms_sRGB_profile());
     dump_transfer_function(fp, "Best", &best_single_curve.trc[0].parametric, 0.0f);
 
     if (profile->has_toXYZD50) {
@@ -251,7 +251,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
         }
     }
 
-    if (skcms_ApproximatelyEqualProfiles(profile, &skcms_sRGB_profile)) {
+    if (skcms_ApproximatelyEqualProfiles(profile, skcms_sRGB_profile())) {
         fprintf(fp, "This profile ≈ sRGB.\n");
     }
 }
