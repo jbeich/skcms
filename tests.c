@@ -510,6 +510,9 @@ static const char* profile_test_cases[] = {
     "profiles/fuzz/a2b_too_many_input_channels.icc",  // oss-fuzz:6521
     "profiles/fuzz/mangled_trc_tags.icc",             // chromium:835666
     "profiles/fuzz/negative_g_para.icc",              // chromium:836634
+
+    // Once caused skcms_PolyTF fit to round trip an index to infinity.
+    "profiles/fuzz/infinite_roundtrip.icc",           // oss-fuzz:8101
 };
 
 static void test_Parse(bool regen) {
