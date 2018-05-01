@@ -117,7 +117,7 @@ static bool is_identity(const skcms_TransferFunction* tf) {
 
 static void dump_transfer_function(FILE* fp, const char* name,
                                    const skcms_TransferFunction* tf, float max_error) {
-    fprintf(fp, "%4s : %.6g, %.6g, %.6g, %.6g, %.6g, %.6g, %.6g", name,
+    fprintf(fp, "%4s : %.7g, %.7g, %.7g, %.7g, %.7g, %.7g, %.7g", name,
             tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f);
 
     if (max_error > 0) {
