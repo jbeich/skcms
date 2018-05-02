@@ -20,7 +20,6 @@
  'targ' : 'text' :  73446 : 1751172
  'Info' : 'text' :    902 : 1824620
 
-Best : 2.4, 0.9478673, 0.0521327, 0.07739938, 0.04045, 0, 0 (D-gap: -1.28057e-08)
  A2B : "A", CLUT, "B"
  "A" : 4 inputs
   A0 : 16-bit table with 256 entries
