@@ -534,6 +534,17 @@ static void test_Parse(bool regen) {
             fprintf(dump, "Unable to parse ICC profile\n");
         }
 
+        // MakeUsable functions should leave input unchanged when returning false
+        skcms_ICCProfile as_dst = profile;
+        if (!skcms_MakeUsableAsDestination(&as_dst)) {
+            expect(memcmp(&as_dst, &profile, sizeof(profile)) == 0);
+        }
+
+        as_dst = profile;
+        if (!skcms_MakeUsableAsDestinationWithSingleCurve(&as_dst)) {
+            expect(memcmp(&as_dst, &profile, sizeof(profile)) == 0);
+        }
+
         void* dump_buf = NULL;
         size_t dump_len = 0;
         expect(load_file_fp(dump, &dump_buf, &dump_len));
@@ -994,7 +1005,7 @@ static void test_CLUT() {
 }
 #endif
 
-static void test_EnsureUsableAsDestination() {
+static void test_MakeUsableAsDestination() {
     void*  ptr;
     size_t len;
     expect(load_file("profiles/mobile/sRGB_LUT.icc", &ptr, &len));
@@ -1010,8 +1021,8 @@ static void test_EnsureUsableAsDestination() {
                 &dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
                 1));
 
-    // We take care to use a fallback profile that is not sRGB. :)
-    skcms_EnsureUsableAsDestination(&profile, skcms_XYZD50_profile());
+    // We should be able to approximate this profile
+    expect(skcms_MakeUsableAsDestination(&profile));
 
     // Now the transform should work.
     expect(skcms_Transform(
@@ -1025,7 +1036,7 @@ static void test_EnsureUsableAsDestination() {
     free(ptr);
 }
 
-static void test_EnsureUsableAsDestinationAdobe() {
+static void test_MakeUsableAsDestinationAdobe() {
     void*  ptr;
     size_t len;
     expect(load_file("profiles/misc/AdobeRGB.icc", &ptr, &len));
@@ -1034,16 +1045,15 @@ static void test_EnsureUsableAsDestinationAdobe() {
     expect(skcms_Parse(ptr, len, &profile));
 
     skcms_ICCProfile usable_as_dst = profile;
-    skcms_EnsureUsableAsDestination(&usable_as_dst, skcms_sRGB_profile());
+    expect(skcms_MakeUsableAsDestination(&usable_as_dst));
 
-    // These profiles should behave nearly (or exactly) identical.
-    // If we let any part of sRGB (eg PolyTF) leak into usable_as_dst, this will fail.
-    expect(skcms_ApproximatelyEqualProfiles(&profile, &usable_as_dst));
+    // This profile was already parametric, so it should remain unchanged
+    expect(memcmp(&usable_as_dst, &profile, sizeof(profile)) == 0);
 
     // Same sequence as above, using the more aggressive SingleCurve version.
     skcms_ICCProfile single_curve = profile;
-    skcms_EnsureUsableAsDestinationWithSingleCurve(&single_curve, skcms_sRGB_profile());
-    expect(skcms_ApproximatelyEqualProfiles(&profile, &single_curve));
+    expect(skcms_MakeUsableAsDestinationWithSingleCurve(&single_curve));
+    expect(memcmp(&single_curve, &profile, sizeof(profile)) == 0);
 
     free(ptr);
 }
@@ -1139,8 +1149,8 @@ int main(int argc, char** argv) {
     test_ByteToLinearFloat();
     test_TRC_Table16();
     test_Premul();
-    test_EnsureUsableAsDestination();
-    test_EnsureUsableAsDestinationAdobe();
+    test_MakeUsableAsDestination();
+    test_MakeUsableAsDestinationAdobe();
     test_sRGB_profile_has_poly_tf();
     test_AlmostLinear2();
     test_AlmostLinear3();

@@ -184,8 +184,9 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
     }
 
     skcms_ICCProfile best_single_curve = *profile;
-    skcms_EnsureUsableAsDestinationWithSingleCurve(&best_single_curve, skcms_sRGB_profile());
-    dump_transfer_function(fp, "Best", &best_single_curve.trc[0].parametric, 0.0f);
+    if (skcms_MakeUsableAsDestinationWithSingleCurve(&best_single_curve)) {
+        dump_transfer_function(fp, "Best", &best_single_curve.trc[0].parametric, 0.0f);
+    }
 
     if (profile->has_toXYZD50) {
         skcms_Matrix3x3 toXYZ = profile->toXYZD50;
