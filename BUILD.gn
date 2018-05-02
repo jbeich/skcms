@@ -19,7 +19,24 @@ source_set("skcms") {
   }
 
   defines = []
+  public = [
+    "skcms.h",
+  ]
   sources = [
-    "skcms.c",
+    "src/GaussNewton.c",
+    "src/LinearAlgebra.h",
+    "src/PortableMath.h",
+    "src/Transform.c",
+    "src/GaussNewton.h",
+    "src/Macros.h",
+    "src/RandomBytes.h",
+    "src/Transform.h",
+    "src/ICCProfile.c",
+    "src/PolyTF.c",
+    "src/TransferFunction.c",
+    "src/Transform_inl.h",
+    "src/LinearAlgebra.c",
+    "src/PortableMath.c",
+    "src/TransferFunction.h",
   ]
 }
