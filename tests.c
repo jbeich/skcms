@@ -513,6 +513,9 @@ static const char* profile_test_cases[] = {
 
     // Once caused skcms_PolyTF fit to round trip an index to infinity.
     "profiles/fuzz/infinite_roundtrip.icc",           // oss-fuzz:8101
+
+    // Caused skcms_ApproximateCurve to violate the a*d+b >= 0 constraint.
+    "profiles/fuzz/inverse_tf_adb_negative.icc",      // oss-fuzz:8130
 };
 
 static void test_Parse(bool regen) {
