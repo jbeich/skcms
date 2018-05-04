@@ -511,8 +511,9 @@ static const char* profile_test_cases[] = {
     "profiles/fuzz/mangled_trc_tags.icc",             // chromium:835666
     "profiles/fuzz/negative_g_para.icc",              // chromium:836634
 
-    // Once caused skcms_PolyTF fit to round trip an index to infinity.
+    // Caused skcms_PolyTF fit to round trip indices outside the range of int.
     "profiles/fuzz/infinite_roundtrip.icc",           // oss-fuzz:8101
+    "profiles/fuzz/polytf_big_float_to_int_cast.icc", // oss-fuzz:8142
 
     // Caused skcms_ApproximateCurve to violate the a*d+b >= 0 constraint.
     "profiles/fuzz/inverse_tf_adb_negative.icc",      // oss-fuzz:8130
