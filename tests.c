@@ -517,6 +517,9 @@ static const char* profile_test_cases[] = {
 
     // Caused skcms_ApproximateCurve to violate the a*d+b >= 0 constraint.
     "profiles/fuzz/inverse_tf_adb_negative.icc",      // oss-fuzz:8130
+
+    // Caused skcms_PolyTF fit to send P to NaN due to very large inverse lhs
+    "profiles/fuzz/polytf_nan_after_update.icc",      // oss-fuzz:8165
 };
 
 static void test_Parse(bool regen) {

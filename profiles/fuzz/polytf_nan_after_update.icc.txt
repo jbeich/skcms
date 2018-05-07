@@ -1,0 +1,37 @@
+                Size : 0x00000844 : 2116
+    Data color space : 0x20202020 : '    '
+                 PCS : 0x58595A20 : 'XYZ '
+           Tag count : 0x0000000A : 10
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ '    ' : '    ' :     32 : 32
+ '    ' : '    ' :     32 : 288
+ '    ' : '    ' :     32 : 288
+ '    ' : '    ' :     32 : 288
+ 'rXYZ' : 'XYZ ' :     32 : 484
+ 'gXYZ' : 'XYZ ' :     32 : 504
+ 'bXYZ' : 'XYZ ' :     32 : 524
+ 'rTRC' : 'curv' :    544 : 544
+ 'gTRC' : 'curv' :    544 : 1068
+ 'bTRC' : 'curv' :    524 : 1592
+
+rTRC : 16-bit table with 256 entries
+gTRC : 16-bit table with 256 entries
+bTRC : 16-bit table with 256 entries
+ XYZ : | 8224.125000000 8224.125000000 8224.125000000 |
+       | 8224.125000000 8224.125000000 8224.125000000 |
+       | 8224.125000000 8224.125000000 8224.125000000 |
+252 random bytes transformed to linear XYZD50 bytes:
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
