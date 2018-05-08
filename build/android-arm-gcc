@@ -24,5 +24,3 @@ rule run
               else touch $out; fi
     description = run $in
 include build/common
-
-
