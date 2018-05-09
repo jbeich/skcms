@@ -353,7 +353,11 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         // (The most likely use case for this approximation is to be inverted and
         // used as the transfer function for a destination color space.)
         //
-        // We test using tf_inv, but all paths above have kept tf and tf_inv in sync.
+        // We've kept tf and tf_inv in sync above, but we can't guarantee that tf is
+        // invertible, so re-verify that here (and use the new inverse for testing).
+        if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
+            continue;
+        }
 
         float err = 0;
         for (int i = 0; i < N; i++) {

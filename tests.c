@@ -520,6 +520,9 @@ static const char* profile_test_cases[] = {
 
     // Caused skcms_PolyTF fit to send P to NaN due to very large inverse lhs
     "profiles/fuzz/polytf_nan_after_update.icc",      // oss-fuzz:8165
+
+    // Table is approximated by an inverse TF whose inverse is not invertible.
+    "profiles/fuzz/inverse_tf_not_invertible.icc",    // chromium:841210
 };
 
 static void test_Parse(bool regen) {
