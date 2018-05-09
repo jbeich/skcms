@@ -1134,6 +1134,21 @@ static void test_AlmostLinear3() {
     expect(!p.has_poly_tf[0]);
 }
 
+static void test_PrimariesToXYZ() {
+    skcms_Matrix3x3 srgb_to_xyz;
+    expect(skcms_PrimariesToXYZD50(0.64f, 0.33f,
+                                   0.30f, 0.60f,
+                                   0.15f, 0.06f,
+                                   0.3127f, 0.3290f,
+                                   &srgb_to_xyz));
+
+    skcms_ICCProfile p = *skcms_sRGB_profile();
+    for (int r = 0; r < 3; ++r)
+        for (int c = 0; c < 3; ++c) {
+            expect(fabsf_(srgb_to_xyz.vals[r][c] - p.toXYZD50.vals[r][c]) < 0.0001f);
+        }
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1164,6 +1179,7 @@ int main(int argc, char** argv) {
     test_sRGB_profile_has_poly_tf();
     test_AlmostLinear2();
     test_AlmostLinear3();
+    test_PrimariesToXYZ();
 #if 0
     test_CLUT();
 #endif
