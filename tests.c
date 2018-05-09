@@ -1149,6 +1149,23 @@ static void test_PrimariesToXYZ() {
         }
 }
 
+static void test_Programmatic_sRGB() {
+    skcms_Matrix3x3 srgb_to_xyz;
+    expect(skcms_PrimariesToXYZD50(0.64f, 0.33f,
+                                   0.30f, 0.60f,
+                                   0.15f, 0.06f,
+                                   0.3127f, 0.3290f,
+                                   &srgb_to_xyz));
+    skcms_ICCProfile srgb = *skcms_sRGB_profile();
+
+    skcms_ICCProfile p;
+    skcms_Init(&p);
+    skcms_SetTransferFunction(&p, &srgb.trc[0].parametric);
+    skcms_SetXYZD50(&p, &srgb_to_xyz);
+
+    expect(skcms_ApproximatelyEqualProfiles(&p, &srgb));
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1180,6 +1197,7 @@ int main(int argc, char** argv) {
     test_AlmostLinear2();
     test_AlmostLinear3();
     test_PrimariesToXYZ();
+    test_Programmatic_sRGB();
 #if 0
     test_CLUT();
 #endif
