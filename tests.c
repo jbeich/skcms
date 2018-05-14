@@ -1096,10 +1096,10 @@ static void test_sRGB_profile_has_poly_tf() {
     skcms_OptimizeForSpeed(&srgb);
     for (int i = 0; i < 3; i++) {
         expect(srgb.has_poly_tf[i]);
-        expect(srgb.poly_tf[i].A == 0.294143557548523f);
-        expect(srgb.poly_tf[i].B == 0.703896820545197f);
-        expect(srgb.poly_tf[i].C == 0.077399380505085f);
-        expect(srgb.poly_tf[i].D == 0.040449999272823f);
+        expect(srgb.poly_tf[i].A == 0.293833881617f);
+        expect(srgb.poly_tf[i].B == 0.704207003117f);
+        expect(srgb.poly_tf[i].C == 0.077399380505f);
+        expect(srgb.poly_tf[i].D == 0.040449999273f);
     }
 
     // Mostly a reminder to update skcms_sRGB_profile when skcms_OptimizeForSpeed() changes.
