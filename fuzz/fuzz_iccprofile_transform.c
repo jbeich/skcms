@@ -74,8 +74,10 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         exit(1);
     }
 
-    for (int optimize = 0; optimize < 2; optimize++) {
-        if (optimize) {
+    for (int mode = 0; mode < 3; mode++) {
+        if (mode == 1) {
+            (void)skcms_MakeUsableAsDestination(&p);
+        } else if (mode == 2) {
             skcms_OptimizeForSpeed(&p);
         }
 
