@@ -523,6 +523,9 @@ static const char* profile_test_cases[] = {
 
     // Table is approximated by an inverse TF whose inverse is not invertible.
     "profiles/fuzz/inverse_tf_not_invertible.icc",    // chromium:841210
+
+    // Table is approximated by a TF whose inverse has g > 16M (timeout in approx_pow)
+    "profiles/fuzz/inverse_tf_huge_g.icc",            // chromium:842374
 };
 
 static void test_Parse(bool regen) {
