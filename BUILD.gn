@@ -20,7 +20,7 @@ source_set("skcms") {
     ]
   }
 
-  defines = []
+  defines = [ "SKCMS_LEGACY_POWF" ]
   public = [
     "skcms.h",
   ]
