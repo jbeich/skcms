@@ -136,7 +136,7 @@ static bool fit_poly_tf(const skcms_Curve* curve, skcms_PolyTF* tf) {
         rg_poly_tf_arg arg = { curve, tf };
         if (!skcms_gauss_newton_step(rg_poly_tf, &arg,
                                      P,
-                                     tf->D, 1, N-L)) {
+                                     tf->D, 1.0f, 1.0f/(N-1))) {
             return false;
         }
     }
