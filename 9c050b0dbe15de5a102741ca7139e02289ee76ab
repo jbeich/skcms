@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "013b0e53_80ebee5e",
+        "filename": "src/Curve.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-16T17:05:25Z",
+      "side": 1,
+      "message": "think we s/fx/ix/g to match the transform code?",
+      "range": {
+        "startLine": 26,
+        "startChar": 10,
+        "endLine": 26,
+        "endChar": 12
+      },
+      "revId": "9c050b0dbe15de5a102741ca7139e02289ee76ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
