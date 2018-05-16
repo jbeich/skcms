@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88fe93b7_d9571fd4",
+        "filename": "src/GaussNewton.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-16T14:11:25Z",
+      "side": 1,
+      "message": "I remember why I originally objected to this - there are many values of N where we will never evaluate at x1 (any value where 1/N-1 rounds up, effectively).",
+      "revId": "a3caafc9be983666ffefbe007f630efa6ecf816a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
