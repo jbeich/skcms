@@ -25,9 +25,9 @@
   A3 : 16-bit table with 256 entries
 CLUT : 16 x 16 x 16 x 16 (16 bpp)
  "B" : 3 outputs
-  B0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
-  B1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
-  B2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
 252 random bytes transformed to linear XYZD50 bytes:
 	121d22 36200e 090a05 191117 181106 131d0a 221d12
 	252136 000000 0e1312 242d47 472e1f 252618 010100

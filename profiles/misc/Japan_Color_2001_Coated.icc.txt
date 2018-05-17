@@ -28,9 +28,9 @@
   ~= : 1.834799, 0.7538223, 0.3804165, 0.3229572, 0.003921569, -0.1709625, 0 (Max error: 0.058979) (D-gap: -3.45453e-05)
 CLUT : 9 x 9 x 9 x 9 (16 bpp)
  "B" : 3 outputs
-  B0 : 1, 1, 0, 0, 0, 0, 0 (Identity)
-  B1 : 1, 1, 0, 0, 0, 0, 0 (Identity)
-  B2 : 1, 1, 0, 0, 0, 0, 0 (Identity)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
 252 random bytes transformed to linear XYZD50 bytes:
 	101d25 3d240f 0b0d05 1b131b 1d1406 17230c 241f11
 	26233f 000001 0f1615 243052 4c3022 2c2e1d 020100
