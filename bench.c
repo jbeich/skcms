@@ -49,13 +49,11 @@ int main(int argc, char** argv) {
     int           n = 100000;
     const char* src = "profiles/mobile/sRGB_parametric.icc";
     const char* dst = "profiles/mobile/Display_P3_parametric.icc";
-    bool   optimize = false;
 
     for (int i = 0; i < argc; i++) {
         if (0 == strcmp(argv[i], "-n")) { n   = atoi(argv[++i]); }
         if (0 == strcmp(argv[i], "-s")) { src =      argv[++i] ; }
         if (0 == strcmp(argv[i], "-d")) { dst =      argv[++i] ; }
-        if (0 == strcmp(argv[i], "-o")) { optimize             = true; }
         if (0 == strcmp(argv[i], "-p")) { g_skcms_dump_profile = true; }
     }
 
@@ -68,11 +66,6 @@ int main(int argc, char** argv) {
     if (!skcms_Parse(src_buf, src_len, &src_profile) ||
         !skcms_Parse(dst_buf, dst_len, &dst_profile)) {
         return 1;
-    }
-
-    if (optimize) {
-        skcms_OptimizeForSpeed(&src_profile);
-        skcms_OptimizeForSpeed(&dst_profile);
     }
 
     // We'll rotate through pixel formats to get samples from all the various stages.

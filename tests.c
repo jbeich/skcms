@@ -1071,71 +1071,6 @@ static void test_MakeUsableAsDestinationAdobe() {
     free(ptr);
 }
 
-static void test_sRGB_profile_has_poly_tf() {
-    // If we can find an skcms_PolyTF for anything, it'd better be sRGB.
-    skcms_ICCProfile srgb = *skcms_sRGB_profile();
-
-    // First, test skcms_OptimizeForSpeed() is a no-op if the has_poly_tf bits are already set.
-    for (int i = 0; i < 3; i++) {
-        expect(srgb.has_poly_tf[i]);
-        srgb.poly_tf[i] = (skcms_PolyTF){0,0,0,0};
-    }
-    skcms_OptimizeForSpeed(&srgb);
-    for (int i = 0; i < 3; i++) {
-        expect(srgb.has_poly_tf[i]);
-        expect(srgb.poly_tf[i].A == 0);
-        expect(srgb.poly_tf[i].B == 0);
-        expect(srgb.poly_tf[i].C == 0);
-        expect(srgb.poly_tf[i].D == 0);
-    }
-
-    // Now clear the has-bits and re-optimize.
-    for (int i = 0; i < 3; i++) {
-        srgb.has_poly_tf[i] = false;
-    }
-    skcms_OptimizeForSpeed(&srgb);
-
-    // Mostly a reminder to update skcms_sRGB_profile when skcms_OptimizeForSpeed() changes.
-    if (0 != memcmp(&srgb, skcms_sRGB_profile(), sizeof(srgb))) {
-        const skcms_PolyTF* tf = &srgb.poly_tf[0];
-
-        fprintf(stderr, "%.15f %.15f %.15f %.15f\n",
-                         tf->A,tf->B,tf->C,tf->D);
-    }
-    expect(0 == memcmp(&srgb, skcms_sRGB_profile(), sizeof(srgb)));
-}
-
-static void test_AlmostLinear2() {
-    // A regression test for oss-fuzz:8061.
-    // I was not able to extract an ICC profile from its fuzzed image, but this is its curve.
-    // This table will fit with a b+e offset that's non-zero, and cannot be fit with a PolyTF.
-    uint8_t table_16[] = { 0x50, 0x50, 0x50, 0x63 };
-
-    skcms_ICCProfile p = *skcms_sRGB_profile();
-    p.trc[0].table_entries = 2;
-    p.trc[0].table_8       = NULL;
-    p.trc[0].table_16      = table_16;
-
-    p.has_poly_tf[0] = false;
-    skcms_OptimizeForSpeed(&p);
-
-    expect(!p.has_poly_tf[0]);
-}
-
-static void test_AlmostLinear3() {
-    uint8_t table_8[] = { 0x00, 0x50, 0xff };
-
-    skcms_ICCProfile p = *skcms_sRGB_profile();
-    p.trc[0].table_entries = 3;
-    p.trc[0].table_8       = table_8;
-    p.trc[0].table_16      = NULL;
-
-    p.has_poly_tf[0] = false;
-    skcms_OptimizeForSpeed(&p);
-
-    expect(!p.has_poly_tf[0]);
-}
-
 static void test_PrimariesToXYZ() {
     skcms_Matrix3x3 srgb_to_xyz;
     expect(skcms_PrimariesToXYZD50(0.64f, 0.33f,
@@ -1215,9 +1150,6 @@ int main(int argc, char** argv) {
     test_Premul();
     test_MakeUsableAsDestination();
     test_MakeUsableAsDestinationAdobe();
-    test_sRGB_profile_has_poly_tf();
-    test_AlmostLinear2();
-    test_AlmostLinear3();
     test_PrimariesToXYZ();
     test_Programmatic_sRGB();
     test_isfinitef_();
