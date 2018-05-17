@@ -61,11 +61,11 @@ typedef union skcms_Curve {
     };
 } skcms_Curve;
 
-// Practical equality test for two skcms_Curves.
-// The implementation is subject to change, but it will always try to answer
-// "can I substitute A for B?" and "can I skip transforming from A to B?".
-SKCMS_API bool skcms_ApproximatelyEqualCurves(const skcms_Curve* A,
-                                              const skcms_Curve* B);
+// Practical test that answers: Is A roughly the inverse of B? Typically used by passing
+// the inverse of a known parametric transfer function (like sRGB) as B, to determine if
+// a particular curve is very close to sRGB.
+SKCMS_API bool skcms_Curve_TransferFunction_ApproximatelyCancel(const skcms_Curve* A,
+                                                                const skcms_TransferFunction* B);
 
 typedef struct skcms_A2B {
     // Optional: N 1D curves, followed by an N-dimensional CLUT.
@@ -123,6 +123,10 @@ typedef struct skcms_ICCProfile {
 SKCMS_API const skcms_ICCProfile* skcms_sRGB_profile(void);
 // Ditto for XYZD50, the most common profile connection space.
 SKCMS_API const skcms_ICCProfile* skcms_XYZD50_profile(void);
+
+SKCMS_API const skcms_TransferFunction* skcms_sRGB_TransferFunction(void);
+SKCMS_API const skcms_TransferFunction* skcms_sRGB_Inverse_TransferFunction(void);
+SKCMS_API const skcms_TransferFunction* skcms_Linear_TransferFunction(void);
 
 // Practical equality test for two skcms_ICCProfiles.
 // The implementation is subject to change, but it will always try to answer

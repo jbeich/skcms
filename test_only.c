@@ -95,26 +95,6 @@ static void dump_sig_field(FILE* fp, const char* name, uint32_t val) {
     fprintf(fp, "%20s : 0x%08X : '%s'\n", name, val, valStr);
 }
 
-static bool is_sRGB(const skcms_TransferFunction* tf) {
-    return tf->g == 157286 / 65536.0f
-        && tf->a ==  62119 / 65536.0f
-        && tf->b ==   3417 / 65536.0f
-        && tf->c ==   5072 / 65536.0f
-        && tf->d ==   2651 / 65536.0f
-        && tf->e ==      0 / 65536.0f
-        && tf->f ==      0 / 65536.0f;
-}
-
-static bool is_identity(const skcms_TransferFunction* tf) {
-    return tf->g == 1.0f
-        && tf->a == 1.0f
-        && tf->b == 0.0f
-        && tf->c == 0.0f
-        && tf->d == 0.0f
-        && tf->e == 0.0f
-        && tf->f == 0.0f;
-}
-
 static void dump_transfer_function(FILE* fp, const char* name,
                                    const skcms_TransferFunction* tf, float max_error) {
     fprintf(fp, "%4s : %.7g, %.7g, %.7g, %.7g, %.7g, %.7g, %.7g", name,
@@ -131,10 +111,16 @@ static void dump_transfer_function(FILE* fp, const char* name,
         fprintf(fp, " (D-gap: %.6g)", (n_at_d - l_at_d));
     }
 
-    if (is_sRGB(tf)) {
-        fprintf(fp, " (sRGB)");
-    } else if (is_identity(tf)) {
-        fprintf(fp, " (Identity)");
+    skcms_Curve curve;
+    curve.table_entries = 0;
+    curve.parametric = *tf;
+
+    if (skcms_Curve_TransferFunction_ApproximatelyCancel(&curve,
+                                                         skcms_sRGB_Inverse_TransferFunction())) {
+        fprintf(fp, " (~sRGB)");
+    } else if (skcms_Curve_TransferFunction_ApproximatelyCancel(&curve,
+                                                                skcms_Linear_TransferFunction())) {
+        fprintf(fp, " (~Identity)");
     }
     fprintf(fp, "\n");
 }
@@ -143,8 +129,13 @@ static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve) {
     if (curve->table_entries == 0) {
         dump_transfer_function(fp, name, &curve->parametric, 0);
     } else {
-        fprintf(fp, "%4s : %d-bit table with %u entries\n", name,
+        fprintf(fp, "%4s : %d-bit table with %u entries", name,
                 curve->table_8 ? 8 : 16, curve->table_entries);
+        if (skcms_Curve_TransferFunction_ApproximatelyCancel(
+                curve, skcms_sRGB_Inverse_TransferFunction())) {
+            fprintf(fp, " (~sRGB)");
+        }
+        fprintf(fp, "\n");
         float max_error;
         skcms_TransferFunction tf;
         if (skcms_ApproximateCurve(curve, &tf, &max_error)) {
