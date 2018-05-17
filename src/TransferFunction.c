@@ -150,15 +150,11 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 //    ∂r/∂b =  g(ay + b)^(g-1)
 //          -  g(ad + b)^(g-1)
 
-// Return the residual of roundtripping skcms_Curve(x) through f_inv(y) with parameters P,
+// Return the residual of roundtripping y=skcms_Curve(x) through f_inv(y) with parameters P,
 // and fill out the gradient of the residual into dfdP.
-static float rg_nonlinear(float x,
-                          const skcms_Curve* curve,
-                          const skcms_TransferFunction* tf,
-                          const float P[3],
+static float rg_nonlinear(float x, float y,
+                          const skcms_TransferFunction* tf, const float P[3],
                           float dfdP[3]) {
-    const float y = skcms_eval_curve(curve, x);
-
     const float g = P[0],  a = P[1],  b = P[2],
                 c = tf->c, d = tf->d, f = tf->f;
 
@@ -269,10 +265,11 @@ static bool gauss_newton_step(const skcms_Curve* curve,
     //   We want to evaluate Jf only once, but both lhs and rhs involve Jf^T,
     //   so we'll have to update lhs and rhs at the same time.
     for (int i = 0; i < N; i++) {
-        float x = x0 + i*dx;
+        float x = x0 + i*dx,
+              y = skcms_eval_curve(curve, x);
 
         float dfdP[3] = {0,0,0};
-        float resid = rg_nonlinear(x,curve,tf,P, dfdP);
+        float resid = rg_nonlinear(x,y, tf,P, dfdP);
 
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
