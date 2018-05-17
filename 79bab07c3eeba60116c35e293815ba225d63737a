@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "abba291a_65d30324",
+        "filename": "skcms.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-17T18:17:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a53d599_cf472bc5",
+      "range": {
+        "startLine": 120,
+        "startChar": 45,
+        "endLine": 120,
+        "endChar": 52
+      },
+      "revId": "79bab07c3eeba60116c35e293815ba225d63737a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f76e69e_bd74891e",
         "filename": "src/Curve.c",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "79bab07c3eeba60116c35e293815ba225d63737a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "750f72b0_4e7afb8f",
+        "filename": "src/Curve.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-05-17T18:17:49Z",
+      "side": 1,
+      "message": "Good point. This came from skcms_ApproximateCurve, but that had an earlier guard in place. Fixed.",
+      "parentUuid": "4f76e69e_bd74891e",
+      "range": {
+        "startLine": 48,
+        "startChar": 41,
+        "endLine": 48,
+        "endChar": 66
+      },
+      "revId": "79bab07c3eeba60116c35e293815ba225d63737a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
