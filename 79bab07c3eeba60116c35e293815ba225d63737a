@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a53d599_cf472bc5",
+        "filename": "skcms.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-17T18:09:06Z",
+      "side": 1,
+      "message": "Identity?  Let\u0027s fix broken habits.",
+      "range": {
+        "startLine": 120,
+        "startChar": 45,
+        "endLine": 120,
+        "endChar": 52
+      },
+      "revId": "79bab07c3eeba60116c35e293815ba225d63737a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f76e69e_bd74891e",
+        "filename": "src/Curve.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-05-17T18:09:06Z",
+      "side": 1,
+      "message": "think we\u0027re gonna get fuzzed with 0xffffffff?",
+      "range": {
+        "startLine": 48,
+        "startChar": 41,
+        "endLine": 48,
+        "endChar": 66
+      },
+      "revId": "79bab07c3eeba60116c35e293815ba225d63737a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
