@@ -34,12 +34,12 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 			&specs.CipdPackage{
 				Name:    "skia/bots/android_ndk_linux",
 				Path:    "ndk",
-				Version: "version:10",
+				Version: "version:11",
 			},
 			&specs.CipdPackage{
 				Name:    "skia/bots/clang_linux",
 				Path:    "clang_linux",
-				Version: "version:10",
+				Version: "version:11",
 			},
 		},
 		"skcms-Mac": []*specs.CipdPackage{
@@ -51,7 +51,7 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 			&specs.CipdPackage{
 				Name:    "skia/bots/android_ndk_darwin",
 				Path:    "ndk",
-				Version: "version:4",
+				Version: "version:5",
 			},
 		},
 		"skcms-Win": []*specs.CipdPackage{
@@ -68,7 +68,7 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 			&specs.CipdPackage{
 				Name:    "skia/bots/clang_win",
 				Path:    "clang_win",
-				Version: "version:5",
+				Version: "version:6",
 			},
 		},
 	}

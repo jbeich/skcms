@@ -38,12 +38,12 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "ndk",
-          "version": "version:10"
+          "version": "version:11"
         },
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:10"
+          "version": "version:11"
         }
       ],
       "command": [
@@ -73,7 +73,7 @@
         {
           "name": "skia/bots/android_ndk_darwin",
           "path": "ndk",
-          "version": "version:4"
+          "version": "version:5"
         }
       ],
       "command": [
@@ -106,7 +106,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:5"
+          "version": "version:6"
         }
       ],
       "command": [
