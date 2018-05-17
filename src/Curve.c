@@ -43,3 +43,18 @@ float skcms_eval_curve(const skcms_Curve* curve, float x) {
     }
     return l + (h-l)*t;
 }
+
+bool skcms_Curve_TransferFunction_ApproximatelyCancel(const skcms_Curve* A,
+                                                      const skcms_TransferFunction* B) {
+    uint32_t N = A->table_entries ? A->table_entries : 256;
+
+    float dx = 1.0f / (N - 1);
+    float max_err = 0;
+    for (uint32_t i = 0; i < N; ++i) {
+        float x = i * dx,
+              y = skcms_eval_curve(A, x);
+        max_err = fmaxf_(max_err, fabsf_(x - skcms_TransferFunction_eval(B, y)));
+    }
+
+    return max_err < (1/512.0f);
+}
