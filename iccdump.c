@@ -16,6 +16,8 @@
 
 #include "skcms.h"
 #include "test_only.h"
+#include "src/ICCProfile.h"
+#include "src/LinearAlgebra.h"
 #include "src/Macros.h"
 #include "src/TransferFunction.h"
 #include <stdio.h>
@@ -550,15 +552,20 @@ int main(int argc, char** argv) {
             }
             fprintf(fp, "\"/>\n");
 
-            const skcms_Matrix3x3* m = &profile.toXYZD50;
-            float rSum = m->vals[0][0] + m->vals[1][0] + m->vals[2][0];
-            float gSum = m->vals[0][1] + m->vals[1][1] + m->vals[2][1];
-            float bSum = m->vals[0][2] + m->vals[1][2] + m->vals[2][2];
+            skcms_Matrix3x3 m = profile.toXYZD50;
+            skcms_Matrix3x3 chad;
+            if (skcms_GetCHAD(&profile, &chad) && skcms_Matrix3x3_invert(&chad, &chad)) {
+                m = skcms_Matrix3x3_concat(&chad, &m);
+            }
+
+            float rSum = m.vals[0][0] + m.vals[1][0] + m.vals[2][0];
+            float gSum = m.vals[0][1] + m.vals[1][1] + m.vals[2][1];
+            float bSum = m.vals[0][2] + m.vals[1][2] + m.vals[2][2];
             fprintf(fp, "<polygon fill=\"none\" stroke=\"black\" "
                     "vector-effect=\"non-scaling-stroke\" points=\"%g,%g %g,%g %g,%g\"/>\n",
-                    (m->vals[0][0] / rSum), (m->vals[1][0] / rSum),
-                    (m->vals[0][1] / gSum), (m->vals[1][1] / gSum),
-                    (m->vals[0][2] / bSum), (m->vals[1][2] / bSum));
+                    (m.vals[0][0] / rSum), (m.vals[1][0] / rSum),
+                    (m.vals[0][1] / gSum), (m.vals[1][1] / gSum),
+                    (m.vals[0][2] / bSum), (m.vals[1][2] / bSum));
 
             svg_pop_group(fp);
             svg_close(fp);
