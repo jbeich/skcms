@@ -36,7 +36,7 @@ elif 'linux' in sys.platform:
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
 
 else:  # Windows
-  win_toolchain = os.path.realpath(sys.argv[2]) + '\\depot_tools\\win_toolchain\\vs_files\\a9e1098bba66d2acccc377d5ee81265910f29272'
+  win_toolchain = os.path.realpath(sys.argv[2]) + '\\depot_tools\\win_toolchain\\vs_files\\5454e45bf3764c03d3fc1024b3bf5bc41e3ab62c'
   os.environ['PATH'] = win_toolchain + '\\VC\\Tools\\MSVC\\14.11.25503\\bin\\HostX64\\x64;' + os.environ['PATH']
   os.environ['INCLUDE'] = win_toolchain + '\\VC\\Tools\\MSVC\\14.11.25503\\include;'
   os.environ['INCLUDE'] += win_toolchain + '\\win_sdk\\Include\\10.0.15063.0\\shared;'
