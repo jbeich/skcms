@@ -493,9 +493,10 @@ static const char* profile_test_cases[] = {
     // Profile claims to be sRGB, but seems quite different
     "profiles/misc/Kodak_sRGB.icc",
 
-    // Bad profiles found inn the wild
+    // Bad profiles found in the wild
     "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",  // Broken tag table, and A2B0 fails to parse
     "profiles/misc/bad_pcs.icc",                    // PCS is 'RGB '
+    "profiles/misc/SM245B.icc",                     // XYZ matrix doesn't go to D50 white
 
     // fuzzer generated profiles that found parsing bugs
 

@@ -162,11 +162,18 @@ static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) 
     return true;
 }
 
+static bool close_to_d50(const skcms_Matrix3x3* m) {
+    return fabsf_(m->vals[0][0] + m->vals[0][1] + m->vals[0][2] - 0.9642f) <= 0.04f &&
+           fabsf_(m->vals[1][0] + m->vals[1][1] + m->vals[1][2] - 1.0000f) <= 0.04f &&
+           fabsf_(m->vals[2][0] + m->vals[2][1] + m->vals[2][2] - 0.8249f) <= 0.04f;
+}
+
 static bool read_to_XYZD50(const skcms_ICCTag* rXYZ, const skcms_ICCTag* gXYZ,
                            const skcms_ICCTag* bXYZ, skcms_Matrix3x3* toXYZ) {
     return read_tag_xyz(rXYZ, &toXYZ->vals[0][0], &toXYZ->vals[1][0], &toXYZ->vals[2][0]) &&
            read_tag_xyz(gXYZ, &toXYZ->vals[0][1], &toXYZ->vals[1][1], &toXYZ->vals[2][1]) &&
-           read_tag_xyz(bXYZ, &toXYZ->vals[0][2], &toXYZ->vals[1][2], &toXYZ->vals[2][2]);
+           read_tag_xyz(bXYZ, &toXYZ->vals[0][2], &toXYZ->vals[1][2], &toXYZ->vals[2][2]) &&
+           close_to_d50(toXYZ);
 }
 
 typedef struct {
