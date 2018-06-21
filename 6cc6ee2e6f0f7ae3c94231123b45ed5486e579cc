@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c08717f9_49de14f1",
+        "filename": "src/Transform.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-21T17:40:50Z",
+      "side": 1,
+      "message": "this should be (dstFmt\u003e\u003e1) \u003d\u003d (skcms_PixelFormat_G_8\u003e\u003e1), right?",
+      "range": {
+        "startLine": 454,
+        "startChar": 8,
+        "endLine": 454,
+        "endChar": 14
+      },
+      "revId": "6cc6ee2e6f0f7ae3c94231123b45ed5486e579cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
