@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d574ef0_8fa4e884",
+        "filename": "src/Transform.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-21T15:25:50Z",
+      "side": 1,
+      "message": "The places we have to read these feel a bit fragile.  Is there a way we can munge the inputs once sot that we get the right gray behavior more robustly with fewer spot checks below?\n\nLike, can we do\n\n    if ((srcFmt\u003e\u003e1)  \u003d\u003d (skcms_PixelFromat_G_8)\u003e\u003e1) {\n       dstProfile \u003d dstProfile with identity XYZD50 matrix?\n    }\n\nand then let everything flow through?\n\nIf it makes it easier, I think we can probably back out allowing null color profiles?",
+      "range": {
+        "startLine": 430,
+        "startChar": 27,
+        "endLine": 430,
+        "endChar": 38
+      },
+      "revId": "49668bc33fd61a5b5cdca2990159c39b5d21b884",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cfe9001_78f4a03c",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 910,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-21T15:25:50Z",
+      "side": 1,
+      "message": "// g should be holding y luminance channel (r,g,b ~~~\u003e x,y,z)",
+      "revId": "49668bc33fd61a5b5cdca2990159c39b5d21b884",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
