@@ -354,6 +354,9 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
 
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     switch (fmt >> 1) {   // ignore rgb/bgr
+        case skcms_PixelFormat_A_8           >> 1: return  1;
+        case skcms_PixelFormat_G_8           >> 1: return  1;
+        case skcms_PixelFormat_ABGR_4444     >> 1: return  2;
         case skcms_PixelFormat_RGB_565       >> 1: return  2;
         case skcms_PixelFormat_RGB_888       >> 1: return  3;
         case skcms_PixelFormat_RGBA_8888     >> 1: return  4;
@@ -424,9 +427,14 @@ bool skcms_Transform(const void*             src,
 
     skcms_TransferFunction inv_dst_tf_r, inv_dst_tf_g, inv_dst_tf_b;
     skcms_Matrix3x3        from_xyz;
+    bool                   dst_is_gray = false;
 
     switch (srcFmt >> 1) {
         default: return false;
+        case skcms_PixelFormat_A_8           >> 1: *ops++ = Op_load_a8;       break;
+        case skcms_PixelFormat_G_8           >> 1: dst_is_gray = true;
+                                                   *ops++ = Op_load_g8;       break;
+        case skcms_PixelFormat_ABGR_4444     >> 1: *ops++ = Op_load_4444;     break;
         case skcms_PixelFormat_RGB_565       >> 1: *ops++ = Op_load_565;      break;
         case skcms_PixelFormat_RGB_888       >> 1: *ops++ = Op_load_888;      break;
         case skcms_PixelFormat_RGBA_8888     >> 1: *ops++ = Op_load_8888;     break;
@@ -440,6 +448,10 @@ bool skcms_Transform(const void*             src,
     }
     if (srcFmt & 1) {
         *ops++ = Op_swap_rb;
+    }
+    if (dst_is_gray && !srcProfile) {
+        srcProfile = skcms_sRGB_profile();
+        dstProfile = skcms_sRGB_profile();
     }
 
     if (srcProfile && srcProfile->data_color_space == skcms_Signature_CMYK) {
@@ -460,7 +472,8 @@ bool skcms_Transform(const void*             src,
     // are the same. Also, if dstAlpha is PremulLinear, and SrcAlpha is Opaque.
     if (dstProfile != srcProfile ||
         srcAlpha == skcms_AlphaFormat_PremulLinear ||
-        dstAlpha == skcms_AlphaFormat_PremulLinear) {
+        dstAlpha == skcms_AlphaFormat_PremulLinear ||
+        dst_is_gray) {
 
         if (!prep_for_destination(dstProfile,
                                   &from_xyz, &inv_dst_tf_r, &inv_dst_tf_b, &inv_dst_tf_g)) {
@@ -551,10 +564,10 @@ bool skcms_Transform(const void*             src,
 
         // There's a chance the source and destination gamuts are identical,
         // in which case we can skip the gamut transform.
-        if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
+        if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3)) || dst_is_gray) {
             // Concat the entire gamut transform into from_xyz,
             // now slightly misnamed but it's a handy spot to stash the result.
-            from_xyz = skcms_Matrix3x3_concat(&from_xyz, to_xyz);
+            from_xyz = dst_is_gray ? *to_xyz : skcms_Matrix3x3_concat(&from_xyz, to_xyz);
             *ops++  = Op_matrix_3x3;
             *args++ = &from_xyz;
         }
@@ -582,6 +595,9 @@ bool skcms_Transform(const void*             src,
     }
     switch (dstFmt >> 1) {
         default: return false;
+        case skcms_PixelFormat_A_8           >> 1: *ops++ = Op_store_a8;       break;
+        case skcms_PixelFormat_G_8           >> 1: *ops++ = Op_store_g8;       break;
+        case skcms_PixelFormat_ABGR_4444     >> 1: *ops++ = Op_store_4444;     break;
         case skcms_PixelFormat_RGB_565       >> 1: *ops++ = Op_store_565;      break;
         case skcms_PixelFormat_RGB_888       >> 1: *ops++ = Op_store_888;      break;
         case skcms_PixelFormat_RGBA_8888     >> 1: *ops++ = Op_store_8888;     break;
