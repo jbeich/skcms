@@ -160,6 +160,17 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
                toXYZ.vals[0][0], toXYZ.vals[0][1], toXYZ.vals[0][2],
                toXYZ.vals[1][0], toXYZ.vals[1][1], toXYZ.vals[1][2],
                toXYZ.vals[2][0], toXYZ.vals[2][1], toXYZ.vals[2][2]);
+
+
+        float white_x = toXYZ.vals[0][0] + toXYZ.vals[0][1] + toXYZ.vals[0][2],
+              white_y = toXYZ.vals[1][0] + toXYZ.vals[1][1] + toXYZ.vals[1][2],
+              white_z = toXYZ.vals[2][0] + toXYZ.vals[2][1] + toXYZ.vals[2][2];
+        if (fabsf_(white_x - 0.964f) > 0.01f ||
+            fabsf_(white_y - 1.000f) > 0.01f ||
+            fabsf_(white_z - 0.825f) > 0.01f) {
+            fprintf(fp, " !!! This does not appear to use a D50 whitepoint, rather [%g %g %g]\n",
+                    white_x, white_y, white_z);
+        }
     }
 
     if (profile->has_A2B) {

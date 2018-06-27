@@ -508,6 +508,10 @@ static const char* profile_test_cases[] = {
 
     // Table is approximated by a TF whose inverse has g > 16M (timeout in approx_pow)
     "profiles/fuzz/inverse_tf_huge_g.icc",            // chromium:842374
+
+    // Non-D50 profiles.
+    "profiles/misc/SM245B.icc",
+    "profiles/misc/BenQ_GL2450.icc",
 };
 
 static void test_Parse(bool regen) {

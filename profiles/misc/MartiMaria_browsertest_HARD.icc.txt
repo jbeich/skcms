@@ -25,6 +25,7 @@ bTRC : 16-bit table with 255 entries
  XYZ : | 0.964202881 0.000000000 0.964202881 |
        | 1.000000000 0.000000000 1.000000000 |
        | 0.824905396 0.000000000 0.824905396 |
+ !!! This does not appear to use a D50 whitepoint, rather [1.92841 2 1.64981]
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
   A0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
