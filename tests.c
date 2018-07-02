@@ -11,11 +11,8 @@
 #endif
 
 #include "skcms.h"
-#include "src/LinearAlgebra.h"
-#include "src/Macros.h"
-#include "src/PortableMath.h"
+#include "skcms_internal.h"
 #include "test_only.h"
-#include "src/TransferFunction.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

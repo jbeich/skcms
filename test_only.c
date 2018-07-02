@@ -10,9 +10,7 @@
 #endif
 
 #include "skcms.h"
-#include "src/PortableMath.h"
-#include "src/RandomBytes.h"
-#include "src/TransferFunction.h"
+#include "skcms_internal.h"
 #include "test_only.h"
 #include <stdlib.h>
 #include <string.h>
