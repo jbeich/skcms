@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f190e443_3b57bdf3",
+        "filename": "skcms.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-02T17:56:36Z",
+      "side": 1,
+      "message": "Alignment",
+      "revId": "672d5fd79ca343c14e6aed50967c9244db3b8323",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
