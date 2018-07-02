@@ -9,7 +9,6 @@
 // of info from it.
 
 #include "../skcms.h"
-#include "../src/Macros.h"
 
 static volatile uint32_t g_FoolTheOptimizer = 0;
 
@@ -45,7 +44,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
     // For TRC tables, test that we can read the first and last entries of each table.
     if (p.has_trc) {
-        for (int i = 0; i < ARRAY_COUNT(p.trc); ++i) {
+        for (int i = 0; i < 3; ++i) {
             g_FoolTheOptimizer += read_table_extents(&p.trc[i]);
         }
     }
