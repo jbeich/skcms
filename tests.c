@@ -1086,26 +1086,6 @@ static void test_Programmatic_sRGB() {
     expect(skcms_ApproximatelyEqualProfiles(&p, &srgb));
 }
 
-static void test_isfinitef_() {
-    uint32_t denorm_bits = 0x00000001,
-                nan_bits = 0xffffffff;
-    float denorm,
-             nan;
-    memcpy(&denorm, &denorm_bits, 4);
-    memcpy(&   nan, &   nan_bits, 4);
-
-    expect( isfinitef_(+0.0f));
-    expect( isfinitef_(-0.0f));
-    expect( isfinitef_(+1.0f));
-    expect( isfinitef_(-1.0f));
-    expect( isfinitef_(+denorm));
-    expect( isfinitef_(-denorm));
-    expect(!isfinitef_(+INFINITY_));
-    expect(!isfinitef_(-INFINITY_));
-    expect(!isfinitef_(+nan));
-    expect(!isfinitef_(-nan));
-}
-
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1135,7 +1115,6 @@ int main(int argc, char** argv) {
     test_MakeUsableAsDestinationAdobe();
     test_PrimariesToXYZ();
     test_Programmatic_sRGB();
-    test_isfinitef_();
 #if 0
     test_CLUT();
 #endif
