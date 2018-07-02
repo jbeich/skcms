@@ -600,9 +600,9 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 U16 rgb;
                 small_memcpy(&rgb, src + 2*i, 2*N);
 
-                r = CAST(F, rgb & (31<< 0)) * (1.0f / (31<< 0));
-                g = CAST(F, rgb & (63<< 5)) * (1.0f / (63<< 5));
-                b = CAST(F, rgb & (31<<11)) * (1.0f / (31<<11));
+                r = CAST(F, rgb & (uint16_t)(31<< 0)) * (1.0f / (31<< 0));
+                g = CAST(F, rgb & (uint16_t)(63<< 5)) * (1.0f / (63<< 5));
+                b = CAST(F, rgb & (uint16_t)(31<<11)) * (1.0f / (31<<11));
                 a = F1;
             } break;
 
