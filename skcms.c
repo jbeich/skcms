@@ -846,8 +846,8 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     }
 
     // Byte-swap all header fields
-    const header_Layout* header = buf;
-    profile->buffer              = buf;
+    const header_Layout* header  = (const header_Layout*)buf;
+    profile->buffer              = (const uint8_t*)buf;
     profile->size                = read_big_u32(header->size);
     uint32_t version             = read_big_u32(header->version);
     profile->data_color_space    = read_big_u32(header->data_color_space);
@@ -2275,7 +2275,7 @@ bool skcms_Transform(const void*             src,
         run = run_program_hsw;
     }
 #endif
-    run(program, arguments, src, dst, n, src_bpp,dst_bpp);
+    run(program, arguments, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
     return true;
 }
 
