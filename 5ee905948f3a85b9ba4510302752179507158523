@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8cf8b2c_eb0a294b",
+        "filename": "build/targets",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-07-02T17:07:08Z",
+      "side": 0,
+      "message": "Oddly, we didn\u0027t compile src/Curve.c alone.",
+      "revId": "5ee905948f3a85b9ba4510302752179507158523",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
