@@ -1,8 +1,17 @@
 builddir = $out
 disabled = false
 
+# Each compiler has enabled all the warnings it can.
+# Here we make them errors, and disable a few we don't want bothering us.
+# TODO: -Wno-reserved-id-macro can go away when we refactor skcms_Transform().
+warnings = -Werror $
+           -Wno-double-promotion $
+           -Wno-float-equal $
+           -Wno-padded $
+           -Wno-reserved-id-macro $
+
 rule compile
-    command = $disabled && touch $out || $cc -g -Werror -Os $cflags $extra_cflags $
+    command = $disabled && touch $out || $cc -g $warnings -Os $cflags $extra_cflags $
              -MD -MF $out.d -c $in -o $out
     depfile = $out.d
     deps    = gcc
