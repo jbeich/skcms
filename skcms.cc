@@ -20,6 +20,9 @@
 // (We have no way of enforcing these requests...)
 #define SAFE_SIZEOF(x) ((uint64_t)sizeof(x))
 
+// Same sort of thing for _Layout structs with a variable sized array at the end (named "variable").
+#define SAFE_FIXED_SIZE(type) ((uint64_t)offsetof(type, variable))
+
 static const union {
     uint32_t bits;
     float    f;
@@ -252,12 +255,12 @@ typedef struct {
     uint8_t reserved_a    [4];
     uint8_t function_type [2];
     uint8_t reserved_b    [2];
-    uint8_t parameters    [ ];  // 1, 3, 4, 5, or 7 s15.16 parameters, depending on function_type
+    uint8_t variable      [1/*variable*/];  // 1, 3, 4, 5, or 7 s15.16, depending on function_type
 } para_Layout;
 
 static bool read_curve_para(const uint8_t* buf, uint32_t size,
                             skcms_Curve* curve, uint32_t* curve_size) {
-    if (size < SAFE_SIZEOF(para_Layout)) {
+    if (size < SAFE_FIXED_SIZE(para_Layout)) {
         return false;
     }
 
@@ -270,12 +273,12 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
     }
 
     static const uint32_t curve_bytes[] = { 4, 12, 16, 20, 28 };
-    if (size < SAFE_SIZEOF(para_Layout) + curve_bytes[function_type]) {
+    if (size < SAFE_FIXED_SIZE(para_Layout) + curve_bytes[function_type]) {
         return false;
     }
 
     if (curve_size) {
-        *curve_size = SAFE_SIZEOF(para_Layout) + curve_bytes[function_type];
+        *curve_size = SAFE_FIXED_SIZE(para_Layout) + curve_bytes[function_type];
     }
 
     curve->table_entries = 0;
@@ -285,21 +288,21 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
     curve->parametric.d  = 0.0f;
     curve->parametric.e  = 0.0f;
     curve->parametric.f  = 0.0f;
-    curve->parametric.g  = read_big_fixed(paraTag->parameters);
+    curve->parametric.g  = read_big_fixed(paraTag->variable);
 
     switch (function_type) {
         case kGAB:
-            curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
-            curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
+            curve->parametric.a = read_big_fixed(paraTag->variable + 4);
+            curve->parametric.b = read_big_fixed(paraTag->variable + 8);
             if (curve->parametric.a == 0) {
                 return false;
             }
             curve->parametric.d = -curve->parametric.b / curve->parametric.a;
             break;
         case kGABC:
-            curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
-            curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
-            curve->parametric.e = read_big_fixed(paraTag->parameters + 12);
+            curve->parametric.a = read_big_fixed(paraTag->variable + 4);
+            curve->parametric.b = read_big_fixed(paraTag->variable + 8);
+            curve->parametric.e = read_big_fixed(paraTag->variable + 12);
             if (curve->parametric.a == 0) {
                 return false;
             }
@@ -307,18 +310,18 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
             curve->parametric.f = curve->parametric.e;
             break;
         case kGABCD:
-            curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
-            curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
-            curve->parametric.c = read_big_fixed(paraTag->parameters + 12);
-            curve->parametric.d = read_big_fixed(paraTag->parameters + 16);
+            curve->parametric.a = read_big_fixed(paraTag->variable + 4);
+            curve->parametric.b = read_big_fixed(paraTag->variable + 8);
+            curve->parametric.c = read_big_fixed(paraTag->variable + 12);
+            curve->parametric.d = read_big_fixed(paraTag->variable + 16);
             break;
         case kGABCDEF:
-            curve->parametric.a = read_big_fixed(paraTag->parameters + 4);
-            curve->parametric.b = read_big_fixed(paraTag->parameters + 8);
-            curve->parametric.c = read_big_fixed(paraTag->parameters + 12);
-            curve->parametric.d = read_big_fixed(paraTag->parameters + 16);
-            curve->parametric.e = read_big_fixed(paraTag->parameters + 20);
-            curve->parametric.f = read_big_fixed(paraTag->parameters + 24);
+            curve->parametric.a = read_big_fixed(paraTag->variable + 4);
+            curve->parametric.b = read_big_fixed(paraTag->variable + 8);
+            curve->parametric.c = read_big_fixed(paraTag->variable + 12);
+            curve->parametric.d = read_big_fixed(paraTag->variable + 16);
+            curve->parametric.e = read_big_fixed(paraTag->variable + 20);
+            curve->parametric.f = read_big_fixed(paraTag->variable + 24);
             break;
     }
     return tf_is_valid(&curve->parametric);
@@ -328,24 +331,24 @@ typedef struct {
     uint8_t type          [4];
     uint8_t reserved      [4];
     uint8_t value_count   [4];
-    uint8_t parameters    [ ];  // value_count parameters (8.8 if 1, uint16 (n*65535) if > 1)
+    uint8_t variable      [1/*variable*/];  // value_count, 8.8 if 1, uint16 (n*65535) if > 1
 } curv_Layout;
 
 static bool read_curve_curv(const uint8_t* buf, uint32_t size,
                             skcms_Curve* curve, uint32_t* curve_size) {
-    if (size < SAFE_SIZEOF(curv_Layout)) {
+    if (size < SAFE_FIXED_SIZE(curv_Layout)) {
         return false;
     }
 
     const curv_Layout* curvTag = (const curv_Layout*)buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (size < SAFE_SIZEOF(curv_Layout) + value_count * SAFE_SIZEOF(uint16_t)) {
+    if (size < SAFE_FIXED_SIZE(curv_Layout) + value_count * SAFE_SIZEOF(uint16_t)) {
         return false;
     }
 
     if (curve_size) {
-        *curve_size = SAFE_SIZEOF(curv_Layout) + value_count * SAFE_SIZEOF(uint16_t);
+        *curve_size = SAFE_FIXED_SIZE(curv_Layout) + value_count * SAFE_SIZEOF(uint16_t);
     }
 
     if (value_count < 2) {
@@ -361,11 +364,11 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size,
             curve->parametric.g = 1.0f;
         } else {
             // Single entry tables are a shorthand for simple gamma
-            curve->parametric.g = read_big_u16(curvTag->parameters) * (1.0f / 256.0f);
+            curve->parametric.g = read_big_u16(curvTag->variable) * (1.0f / 256.0f);
         }
     } else {
         curve->table_8       = nullptr;
-        curve->table_16      = curvTag->parameters;
+        curve->table_16      = curvTag->variable;
         curve->table_entries = value_count;
     }
 
@@ -402,17 +405,17 @@ typedef struct {
 } mft_CommonLayout;
 
 typedef struct {
-    mft_CommonLayout common      [ 1];
+    mft_CommonLayout common      [1];
 
-    uint8_t tables               [  ];
+    uint8_t variable             [1/*variable*/];
 } mft1_Layout;
 
 typedef struct {
-    mft_CommonLayout common      [ 1];
+    mft_CommonLayout common      [1];
 
-    uint8_t input_table_entries  [ 2];
-    uint8_t output_table_entries [ 2];
-    uint8_t tables               [  ];
+    uint8_t input_table_entries  [2];
+    uint8_t output_table_entries [2];
+    uint8_t variable             [1/*variable*/];
 } mft2_Layout;
 
 static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_A2B* a2b) {
@@ -500,7 +503,7 @@ static bool init_a2b_tables(const uint8_t* table_base, uint64_t max_tables_len, 
 }
 
 static bool read_tag_mft1(const skcms_ICCTag* tag, skcms_A2B* a2b) {
-    if (tag->size < SAFE_SIZEOF(mft1_Layout)) {
+    if (tag->size < SAFE_FIXED_SIZE(mft1_Layout)) {
         return false;
     }
 
@@ -512,12 +515,12 @@ static bool read_tag_mft1(const skcms_ICCTag* tag, skcms_A2B* a2b) {
     uint32_t input_table_entries  = 256;
     uint32_t output_table_entries = 256;
 
-    return init_a2b_tables(mftTag->tables, tag->size - SAFE_SIZEOF(mft1_Layout), 1,
+    return init_a2b_tables(mftTag->variable, tag->size - SAFE_FIXED_SIZE(mft1_Layout), 1,
                            input_table_entries, output_table_entries, a2b);
 }
 
 static bool read_tag_mft2(const skcms_ICCTag* tag, skcms_A2B* a2b) {
-    if (tag->size < SAFE_SIZEOF(mft2_Layout)) {
+    if (tag->size < SAFE_FIXED_SIZE(mft2_Layout)) {
         return false;
     }
 
@@ -535,7 +538,7 @@ static bool read_tag_mft2(const skcms_ICCTag* tag, skcms_A2B* a2b) {
         return false;
     }
 
-    return init_a2b_tables(mftTag->tables, tag->size - SAFE_SIZEOF(mft2_Layout), 2,
+    return init_a2b_tables(mftTag->variable, tag->size - SAFE_FIXED_SIZE(mft2_Layout), 2,
                            input_table_entries, output_table_entries, a2b);
 }
 
@@ -583,7 +586,7 @@ typedef struct {
     uint8_t grid_points          [16];
     uint8_t grid_byte_width      [ 1];
     uint8_t reserved             [ 3];
-    uint8_t data                 [  ];
+    uint8_t variable             [1/*variable*/];
 } mABCLUT_Layout;
 
 static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
@@ -667,17 +670,17 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
             return false;
         }
 
-        if (tag->size < clut_offset + SAFE_SIZEOF(mABCLUT_Layout)) {
+        if (tag->size < clut_offset + SAFE_FIXED_SIZE(mABCLUT_Layout)) {
             return false;
         }
         const mABCLUT_Layout* clut = (const mABCLUT_Layout*)(tag->buf + clut_offset);
 
         if (clut->grid_byte_width[0] == 1) {
-            a2b->grid_8  = clut->data;
+            a2b->grid_8  = clut->variable;
             a2b->grid_16 = nullptr;
         } else if (clut->grid_byte_width[0] == 2) {
             a2b->grid_8  = nullptr;
-            a2b->grid_16 = clut->data;
+            a2b->grid_16 = clut->variable;
         } else {
             return false;
         }
@@ -691,7 +694,7 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
             }
             grid_size *= a2b->grid_points[i];
         }
-        if (tag->size < clut_offset + SAFE_SIZEOF(mABCLUT_Layout) + grid_size) {
+        if (tag->size < clut_offset + SAFE_FIXED_SIZE(mABCLUT_Layout) + grid_size) {
             return false;
         }
     } else {
