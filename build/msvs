@@ -8,7 +8,13 @@ rule run
     command = cmd /c ""$in" > "$out""
     description = run $in
 
-rule compile
+rule compile_c
+    command = $cl /c /showIncludes /nologo /Zi /WX /MT /Fo"$out" /Fd"$out.pdb" $
+              $cflags $extra_cflags $in
+    deps = msvc
+    description = compile $out
+
+rule compile_cc
     command = $cl /c /showIncludes /nologo /Zi /WX /MT /Fo"$out" /Fd"$out.pdb" $
               $cflags $extra_cflags $in
     deps = msvc
