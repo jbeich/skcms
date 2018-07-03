@@ -7,11 +7,27 @@ disabled = false
 warnings = -Werror $
            -Wno-double-promotion $
            -Wno-float-equal $
+           -Wno-gnu-anonymous-struct $
            -Wno-padded $
            -Wno-reserved-id-macro $
 
-rule compile
-    command = $disabled && touch $out || $cc -g $warnings -Os $cflags $extra_cflags $
+warnings_cc = $warnings $
+           -Wno-c++98-compat-pedantic $
+           -Wno-c99-extensions $
+           -Wno-narrowing $
+           -Wno-old-style-cast $
+           -Wno-zero-as-null-pointer-constant $
+
+
+rule compile_c
+    command = $disabled && touch $out || $cc -std=c11 -g -Os $warnings $cflags $extra_cflags $
+             -MD -MF $out.d -c $in -o $out
+    depfile = $out.d
+    deps    = gcc
+    description = compile $out
+
+rule compile_cc
+    command = $disabled && touch $out || $cc -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags $
              -MD -MF $out.d -c $in -o $out
     depfile = $out.d
     deps    = gcc
