@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89f637b0_633a2dfb",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-07-03T14:46:04Z",
+      "side": 0,
+      "message": "In case you were wondering, the fuzzers have their own build script:\n\nhttps://github.com/google/oss-fuzz/blob/master/projects/skcms/build.sh",
+      "revId": "9d19e2abf000a4531ede9ee1e80267557358cb69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
