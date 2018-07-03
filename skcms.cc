@@ -19,6 +19,7 @@
 // Please do not use sizeof() directly, and size_t only when required.
 // (We have no way of enforcing these requests...)
 #define SAFE_SIZEOF(x) ((uint64_t)sizeof(x))
+#define SAFE_OFFSETOF(type, member) ((uint64_t)offsetof(type, member))
 
 static const union {
     uint32_t bits;
@@ -252,12 +253,12 @@ typedef struct {
     uint8_t reserved_a    [4];
     uint8_t function_type [2];
     uint8_t reserved_b    [2];
-    uint8_t parameters    [ ];  // 1, 3, 4, 5, or 7 s15.16 parameters, depending on function_type
+    uint8_t parameters    [1];  // 1, 3, 4, 5, or 7 s15.16 parameters, depending on function_type
 } para_Layout;
 
 static bool read_curve_para(const uint8_t* buf, uint32_t size,
                             skcms_Curve* curve, uint32_t* curve_size) {
-    if (size < SAFE_SIZEOF(para_Layout)) {
+    if (size < SAFE_OFFSETOF(para_Layout, parameters)) {
         return false;
     }
 
@@ -270,12 +271,12 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
     }
 
     static const uint32_t curve_bytes[] = { 4, 12, 16, 20, 28 };
-    if (size < SAFE_SIZEOF(para_Layout) + curve_bytes[function_type]) {
+    if (size < SAFE_OFFSETOF(para_Layout, parameters) + curve_bytes[function_type]) {
         return false;
     }
 
     if (curve_size) {
-        *curve_size = SAFE_SIZEOF(para_Layout) + curve_bytes[function_type];
+        *curve_size = SAFE_OFFSETOF(para_Layout, parameters) + curve_bytes[function_type];
     }
 
     curve->table_entries = 0;
@@ -328,24 +329,24 @@ typedef struct {
     uint8_t type          [4];
     uint8_t reserved      [4];
     uint8_t value_count   [4];
-    uint8_t parameters    [ ];  // value_count parameters (8.8 if 1, uint16 (n*65535) if > 1)
+    uint8_t parameters    [1];  // value_count parameters (8.8 if 1, uint16 (n*65535) if > 1)
 } curv_Layout;
 
 static bool read_curve_curv(const uint8_t* buf, uint32_t size,
                             skcms_Curve* curve, uint32_t* curve_size) {
-    if (size < SAFE_SIZEOF(curv_Layout)) {
+    if (size < SAFE_OFFSETOF(curv_Layout, parameters)) {
         return false;
     }
 
     const curv_Layout* curvTag = (const curv_Layout*)buf;
 
     uint32_t value_count = read_big_u32(curvTag->value_count);
-    if (size < SAFE_SIZEOF(curv_Layout) + value_count * SAFE_SIZEOF(uint16_t)) {
+    if (size < SAFE_OFFSETOF(curv_Layout, parameters) + value_count * SAFE_SIZEOF(uint16_t)) {
         return false;
     }
 
     if (curve_size) {
-        *curve_size = SAFE_SIZEOF(curv_Layout) + value_count * SAFE_SIZEOF(uint16_t);
+        *curve_size = SAFE_OFFSETOF(curv_Layout, parameters) + value_count * SAFE_SIZEOF(uint16_t);
     }
 
     if (value_count < 2) {
@@ -404,7 +405,7 @@ typedef struct {
 typedef struct {
     mft_CommonLayout common      [ 1];
 
-    uint8_t tables               [  ];
+    uint8_t tables               [ 1];
 } mft1_Layout;
 
 typedef struct {
@@ -412,7 +413,7 @@ typedef struct {
 
     uint8_t input_table_entries  [ 2];
     uint8_t output_table_entries [ 2];
-    uint8_t tables               [  ];
+    uint8_t tables               [ 1];
 } mft2_Layout;
 
 static bool read_mft_common(const mft_CommonLayout* mftTag, skcms_A2B* a2b) {
@@ -500,7 +501,7 @@ static bool init_a2b_tables(const uint8_t* table_base, uint64_t max_tables_len, 
 }
 
 static bool read_tag_mft1(const skcms_ICCTag* tag, skcms_A2B* a2b) {
-    if (tag->size < SAFE_SIZEOF(mft1_Layout)) {
+    if (tag->size < SAFE_OFFSETOF(mft1_Layout, tables)) {
         return false;
     }
 
@@ -512,12 +513,12 @@ static bool read_tag_mft1(const skcms_ICCTag* tag, skcms_A2B* a2b) {
     uint32_t input_table_entries  = 256;
     uint32_t output_table_entries = 256;
 
-    return init_a2b_tables(mftTag->tables, tag->size - SAFE_SIZEOF(mft1_Layout), 1,
+    return init_a2b_tables(mftTag->tables, tag->size - SAFE_OFFSETOF(mft1_Layout, tables), 1,
                            input_table_entries, output_table_entries, a2b);
 }
 
 static bool read_tag_mft2(const skcms_ICCTag* tag, skcms_A2B* a2b) {
-    if (tag->size < SAFE_SIZEOF(mft2_Layout)) {
+    if (tag->size < SAFE_OFFSETOF(mft2_Layout, tables)) {
         return false;
     }
 
@@ -535,7 +536,7 @@ static bool read_tag_mft2(const skcms_ICCTag* tag, skcms_A2B* a2b) {
         return false;
     }
 
-    return init_a2b_tables(mftTag->tables, tag->size - SAFE_SIZEOF(mft2_Layout), 2,
+    return init_a2b_tables(mftTag->tables, tag->size - SAFE_OFFSETOF(mft2_Layout, tables), 2,
                            input_table_entries, output_table_entries, a2b);
 }
 
@@ -583,7 +584,7 @@ typedef struct {
     uint8_t grid_points          [16];
     uint8_t grid_byte_width      [ 1];
     uint8_t reserved             [ 3];
-    uint8_t data                 [  ];
+    uint8_t data                 [ 1];
 } mABCLUT_Layout;
 
 static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
@@ -667,7 +668,7 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
             return false;
         }
 
-        if (tag->size < clut_offset + SAFE_SIZEOF(mABCLUT_Layout)) {
+        if (tag->size < clut_offset + SAFE_OFFSETOF(mABCLUT_Layout, data)) {
             return false;
         }
         const mABCLUT_Layout* clut = (const mABCLUT_Layout*)(tag->buf + clut_offset);
@@ -691,7 +692,7 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
             }
             grid_size *= a2b->grid_points[i];
         }
-        if (tag->size < clut_offset + SAFE_SIZEOF(mABCLUT_Layout) + grid_size) {
+        if (tag->size < clut_offset + SAFE_OFFSETOF(mABCLUT_Layout, data) + grid_size) {
             return false;
         }
     } else {
