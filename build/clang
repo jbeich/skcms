@@ -1,4 +1,5 @@
 cc     = clang
+cxx    = clang++
 cflags = -fcolor-diagnostics -Weverything
 out    = out/clang$mode
 
