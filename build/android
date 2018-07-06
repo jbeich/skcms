@@ -3,7 +3,9 @@ target  = aarch64-linux-android
 arch    = arch-arm64
 ndk_api = 24
 
-cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang -target $target
+cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang   -target $target
+cxx     = $ndk/toolchains/llvm/prebuilt/*/bin/clang++ -target $target
+
 cflags  = -fcolor-diagnostics -Weverything $
           --sysroot $ndk/sysroot $
           -I $ndk/sysroot/usr/include/$target

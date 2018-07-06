@@ -28,10 +28,13 @@ if 'darwin' in sys.platform:
 elif 'linux' in sys.platform:
   # Point to clang in our clang_linux package.
   clang_linux = os.path.realpath(sys.argv[3])
-  append('skcms/build/clang', 'cc = {}/bin/clang'.format(clang_linux))
+  append('skcms/build/clang', 'cc  = {}/bin/clang  '.format(clang_linux))
+  append('skcms/build/clang', 'cxx = {}/bin/clang++'.format(clang_linux))
   # TODO(mtklein): once the NDK is new enough (r18?) we can use its Clang again
   append('skcms/build/android.fp16',
-         'cc = {}/bin/clang -target $target'.format(clang_linux))
+         'cc  = {}/bin/clang   -target $target'.format(clang_linux))
+  append('skcms/build/android.fp16',
+         'cxx = {}/bin/clang++ -target $target'.format(clang_linux))
 
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
 
