@@ -1,4 +1,5 @@
-cc     = clang -arch arm64 -isysroot `xcrun --sdk iphoneos --show-sdk-path`
+cc     = clang   -arch arm64 -isysroot `xcrun --sdk iphoneos --show-sdk-path`
+cxx    = clang++ -arch arm64 -isysroot `xcrun --sdk iphoneos --show-sdk-path`
 cflags = -fcolor-diagnostics -Weverything
 out    = out/ios$mode
 

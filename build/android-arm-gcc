@@ -4,6 +4,8 @@ arch    = arch-arm
 ndk_api = 24
 
 cc      = $ndk/toolchains/${target}-4.9/prebuilt/*/bin/${target}-gcc
+cxx     = $ndk/toolchains/${target}-4.9/prebuilt/*/bin/${target}-g++
+
 cflags  = -fdiagnostics-color -Wall -Wextra $
           -march=armv7-a -mfpu=neon -mthumb -mfloat-abi=softfp $
           --sysroot $ndk/sysroot $

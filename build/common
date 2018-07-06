@@ -25,14 +25,14 @@ rule compile_c
     description = compile $out
 
 rule compile_cc
-    command = $disabled && touch $out || $cc -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags $
+    command = $disabled && touch $out || $cxx -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags $
              -MD -MF $out.d -c $in -o $out
     depfile = $out.d
     deps    = gcc
     description = compile $out
 
 rule link
-    command = $disabled && touch $out || $cc $ldflags $extra_ldflags $in -ldl -pthread -o $out
+    command = $disabled && touch $out || $cxx $ldflags $extra_ldflags $in -ldl -o $out
     description = link $out
 
 include build/targets
