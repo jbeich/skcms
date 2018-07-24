@@ -83,12 +83,10 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 		Command:      command,
 		Dimensions:   append(dimensions[task], "gpu:none", "pool:Skia"),
 		Isolate:      "bot.isolate",
-		Priority:     0.8,
 		MaxAttempts:  1,
 	})
 
 	b.MustAddJob(task, &specs.JobSpec{
-		Priority:  0.8,
 		TaskSpecs: []string{task},
 	})
 }
@@ -100,7 +98,6 @@ func main() {
 	}
 
 	b.MustAddJob("skcms", &specs.JobSpec{
-		Priority:  0.8,
 		TaskSpecs: TASKS,
 	})
 	b.MustFinish()
