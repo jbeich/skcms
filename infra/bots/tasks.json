@@ -1,7 +1,6 @@
 {
   "jobs": {
     "skcms": {
-      "priority": 0.8,
       "tasks": [
         "skcms-Linux",
         "skcms-Mac",
@@ -9,19 +8,16 @@
       ]
     },
     "skcms-Linux": {
-      "priority": 0.8,
       "tasks": [
         "skcms-Linux"
       ]
     },
     "skcms-Mac": {
-      "priority": 0.8,
       "tasks": [
         "skcms-Mac"
       ]
     },
     "skcms-Win": {
-      "priority": 0.8,
       "tasks": [
         "skcms-Win"
       ]
@@ -60,8 +56,7 @@
         "pool:Skia"
       ],
       "isolate": "bot.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
+      "max_attempts": 1
     },
     "skcms-Mac": {
       "cipd_packages": [
@@ -88,8 +83,7 @@
         "pool:Skia"
       ],
       "isolate": "bot.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
+      "max_attempts": 1
     },
     "skcms-Win": {
       "cipd_packages": [
@@ -122,8 +116,7 @@
         "pool:Skia"
       ],
       "isolate": "bot.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
+      "max_attempts": 1
     }
   }
 }
