@@ -9,7 +9,6 @@ subninja build/clang.msan
 subninja build/clang.native
 subninja build/clang.portable
 subninja build/clang.tiny
-subninja build/clang.tsan
 subninja build/clang.xsan
 
 subninja build/gcc
