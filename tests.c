@@ -1134,31 +1134,54 @@ int main(int argc, char** argv) {
         }
     }
 
+    fprintf(stderr, "ICCProfile\n");
     test_ICCProfile();
+    fprintf(stderr, "FormatConversions\n");
     test_FormatConversions();
+    fprintf(stderr, "FormatConversions_565\n");
     test_FormatConversions_565();
+    fprintf(stderr, "FormatConversions_16161616\n");
     test_FormatConversions_16161616();
+    fprintf(stderr, "FormatConversions_161616\n");
     test_FormatConversions_161616();
+    fprintf(stderr, "FormatConversions_101010\n");
     test_FormatConversions_101010();
+    fprintf(stderr, "FormatConversions_half\n");
     test_FormatConversions_half();
+    fprintf(stderr, "FormatConversions_float\n");
     test_FormatConversions_float();
+    fprintf(stderr, "Parse\n");
     test_Parse(regenTestData);
+    fprintf(stderr, "ApproximateCurve_clamped\n");
     test_ApproximateCurve_clamped();
+    fprintf(stderr, "test_Matrix3x3_invert\n");
     test_Matrix3x3_invert();
+    fprintf(stderr, "test_SimpleRoundTrip\n");
     test_SimpleRoundTrip();
+    fprintf(stderr, "test_FloatRoundTrips\n");
     test_FloatRoundTrips();
+    fprintf(stderr, "test_sRGB_AllBytes\n");
     test_sRGB_AllBytes();
+    fprintf(stderr, "test_ByteToLinearFloat\n");
     test_ByteToLinearFloat();
+    fprintf(stderr, "test_TRC_Table16\n");
     test_TRC_Table16();
+    fprintf(stderr, "test_Premul\n");
     test_Premul();
+    fprintf(stderr, "test_MakeUsableAsDestination\n");
     test_MakeUsableAsDestination();
+    fprintf(stderr, "test_MakeUsableAsDestinationAdobe\n");
     test_MakeUsableAsDestinationAdobe();
+    fprintf(stderr, "test_PrimariesToXYZ\n");
     test_PrimariesToXYZ();
+    fprintf(stderr, "test_Programmatic_sRGB\n");
     test_Programmatic_sRGB();
+    fprintf(stderr, "test_Clamp\n");
     test_Clamp();
 #if 0
     test_CLUT();
 #endif
 
+    fprintf(stderr, "return 0\n");
     return 0;
 }
