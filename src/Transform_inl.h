@@ -70,7 +70,19 @@
     #define small_memcpy memcpy
 #endif
 
-// (T)v is a cast when N == 1 and a bit-pun when N>1, so we must use cast<T>(v) to actually cast.
+template <typename T>
+SI ATTR T load(const void* ptr) {
+    T val;
+    small_memcpy(&val, ptr, sizeof(val));
+    return val;
+}
+template <typename T>
+SI ATTR void store(void* ptr, const T& val) {
+    small_memcpy(ptr, &val, sizeof(val));
+}
+
+// (T)v is a cast when N == 1 and a bit-pun when N>1,
+// so we use cast<T>(v) to actually cast or bit_pun<T>(v) to bit-pun.
 #if N == 1
     template <typename D, typename S>
     SI ATTR D cast(const S& v) { return (D)v; }
@@ -89,18 +101,27 @@
                                           v[8],v[9],v[10],v[11], v[12],v[13],v[14],v[15]}; }
 #endif
 
+template <typename D, typename S>
+SI ATTR D bit_pun(const S& v) {
+    static_assert(sizeof(D) == sizeof(v), "");
+    return load<D>(&v);
+}
+
+
 // When we convert from float to fixed point, it's very common to want to round,
 // and for some reason compilers generate better code when converting to int32_t.
 // To serve both those ends, we use this function to_fixed() instead of direct cast().
 SI ATTR I32 to_fixed(F f) {  return cast<I32>(f + 0.5f); }
 
-// Comparisons result in bool when N == 1, in an I32 mask when N > 1.
-// We've made this a macro so it can be type-generic...
-// always (T) cast the result to the type you expect the result to be.
 #if N == 1
-    #define if_then_else(c,t,e) ( (c) ? (t) : (e) )
+    template <typename T>
+    SI ATTR T if_then_else(bool cond, T t, T e) { return cond ? t : e; }
 #else
-    #define if_then_else(c,t,e) ( ((c) & (I32)(t)) | (~(c) & (I32)(e)) )
+    template <typename T>
+    SI ATTR T if_then_else(I32 cond, T t, T e) {
+        return bit_pun<T>( ( cond & bit_pun<I32>(t)) |
+                           (~cond & bit_pun<I32>(e)) );
+    }
 #endif
 
 #if defined(USING_NEON_F16C)
@@ -132,7 +153,7 @@ SI ATTR I32 to_fixed(F f) {  return cast<I32>(f + 0.5f); }
         small_memcpy(&norm, &norm_bits, sizeof(norm));
 
         // Simply flush all denorm half floats to zero.
-        return (F)if_then_else(em < 0x0400, F0, norm);
+        return if_then_else(em < 0x0400, F0, norm);
     }
 
     SI ATTR U16 Half_from_F(F f) {
@@ -144,8 +165,8 @@ SI ATTR I32 to_fixed(F f) {  return cast<I32>(f + 0.5f); }
             em = sem ^ s;
 
         // For simplicity we flush denorm half floats (including all denorm floats) to zero.
-        return cast<U16>((U32)if_then_else(em < 0x38800000, (U32)F0
-                                                          , (s>>16) + (em>>13) - ((127-15)<<10)));
+        return cast<U16>(if_then_else(em < 0x38800000, (U32)F0
+                                                     , (s>>16) + (em>>13) - ((127-15)<<10)));
     }
 #endif
 
@@ -165,8 +186,8 @@ SI ATTR U64 swap_endian_16x4(const U64& rgba) {
     SI ATTR F min_(F x, F y) { return (F)vminq_f32((float32x4_t)x, (float32x4_t)y); }
     SI ATTR F max_(F x, F y) { return (F)vmaxq_f32((float32x4_t)x, (float32x4_t)y); }
 #else
-    SI ATTR F min_(F x, F y) { return (F)if_then_else(x > y, y, x); }
-    SI ATTR F max_(F x, F y) { return (F)if_then_else(x < y, y, x); }
+    SI ATTR F min_(F x, F y) { return if_then_else(x > y, y, x); }
+    SI ATTR F max_(F x, F y) { return if_then_else(x < y, y, x); }
 #endif
 
 SI ATTR F floor_(F x) {
@@ -184,7 +205,7 @@ SI ATTR F floor_(F x) {
     // Round trip through integers with a truncating cast.
     F roundtrip = cast<F>(cast<I32>(x));
     // If x is negative, truncating gives the ceiling instead of the floor.
-    return roundtrip - (F)if_then_else(roundtrip > x, F1, F0);
+    return roundtrip - if_then_else(roundtrip > x, F1, F0);
 
     // This implementation fails for values of x that are outside
     // the range an integer can represent.  We expect most x to be small.
@@ -219,63 +240,85 @@ SI ATTR F approx_exp2(F x) {
 }
 
 SI ATTR F approx_pow(F x, float y) {
-    return (F)if_then_else((x == F0) | (x == F1), x
-                                                , approx_exp2(approx_log2(x) * y));
+    return if_then_else((x == F0) | (x == F1), x
+                                             , approx_exp2(approx_log2(x) * y));
 }
 
 // Return tf(x).
 SI ATTR F apply_tf(const skcms_TransferFunction* tf, F x) {
-    F sign = (F)if_then_else(x < 0, -F1, F1);
+    F sign = if_then_else(x < 0, -F1, F1);
     x *= sign;
 
     F linear    =            tf->c*x + tf->f;
     F nonlinear = approx_pow(tf->a*x + tf->b, tf->g) + tf->e;
 
-    return sign * (F)if_then_else(x < tf->d, linear, nonlinear);
+    return sign * if_then_else(x < tf->d, linear, nonlinear);
 }
 
+
 // Strided loads and stores of N values, starting from p.
+template <typename T, typename P>
+SI ATTR T load_3(const P* p) {
 #if N == 1
-    #define LOAD_3(T, p) (T)(p)[0]
-    #define LOAD_4(T, p) (T)(p)[0]
-    #define STORE_3(p, v) (p)[0] = v
-    #define STORE_4(p, v) (p)[0] = v
-#elif N == 4 && !defined(USING_NEON)
-    #define LOAD_3(T, p) T{(p)[0], (p)[3], (p)[6], (p)[ 9]}
-    #define LOAD_4(T, p) T{(p)[0], (p)[4], (p)[8], (p)[12]};
-    #define STORE_3(p, v) (p)[0] = (v)[0]; (p)[3] = (v)[1]; (p)[6] = (v)[2]; (p)[ 9] = (v)[3]
-    #define STORE_4(p, v) (p)[0] = (v)[0]; (p)[4] = (v)[1]; (p)[8] = (v)[2]; (p)[12] = (v)[3]
+    return (T)p[0];
+#elif N == 4
+    return T{p[ 0],p[ 3],p[ 6],p[ 9]};
 #elif N == 8
-    #define LOAD_3(T, p) T{(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
-    #define LOAD_4(T, p) T{(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
-    #define STORE_3(p, v) (p)[ 0] = (v)[0]; (p)[ 3] = (v)[1]; (p)[ 6] = (v)[2]; (p)[ 9] = (v)[3]; \
-                          (p)[12] = (v)[4]; (p)[15] = (v)[5]; (p)[18] = (v)[6]; (p)[21] = (v)[7]
-    #define STORE_4(p, v) (p)[ 0] = (v)[0]; (p)[ 4] = (v)[1]; (p)[ 8] = (v)[2]; (p)[12] = (v)[3]; \
-                          (p)[16] = (v)[4]; (p)[20] = (v)[5]; (p)[24] = (v)[6]; (p)[28] = (v)[7]
+    return T{p[ 0],p[ 3],p[ 6],p[ 9], p[12],p[15],p[18],p[21]};
 #elif N == 16
-    // TODO: revisit with AVX-512 gathers and scatters?
-    #define LOAD_3(T, p) T{(p)[ 0], (p)[ 3], (p)[ 6], (p)[ 9], \
-                           (p)[12], (p)[15], (p)[18], (p)[21], \
-                           (p)[24], (p)[27], (p)[30], (p)[33], \
-                           (p)[36], (p)[39], (p)[42], (p)[45]}
-
-    #define LOAD_4(T, p) T{(p)[ 0], (p)[ 4], (p)[ 8], (p)[12], \
-                           (p)[16], (p)[20], (p)[24], (p)[28], \
-                           (p)[32], (p)[36], (p)[40], (p)[44], \
-                           (p)[48], (p)[52], (p)[56], (p)[60]}
-
-    #define STORE_3(p, v) \
-        (p)[ 0] = (v)[ 0]; (p)[ 3] = (v)[ 1]; (p)[ 6] = (v)[ 2]; (p)[ 9] = (v)[ 3]; \
-        (p)[12] = (v)[ 4]; (p)[15] = (v)[ 5]; (p)[18] = (v)[ 6]; (p)[21] = (v)[ 7]; \
-        (p)[24] = (v)[ 8]; (p)[27] = (v)[ 9]; (p)[30] = (v)[10]; (p)[33] = (v)[11]; \
-        (p)[36] = (v)[12]; (p)[39] = (v)[13]; (p)[42] = (v)[14]; (p)[45] = (v)[15]
-
-    #define STORE_4(p, v) \
-        (p)[ 0] = (v)[ 0]; (p)[ 4] = (v)[ 1]; (p)[ 8] = (v)[ 2]; (p)[12] = (v)[ 3]; \
-        (p)[16] = (v)[ 4]; (p)[20] = (v)[ 5]; (p)[24] = (v)[ 6]; (p)[28] = (v)[ 7]; \
-        (p)[32] = (v)[ 8]; (p)[36] = (v)[ 9]; (p)[40] = (v)[10]; (p)[44] = (v)[11]; \
-        (p)[48] = (v)[12]; (p)[52] = (v)[13]; (p)[56] = (v)[14]; (p)[60] = (v)[15]
+    return T{p[ 0],p[ 3],p[ 6],p[ 9], p[12],p[15],p[18],p[21],
+             p[24],p[27],p[30],p[33], p[36],p[39],p[42],p[45]};
 #endif
+}
+
+template <typename T, typename P>
+SI ATTR T load_4(const P* p) {
+#if N == 1
+    return (T)p[0];
+#elif N == 4
+    return T{p[ 0],p[ 4],p[ 8],p[12]};
+#elif N == 8
+    return T{p[ 0],p[ 4],p[ 8],p[12], p[16],p[20],p[24],p[28]};
+#elif N == 16
+    return T{p[ 0],p[ 4],p[ 8],p[12], p[16],p[20],p[24],p[28],
+             p[32],p[36],p[40],p[44], p[48],p[52],p[56],p[60]};
+#endif
+}
+
+template <typename T, typename P>
+SI ATTR void store_3(P* p, const T& v) {
+#if N == 1
+    p[0] = v;
+#elif N == 4
+    p[ 0] = v[ 0]; p[ 3] = v[ 1]; p[ 6] = v[ 2]; p[ 9] = v[ 3];
+#elif N == 8
+    p[ 0] = v[ 0]; p[ 3] = v[ 1]; p[ 6] = v[ 2]; p[ 9] = v[ 3];
+    p[12] = v[ 4]; p[15] = v[ 5]; p[18] = v[ 6]; p[21] = v[ 7];
+#elif N == 16
+    p[ 0] = v[ 0]; p[ 3] = v[ 1]; p[ 6] = v[ 2]; p[ 9] = v[ 3];
+    p[12] = v[ 4]; p[15] = v[ 5]; p[18] = v[ 6]; p[21] = v[ 7];
+    p[24] = v[ 8]; p[27] = v[ 9]; p[30] = v[10]; p[33] = v[11];
+    p[36] = v[12]; p[39] = v[13]; p[42] = v[14]; p[45] = v[15];
+#endif
+}
+
+template <typename T, typename P>
+SI ATTR void store_4(P* p, const T& v) {
+#if N == 1
+    p[0] = v;
+#elif N == 4
+    p[ 0] = v[ 0]; p[ 4] = v[ 1]; p[ 8] = v[ 2]; p[12] = v[ 3];
+#elif N == 8
+    p[ 0] = v[ 0]; p[ 4] = v[ 1]; p[ 8] = v[ 2]; p[12] = v[ 3];
+    p[16] = v[ 4]; p[20] = v[ 5]; p[24] = v[ 6]; p[28] = v[ 7];
+#elif N == 16
+    p[ 0] = v[ 0]; p[ 4] = v[ 1]; p[ 8] = v[ 2]; p[12] = v[ 3];
+    p[16] = v[ 4]; p[20] = v[ 5]; p[24] = v[ 6]; p[28] = v[ 7];
+    p[32] = v[ 8]; p[36] = v[ 9]; p[40] = v[10]; p[44] = v[11];
+    p[48] = v[12]; p[52] = v[13]; p[56] = v[14]; p[60] = v[15];
+#endif
+}
+
 
 SI ATTR U8 gather_8(const uint8_t* p, I32 ix) {
 #if N == 1
@@ -609,9 +652,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = cast<F>((U16)v.val[1]) * (1/255.0f);
                 b = cast<F>((U16)v.val[2]) * (1/255.0f);
             #else
-                r = cast<F>(LOAD_3(U32, rgb+0) ) * (1/255.0f);
-                g = cast<F>(LOAD_3(U32, rgb+1) ) * (1/255.0f);
-                b = cast<F>(LOAD_3(U32, rgb+2) ) * (1/255.0f);
+                r = cast<F>(load_3<U32>(rgb+0) ) * (1/255.0f);
+                g = cast<F>(load_3<U32>(rgb+1) ) * (1/255.0f);
+                b = cast<F>(load_3<U32>(rgb+2) ) * (1/255.0f);
             #endif
                 a = F1;
             } break;
@@ -646,9 +689,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = cast<F>(swap_endian_16((U16)v.val[1])) * (1/65535.0f);
                 b = cast<F>(swap_endian_16((U16)v.val[2])) * (1/65535.0f);
             #else
-                U32 R = LOAD_3(U32, rgb+0),
-                    G = LOAD_3(U32, rgb+1),
-                    B = LOAD_3(U32, rgb+2);
+                U32 R = load_3<U32>(rgb+0),
+                    G = load_3<U32>(rgb+1),
+                    B = load_3<U32>(rgb+2);
                 // R,G,B are big-endian 16-bit, so byte swap them before converting to float.
                 r = cast<F>((R & 0x00ff)<<8 | (R & 0xff00)>>8) * (1/65535.0f);
                 g = cast<F>((G & 0x00ff)<<8 | (G & 0xff00)>>8) * (1/65535.0f);
@@ -689,9 +732,9 @@ static void exec_ops(const Op* ops, const void** args,
                     G = (U16)v.val[1],
                     B = (U16)v.val[2];
             #else
-                U16 R = LOAD_3(U16, rgb+0),
-                    G = LOAD_3(U16, rgb+1),
-                    B = LOAD_3(U16, rgb+2);
+                U16 R = load_3<U16>(rgb+0),
+                    G = load_3<U16>(rgb+1),
+                    B = load_3<U16>(rgb+2);
             #endif
                 r = F_from_Half(R);
                 g = F_from_Half(G);
@@ -733,9 +776,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = (F)v.val[1];
                 b = (F)v.val[2];
             #else
-                r = LOAD_3(F, rgb+0);
-                g = LOAD_3(F, rgb+1);
-                b = LOAD_3(F, rgb+2);
+                r = load_3<F>(rgb+0);
+                g = load_3<F>(rgb+1);
+                b = load_3<F>(rgb+2);
             #endif
                 a = F1;
             } break;
@@ -751,10 +794,10 @@ static void exec_ops(const Op* ops, const void** args,
                 b = (F)v.val[2];
                 a = (F)v.val[3];
             #else
-                r = LOAD_4(F, rgba+0);
-                g = LOAD_4(F, rgba+1);
-                b = LOAD_4(F, rgba+2);
-                a = LOAD_4(F, rgba+3);
+                r = load_4<F>(rgba+0);
+                g = load_4<F>(rgba+1);
+                b = load_4<F>(rgba+2);
+                a = load_4<F>(rgba+3);
             #endif
             } break;
 
@@ -789,7 +832,7 @@ static void exec_ops(const Op* ops, const void** args,
             } break;
 
             case Op_unpremul:{
-                F scale = (F)if_then_else(F1 / a < INFINITY_, F1 / a, F0);
+                F scale = if_then_else(F1 / a < INFINITY_, F1 / a, F0);
                 r *= scale;
                 g *= scale;
                 b *= scale;
@@ -832,9 +875,9 @@ static void exec_ops(const Op* ops, const void** args,
                   X = Y + A*(1/500.0f),
                   Z = Y - B*(1/200.0f);
 
-                X = (F)if_then_else(X*X*X > 0.008856f, X*X*X, (X - (16/116.0f)) * (1/7.787f));
-                Y = (F)if_then_else(Y*Y*Y > 0.008856f, Y*Y*Y, (Y - (16/116.0f)) * (1/7.787f));
-                Z = (F)if_then_else(Z*Z*Z > 0.008856f, Z*Z*Z, (Z - (16/116.0f)) * (1/7.787f));
+                X = if_then_else(X*X*X > 0.008856f, X*X*X, (X - (16/116.0f)) * (1/7.787f));
+                Y = if_then_else(Y*Y*Y > 0.008856f, Y*Y*Y, (Y - (16/116.0f)) * (1/7.787f));
+                Z = if_then_else(Z*Z*Z > 0.008856f, Z*Z*Z, (Z - (16/116.0f)) * (1/7.787f));
 
                 // Adjust to XYZD50 illuminant, and stuff back into r,g,b for the next op.
                 r = X * 0.9642f;
@@ -925,9 +968,9 @@ static void exec_ops(const Op* ops, const void** args,
                 vst3_lane_u8(rgb+6, v, 4);
                 vst3_lane_u8(rgb+9, v, 6);
             #else
-                STORE_3(rgb+0, cast<U8>(to_fixed(r * 255)) );
-                STORE_3(rgb+1, cast<U8>(to_fixed(g * 255)) );
-                STORE_3(rgb+2, cast<U8>(to_fixed(b * 255)) );
+                store_3(rgb+0, cast<U8>(to_fixed(r * 255)) );
+                store_3(rgb+1, cast<U8>(to_fixed(g * 255)) );
+                store_3(rgb+2, cast<U8>(to_fixed(b * 255)) );
             #endif
             } return;
 
@@ -962,9 +1005,9 @@ static void exec_ops(const Op* ops, const void** args,
                 I32 R = to_fixed(r * 65535),
                     G = to_fixed(g * 65535),
                     B = to_fixed(b * 65535);
-                STORE_3(rgb+0, cast<U16>((R & 0x00ff) << 8 | (R & 0xff00) >> 8) );
-                STORE_3(rgb+1, cast<U16>((G & 0x00ff) << 8 | (G & 0xff00) >> 8) );
-                STORE_3(rgb+2, cast<U16>((B & 0x00ff) << 8 | (B & 0xff00) >> 8) );
+                store_3(rgb+0, cast<U16>((R & 0x00ff) << 8 | (R & 0xff00) >> 8) );
+                store_3(rgb+1, cast<U16>((G & 0x00ff) << 8 | (G & 0xff00) >> 8) );
+                store_3(rgb+2, cast<U16>((B & 0x00ff) << 8 | (B & 0xff00) >> 8) );
             #endif
 
             } return;
@@ -1007,9 +1050,9 @@ static void exec_ops(const Op* ops, const void** args,
                 }};
                 vst3_u16(rgb, v);
             #else
-                STORE_3(rgb+0, R);
-                STORE_3(rgb+1, G);
-                STORE_3(rgb+2, B);
+                store_3(rgb+0, R);
+                store_3(rgb+1, G);
+                store_3(rgb+2, B);
             #endif
             } return;
 
@@ -1052,9 +1095,9 @@ static void exec_ops(const Op* ops, const void** args,
                 }};
                 vst3q_f32(rgb, v);
             #else
-                STORE_3(rgb+0, r);
-                STORE_3(rgb+1, g);
-                STORE_3(rgb+2, b);
+                store_3(rgb+0, r);
+                store_3(rgb+1, g);
+                store_3(rgb+2, b);
             #endif
             } return;
 
@@ -1071,10 +1114,10 @@ static void exec_ops(const Op* ops, const void** args,
                 }};
                 vst4q_f32(rgba, v);
             #else
-                STORE_4(rgba+0, r);
-                STORE_4(rgba+1, g);
-                STORE_4(rgba+2, b);
-                STORE_4(rgba+3, a);
+                store_4(rgba+0, r);
+                store_4(rgba+1, g);
+                store_4(rgba+2, b);
+                store_4(rgba+3, a);
             #endif
             } return;
         }
@@ -1113,17 +1156,4 @@ static void run_program(const Op* program, const void** arguments,
 
 #if defined(USING_AVX_F16C)
     #undef  USING_AVX_F16C
-#endif
-
-#if defined(LOAD_3)
-    #undef  LOAD_3
-#endif
-#if defined(LOAD_4)
-    #undef  LOAD_4
-#endif
-#if defined(STORE_3)
-    #undef  STORE_3
-#endif
-#if defined(STORE_4)
-    #undef  STORE_4
 #endif
