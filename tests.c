@@ -1086,6 +1086,47 @@ static void test_Programmatic_sRGB() {
     expect(skcms_ApproximatelyEqualProfiles(&p, &srgb));
 }
 
+static void test_Clamp() {
+    // Test that we clamp out-of-gamut values when converting to fixed point,
+    // not just to byte value range but also to gamut (for compatibility with
+    // older systems).
+
+    void*  dp3_ptr;
+    size_t dp3_len;
+    expect(load_file("profiles/mobile/Display_P3_parametric.icc", &dp3_ptr, &dp3_len));
+
+    // Here's the basic premise of the test: sRGB can't represent P3's full green,
+    // but if we scale it by 50% alpha, it would "fit" in a byte.  We want to avoid that.
+    skcms_ICCProfile src,
+                     dst = *skcms_sRGB_profile();
+    skcms_Parse(dp3_ptr, dp3_len, &src);
+    uint8_t rgba[] = { 0, 255, 0, 127 };
+
+    // First double check that the green channel is out of gamut by transforming to float.
+    float flts[4];
+    skcms_Transform(rgba, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &src,
+                    flts, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &dst,
+                    1);
+    const float bias = 1/255.0f;
+    expect(flts[0] <    1*bias);
+    expect(flts[1] >  255*bias);
+    expect(flts[2] <    1*bias);
+    expect(flts[3] == 127*bias);
+
+    // Now the real test, making sure we clamp that green channel to 1.0 before premul.
+    skcms_Transform(rgba, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul       , &src,
+                    rgba, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_PremulAsEncoded, &dst,
+                    1);
+
+    expect(rgba[0] ==   0);
+    expect(rgba[1] == 127);  // would be 129 if we clamp after premul
+    expect(rgba[2] ==   0);
+    expect(rgba[3] == 127);
+
+
+    free(dp3_ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1115,6 +1156,7 @@ int main(int argc, char** argv) {
     test_MakeUsableAsDestinationAdobe();
     test_PrimariesToXYZ();
     test_Programmatic_sRGB();
+    test_Clamp();
 #if 0
     test_CLUT();
 #endif
