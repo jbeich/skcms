@@ -29,7 +29,9 @@
 #define expect(cond)                                                                  \
     do {                                                                              \
         if (!(cond)) {                                                                \
+            fprintf(stdout, "expect(" #cond ") failed at %s:%d\n",__FILE__,__LINE__); \
             fprintf(stderr, "expect(" #cond ") failed at %s:%d\n",__FILE__,__LINE__); \
+            fflush(stdout);                                                           \
             fflush(stderr);   /* stderr is buffered on Windows. */                    \
             DEBUGBREAK();                                                             \
         }                                                                             \
