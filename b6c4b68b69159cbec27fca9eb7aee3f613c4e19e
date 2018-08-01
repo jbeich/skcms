@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5afddbe_d736c52d",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-01T12:55:54Z",
+      "side": 1,
+      "message": "CPUs and compilers are probably smarter than me, but is it advantageous to write this as (bits \u0026 0x7fffffff) instead, to avoid the dependency on sign?",
+      "revId": "b6c4b68b69159cbec27fca9eb7aee3f613c4e19e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
