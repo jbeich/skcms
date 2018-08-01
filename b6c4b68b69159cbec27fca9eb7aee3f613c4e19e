@@ -16,6 +16,24 @@
       "revId": "b6c4b68b69159cbec27fca9eb7aee3f613c4e19e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43d460bc_ddc9a0fb",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-01T13:38:16Z",
+      "side": 1,
+      "message": "I\u0027m not sure, but I\u0027ll try it out.  That is a transformation the compiler can do, but seems a little beyond reasonable expectation.  Certainly if we were only getting the absolute value I\u0027d bits \u0026 0x7fffffff.  Here, it\u0027s a question of needing another register and memory load for the 0x7fffffff x N constant, or a making the critical path a little longer with super cheap xor.",
+      "parentUuid": "f5afddbe_d736c52d",
+      "revId": "b6c4b68b69159cbec27fca9eb7aee3f613c4e19e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
