@@ -79,6 +79,7 @@
       ],
       "dimensions": [
         "os:Mac",
+        "xcode_version:9.2",
         "gpu:none",
         "pool:Skia"
       ],
