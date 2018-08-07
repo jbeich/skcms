@@ -17,12 +17,6 @@ print "Hello from {platform} in {cwd}!".format(platform=sys.platform,
                                                cwd=os.getcwd())
 
 if 'darwin' in sys.platform:
-  # Our Mac bots don't have a real GCC installed.
-  append('skcms/build/gcc', 'disabled = true')
-
-  # Our Mac bot toolchains are too old for LSAN.
-  append('skcms/build/clang.lsan', 'disabled = true')
-
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
 
 elif 'linux' in sys.platform:
