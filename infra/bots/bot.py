@@ -17,6 +17,9 @@ print "Hello from {platform} in {cwd}!".format(platform=sys.platform,
                                                cwd=os.getcwd())
 
 if 'darwin' in sys.platform:
+  # TODO(dogben): Figure out how to get Xcode from CIPD.
+  call('sudo xcode-select -switch /Applications/Xcode9.2.app')
+
   # Our Mac bots don't have a real GCC installed.
   append('skcms/build/gcc', 'disabled = true')
 
