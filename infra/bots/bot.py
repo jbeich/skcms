@@ -20,12 +20,6 @@ if 'darwin' in sys.platform:
   # TODO(dogben): Figure out how to get Xcode from CIPD.
   call('sudo xcode-select -switch /Applications/Xcode9.2.app')
 
-  # Our Mac bots don't have a real GCC installed.
-  append('skcms/build/gcc', 'disabled = true')
-
-  # Our Mac bot toolchains are too old for LSAN.
-  append('skcms/build/clang.lsan', 'disabled = true')
-
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
 
 elif 'linux' in sys.platform:
