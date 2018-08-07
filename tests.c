@@ -509,6 +509,9 @@ static const char* profile_test_cases[] = {
     // Non-D50 profiles.
     "profiles/misc/SM245B.icc",
     "profiles/misc/BenQ_GL2450.icc",
+
+    // This profile is fine, but has really small TRC tables (5 points).
+    "profiles/misc/BenQ_RL2455.icc",                 // chromium:869115
 };
 
 static void test_Parse(bool regen) {
