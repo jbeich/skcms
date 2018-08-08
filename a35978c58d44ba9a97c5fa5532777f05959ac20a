@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9c2fe4c6_ff252eb0",
+        "filename": "infra/bots/bot.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-08T18:02:04Z",
+      "side": 1,
+      "message": "Nit: Seems like it\u0027d be nicer to use argparse or some such.",
+      "range": {
+        "startLine": 21,
+        "startChar": 44,
+        "endLine": 21,
+        "endChar": 55
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3beeb8bc_e64a87e4",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 2
@@ -13,6 +36,30 @@
       "writtenOn": "2018-08-08T15:23:30Z",
       "side": 1,
       "message": "When does this get filled in?",
+      "range": {
+        "startLine": 24,
+        "startChar": 39,
+        "endLine": 24,
+        "endChar": 50
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4546ffca_fc6fc23e",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-08T18:02:04Z",
+      "side": 1,
+      "message": "It\u0027s automatic in the CIPD client.",
+      "parentUuid": "3beeb8bc_e64a87e4",
       "range": {
         "startLine": 24,
         "startChar": 39,
@@ -41,6 +88,29 @@
         "startChar": 5,
         "endLine": 68,
         "endChar": 23
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4da8b334_db86e967",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-08T18:02:04Z",
+      "side": 1,
+      "message": "It kind of makes me nervous that we need to maintain different cache names per repo.  I don\u0027t have a good alternative.",
+      "range": {
+        "startLine": 93,
+        "startChar": 10,
+        "endLine": 93,
+        "endChar": 24
       },
       "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
