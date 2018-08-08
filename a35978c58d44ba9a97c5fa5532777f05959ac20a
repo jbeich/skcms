@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "c18a49b6_58ed9d33",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-08T18:16:07Z",
+      "side": 1,
+      "message": "I don\u0027t feel strongly either way.  We\u0027re going to have to re-organize things in a lot of places eventually anyway in order to build an autoroller.",
+      "parentUuid": "5d91536d_16d3563f",
+      "range": {
+        "startLine": 68,
+        "startChar": 5,
+        "endLine": 68,
+        "endChar": 23
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4da8b334_db86e967",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 2
@@ -187,6 +211,30 @@
       "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03fa8bbe_231d114c",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-08T18:16:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cf7eb4b2_4b4a94ae",
+      "range": {
+        "startLine": 93,
+        "startChar": 10,
+        "endLine": 93,
+        "endChar": 24
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
