@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3beeb8bc_e64a87e4",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T15:23:30Z",
+      "side": 1,
+      "message": "When does this get filled in?",
+      "range": {
+        "startLine": 24,
+        "startChar": 39,
+        "endLine": 24,
+        "endChar": 50
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50b894f8_dbf960f0",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T15:23:30Z",
+      "side": 1,
+      "message": "Let\u0027s just put this inline here like all the other packages?  It\u0027s not going to be used anywhere else.",
+      "range": {
+        "startLine": 68,
+        "startChar": 5,
+        "endLine": 68,
+        "endChar": 23
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "593d2e9f_f9bb04a1",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T15:23:30Z",
+      "side": 1,
+      "message": "What\u0027s this do?",
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
