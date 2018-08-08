@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c39204d2_c9117a18",
+        "filename": "infra/bots/bot.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-08T18:12:02Z",
+      "side": 1,
+      "message": "I\u0027m trying to be consistent with the existing code.",
+      "parentUuid": "9c2fe4c6_ff252eb0",
+      "range": {
+        "startLine": 21,
+        "startChar": 44,
+        "endLine": 21,
+        "endChar": 55
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3beeb8bc_e64a87e4",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 2
@@ -95,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5d91536d_16d3563f",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-08T18:12:02Z",
+      "side": 1,
+      "message": "Eric, do you have an opinion?",
+      "parentUuid": "50b894f8_dbf960f0",
+      "range": {
+        "startLine": 68,
+        "startChar": 5,
+        "endLine": 68,
+        "endChar": 23
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4da8b334_db86e967",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 2
@@ -118,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "cf7eb4b2_4b4a94ae",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-08T18:12:02Z",
+      "side": 1,
+      "message": "The simple alternative is to use xcode_\u003cversion\u003e_mac and xcode_\u003cversion\u003e_ios as the names, like the Chromium recipe module does. The upside is that we won\u0027t have to worry about churn when updating the Xcode version. The downside is that we need to remember to update the version in both gen_tasks.go and the recipe when we move to a new Xcode version, and we\u0027ll have old versions hanging around until the cache expires or the bots are re-imaged.",
+      "parentUuid": "4da8b334_db86e967",
+      "range": {
+        "startLine": 93,
+        "startChar": 10,
+        "endLine": 93,
+        "endChar": 24
+      },
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "593d2e9f_f9bb04a1",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 2
@@ -129,6 +201,24 @@
       "writtenOn": "2018-08-08T15:23:30Z",
       "side": 1,
       "message": "What\u0027s this do?",
+      "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "700097eb_6ccdef51",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-08T18:12:02Z",
+      "side": 1,
+      "message": "Required for mac_toolchain to access the Xcode CIPD packages. I\u0027ll add a comment.",
+      "parentUuid": "593d2e9f_f9bb04a1",
       "revId": "a35978c58d44ba9a97c5fa5532777f05959ac20a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
