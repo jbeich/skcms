@@ -17,8 +17,21 @@ print "Hello from {platform} in {cwd}!".format(platform=sys.platform,
                                                cwd=os.getcwd())
 
 if 'darwin' in sys.platform:
-  # TODO(dogben): Figure out how to get Xcode from CIPD.
-  call('sudo xcode-select -switch /Applications/Xcode9.2.app')
+  # Get Xcode from CIPD using mac_toolchain tool.
+  mac_toolchain = os.path.join(os.getcwd(), sys.argv[2])
+  xcode_app_path = os.path.join(os.getcwd(), sys.argv[3])
+  # See mapping of Xcode version to Xcode build version here:
+  # https://chromium.googlesource.com/chromium/tools/build/+/master/scripts/slave/recipe_modules/ios/api.py#37
+  XCODE_BUILD_VERSION = '9c40b'
+  call(('{mac_toolchain}/mac_toolchain install '
+        '-kind mac '
+        '-xcode-version {xcode_build_version} '
+        '-output-dir {xcode_app_path}').format(
+            mac_toolchain=mac_toolchain,
+            xcode_build_version=XCODE_BUILD_VERSION,
+            xcode_app_path=xcode_app_path))
+  call('sudo xcode-select -switch {xcode_app_path}'.format(
+      xcode_app_path=xcode_app_path))
 
   # Our Mac bots don't have a real GCC installed.
   append('skcms/build/gcc', 'disabled = true')

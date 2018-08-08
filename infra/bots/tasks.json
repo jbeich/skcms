@@ -56,9 +56,16 @@
         "pool:Skia"
       ],
       "isolate": "bot.isolate",
-      "max_attempts": 1
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "skcms-Mac": {
+      "caches": [
+        {
+          "name": "xcode_skcms",
+          "path": "cache/Xcode_skcms.app"
+        }
+      ],
       "cipd_packages": [
         {
           "name": "infra/ninja/mac-amd64",
@@ -69,22 +76,29 @@
           "name": "skia/bots/android_ndk_darwin",
           "path": "ndk",
           "version": "version:5"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
         "python",
         "skcms/infra/bots/bot.py",
         "ninja",
-        "ndk"
+        "ndk",
+        "mac_toolchain",
+        "cache/Xcode_skcms.app"
       ],
       "dimensions": [
         "os:Mac",
-        "xcode_version:9.2",
         "gpu:none",
         "pool:Skia"
       ],
       "isolate": "bot.isolate",
-      "max_attempts": 1
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "skcms-Win": {
       "cipd_packages": [
@@ -117,7 +131,8 @@
         "pool:Skia"
       ],
       "isolate": "bot.isolate",
-      "max_attempts": 1
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     }
   }
 }
