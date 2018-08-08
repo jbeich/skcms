@@ -20,7 +20,7 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 	dimensions := map[string][]string{
 		// For the moment we'd rather not run bots on Skylakes, which support AVX-512.
 		"skcms-Linux": []string{"os:Linux", "cpu:x86-64-Haswell_GCE"},
-		"skcms-Mac":   []string{"os:Mac", "xcode_version:9.2"},
+		"skcms-Mac":   []string{"os:Mac"},
 		// We think there's something amiss building on Win7 or Win8 bots, so restrict to 2016.
 		"skcms-Win": []string{"os:Windows-2016Server"},
 	}
@@ -53,6 +53,15 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 				Path:    "ndk",
 				Version: "version:5",
 			},
+			// Copied from
+			// https://skia.googlesource.com/skia/+/30a4e3da4bf341d5968b8cdf5bc2260e7f0d4b04/infra/bots/gen_tasks.go#206
+			// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
+			// This package is really just an installer for XCode.
+			&specs.CipdPackage{
+				Name:    "infra/tools/mac_toolchain/${platform}",
+				Path:    "mac_toolchain",
+				Version: "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a",
+			},
 		},
 		"skcms-Win": []*specs.CipdPackage{
 			&specs.CipdPackage{
@@ -73,17 +82,34 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 		},
 	}
 
+	caches := map[string][]*specs.Cache{
+		"skcms-Mac": []*specs.Cache{
+			// Use a different cache from Skia so that there's less churn if we update
+			// the Xcode version for one without updating the other.
+			&specs.Cache{
+				Name: "xcode_skcms",
+				Path: "cache/Xcode_skcms.app",
+			},
+		},
+	}
+
 	command := []string{"python", "skcms/infra/bots/bot.py"}
 	for _, p := range packages[task] {
 		command = append(command, p.Path)
 	}
+	for _, c := range caches[task] {
+		command = append(command, c.Path)
+	}
 
 	b.MustAddTask(task, &specs.TaskSpec{
+		Caches:       caches[task],
 		CipdPackages: packages[task],
 		Command:      command,
 		Dimensions:   append(dimensions[task], "gpu:none", "pool:Skia"),
 		Isolate:      "bot.isolate",
 		MaxAttempts:  1,
+		// This service account gives mac_toolchain access to the Xcode CIPD packages.
+		ServiceAccount: "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com",
 	})
 
 	b.MustAddJob(task, &specs.JobSpec{
