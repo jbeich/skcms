@@ -412,6 +412,7 @@ static const char* profile_test_cases[] = {
     "profiles/color.org/Upper_Left.icc",
     "profiles/color.org/Upper_Right.icc",
     "profiles/misc/Apple_Wide_Color.icc",
+    "profiles/misc/Coated_FOGRA27_CMYK.icc",
     "profiles/misc/Coated_FOGRA39_CMYK.icc",
     "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",  // Has kTRC.
     "profiles/misc/Japan_Color_2001_Coated.icc",
