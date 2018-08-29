@@ -1101,6 +1101,13 @@ static void test_ExactlyEqual() {
     expect(skcms_ApproximatelyEqualProfiles( srgb, &copy));
     expect(skcms_ApproximatelyEqualProfiles(&copy,  srgb));
     expect(skcms_ApproximatelyEqualProfiles(&copy, &copy));
+
+    // This should make a bitwise exact copy of sRGB.
+    skcms_ICCProfile exact;
+    skcms_Init(&exact);
+    skcms_SetTransferFunction(&exact, &srgb->trc[0].parametric);
+    skcms_SetXYZD50(&exact, &srgb->toXYZD50);
+    expect(0 == memcmp(&exact, srgb, sizeof(skcms_ICCProfile)));
 }
 
 static void test_Clamp() {
