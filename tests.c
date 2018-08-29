@@ -1093,6 +1093,16 @@ static void test_Programmatic_sRGB() {
     expect(skcms_ApproximatelyEqualProfiles(&p, &srgb));
 }
 
+static void test_ExactlyEqual() {
+    const skcms_ICCProfile* srgb = skcms_sRGB_profile();
+    skcms_ICCProfile        copy = *srgb;
+
+    expect(skcms_ApproximatelyEqualProfiles( srgb,  srgb));
+    expect(skcms_ApproximatelyEqualProfiles( srgb, &copy));
+    expect(skcms_ApproximatelyEqualProfiles(&copy,  srgb));
+    expect(skcms_ApproximatelyEqualProfiles(&copy, &copy));
+}
+
 static void test_Clamp() {
     // Test that we clamp out-of-gamut values when converting to fixed point,
     // not just to byte value range but also to gamut (for compatibility with
@@ -1162,6 +1172,7 @@ int main(int argc, char** argv) {
     test_MakeUsableAsDestinationAdobe();
     test_PrimariesToXYZ();
     test_Programmatic_sRGB();
+    test_ExactlyEqual();
     test_Clamp();
 #if 0
     test_CLUT();
