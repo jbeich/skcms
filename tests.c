@@ -892,32 +892,6 @@ static void test_Premul() {
         expect( dst[i+3] == src[i+3] );
     }
 
-    expect(skcms_Transform(
-        src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul    , &sRGB,
-        dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_PremulLinear, &sRGB,
-        64));
-    for (int i = 0; i < 256; i+=4) {
-        for (int k = 0; k < 3; k++) {
-            float l = skcms_TransferFunction_eval(tf,       src[i+k]/255.0f);
-            float e = skcms_TransferFunction_eval(&inv, l * src[i+3]/255.0f);
-            expect( dst[i+k] == (uint8_t)(255.0f*e + 0.5f) );
-        }
-        expect( dst[i+3] == src[i+3] );
-    }
-
-    expect(skcms_Transform(
-        src, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_PremulLinear, &sRGB,
-        dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul    , &sRGB,
-        64));
-    for (int i = 0; i < 256; i+=4) {
-        for (int k = 0; k < 3; k++) {
-            float pm = skcms_TransferFunction_eval(tf,         src[i+k]/255.0f );
-            float e  = skcms_TransferFunction_eval(&inv, pm / (src[i+3]/255.0f));
-            expect( dst[i+k] == (uint8_t)(255.0f*e + 0.5f) );
-        }
-        expect( dst[i+3] == src[i+3] );
-    }
-
     free(ptr);
 }
 
