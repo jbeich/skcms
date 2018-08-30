@@ -82,9 +82,9 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         uint8_t src[256],
                 dst[256];
         for (skcms_AlphaFormat srcAlpha = skcms_AlphaFormat_Opaque;
-             srcAlpha <= skcms_AlphaFormat_PremulLinear; ++srcAlpha) {
+             srcAlpha <= skcms_AlphaFormat_PremulAsEncoded; ++srcAlpha) {
             for (skcms_AlphaFormat dstAlpha = skcms_AlphaFormat_Opaque;
-                 dstAlpha <= skcms_AlphaFormat_PremulLinear; ++dstAlpha) {
+                 dstAlpha <= skcms_AlphaFormat_PremulAsEncoded; ++dstAlpha) {
                 for (int i = 0; i < 256; i++) {
                     src[i] = (uint8_t)i;
                 }
