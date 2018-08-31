@@ -1124,6 +1124,28 @@ static void test_Clamp() {
     free(dp3_ptr);
 }
 
+static void test_AliasedTransforms() {
+    // We should be able to skcms_Transform() in place if the source and destination
+    // buffers are perfectly aligned and the pixel formats are the same size.
+
+    uint64_t buf = 0;
+    skcms_AlphaFormat upm = skcms_AlphaFormat_Unpremul;
+    const skcms_ICCProfile *srgb = skcms_sRGB_profile(),
+                           *xyz  = skcms_XYZD50_profile();
+
+    expect( skcms_Transform(&buf, skcms_PixelFormat_A_8, upm, srgb,
+                            &buf, skcms_PixelFormat_G_8, upm, xyz, 1) );
+
+    expect( skcms_Transform(&buf, skcms_PixelFormat_RGB_565  , upm, srgb,
+                            &buf, skcms_PixelFormat_ABGR_4444, upm, xyz, 1) );
+
+    expect( skcms_Transform(&buf, skcms_PixelFormat_RGBA_8888   , upm, srgb,
+                            &buf, skcms_PixelFormat_RGBA_1010102, upm, xyz, 1) );
+
+    expect( skcms_Transform(&buf, skcms_PixelFormat_RGB_161616, upm, srgb,
+                            &buf, skcms_PixelFormat_BGR_hhh   , upm, xyz, 1) );
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1155,6 +1177,7 @@ int main(int argc, char** argv) {
     test_Programmatic_sRGB();
     test_ExactlyEqual();
     test_Clamp();
+    test_AliasedTransforms();
 #if 0
     test_CLUT();
 #endif
