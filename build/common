@@ -3,12 +3,10 @@ disabled = false
 
 # Each compiler has enabled all the warnings it can.
 # Here we make them errors, and disable a few we don't want bothering us.
-# TODO: -Wno-reserved-id-macro can go away when we refactor skcms_Transform().
 warnings = -Werror $
            -Wno-double-promotion $
            -Wno-float-equal $
            -Wno-padded $
-           -Wno-reserved-id-macro $
 
 warnings_cc = $warnings $
            -Wno-c++98-compat-pedantic $
