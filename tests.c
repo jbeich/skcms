@@ -477,7 +477,9 @@ static const char* profile_test_cases[] = {
     "profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",  // Broken tag table, and A2B0 fails to parse
     "profiles/misc/bad_pcs.icc",                    // PCS is 'RGB '
 
-    "profiles/misc/ThinkpadX1YogaV2.icc",  // Unsure what the bug here is, chromium:875650.
+    // Unsure what the bug here is, chromium:875650.
+    "profiles/misc/ThinkpadX1YogaV2.icc",
+    "profiles/misc/XPS13_9360.icc",
 
     // fuzzer generated profiles that found parsing bugs
 
