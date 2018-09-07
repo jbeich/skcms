@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "089b0107_c91a2cc9",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-07T14:22:27Z",
+      "side": 1,
+      "message": "I was thinking maybe change it here?  Then we can remove the other a \u003d F1 in the rest of the opaque loads.",
+      "range": {
+        "startLine": 590,
+        "startChar": 30,
+        "endLine": 590,
+        "endChar": 37
+      },
+      "revId": "125987481c3edd35f45eb73acf46d5d42a82ce8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
