@@ -249,13 +249,17 @@ static void test_FormatConversions_161616() {
     expect(dst[3] == 0xfffffefd);
 
     // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
-    // Instead we should see the most signficant (low) byte doubled, as 65535/255 = 257 = 0x0101.
+    // Instead we should see the 8-bit dst value byte doubled, as 65535/255 = 257 = 0x0101.
     uint16_t back[12];
     expect(skcms_Transform(dst , skcms_PixelFormat_RGBA_8888 , skcms_AlphaFormat_Unpremul, NULL,
                            back, skcms_PixelFormat_RGB_161616, skcms_AlphaFormat_Unpremul, NULL,
                            4));
+    uint16_t expected[] = { 0x0000, 0x0101, 0x0202,
+                            0x0303, 0xfcfc, 0xfdfd,
+                            0xfefe, 0xfefe, 0xfcfc,
+                            0xfdfd, 0xfefe, 0xffff };
     for (int i = 0; i < 12; i++) {
-        expect(back[0] == (src[0] & 0xff) * 0x0101);
+        expect(back[i] == expected[i]);
     }
 }
 
