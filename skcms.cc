@@ -1781,15 +1781,10 @@ typedef enum {
     Op_tf_b,
     Op_tf_a,
 
-    Op_table_8_r,
-    Op_table_8_g,
-    Op_table_8_b,
-    Op_table_8_a,
-
-    Op_table_16_r,
-    Op_table_16_g,
-    Op_table_16_b,
-    Op_table_16_a,
+    Op_table_r,
+    Op_table_g,
+    Op_table_b,
+    Op_table_a,
 
     Op_clut_1D_8,
     Op_clut_1D_16,
@@ -1971,11 +1966,11 @@ typedef struct {
 } OpAndArg;
 
 static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
-    static const struct { Op parametric, table_8, table_16; } ops[] = {
-        { Op_tf_r, Op_table_8_r, Op_table_16_r },
-        { Op_tf_g, Op_table_8_g, Op_table_16_g },
-        { Op_tf_b, Op_table_8_b, Op_table_16_b },
-        { Op_tf_a, Op_table_8_a, Op_table_16_a },
+    static const struct { Op parametric, table; } ops[] = {
+        { Op_tf_r, Op_table_r },
+        { Op_tf_g, Op_table_g },
+        { Op_tf_b, Op_table_b },
+        { Op_tf_a, Op_table_a },
     };
 
     const OpAndArg noop = { Op_load_a8/*doesn't matter*/, nullptr };
@@ -1984,14 +1979,9 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
         return is_identity_tf(&curve->parametric)
             ? noop
             : OpAndArg{ ops[channel].parametric, &curve->parametric };
-    } else if (curve->table_8) {
-        return OpAndArg{ ops[channel].table_8,  curve };
-    } else if (curve->table_16) {
-        return OpAndArg{ ops[channel].table_16, curve };
     }
 
-    assert(false);
-    return noop;
+    return OpAndArg{ ops[channel].table, curve };
 }
 
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {

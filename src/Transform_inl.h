@@ -476,7 +476,7 @@ SI F minus_1_ulp(F v) {
     return bit_pun<F>( bit_pun<I32>(v) - 1 );
 }
 
-SI F table_8(const skcms_Curve* curve, F v) {
+SI F table(const skcms_Curve* curve, F v) {
     // Clamp the input to [0,1], then scale to a table index.
     F ix = max_(F0, min_(v, F1)) * (float)(curve->table_entries - 1);
 
@@ -489,23 +489,14 @@ SI F table_8(const skcms_Curve* curve, F v) {
     // the same as in 'l' or adjacent.  We have a rough idea that's it'd always be safe
     // to read adjacent entries and perhaps underflow the table by a byte or two
     // (it'd be junk, but always safe to read).  Not sure how to lerp yet.
-    F l = F_from_U8(gather_8(curve->table_8, lo)),
-      h = F_from_U8(gather_8(curve->table_8, hi));
-    return l + (h-l)*t;
-}
-
-SI F table_16(const skcms_Curve* curve, F v) {
-    // All just as in table_8() until the gathers.
-    F ix = max_(F0, min_(v, F1)) * (float)(curve->table_entries - 1);
-
-    I32 lo = cast<I32>(            ix      ),
-        hi = cast<I32>(minus_1_ulp(ix+1.0f));
-    F t = ix - cast<F>(lo);
-
-    // TODO: as above, load l and h simultaneously?
-    // Here we could even use AVX2-style 32-bit gathers.
-    F l = F_from_U16_BE(gather_16(curve->table_16, lo)),
-      h = F_from_U16_BE(gather_16(curve->table_16, hi));
+    F l,h;
+    if (curve->table_8) {
+        l = F_from_U8(gather_8(curve->table_8, lo));
+        h = F_from_U8(gather_8(curve->table_8, hi));
+    } else {
+        l = F_from_U16_BE(gather_16(curve->table_16, lo));
+        h = F_from_U16_BE(gather_16(curve->table_16, hi));
+    }
     return l + (h-l)*t;
 }
 
@@ -891,15 +882,10 @@ static void exec_ops(const Op* ops, const void** args,
             case Op_tf_b:{ b = apply_tf((const skcms_TransferFunction*)*args++, b); } break;
             case Op_tf_a:{ a = apply_tf((const skcms_TransferFunction*)*args++, a); } break;
 
-            case Op_table_8_r: { r = table_8((const skcms_Curve*)*args++, r); } break;
-            case Op_table_8_g: { g = table_8((const skcms_Curve*)*args++, g); } break;
-            case Op_table_8_b: { b = table_8((const skcms_Curve*)*args++, b); } break;
-            case Op_table_8_a: { a = table_8((const skcms_Curve*)*args++, a); } break;
-
-            case Op_table_16_r:{ r = table_16((const skcms_Curve*)*args++, r); } break;
-            case Op_table_16_g:{ g = table_16((const skcms_Curve*)*args++, g); } break;
-            case Op_table_16_b:{ b = table_16((const skcms_Curve*)*args++, b); } break;
-            case Op_table_16_a:{ a = table_16((const skcms_Curve*)*args++, a); } break;
+            case Op_table_r: { r = table((const skcms_Curve*)*args++, r); } break;
+            case Op_table_g: { g = table((const skcms_Curve*)*args++, g); } break;
+            case Op_table_b: { b = table((const skcms_Curve*)*args++, b); } break;
+            case Op_table_a: { a = table((const skcms_Curve*)*args++, a); } break;
 
             case Op_clut_1D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
