@@ -5,3 +5,5 @@ out    = out/gcc$mode
 
 include build/local
 include build/common
+
+disabled = (uname | grep -qv Linux)
