@@ -16,6 +16,7 @@ subninja build/gcc
 subninja build/gcc.avx512
 subninja build/gcc.m32
 subninja build/gcc.mips64el
+subninja build/gcc.mips64el-O3
 subninja build/gcc.native
 subninja build/gcc.portable
 subninja build/gcc.tiny
