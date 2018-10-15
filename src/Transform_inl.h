@@ -548,33 +548,65 @@ template <> void sample_clut<16>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b)
 
 template <int kBitDepth>
 MAYBE_NOINLINE
-static void clut(const skcms_A2B* a2b, int dim, I32 ix, int stride, F* r, F* g, F* b, F a) {
+static void clut(const skcms_A2B* a2b, int dim, F* r, F* g, F* b, F a) {
     assert (0 < dim && dim <= 4);
 
-    int limit = a2b->grid_points[dim-1];
+    const F inputs[] = { *r,*g,*b,a };
+    *r = *g = *b = 0;
 
-    const F* srcs[] = { r,g,b,&a };
-    F src = *srcs[dim-1];
+    F    t[4];
+    I32 lo[4],
+        hi[4];
+#if 0
+    int stride = 1;
+    for (int i = dim-1; i >= 0; i--) {
+        F x = inputs[i] * (float)(a2b->grid_points[i] - 1);
 
-    F x = src * (float)(limit - 1);
+        lo[i] = stride * cast<I32>(            x      );   // i.e. trunc(x) == floor(x) here.
+        hi[i] = stride * cast<I32>(minus_1_ulp(x+1.0f));
+        t [i] = x - cast<F>(lo[i]);                        // i.e. fract(x)
 
-    I32 lo = cast<I32>(            x      ),
-        hi = cast<I32>(minus_1_ulp(x+1.0f));
-    F lr = *r, lg = *g, lb = *b,
-      hr = *r, hg = *g, hb = *b;
+        stride *= a2b->grid_points[i];
+    }
+#else
 
-    if (dim == 1) {
-        sample_clut<kBitDepth>(a2b, stride*lo + ix, &lr,&lg,&lb);
-        sample_clut<kBitDepth>(a2b, stride*hi + ix, &hr,&hg,&hb);
-    } else {
-        clut<kBitDepth>(a2b, dim-1, stride*lo + ix, stride*limit, &lr,&lg,&lb,a);
-        clut<kBitDepth>(a2b, dim-1, stride*hi + ix, stride*limit, &hr,&hg,&hb,a);
+    for (int i = 0; i < dim; i++) {
+        F x = inputs[i] * (float)(a2b->grid_points[i] - 1);
+
+        lo[i] = cast<I32>(            x      );   // i.e. trunc(x) == floor(x) here.
+        hi[i] = cast<I32>(minus_1_ulp(x+1.0f));
+        t [i] = x - cast<F>(lo[i]);               // i.e. fract(x)
     }
 
-    F t = x - cast<F>(lo);
-    *r = lr + (hr-lr)*t;
-    *g = lg + (hg-lg)*t;
-    *b = lb + (hb-lb)*t;
+    int stride = 1;
+    for (int i = dim-1; i >= 0; i--) {
+        lo[i] *= stride;
+        hi[i] *= stride;
+        stride *= a2b->grid_points[i];
+    }
+#endif
+
+    for (int combo = 0; combo < (1<<dim); combo++) {
+        I32 ix = 0;
+        F    w = 1;
+
+        for (int i = 0; i < dim; i++) {
+            if (combo & (1<<i)) {
+                ix += hi[i];
+                w *= t[i];
+            } else {
+                ix += lo[i];
+                w *= 1-t[i];
+            }
+        }
+
+        F R,G,B;
+        sample_clut<kBitDepth>(a2b, ix, &R,&G,&B);
+
+        *r += w*R;
+        *g += w*G;
+        *b += w*B;
+    }
 }
 
 static void exec_ops(const Op* ops, const void** args,
@@ -903,44 +935,44 @@ static void exec_ops(const Op* ops, const void** args,
 
             case Op_clut_1D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 1, cast<I32>(F0), 1, &r,&g,&b,a);
+                clut<8>(a2b, 1, &r,&g,&b,a);
             } break;
 
             case Op_clut_1D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 1, cast<I32>(F0), 1, &r,&g,&b,a);
+                clut<16>(a2b, 1,  &r,&g,&b,a);
             } break;
 
             case Op_clut_2D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 2, cast<I32>(F0), 1, &r,&g,&b,a);
+                clut<8>(a2b, 2,  &r,&g,&b,a);
             } break;
 
             case Op_clut_2D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 2, cast<I32>(F0), 1, &r,&g,&b,a);
+                clut<16>(a2b, 2,  &r,&g,&b,a);
             } break;
 
             case Op_clut_3D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 3, cast<I32>(F0), 1, &r,&g,&b,a);
+                clut<8>(a2b, 3,  &r,&g,&b,a);
             } break;
 
             case Op_clut_3D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 3, cast<I32>(F0), 1, &r,&g,&b,a);
+                clut<16>(a2b, 3,  &r,&g,&b,a);
             } break;
 
             case Op_clut_4D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 4, cast<I32>(F0), 1, &r,&g,&b,a);
+                clut<8>(a2b, 4,  &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
 
             case Op_clut_4D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 4, cast<I32>(F0), 1, &r,&g,&b,a);
+                clut<16>(a2b, 4,  &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
