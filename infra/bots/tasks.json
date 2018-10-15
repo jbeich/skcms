@@ -40,6 +40,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:12"
+        },
+        {
+          "name": "skia/bots/mips64el_toolchain_linux",
+          "path": "mips64el_toolchain_linux",
+          "version": "version:4"
         }
       ],
       "command": [
@@ -47,7 +52,8 @@
         "skcms/infra/bots/bot.py",
         "ninja",
         "ndk",
-        "clang_linux"
+        "clang_linux",
+        "mips64el_toolchain_linux"
       ],
       "dimensions": [
         "os:Linux",
