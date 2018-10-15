@@ -546,9 +546,8 @@ template <> void sample_clut<16>(const skcms_A2B* a2b, I32 ix, F* r, F* g, F* b)
     #define MAYBE_NOINLINE
 #endif
 
-template <int kBitDepth>
 MAYBE_NOINLINE
-static void clut(const skcms_A2B* a2b, int dim, F* r, F* g, F* b, F a) {
+static void clut(const skcms_A2B* a2b, int dim, int bitDepth, F* r, F* g, F* b, F a) {
     assert (0 < dim && dim <= 4);
 
     // Each of these arrays is really foo[dim], but we use foo[4] since we know dim <= 4.
@@ -596,7 +595,11 @@ static void clut(const skcms_A2B* a2b, int dim, F* r, F* g, F* b, F a) {
         }
 
         F sR,sG,sB;
-        sample_clut<kBitDepth>(a2b,ix, &sR,&sG,&sB);
+        if (bitDepth == 8) {
+            sample_clut<8> (a2b,ix, &sR,&sG,&sB);
+        } else {
+            sample_clut<16>(a2b,ix, &sR,&sG,&sB);
+        }
 
         R += w*sR;
         G += w*sG;
@@ -934,44 +937,44 @@ static void exec_ops(const Op* ops, const void** args,
 
             case Op_clut_1D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 1, &r,&g,&b,a);
+                clut(a2b, 1,8, &r,&g,&b,a);
             } break;
 
             case Op_clut_1D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 1,  &r,&g,&b,a);
+                clut(a2b, 1,16,  &r,&g,&b,a);
             } break;
 
             case Op_clut_2D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 2,  &r,&g,&b,a);
+                clut(a2b, 2,8,  &r,&g,&b,a);
             } break;
 
             case Op_clut_2D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 2,  &r,&g,&b,a);
+                clut(a2b, 2,16,  &r,&g,&b,a);
             } break;
 
             case Op_clut_3D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 3,  &r,&g,&b,a);
+                clut(a2b, 3,8,  &r,&g,&b,a);
             } break;
 
             case Op_clut_3D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 3,  &r,&g,&b,a);
+                clut(a2b, 3,16,  &r,&g,&b,a);
             } break;
 
             case Op_clut_4D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<8>(a2b, 4,  &r,&g,&b,a);
+                clut(a2b, 4,8,  &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
 
             case Op_clut_4D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                clut<16>(a2b, 4,  &r,&g,&b,a);
+                clut(a2b, 4,16,  &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
