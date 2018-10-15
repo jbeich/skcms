@@ -41,6 +41,11 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 				Path:    "clang_linux",
 				Version: "version:12",
 			},
+			&specs.CipdPackage{
+				Name:    "skia/bots/mips64el_toolchain_linux",
+				Path:    "mips64el_toolchain_linux",
+				Version: "version:4",
+			},
 		},
 		"skcms-Mac": []*specs.CipdPackage{
 			&specs.CipdPackage{
