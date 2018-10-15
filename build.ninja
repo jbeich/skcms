@@ -13,7 +13,6 @@ subninja build/clang.xsan
 subninja build/clang.xsan-portable
 
 subninja build/gcc
-subninja build/gcc.avx512
 subninja build/gcc.m32
 subninja build/gcc.mips64el
 subninja build/gcc.mips64el-O3
