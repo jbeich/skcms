@@ -1231,6 +1231,40 @@ static void test_AliasedTransforms() {
                             &buf, skcms_PixelFormat_BGR_161616BE, upm, xyz, 1) );
 }
 
+static void test_Palette8() {
+    uint32_t palette[256];
+    for (int i = 0; i < 256; i++) {
+        palette[i] = (uint32_t)(255 - i) * 0x01010101;
+    }
+
+    uint8_t  src[512];
+    uint32_t dst[512];
+    for (int i = 0; i < 512; i++) {
+        src[i] = (uint8_t)(i % 256);
+    }
+
+    const skcms_ICCProfile* srgb = skcms_sRGB_profile();
+    const skcms_AlphaFormat upm = skcms_AlphaFormat_Unpremul;
+
+    expect( skcms_TransformWithPalette(src, skcms_PixelFormat_RGBA_8888_Palette8, upm, srgb,
+                                       dst, skcms_PixelFormat_RGBA_8888         , upm, srgb,
+                                       512, palette) );
+
+    for (int i = 0; i < 512; i++) {
+        uint32_t expected = (uint32_t)(255 - i%256) * 0x01010101;
+        expect( dst[i] == expected );
+    }
+
+
+    // Double check we can't transform skcms_PixelFormat_RGBA_8888_Palette8 without a palette.
+    expect( !skcms_Transform(src, skcms_PixelFormat_RGBA_8888_Palette8, upm, srgb,
+                             dst, skcms_PixelFormat_RGBA_8888         , upm, srgb,
+                             512) );
+    expect( !skcms_TransformWithPalette(src, skcms_PixelFormat_RGBA_8888_Palette8, upm, srgb,
+                                        dst, skcms_PixelFormat_RGBA_8888         , upm, srgb,
+                                        512, NULL) );
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1265,6 +1299,7 @@ int main(int argc, char** argv) {
     test_ExactlyEqual();
     test_Clamp();
     test_AliasedTransforms();
+    test_Palette8();
 #if 0
     test_CLUT();
 #endif
