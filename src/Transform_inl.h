@@ -915,6 +915,11 @@ static void exec_ops(const Op* ops, const void** args,
             case Op_clut: {
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
                 clut(a2b, &r,&g,&b,a);
+
+                if (a2b->input_channels == 4) {
+                    // CMYK is opaque.
+                    a = F1;
+                }
             } break;
 
     // Notice, from here on down the store_ ops all return, ending the loop.
