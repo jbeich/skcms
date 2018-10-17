@@ -16,6 +16,24 @@
       "revId": "777d5573b7ec475498cc624833eeca0f07f30947",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22e23c22_dff8d592",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-10-17T12:30:59Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s what I\u0027m figuring.\n\nAlso, since we\u0027re in one-big-switch mode here, it\u0027s really just a question of, should I write this if-statement, or should I hope the compiler works out what\u0027s most efficient from the switch?",
+      "parentUuid": "81895a85_c9e13b77",
+      "revId": "777d5573b7ec475498cc624833eeca0f07f30947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
