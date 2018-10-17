@@ -28,3 +28,13 @@ bTRC : 16-bit table with 43 entries
 	ba9fa2 bc25a1 61c31f bfdda0 75491f 24251f 2425aa
 	5abb1f 2425aa 6b301f ca252f 24d395 69251f 2425b0
 	24d81f bb621f 24261f c6251f 3bd01f c1251f 2425a8
+81 edge-case pixels transformed to sRGB 8888 (unpremul):
+	006a6a6a 006a6a6a 007a00ff  006a6a6a 006a6a6a 007a00ff  0000ff00 0000ff00 0031edff
+	006a6a6a 006a6a6a 007a00ff  006a6a6a 006a6a6a 007a00ff  0000ff00 0000ff00 0031edff
+	00fd7100 00fd7100 00ff00ff  00fd7100 00fd7100 00ff00ff  00e9ff00 00e9ff00 00efefef
+	7f6a6a6a 7f6a6a6a 7f7a00ff  7f6a6a6a 7f6a6a6a 7f7a00ff  7f00ff00 7f00ff00 7f31edff
+	7f6a6a6a 7f6a6a6a 7f7a00ff  7f6a6a6a 7f6a6a6a 7f7a00ff  7f00ff00 7f00ff00 7f31edff
+	7ffd7100 7ffd7100 7fff00ff  7ffd7100 7ffd7100 7fff00ff  7fe9ff00 7fe9ff00 7fefefef
+	ff6a6a6a ff6a6a6a ff7a00ff  ff6a6a6a ff6a6a6a ff7a00ff  ff00ff00 ff00ff00 ff31edff
+	ff6a6a6a ff6a6a6a ff7a00ff  ff6a6a6a ff6a6a6a ff7a00ff  ff00ff00 ff00ff00 ff31edff
+	fffd7100 fffd7100 ffff00ff  fffd7100 fffd7100 ffff00ff  ffe9ff00 ffe9ff00 ffefefef

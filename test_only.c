@@ -31,7 +31,7 @@ static void dump_transform_to_XYZD50(FILE* fp,
                 skcms_252_random_bytes,    fmt, skcms_AlphaFormat_Unpremul, profile,
                 dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
                 npixels)) {
-        fprintf(fp, "We can parse this profile, but not transform it XYZD50!\n");
+        fprintf(fp, "We can parse this profile, but not transform it to XYZD50!\n");
         return;
     }
 
@@ -48,6 +48,39 @@ static void dump_transform_to_XYZD50(FILE* fp,
                 dst[3*i+12], dst[3*i+13], dst[3*i+14],
                 dst[3*i+15], dst[3*i+16], dst[3*i+17],
                 dst[3*i+18], dst[3*i+19], dst[3*i+20]);
+    }
+}
+
+static void dump_transform_to_sRGBA(FILE* fp,
+                                    const skcms_ICCProfile* profile) {
+    // Let's just transform all combinations of 0x00, 0x7f, and 0xff inputs to 32-bit sRGB.
+    // This helps catch issues with alpha, and is mildly interesting on its own.
+
+    uint32_t src[81],
+             dst[81];
+    for (int i = 0; i < 81; i++) {
+        src[i] = (uint32_t)((i/1   % 3) * 127.5f) <<  0
+               | (uint32_t)((i/3   % 3) * 127.5f) <<  8
+               | (uint32_t)((i/9   % 3) * 127.5f) << 16
+               | (uint32_t)((i/27  % 3) * 127.5f) << 24;
+    }
+
+    // No matter profile->data_color_space, this should be fine, either RGBA itself or CMYK.
+    const skcms_PixelFormat pf = skcms_PixelFormat_RGBA_8888;
+    const skcms_AlphaFormat af = skcms_AlphaFormat_Unpremul;
+
+    if (!skcms_Transform(src, pf,af, profile,
+                         dst, pf,af, skcms_sRGB_profile(), 81)) {
+        fprintf(fp, "We can parse this profile, but not transform it to sRGB!\n");
+        return;
+    }
+    fprintf(fp, "81 edge-case pixels transformed to sRGB 8888 (unpremul):\n");
+
+    for (int i = 0; i < 9; i++) {
+        fprintf(fp, "\t%08x %08x %08x  %08x %08x %08x  %08x %08x %08x\n",
+                dst[9*i+0], dst[9*i+1], dst[9*i+2],
+                dst[9*i+3], dst[9*i+4], dst[9*i+5],
+                dst[9*i+6], dst[9*i+7], dst[9*i+8]);
     }
 }
 
@@ -222,6 +255,7 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
     }
 
     dump_transform_to_XYZD50(fp, profile);
+    dump_transform_to_sRGBA (fp, profile);
     if (skcms_ApproximatelyEqualProfiles(profile, skcms_sRGB_profile())) {
         fprintf(fp, "This profile ≈ sRGB.\n");
     }

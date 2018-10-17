@@ -39,4 +39,14 @@ Inv  : 0.4166677, 1.136871, -0, 12.92114, 0.003130611, -0.05500732, -0 (D-gap: -
 	69606b 553760 39610e 51285b 2f1726 2b304f 5d668b
 	2a4215 322481 110a31 582e06 599714 03020c 4f59a4
 	63a91b 43292c 394539 5c3b22 548d3f 4d3018 506084
+81 edge-case pixels transformed to sRGB 8888 (unpremul):
+	00000000 0000007f 000000ff  00007f00 00007f7f 00007fff  0000ff01 0000ff7f 0000ffff
+	007f0000 007f007f 007f00ff  007f7f00 007f7f7f 007f7fff  007fff01 007fff7f 007fffff
+	00ff0000 00ff007f 00ff00ff  00ff7f00 00ff7f7f 00ff7fff  00ffff01 00ffff7f 00ffffff
+	7f000000 7f00007f 7f0000ff  7f007f00 7f007f7f 7f007fff  7f00ff01 7f00ff7f 7f00ffff
+	7f7f0000 7f7f007f 7f7f00ff  7f7f7f00 7f7f7f7f 7f7f7fff  7f7fff01 7f7fff7f 7f7fffff
+	7fff0000 7fff007f 7fff00ff  7fff7f00 7fff7f7f 7fff7fff  7fffff01 7fffff7f 7fffffff
+	ff000000 ff00007f ff0000ff  ff007f00 ff007f7f ff007fff  ff00ff01 ff00ff7f ff00ffff
+	ff7f0000 ff7f007f ff7f00ff  ff7f7f00 ff7f7f7f ff7f7fff  ff7fff01 ff7fff7f ff7fffff
+	ffff0000 ffff007f ffff00ff  ffff7f00 ffff7f7f ffff7fff  ffffff01 ffffff7f ffffffff
 This profile ≈ sRGB.
