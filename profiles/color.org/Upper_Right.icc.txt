@@ -44,3 +44,13 @@ Mtrx : | 2.202053785 1.944855571 0.722553670 -0.733356714 |
 	b6779d ab8531 182653 c0ae12 618508 22160e 904c80
 	121825 593207 0e1400 c0ff32 3d41d9 000300 6c363f
 	3d2ef3 778d1e 2f263b 9dc44c 1a0c71 83bb34 5f3157
+81 edge-case pixels transformed to sRGB 8888 (unpremul):
+	00008800 0000ff00 0021ff4d  000a5d00 007edb00 00fdff4d  00e13300 00ffaf00 00ffff4d
+	0000300a 0000ac7e 0021fffe  000a0c0a 007e817e 00fdfffe  00e1000a 00ff557e 00ffd4fe
+	000000b2 000052ff 0021d1ff  000a00b2 007e28ff 00fda5ff  00e100b2 00ff04ff 00ff79ff
+	7f008800 7f00ff00 7f21ff4d  7f0a5d00 7f7edb00 7ffdff4d  7fe13300 7fffaf00 7fffff4d
+	7f00300a 7f00ac7e 7f21fffe  7f0a0c0a 7f7e817e 7ffdfffe  7fe1000a 7fff557e 7fffd4fe
+	7f0000b2 7f0052ff 7f21d1ff  7f0a00b2 7f7e28ff 7ffda5ff  7fe100b2 7fff04ff 7fff79ff
+	ff008800 ff00ff00 ff21ff4d  ff0a5d00 ff7edb00 fffdff4d  ffe13300 ffffaf00 ffffff4d
+	ff00300a ff00ac7e ff21fffe  ff0a0c0a ff7e817e fffdfffe  ffe1000a ffff557e ffffd4fe
+	ff0000b2 ff0052ff ff21d1ff  ff0a00b2 ff7e28ff fffda5ff  ffe100b2 ffff04ff ffff79ff

@@ -36,3 +36,13 @@ bTRC : 0, 1, 0, 0, 0, 0, 0
 	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
 	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
 	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
+81 edge-case pixels transformed to sRGB 8888 (unpremul):
+	00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff
+	00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff
+	00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff
+	7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff
+	7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff
+	7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff
+	ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff
+	ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff
+	ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff
