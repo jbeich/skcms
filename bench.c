@@ -12,6 +12,7 @@
 #endif
 
 #include "skcms.h"
+#include "skcms_internal.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,13 +71,22 @@ int main(int argc, char** argv) {
                       dst_fmt = skcms_PixelFormat_RGB_565;
     const int wrap = skcms_PixelFormat_BGRA_ffff+1;
 
+    uint32_t palette[256];
+    for (int i = 0; i < 256; i++) {
+        palette[i] = (uint32_t)(255 - i%256) * 0x01010101;
+    }
+
     clock_t start = clock();
+    bool all_ok = true;
     for (int i = 0; i < n; i++) {
-        (void)skcms_Transform(src_pixels, src_fmt, skcms_AlphaFormat_Unpremul, &src_profile,
-                              dst_pixels, dst_fmt, skcms_AlphaFormat_Unpremul, &dst_profile,
-                              NPIXELS);
+        const skcms_AlphaFormat upm = skcms_AlphaFormat_Unpremul;
+        all_ok &= skcms_TransformWithPalette(src_pixels, src_fmt, upm, &src_profile,
+                                             dst_pixels, dst_fmt, upm, &dst_profile,
+                                             NPIXELS, palette);
         src_fmt = (src_fmt + 3) % wrap;
-        dst_fmt = (dst_fmt + 7) % wrap;
+        do {
+            dst_fmt = (dst_fmt + 7) % wrap;
+        } while (needs_palette(dst_fmt));
     }
 
     clock_t ticks = clock() - start;
@@ -86,5 +96,5 @@ int main(int argc, char** argv) {
     free(src_buf);
     free(dst_buf);
 
-    return 0;
+    return all_ok ? 0 : 1;
 }
