@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77e75ba1_7c730e3c",
+        "filename": "skcms.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-10-18T15:07:19Z",
+      "side": 1,
+      "message": "FWIW: This probably causes bench to actually hit all stages, now. By my count, previously there were 30 pixel formats, so src_fmt only hit 1/3 of them.",
+      "revId": "b49961ca8503711cca69b003eab3db9a007da329",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
