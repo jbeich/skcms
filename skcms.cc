@@ -735,7 +735,7 @@ static int fit_linear(const skcms_Curve* curve, int N, float tol, float* c, floa
     const float dx = 1.0f / (N - 1);
 
     int lin_points = 1;
-    *f = eval_curve(curve, 0);
+    *f = 0;  // It's problematic to fit a non-zero f.  (Yes, we ignore the first table point.)
 
     float slope_min = -INFINITY_;
     float slope_max = +INFINITY_;
