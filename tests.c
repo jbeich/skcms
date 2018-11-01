@@ -598,6 +598,9 @@ static const char* profile_test_cases[] = {
 
     // This profile is fine, but has really small TRC tables (5 points).
     "profiles/misc/BenQ_RL2455.icc",                 // chromium:869115
+
+    // This calibrated profile has a non-zero black.
+    "profiles/misc/calibrated_nonzero_black.icc",
 };
 
 static void test_Parse(bool regen) {
