@@ -115,20 +115,20 @@
         },
         {
           "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:8"
+          "path": "win_toolchain",
+          "version": "version:9"
         },
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
         "python",
         "skcms/infra/bots/bot.py",
         "ninja",
-        "t",
+        "win_toolchain",
         "clang_win"
       ],
       "dimensions": [
