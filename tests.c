@@ -1268,6 +1268,23 @@ static void test_Palette8() {
                                         512, NULL) );
 }
 
+static void test_TF_invert() {
+    const skcms_TransferFunction *sRGB = skcms_sRGB_TransferFunction(),
+                                 *inv  = skcms_sRGB_Inverse_TransferFunction();
+    expect(1.0f == skcms_TransferFunction_eval(sRGB, 1.0f));
+  //expect(1.0f == skcms_TransferFunction_eval( inv, 1.0f));
+
+    skcms_TransferFunction sRGB2, inv2;
+    expect(skcms_TransferFunction_invert( inv, &sRGB2));
+    expect(skcms_TransferFunction_invert(sRGB, & inv2));
+
+  //expect(0 == memcmp( inv, & inv2, sizeof(skcms_TransferFunction)));
+  //expect(0 == memcmp(sRGB, &sRGB2, sizeof(skcms_TransferFunction)));
+
+  //expect(1.0f == skcms_TransferFunction_eval(&sRGB2, 1.0f));
+  //expect(1.0f == skcms_TransferFunction_eval(& inv2, 1.0f));
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1303,6 +1320,7 @@ int main(int argc, char** argv) {
     test_Clamp();
     test_AliasedTransforms();
     test_Palette8();
+    test_TF_invert();
 #if 0
     test_CLUT();
 #endif
