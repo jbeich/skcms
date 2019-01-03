@@ -1272,7 +1272,7 @@ static void test_TF_invert() {
     const skcms_TransferFunction *sRGB = skcms_sRGB_TransferFunction(),
                                  *inv  = skcms_sRGB_Inverse_TransferFunction();
     expect(1.0f == skcms_TransferFunction_eval(sRGB, 1.0f));
-  //expect(1.0f == skcms_TransferFunction_eval( inv, 1.0f));
+    expect(1.0f == skcms_TransferFunction_eval( inv, 1.0f));
 
     skcms_TransferFunction sRGB2, inv2;
     expect(skcms_TransferFunction_invert( inv, &sRGB2));

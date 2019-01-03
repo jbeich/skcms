@@ -1105,7 +1105,7 @@ const skcms_TransferFunction* skcms_sRGB_TransferFunction() {
 
 const skcms_TransferFunction* skcms_sRGB_Inverse_TransferFunction() {
     static const skcms_TransferFunction sRGB_inv =
-        { (float)(1/2.4), 1.137119f, 0, 12.92f, 0.0031308f, -0.055f, 0 };
+        { (float)(1/2.4), 1.137119f, 0, 12.92f, 0.0031308f, -0.054916382f, 0 };
     return &sRGB_inv;
 }
 
