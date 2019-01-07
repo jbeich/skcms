@@ -36,12 +36,12 @@ CLUT : 17 x 17 x 17 (16 bpp)
 	7b8069 7b8069 7b8069 7b8069 7b8069 060605 7b8069
 	7b8069 7b8069 7b8069 7b8069 686c59 7b8069 7b8069
 81 edge-case pixels transformed to sRGB 8888 (unpremul):
-	00000000 00bbbcbc 00bbbcbc  00000000 00bbbcbc 00bbbcbc  00000000 00bbbcbc 00bbbcbc
-	00000000 00bbbcbc 00bbbcbc  00000000 00bbbcbc 00bbbcbc  00000000 00bbbcbc 00bbbcbc
-	00000000 00bbbcbc 00bbbcbc  00000000 00bbbcbc 00bbbcbc  00000000 00bbbcbc 00bbbcbc
-	7f000000 7fbbbcbc 7fbbbcbc  7f000000 7fbbbcbc 7fbbbcbc  7f000000 7fbbbcbc 7fbbbcbc
-	7f000000 7fbbbcbc 7fbbbcbc  7f000000 7fbbbcbc 7fbbbcbc  7f000000 7fbbbcbc 7fbbbcbc
-	7f000000 7fbbbcbc 7fbbbcbc  7f000000 7fbbbcbc 7fbbbcbc  7f000000 7fbbbcbc 7fbbbcbc
-	ff000000 ffbbbcbc ffbbbcbc  ff000000 ffbbbcbc ffbbbcbc  ff000000 ffbbbcbc ffbbbcbc
-	ff000000 ffbbbcbc ffbbbcbc  ff000000 ffbbbcbc ffbbbcbc  ff000000 ffbbbcbc ffbbbcbc
-	ff000000 ffbbbcbc ffbbbcbc  ff000000 ffbbbcbc ffbbbcbc  ff000000 ffbbbcbc ffbbbcbc
+	00000000 00bcbcbc 00bcbcbc  00000000 00bcbcbc 00bcbcbc  00000000 00bcbcbc 00bcbcbc
+	00000000 00bcbcbc 00bcbcbc  00000000 00bcbcbc 00bcbcbc  00000000 00bcbcbc 00bcbcbc
+	00000000 00bcbcbc 00bcbcbc  00000000 00bcbcbc 00bcbcbc  00000000 00bcbcbc 00bcbcbc
+	7f000000 7fbcbcbc 7fbcbcbc  7f000000 7fbcbcbc 7fbcbcbc  7f000000 7fbcbcbc 7fbcbcbc
+	7f000000 7fbcbcbc 7fbcbcbc  7f000000 7fbcbcbc 7fbcbcbc  7f000000 7fbcbcbc 7fbcbcbc
+	7f000000 7fbcbcbc 7fbcbcbc  7f000000 7fbcbcbc 7fbcbcbc  7f000000 7fbcbcbc 7fbcbcbc
+	ff000000 ffbcbcbc ffbcbcbc  ff000000 ffbcbcbc ffbcbcbc  ff000000 ffbcbcbc ffbcbcbc
+	ff000000 ffbcbcbc ffbcbcbc  ff000000 ffbcbcbc ffbcbcbc  ff000000 ffbcbcbc ffbcbcbc
+	ff000000 ffbcbcbc ffbcbcbc  ff000000 ffbcbcbc ffbcbcbc  ff000000 ffbcbcbc ffbcbcbc

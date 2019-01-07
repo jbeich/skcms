@@ -1268,29 +1268,18 @@ static void test_Palette8() {
                                         512, NULL) );
 }
 
-static void expect_close_to_1(float x) {
-    if (x != 1.0f) {
-        float o = 1.0f;
-        int bits, one;
-        memcpy(&bits, &x, 4);
-        memcpy(&one , &o, 4);
-
-        fprintf(stderr, "%a %g, %d ulps from 1.0f\n", x,x, bits-one);
-    }
-}
-
 static void test_TF_invert() {
     const skcms_TransferFunction *sRGB = skcms_sRGB_TransferFunction(),
                                  *inv  = skcms_sRGB_Inverse_TransferFunction();
     expect(1.0f == skcms_TransferFunction_eval(sRGB, 1.0f));
-    expect_close_to_1(skcms_TransferFunction_eval( inv, 1.0f));
+    expect(1.0f == skcms_TransferFunction_eval( inv, 1.0f));
 
     skcms_TransferFunction sRGB2, inv2;
     expect(skcms_TransferFunction_invert( inv, &sRGB2));
     expect(skcms_TransferFunction_invert(sRGB, & inv2));
 
-    expect_close_to_1(skcms_TransferFunction_eval(&sRGB2, 1.0f));
-    expect_close_to_1(skcms_TransferFunction_eval(& inv2, 1.0f));
+    expect(1.0f == skcms_TransferFunction_eval(&sRGB2, 1.0f));
+    expect(1.0f == skcms_TransferFunction_eval(& inv2, 1.0f));
 
   //expect(0 == memcmp( inv, & inv2, sizeof(skcms_TransferFunction)));
   //expect(0 == memcmp(sRGB, &sRGB2, sizeof(skcms_TransferFunction)));
