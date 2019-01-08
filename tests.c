@@ -601,6 +601,9 @@ static const char* profile_test_cases[] = {
 
     // This calibrated profile has a non-zero black.
     "profiles/misc/calibrated_nonzero_black.icc",
+
+    // A zero g term causes a divide by zero when inverting.
+    "profiles/fuzz/zero_g.icc",                       // oss-fuzz:12430
 };
 
 static void test_Parse(bool regen) {
