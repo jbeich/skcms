@@ -604,6 +604,10 @@ static const char* profile_test_cases[] = {
 
     // A zero g term causes a divide by zero when inverting.
     "profiles/fuzz/zero_g.icc",                       // oss-fuzz:12430
+
+    // BT.2020 and BT.2100.  Same gamut, one with a parametric TF, the other PQ expressed using A2B.
+    "profiles/color.org/ITU-R_BT2020(beta).icc",
+    "profiles/misc/ITUR_2100_PQ_FULL.icc",
 };
 
 static void test_Parse(bool regen) {
