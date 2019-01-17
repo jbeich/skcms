@@ -1,0 +1,56 @@
+                Size : 0x000034A0 : 13472
+    Data color space : 0x52474220 : 'RGB '
+                 PCS : 0x58595A20 : 'XYZ '
+           Tag count : 0x00000008 : 8
+
+ Tag    : Type   : Size   : Offset
+ ------ : ------ : ------ : --------
+ 'desc' : 'mluc' :    198 : 228
+ 'cprt' : 'mluc' :    110 : 428
+ 'wtpt' : 'XYZ ' :     20 : 540
+ 'chad' : 'sf32' :     44 : 560
+ 'tech' : 'sig ' :     12 : 604
+ 'lumi' : 'XYZ ' :     20 : 616
+ 'A2B0' : 'mAB ' :   6424 : 636
+ 'B2A0' : 'mBA ' :   6412 : 7060
+
+ A2B : "A", CLUT, "M", Matrix, "B"
+ "A" : 3 inputs
+  A0 : 16-bit table with 1024 entries
+  A1 : 16-bit table with 1024 entries
+  A2 : 16-bit table with 1024 entries
+CLUT : 2 x 2 x 2 (8 bpp)
+ "M" : 3 inputs
+  M0 : 5, 2.511887, -1.525879e-05, 0, 6.074633e-06, -1.525879e-05, -1.525879e-05 (D-gap: 0)
+  M1 : 5, 2.511887, -1.525879e-05, 0, 6.074633e-06, -1.525879e-05, -1.525879e-05 (D-gap: 0)
+  M2 : 5, 2.511887, -1.525879e-05, 0, 6.074633e-06, -1.525879e-05, -1.525879e-05 (D-gap: 0)
+Mtrx : | 0.673482180 0.165677398 0.125059128 0.000000000 |
+       | 0.279048473 0.675343692 0.045623083 0.000000000 |
+       | -0.001922578 0.029967804 0.796862841 0.000000000 |
+ "B" : 3 outputs
+  B0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+252 random bytes transformed to linear XYZD50 bytes:
+	ffffef ffffff ffff46 6428ff be49ff ffff00 ffffff
+	ffffc5 64371a ffff62 ffff5c ffff26 9dffae ffffff
+	ffffff ffffff ffffff ffff3b ff98ff ffff00 ffffff
+	ffff29 4b1bff ffffff ffffff ffffff fff4ff ffffff
+	ffffc5 ffceff c44bff ffffff ffffff ffffff ffff8e
+	ffffff edff36 ffff00 ffffff 040706 ff91ff bfb1ff
+	ffffff bc9703 ffffff 0e0c45 57ff11 ffff12 ffffff
+	ffffff ffffff ffff41 ffffde ffffff 713017 ffffff
+	ffffc9 ffff00 95449d ffff09 3716ff 0d0552 ffff46
+	ffffff ffffff ffff48 ffffff fff3a2 c7cdff ffffff
+	85ff29 ffffff 3a17ff ffff00 ffffff 030111 ffffff
+	ffffff ffffcb deffff ffff5a ffffff ffff28 ffffff
+81 edge-case pixels transformed to sRGB 8888 (unpremul):
+	00000000 000000ff 000000ff  0000ff00 0000f5fc 000000ff  0000ff00 0000ff00 0000ffff
+	00ff0000 00fe00ff 000000ff  00f6ff00 00f4f4f4 000000ff  0000ff00 0000ff00 0000ffff
+	00ff0000 00ff0000 00ff00ff  00ff7900 00ff5000 00ff00ff  00ffff00 00ffff00 00ffffff
+	7f000000 7f0000ff 7f0000ff  7f00ff00 7f00f5fc 7f0000ff  7f00ff00 7f00ff00 7f00ffff
+	7fff0000 7ffe00ff 7f0000ff  7ff6ff00 7ff4f4f4 7f0000ff  7f00ff00 7f00ff00 7f00ffff
+	7fff0000 7fff0000 7fff00ff  7fff7900 7fff5000 7fff00ff  7fffff00 7fffff00 7fffffff
+	ff000000 ff0000ff ff0000ff  ff00ff00 ff00f5fc ff0000ff  ff00ff00 ff00ff00 ff00ffff
+	ffff0000 fffe00ff ff0000ff  fff6ff00 fff4f4f4 ff0000ff  ff00ff00 ff00ff00 ff00ffff
+	ffff0000 ffff0000 ffff00ff  ffff7900 ffff5000 ffff00ff  ffffff00 ffffff00 ffffffff

@@ -604,6 +604,10 @@ static const char* profile_test_cases[] = {
 
     // A zero g term causes a divide by zero when inverting.
     "profiles/fuzz/zero_g.icc",                       // oss-fuzz:12430
+
+    // BT.2020 and BT.2100.  Same gamut, one with a parametric TF, the other PQ expressed using A2B.
+    "profiles/color.org/ITU-R_BT2020(beta).icc",
+    "profiles/misc/ITUR_2100_PQ_FULL.icc",
 };
 
 static void test_Parse(bool regen) {
@@ -1288,6 +1292,67 @@ static void test_TF_invert() {
   //expect(0 == memcmp(sRGB, &sRGB2, sizeof(skcms_TransferFunction)));
 }
 
+static void test_fit_PQ() {
+    void*  bt2100_ptr;
+    size_t bt2100_len;
+    expect(load_file("profiles/misc/ITUR_2100_PQ_FULL.icc", &bt2100_ptr, &bt2100_len));
+
+    skcms_ICCProfile bt2100;
+    expect(skcms_Parse(bt2100_ptr, bt2100_len, &bt2100));
+
+    expect(bt2100.has_A2B);
+    expect(bt2100.A2B.input_channels  == 3);  // First come tables.
+    expect(bt2100.A2B.grid_points[0]  == 2);  // Then an identity color cube we can skip.
+    expect(bt2100.A2B.grid_points[1]  == 2);
+    expect(bt2100.A2B.grid_points[2]  == 2);
+    expect(bt2100.A2B.matrix_channels == 3);  // Then some non-trivial matrix curves.
+
+    // After the matrix curves we're linear; the matrix itself is the usual BT.2020 gamut matrix.
+    const skcms_Matrix3x4* m = &bt2100.A2B.matrix;
+    expect(m->vals[0][3] == 0);
+    expect(m->vals[1][3] == 0);
+    expect(m->vals[2][3] == 0);
+
+    skcms_Matrix3x3 gamut = {{
+        { m->vals[0][0], m->vals[0][1], m->vals[0][2] },
+        { m->vals[1][0], m->vals[1][1], m->vals[1][2] },
+        { m->vals[2][0], m->vals[2][1], m->vals[2][2] },
+    }};
+
+    skcms_ICCProfile linear = *skcms_XYZD50_profile();
+    skcms_SetXYZD50(&linear, &gamut);
+
+    float   out[4*256];
+    uint32_t in[  256];
+    for (int i = 0; i < 256; i++) {
+        in[i] = (uint32_t)i;
+    }
+
+    skcms_Transform(in, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &bt2100,
+                    out, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &linear,
+                    256);
+
+    uint16_t table_16[256];
+    for (int i = 0; i < 256; i++) {
+        table_16[i] = __builtin_bswap16((uint16_t)(out[4*i] * 65535.0f + 0.5f));
+        fprintf(stderr, "%d -> %g\n", in[i], out[4*i]);
+    }
+
+
+    skcms_Curve curve;
+    curve.table_entries = 256;
+    curve.table_8       = NULL;
+    curve.table_16      = (const uint8_t*)table_16;
+
+    skcms_TransferFunction tf;
+    float err;
+    expect(skcms_ApproximateCurve(&curve, &tf, &err));
+
+    fprintf(stderr, "%g %g %g %g %g %g %g, err %g\n", tf.g, tf.a, tf.b, tf.c, tf.d, tf.e, tf.f, err);
+
+    free(bt2100_ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1327,6 +1392,8 @@ int main(int argc, char** argv) {
 #if 0
     test_CLUT();
 #endif
+
+    test_fit_PQ();
 
     return 0;
 }
