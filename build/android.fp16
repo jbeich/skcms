@@ -1,8 +1,3 @@
 mode         = .fp16
 extra_cflags = -march=armv8.2a+fp16
 include build/android
-
-# The Clang in NDK ≤r17 is not new enough to support -march=armv8.2a+fp16 in any interesting way,
-# so we use your generic `clang` instead, which is hopefully newer.
-cc  = clang   -target $target
-cxx = clang++ -target $target
