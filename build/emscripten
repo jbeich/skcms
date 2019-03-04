@@ -1,0 +1,11 @@
+cc      = emcc
+cxx     = em++
+cflags  = -s WASM=1
+ldflags = -s WASM=1
+out     = out/emscripten$mode
+
+rule run
+    command = touch $out
+    description = skipping $in
+
+include build/common
