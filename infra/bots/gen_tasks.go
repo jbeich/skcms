@@ -18,8 +18,8 @@ var (
 
 func addTask(b *specs.TasksCfgBuilder, task string) {
 	dimensions := map[string][]string{
-		// For the moment we'd rather not run bots on Skylakes, which support AVX-512.
-		"skcms-Linux": []string{"os:Linux", "cpu:x86-64-Haswell_GCE"},
+		// It's nice to test on Skylake Xeons, which support AVX-512.
+		"skcms-Linux": []string{"os:Linux", "cpu:x86-64-Skylake_GCE"},
 		"skcms-Mac":   []string{"os:Mac"},
 		// We think there's something amiss building on Win7 or Win8 bots, so restrict to 2016.
 		"skcms-Win": []string{"os:Windows-2016Server"},
