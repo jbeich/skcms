@@ -57,7 +57,7 @@
       ],
       "dimensions": [
         "os:Linux",
-        "cpu:x86-64-Haswell_GCE",
+        "cpu:x86-64-Skylake_GCE",
         "gpu:none",
         "pool:Skia"
       ],
