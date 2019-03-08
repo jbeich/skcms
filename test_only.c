@@ -12,6 +12,7 @@
 #include "skcms.h"
 #include "skcms_internal.h"
 #include "test_only.h"
+#include <fenv.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -146,6 +147,10 @@ static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve) {
 }
 
 void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
+    // I'd really prefer not to have to call fesetround(FE_UPWARD), but MSVC's printf()
+    // always rounds up, and glibc's obeys fesetround(), so it helps make them consistent.
+    const int original_rounding = fegetround();
+
     fprintf(fp, "%20s : 0x%08X : %u\n", "Size", profile->size, profile->size);
     dump_sig_field(fp, "Data color space", profile->data_color_space);
     dump_sig_field(fp, "PCS", profile->pcs);
@@ -191,13 +196,15 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
     }
 
     if (profile->has_toXYZD50) {
+        fesetround(FE_UPWARD);
         skcms_Matrix3x3 toXYZ = profile->toXYZD50;
-        fprintf(fp, " XYZ : | %.9f %.9f %.9f |\n"
-                    "       | %.9f %.9f %.9f |\n"
-                    "       | %.9f %.9f %.9f |\n",
+        fprintf(fp, " XYZ : | %g %g %g |\n"
+                    "       | %g %g %g |\n"
+                    "       | %g %g %g |\n",
                toXYZ.vals[0][0], toXYZ.vals[0][1], toXYZ.vals[0][2],
                toXYZ.vals[1][0], toXYZ.vals[1][1], toXYZ.vals[1][2],
                toXYZ.vals[2][0], toXYZ.vals[2][1], toXYZ.vals[2][2]);
+        fesetround(original_rounding);
 
 
         float white_x = toXYZ.vals[0][0] + toXYZ.vals[0][1] + toXYZ.vals[0][2],
@@ -236,13 +243,15 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
             for (uint32_t i = 0; i < a2b->matrix_channels; ++i) {
                 dump_curve(fp, curveNames[i], &a2b->matrix_curves[i]);
             }
+            fesetround(FE_UPWARD);
             const skcms_Matrix3x4* m = &a2b->matrix;
-            fprintf(fp, "Mtrx : | %.9f %.9f %.9f %.9f |\n"
-                        "       | %.9f %.9f %.9f %.9f |\n"
-                        "       | %.9f %.9f %.9f %.9f |\n",
+            fprintf(fp, "Mtrx : | %g %g %g %g |\n"
+                        "       | %g %g %g %g |\n"
+                        "       | %g %g %g %g |\n",
                    m->vals[0][0], m->vals[0][1], m->vals[0][2], m->vals[0][3],
                    m->vals[1][0], m->vals[1][1], m->vals[1][2], m->vals[1][3],
                    m->vals[2][0], m->vals[2][1], m->vals[2][2], m->vals[2][3]);
+            fesetround(original_rounding);
         }
 
         {
