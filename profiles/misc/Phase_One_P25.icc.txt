@@ -23,9 +23,9 @@ rTRC : 16-bit table with 256 entries
 gTRC : 16-bit table with 256 entries
 bTRC : 16-bit table with 256 entries
   ~= : 0.7390234, 0.8481178, -0.009977858, 2.721141, 0.01176471, 0.03213882, 0 (Max error: 0.139809) (D-gap: 0.000125397)
- XYZ : | 0.647903442 0.357360840 0.156417847 |
-       | 0.382919312 1.109725952 0.000000000 |
-       | 0.083267212 0.679275513 0.523422241 |
+ XYZ : | 0x1.4bbap-1 0x1.6dfp-2 0x1.4058p-3 |
+       | 0x1.881cp-2 0x1.1c17p+0 0x0p+0 |
+       | 0x1.551p-4 0x1.5bcap-1 0x1.0bfep-1 |
  !!! This does not appear to use a D50 whitepoint, rather [1.16168 1.49265 1.28596]
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
