@@ -1,7 +1,7 @@
 cc      = emcc
 cxx     = em++
-cflags  = -s WASM=1
-ldflags = -s WASM=1
+cflags  = -g3 -s WASM=1
+ldflags = -g3 -s WASM=1 --embed-file profiles
 exe     = .html
 out     = out/emscripten$mode
 
