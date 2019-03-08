@@ -10,9 +10,9 @@
 rTRC : 0, 1, 0, 0, 0, 0, 0
 gTRC : 0, 1, 0, 0, 0, 0, 0
 bTRC : 0, 1, 0, 0, 0, 0, 0
- XYZ : | 0.961425781 0.000000000 0.000000000 |
-       | 0.000000000 1.000488281 0.000000000 |
-       | 0.000000000 0.000000000 0.832519531 |
+ XYZ : | 0.961425781 0 0 |
+       | 0 1.00048828 0 |
+       | 0 0 0.832519531 |
 252 random bytes transformed to linear XYZD50 bytes:
 	f5ffd4 f5ffd4 f5ffd4 f5ffd4 f5ffd4 f5ffd4 f5ffd4
 	f5ffd4 f5ffd4 f5ffd4 f5ffd4 f5ffd4 f5ffd4 f5ffd4
