@@ -21,7 +21,7 @@ gTRC : 1.525879e-05, 0.003890991, -32768, 8224.125, 0, 0, 0
 bTRC : 0, 1, 0, 0, 0, 0, 0
  XYZ : | 8224.125 8224.125 8224.125 |
        | 8224.125 8224.125 8224.125 |
-       | 8224.125 -223.874512 28769.4473 |
+       | 8224.125 -223.87451 28769.447 |
  !!! This does not appear to use a D50 whitepoint, rather [24672.4 24672.4 36769.7]
 252 random bytes transformed to linear XYZD50 bytes:
 	ffffff ffffff ffffff ffffff ffffff ffffff ffffff

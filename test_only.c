@@ -15,6 +15,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void print_shortest_float(FILE* fp, float x) {
+    char buf[80];
+    int digits;
+    for (digits = 0; digits < 12; digits++) {
+        snprintf(buf, sizeof(buf), "%.*f", digits, x);
+        float back;
+        if (1 != sscanf(buf, "%f", &back) || back == x) {
+            break;
+        }
+    }
+    fprintf(fp, "%.*f", digits, x);
+}
+
 static void dump_transform_to_XYZD50(FILE* fp,
                                      const skcms_ICCProfile* profile) {
     // Interpret as RGB_888 if data color space is RGB or GRAY, RGBA_8888 if CMYK.
@@ -192,13 +205,21 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
 
     if (profile->has_toXYZD50) {
         skcms_Matrix3x3 toXYZ = profile->toXYZD50;
-        fprintf(fp, " XYZ : | %.9g %.9g %.9g |\n"
-                    "       | %.9g %.9g %.9g |\n"
-                    "       | %.9g %.9g %.9g |\n",
-               toXYZ.vals[0][0], toXYZ.vals[0][1], toXYZ.vals[0][2],
-               toXYZ.vals[1][0], toXYZ.vals[1][1], toXYZ.vals[1][2],
-               toXYZ.vals[2][0], toXYZ.vals[2][1], toXYZ.vals[2][2]);
 
+        fprintf(fp, " XYZ : | ");
+        print_shortest_float(fp, toXYZ.vals[0][0]); fprintf(fp, " ");
+        print_shortest_float(fp, toXYZ.vals[0][1]); fprintf(fp, " ");
+        print_shortest_float(fp, toXYZ.vals[0][2]); fprintf(fp, " |\n");
+
+        fprintf(fp, "       | ");
+        print_shortest_float(fp, toXYZ.vals[1][0]); fprintf(fp, " ");
+        print_shortest_float(fp, toXYZ.vals[1][1]); fprintf(fp, " ");
+        print_shortest_float(fp, toXYZ.vals[1][2]); fprintf(fp, " |\n");
+
+        fprintf(fp, "       | ");
+        print_shortest_float(fp, toXYZ.vals[2][0]); fprintf(fp, " ");
+        print_shortest_float(fp, toXYZ.vals[2][1]); fprintf(fp, " ");
+        print_shortest_float(fp, toXYZ.vals[2][2]); fprintf(fp, " |\n");
 
         float white_x = toXYZ.vals[0][0] + toXYZ.vals[0][1] + toXYZ.vals[0][2],
               white_y = toXYZ.vals[1][0] + toXYZ.vals[1][1] + toXYZ.vals[1][2],
