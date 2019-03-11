@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "05460012_9c3a1d02",
+        "filename": "infra/bots/bot.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T20:20:32Z",
+      "side": 1,
+      "message": "We\u0027re not going to, are we?  Plus all those other paths likely change too, right?",
+      "parentUuid": "6973cabc_bc9bfa56",
+      "range": {
+        "startLine": 65,
+        "startChar": 47,
+        "endLine": 65,
+        "endChar": 54
+      },
+      "revId": "a3e8f8fcaec6db7991060aa3e0e7a0ea4307f49b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "277c16df_1dddc7f4",
         "filename": "infra/bots/tasks.json",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2019-03-11T20:19:06Z",
       "side": 1,
       "message": "Once upon a time, we had the emscripten sdk in CIPD. It was very large and added lots of overhead and occasionally purpled out jobs.\n\nCanvasKit and PathKit run their tests in a docker container that has emsdk installed (most GCE bots have Docker installed - there\u0027s a dimension is_docker_installed).\n\nI would much prefer that skcms adopt a similar infrastructure pattern.",
+      "range": {
+        "startLine": 51,
+        "startChar": 19,
+        "endLine": 51,
+        "endChar": 33
+      },
+      "revId": "a3e8f8fcaec6db7991060aa3e0e7a0ea4307f49b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a8986ac_c079f6ad",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-11T20:20:32Z",
+      "side": 1,
+      "message": "Sure, how do we do that?",
+      "parentUuid": "277c16df_1dddc7f4",
       "range": {
         "startLine": 51,
         "startChar": 19,
