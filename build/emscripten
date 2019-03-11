@@ -6,6 +6,8 @@ exe     = .html
 out     = out/emscripten$mode
 
 rule run
-    command = emrun $in > $out
+    command = $disabled && touch $out || emrun $in > $out
 
 include build/common
+
+disabled = (uname | grep -qv Linux)
