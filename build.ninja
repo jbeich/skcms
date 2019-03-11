@@ -39,3 +39,5 @@ subninja build/ios
 subninja build/ios.portable
 subninja build/ios.tiny
 subninja build/ios.xsan
+
+subninja build/emscripten

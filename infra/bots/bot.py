@@ -44,6 +44,30 @@ elif 'linux' in sys.platform:
   append('skcms/build/clang', 'cc  = {}/bin/clang  '.format(clang_linux))
   append('skcms/build/clang', 'cxx = {}/bin/clang++'.format(clang_linux))
 
+  # And similarly, point to emcc/em++ and friends in the emscripten_sdk package.
+  emscripten_sdk = os.path.realpath(sys.argv[5])
+
+  em_config = os.path.realpath(os.path.join('.', 'em_config'))
+  with open(em_config, 'w') as f:
+    print >>f, '''
+    BINARYEN_ROOT = '{}'
+    LLVM_ROOT = '{}'
+    NODE_JS = '{}'
+    COMPILER_ENGINE = NODE_JS
+    JS_ENGINES = [NODE_JS]
+  '''.format(
+    emscripten_sdk + '/binaryen/master_64bit_binaryen',
+    emscripten_sdk + '/clang/fastcomp/build_incoming_64/bin',
+    emscripten_sdk + '/node/4.1.1_64bit/bin/node',
+  )
+
+  append('skcms/build/emscripten',
+         'cc  = env EM_CONFIG={} {}/emscripten/1.37.21/emcc'.format(
+           em_config, emscripten_sdk))
+  append('skcms/build/emscripten',
+         'cxx = env EM_CONFIG={} {}/emscripten/1.37.21/em++'.format(
+           em_config, emscripten_sdk))
+
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
 
 else:  # Windows
