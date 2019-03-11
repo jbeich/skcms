@@ -5,7 +5,14 @@ ldflags = -g3 -s WASM=1 --embed-file profiles --emrun
 exe     = .html
 out     = out/emscripten$mode
 
+# Run only when emrun is on your PATH, i.e. not on the bots.
 rule run
-    command = emrun $in > $out
+    command = if which emrun >/dev/null; $
+              then $
+                  emrun $in > $out; $
+              else touch $out; fi
+    description = run $in
 
 include build/common
+
+disabled = (uname | grep -qv Linux)
