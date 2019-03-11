@@ -22,7 +22,7 @@ gTRC : 16-bit table with 1024 entries
 bTRC : 16-bit table with 1024 entries
  XYZ : | 8224.125 8224.125 8224.125 |
        | 8224.125 8224.125 8224.125 |
-       | -0.00341796875 8224.125 8224.125 |
+       | -0.0034179688 8224.125 8224.125 |
  !!! This does not appear to use a D50 whitepoint, rather [24672.4 24672.4 16448.2]
 252 random bytes transformed to linear XYZD50 bytes:
 	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
