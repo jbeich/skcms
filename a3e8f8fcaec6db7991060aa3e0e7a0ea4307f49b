@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d8a51914_c84a288d",
+        "filename": "infra/bots/bot.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-11T20:22:37Z",
+      "side": 1,
+      "message": "Suggestion invalid for docker approach, you are correct.",
+      "parentUuid": "05460012_9c3a1d02",
+      "range": {
+        "startLine": 65,
+        "startChar": 47,
+        "endLine": 65,
+        "endChar": 54
+      },
+      "revId": "a3e8f8fcaec6db7991060aa3e0e7a0ea4307f49b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "277c16df_1dddc7f4",
         "filename": "infra/bots/tasks.json",
         "patchSetId": 6
