@@ -1,12 +1,11 @@
 cc      = emcc
 cxx     = em++
 cflags  = -g3 -s WASM=1
-ldflags = -g3 -s WASM=1 --embed-file profiles
+ldflags = -g3 -s WASM=1 --embed-file profiles --emrun
 exe     = .html
 out     = out/emscripten$mode
 
 rule run
-    command = touch $out
-    description = skipping $in
+    command = emrun $in > $out
 
 include build/common
