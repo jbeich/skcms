@@ -45,6 +45,11 @@
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
           "version": "version:4"
+        },
+        {
+          "name": "skia/bots/emscripten_sdk",
+          "path": "emscripten_sdk",
+          "version": "b4aca1c5e9d3acd17854bfd5950c26e7ce72be2d"
         }
       ],
       "command": [
@@ -53,7 +58,8 @@
         "ninja",
         "ndk",
         "clang_linux",
-        "mips64el_toolchain_linux"
+        "mips64el_toolchain_linux",
+        "emscripten_sdk"
       ],
       "dimensions": [
         "os:Linux",
