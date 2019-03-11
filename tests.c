@@ -434,6 +434,42 @@ static void test_FormatConversions_half() {
     expect(back[5] == src[6] || back[5] == 0x0000);
 }
 
+static void test_FormatConversions_half_norm() {
+    const uint16_t src[] = {
+        0x3800,  //  0.5
+        0x3c00,  //  1.0
+        0xbc00,  // -1.0
+        0x4000,  //  2.0
+    };
+    uint16_t dst[ARRAY_COUNT(src)];
+
+    const skcms_AlphaFormat upm = skcms_AlphaFormat_Unpremul;
+
+    // No-op, no clamp, should preserve all values.
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_hhhh, upm, NULL,
+                           &dst, skcms_PixelFormat_RGBA_hhhh, upm, NULL, 1));
+    expect(dst[0] == src[0]);
+    expect(dst[1] == src[1]);
+    expect(dst[2] == src[2]);
+    expect(dst[3] == src[3]);
+
+    // Clamp on read.
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_hhhh_Norm, upm, NULL,
+                           &dst, skcms_PixelFormat_RGBA_hhhh     , upm, NULL, 1));
+    expect(dst[0] == src[0]);
+    expect(dst[1] == src[1]);
+    expect(dst[2] == 0x0000);
+    expect(dst[3] == src[1]);
+
+    // Clamp on write.
+    expect(skcms_Transform(&src, skcms_PixelFormat_RGBA_hhhh     , upm, NULL,
+                           &dst, skcms_PixelFormat_RGBA_hhhh_Norm, upm, NULL, 1));
+    expect(dst[0] == src[0]);
+    expect(dst[1] == src[1]);
+    expect(dst[2] == 0x0000);
+    expect(dst[3] == src[1]);
+}
+
 static void test_FormatConversions_float() {
     float src[] = { 1.0f, 0.5f, 1/255.0f, 1/512.0f };
 
@@ -1305,6 +1341,7 @@ int main(int argc, char** argv) {
     test_FormatConversions_161616BE();
     test_FormatConversions_101010();
     test_FormatConversions_half();
+    test_FormatConversions_half_norm();
     test_FormatConversions_float();
     test_Parse(regenTestData);
     test_ApproximateCurve_clamped();
