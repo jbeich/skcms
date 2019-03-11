@@ -93,6 +93,30 @@
       "revId": "a3e8f8fcaec6db7991060aa3e0e7a0ea4307f49b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b015b4f8_7d8b540c",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-03-11T20:21:53Z",
+      "side": 1,
+      "message": "Take a look at https://github.com/google/skia/blob/master/infra/bots/recipes/test_canvaskit.py\n\nwhich in turn calls https://github.com/google/skia/blob/master/infra/canvaskit/test_canvaskit.sh",
+      "parentUuid": "2a8986ac_c079f6ad",
+      "range": {
+        "startLine": 51,
+        "startChar": 19,
+        "endLine": 51,
+        "endChar": 33
+      },
+      "revId": "a3e8f8fcaec6db7991060aa3e0e7a0ea4307f49b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
