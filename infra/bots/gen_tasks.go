@@ -46,6 +46,11 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 				Path:    "mips64el_toolchain_linux",
 				Version: "version:4",
 			},
+			&specs.CipdPackage{
+				Name:    "skia/bots/emscripten_sdk",
+				Path:    "emscripten_sdk",
+				Version: "version:2",
+			},
 		},
 		"skcms-Mac": []*specs.CipdPackage{
 			&specs.CipdPackage{
