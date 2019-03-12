@@ -52,6 +52,24 @@
       "revId": "85ca7d6d654141b5ced244a570002ded50a0ada4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbaabd1c_7afcac1b",
+        "filename": "infra/bots/bot.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-03-12T17:23:43Z",
+      "side": 1,
+      "message": "Ah, ok.  I think I\u0027ve almost completely lost interest in Docker for bots then.  Linux is our least important and most flexible platform.  If we\u0027re going to need another mechanism to test not-Linux, then we might as well use that mechanism to test Linux as well.",
+      "parentUuid": "cc5a78fc_186a1157",
+      "revId": "85ca7d6d654141b5ced244a570002ded50a0ada4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
