@@ -39,7 +39,7 @@
         {
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
-          "version": "version:12"
+          "version": "version:14"
         },
         {
           "name": "skia/bots/mips64el_toolchain_linux",
