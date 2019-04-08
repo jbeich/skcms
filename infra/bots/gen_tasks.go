@@ -82,7 +82,7 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 			&specs.CipdPackage{
 				Name:    "skia/bots/clang_win",
 				Path:    "clang_win",
-				Version: "version:8",
+				Version: "version:9",
 			},
 		},
 	}

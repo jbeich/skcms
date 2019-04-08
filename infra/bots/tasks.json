@@ -121,7 +121,7 @@
         {
           "name": "skia/bots/clang_win",
           "path": "clang_win",
-          "version": "version:8"
+          "version": "version:9"
         }
       ],
       "command": [
