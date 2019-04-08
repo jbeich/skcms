@@ -43,6 +43,9 @@
 #if !defined(USING_AVX2)     && defined(USING_AVX) && defined(__AVX2__)
     #define  USING_AVX2
 #endif
+#if !defined(USING_AVX512F)  && N == 16 && defined(__AVX512F__)
+    #define  USING_AVX512F
+#endif
 
 // Similar to the AVX+ features, we define USING_NEON and USING_NEON_F16C.
 // This is more for organizational clarity... skcms.cc doesn't force these.
@@ -138,7 +141,7 @@ SI T if_then_else(I32 cond, T t, T e) {
 SI F F_from_Half(U16 half) {
 #if defined(USING_NEON_F16C)
     return vcvt_f32_f16((float16x4_t)half);
-#elif defined(__AVX512F__)
+#elif defined(USING_AVX512F)
     return (F)_mm512_cvtph_ps((__m256i)half);
 #elif defined(USING_AVX_F16C)
     typedef int16_t __attribute__((vector_size(16))) I16;
@@ -165,7 +168,7 @@ SI F F_from_Half(U16 half) {
 SI U16 Half_from_F(F f) {
 #if defined(USING_NEON_F16C)
     return (U16)vcvt_f16_f32(f);
-#elif defined(__AVX512F__)
+#elif defined(USING_AVX512F)
     return (U16)_mm512_cvtps_ph((__m512 )f, _MM_FROUND_CUR_DIRECTION );
 #elif defined(USING_AVX_F16C)
     return (U16)__builtin_ia32_vcvtps2ph256(f, 0x04/*_MM_FROUND_CUR_DIRECTION*/);
@@ -206,7 +209,7 @@ SI F floor_(F x) {
     return floorf_(x);
 #elif defined(__aarch64__)
     return vrndmq_f32(x);
-#elif defined(__AVX512F__)
+#elif defined(USING_AVX512F)
     return _mm512_floor_ps(x);
 #elif defined(USING_AVX)
     return __builtin_ia32_roundps256(x, 0x01/*_MM_FROUND_FLOOR*/);
@@ -1237,6 +1240,9 @@ static void run_program(const Op* program, const void** arguments,
 #endif
 #if defined(USING_AVX2)
     #undef  USING_AVX2
+#endif
+#if defined(USING_AVX512F)
+    #undef  USING_AVX512F
 #endif
 
 #if defined(USING_NEON)
