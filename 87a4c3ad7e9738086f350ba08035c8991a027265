@@ -22,6 +22,30 @@
       "revId": "87a4c3ad7e9738086f350ba08035c8991a027265",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f0a26ac_7e016db8",
+        "filename": "skcms.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1938,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-04-08T19:18:45Z",
+      "side": 1,
+      "message": "Guess it depends what kind of mood you\u0027re in reading it.  Switched to None.",
+      "parentUuid": "4e997ead_4e0ea89e",
+      "range": {
+        "startLine": 1938,
+        "startChar": 29,
+        "endLine": 1938,
+        "endChar": 52
+      },
+      "revId": "87a4c3ad7e9738086f350ba08035c8991a027265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
