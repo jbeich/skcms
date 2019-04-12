@@ -108,12 +108,15 @@ SI D cast(const S& v) {
 #elif defined(__clang__)
     return __builtin_convertvector(v, D);
 #elif N == 4
-    return D{v[0],v[1],v[2],v[3]};
+    using T = decltype(D{}[0]);
+    return D{(T)v[0],(T)v[1],(T)v[2],(T)v[3]};
 #elif N == 8
-    return D{v[0],v[1],v[2],v[3], v[4],v[5],v[6],v[7]};
+    using T = decltype(D{}[0]);
+    return D{(T)v[0],(T)v[1],(T)v[2],(T)v[3], (T)v[4],(T)v[5],(T)v[6],(T)v[7]};
 #elif N == 16
-    return D{v[0],v[1],v[ 2],v[ 3], v[ 4],v[ 5],v[ 6],v[ 7],
-             v[8],v[9],v[10],v[11], v[12],v[13],v[14],v[15]};
+    using T = decltype(D{}[0]);
+    return D{(T)v[0],(T)v[1],(T)v[ 2],(T)v[ 3], (T)v[ 4],(T)v[ 5],(T)v[ 6],(T)v[ 7],
+             (T)v[8],(T)v[9],(T)v[10],(T)v[11], (T)v[12],(T)v[13],(T)v[14],(T)v[15]};
 #endif
 }
 
