@@ -11,7 +11,6 @@ warnings = -Werror $
 warnings_cc = $warnings $
            -Wno-c++98-compat-pedantic $
            -Wno-gnu-anonymous-struct $
-           -Wno-narrowing $
            -Wno-old-style-cast $
 
 
