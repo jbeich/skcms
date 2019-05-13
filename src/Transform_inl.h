@@ -716,6 +716,18 @@ static void exec_ops(const Op* ops, const void** args,
                 g = cast<F>((rgba >>  8) & 0xff) * (1/255.0f);
                 b = cast<F>((rgba >> 16) & 0xff) * (1/255.0f);
                 a = cast<F>((rgba >> 24) & 0xff) * (1/255.0f);
+
+            #if 1 && defined(__wasm_simd128__)
+                // I'm not sure whether there's a bug in Emscripten's C -> WASM codegen
+                // or with WASM execution in Chrome, but this redundant math seems to help.
+                //
+                // There's definitely something non-deterministic going on here... depending
+                // on how much I print out, r[0] ends up mangled to _different_ values.
+                //
+                // Repro with Emscripten latest-upstream and ninja -f build/emscripten.simd,
+                // after starting Chrome with --js-flags="--experimental-wasm-simd".
+                r[0] = (rgba[0] & 0xff) * (1/255.0f);
+            #endif
             } break;
 
             case Op_load_1010102:{
