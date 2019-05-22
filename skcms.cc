@@ -1842,7 +1842,6 @@ namespace baseline {
     using I32 = int32_t;
     using U16 = uint16_t;
     using U8  = uint8_t;
-
 #elif defined(__AVX512F__)
     #define N 16
     using   F = Vec<N,float>;
@@ -1854,6 +1853,14 @@ namespace baseline {
 #elif defined(__AVX__)
     #define N 8
     using   F = Vec<N,float>;
+    using I32 = Vec<N,int32_t>;
+    using U64 = Vec<N,uint64_t>;
+    using U32 = Vec<N,uint32_t>;
+    using U16 = Vec<N,uint16_t>;
+    using  U8 = Vec<N,uint8_t>;
+#elif defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC)
+    #define N 8
+    using   F = Vec<N,_Float16>;
     using I32 = Vec<N,int32_t>;
     using U64 = Vec<N,uint64_t>;
     using U32 = Vec<N,uint32_t>;
