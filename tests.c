@@ -18,6 +18,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC) && defined(SKCMS_OPT_INTO_NEON_FP16)
+    static bool kFP16 = true;
+#else
+    static bool kFP16 = false;
+#endif
+
 #if defined(_MSC_VER)
     #define DEBUGBREAK __debugbreak
 #elif defined(__clang__)
@@ -34,6 +40,23 @@
             DEBUGBREAK();                                                             \
         }                                                                             \
     } while(false)
+
+#define expect_close(x,y)                                                             \
+    do {                                                                              \
+        int X = (x),                                                                  \
+            Y = (y);                                                                  \
+        float ratio = (X < Y) ? (float)X / Y                                          \
+                    : (Y < X) ? (float)Y / X                                          \
+                    : 1.0f;                                                           \
+        if (ratio < (kFP16 ? 0.995f : 1.0f)) {                                        \
+            fprintf(stderr, "expect_close(" #x "==%d, " #y "==%d) failed at %s:%d\n", \
+                    X,Y, __FILE__,__LINE__);                                          \
+            fflush(stderr);   /* stderr is buffered on Windows. */                    \
+            DEBUGBREAK();                                                             \
+        }                                                                             \
+    } while(false)
+
+
 
 static void test_ICCProfile() {
     // Nothing works yet.  :)
@@ -220,10 +243,10 @@ static void test_FormatConversions_16161616LE() {
                            back, skcms_PixelFormat_RGBA_16161616LE,skcms_AlphaFormat_Unpremul, NULL,
                            16384));
     for (int i = 0; i < 16384; i++) {
-        expect( ((back[i] >>  0) & 0xffff) == ((dst[i] >>  0) & 0xff) * 0x0101);
-        expect( ((back[i] >> 16) & 0xffff) == ((dst[i] >>  8) & 0xff) * 0x0101);
-        expect( ((back[i] >> 32) & 0xffff) == ((dst[i] >> 16) & 0xff) * 0x0101);
-        expect( ((back[i] >> 48) & 0xffff) == ((dst[i] >> 24) & 0xff) * 0x0101);
+        expect_close( ((back[i] >>  0) & 0xffff) , ((dst[i] >>  0) & 0xff) * 0x0101);
+        expect_close( ((back[i] >> 16) & 0xffff) , ((dst[i] >>  8) & 0xff) * 0x0101);
+        expect_close( ((back[i] >> 32) & 0xffff) , ((dst[i] >> 16) & 0xff) * 0x0101);
+        expect_close( ((back[i] >> 48) & 0xffff) , ((dst[i] >> 24) & 0xff) * 0x0101);
     }
 
     free(src);
@@ -259,8 +282,13 @@ static void test_FormatConversions_161616LE() {
                             0x0101, 0x0101, 0xffff,
                             0xffff, 0xffff, 0xffff };
     for (int i = 0; i < 12; i++) {
-        expect(back[i] == expected[i]);
+        expect_close(back[i], expected[i]);
     }
+}
+
+static int bswap16(int x) {
+    return (x & 0x00ff) << 8
+         | (x & 0xff00) >> 8;
 }
 
 static void test_FormatConversions_16161616BE() {
@@ -285,7 +313,7 @@ static void test_FormatConversions_16161616BE() {
     // so the low lanes are actually the most significant byte, and the high least.
 
     expect(dst[    0] == 0x03020100);
-    expect(dst[ 8127] == 0xfefefdfc);  // 0x7eff rounds down to 0xfe, 0x7efe rounds up to 0xfe.
+    expect(dst[ 8127] == kFP16 ? 0xfffefdfc : 0xfefefdfc);
     expect(dst[16383] == 0xfffefdfc);
 
     // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
@@ -295,10 +323,10 @@ static void test_FormatConversions_16161616BE() {
                            back, skcms_PixelFormat_RGBA_16161616BE,skcms_AlphaFormat_Unpremul, NULL,
                            16384));
     for (int i = 0; i < 16384; i++) {
-        expect( ((back[i] >>  0) & 0xffff) == ((dst[i] >>  0) & 0xff) * 0x0101);
-        expect( ((back[i] >> 16) & 0xffff) == ((dst[i] >>  8) & 0xff) * 0x0101);
-        expect( ((back[i] >> 32) & 0xffff) == ((dst[i] >> 16) & 0xff) * 0x0101);
-        expect( ((back[i] >> 48) & 0xffff) == ((dst[i] >> 24) & 0xff) * 0x0101);
+        expect_close(bswap16((back[i] >>  0) & 0xffff), ((dst[i] >>  0) & 0xff) * 0x0101);
+        expect_close(bswap16((back[i] >> 16) & 0xffff), ((dst[i] >>  8) & 0xff) * 0x0101);
+        expect_close(bswap16((back[i] >> 32) & 0xffff), ((dst[i] >> 16) & 0xff) * 0x0101);
+        expect_close(bswap16((back[i] >> 48) & 0xffff), ((dst[i] >> 24) & 0xff) * 0x0101);
     }
 
     free(src);
@@ -319,7 +347,7 @@ static void test_FormatConversions_161616BE() {
 
     expect(dst[0] == 0xff020100);
     expect(dst[1] == 0xfffdfc03);
-    expect(dst[2] == 0xfffcfefe);
+    expect(dst[2] == kFP16 ? 0xfffcfffe : 0xfffcfefe);
     expect(dst[3] == 0xfffffefd);
 
     // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
@@ -333,7 +361,7 @@ static void test_FormatConversions_161616BE() {
                             0xfefe, 0xfefe, 0xfcfc,
                             0xfdfd, 0xfefe, 0xffff };
     for (int i = 0; i < 12; i++) {
-        expect(back[i] == expected[i]);
+        expect_close(bswap16(back[i]), expected[i]);
     }
 }
 
@@ -1336,6 +1364,10 @@ int main(int argc, char** argv) {
     test_FormatConversions();
     test_FormatConversions_565();
     test_FormatConversions_101010();
+    test_FormatConversions_16161616LE();
+    test_FormatConversions_161616LE();
+    test_FormatConversions_16161616BE();
+    test_FormatConversions_161616BE();
     test_FormatConversions_half_norm();
     test_ApproximateCurve_clamped();
     test_Matrix3x3_invert();
@@ -1352,16 +1384,7 @@ int main(int argc, char** argv) {
     test_TF_invert();
 
     // Temporarily disable some tests while getting FP16 compute working.
-#if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC) && defined(SKCMS_OPT_INTO_NEON_FP16)
-    bool skip = true;
-#else
-    bool skip = false;
-#endif
-    if (!skip) {
-        test_FormatConversions_16161616LE();
-        test_FormatConversions_161616LE();
-        test_FormatConversions_16161616BE();
-        test_FormatConversions_161616BE();
+    if (!kFP16) {
         test_FormatConversions_half();
         test_FormatConversions_float();
         test_Parse(regenTestData);
