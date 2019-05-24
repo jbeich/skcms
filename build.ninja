@@ -25,6 +25,7 @@ subninja build/gcc.xsan
 
 subninja build/android
 subninja build/android.fp16
+subninja build/android.nofp16
 subninja build/android.lsan
 subninja build/android.portable
 subninja build/android.tiny
