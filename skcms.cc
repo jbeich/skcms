@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #if defined(__ARM_NEON)
     #include <arm_neon.h>

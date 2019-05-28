@@ -248,11 +248,7 @@ SI F floor_(F x) {
 #endif
 }
 
-SI F approx_log2(F x) {
-#if defined(USING_NEON_FP16)
-    // TODO(mtklein)
-    return x;
-#else
+SI F old_log2(F x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
     I32 bits = bit_pun<I32>(x);
 
@@ -264,20 +260,72 @@ SI F approx_log2(F x) {
     return e - 124.225514990f
              -   1.498030302f*m
              -   1.725879990f/(0.3520887068f + m);
+}
+
+SI F approx_log2(F x) {
+    (void)old_log2;
+#if defined(USING_NEON_FP16)
+    return x;
+#else
+    // log2(x)
+    //   == log2( 2^e (1+m) )
+    //   == log2( 2^e) + log2(1+m)
+    //   == e + log2(1+m)
+
+#if 1 && defined(USING_AVX512F)
+    F e = (F)_mm512_getexp_ps(x),
+      p = (F)_mm512_getmant_ps(x, _MM_MANT_NORM_1_2, _MM_MANT_SIGN_src);
+#else
+    I32 bits = bit_pun<I32>(x);
+    F e = cast<F>(bits >> 23) - 127.0f,
+      p = bit_pun<F>((bits & 0x007fffff) | 0x3f800000);
+#endif
+
+    // p is holding (1+m), with values in range [1,2).
+    // We can approximate log2(x) in that range with a polynomial.
+    return e
+         - 1.6500f
+         + 2.0000f * p
+         - 0.3375f * p*p;
 #endif
 }
 
-SI F approx_exp2(F x) {
-#if defined(USING_NEON_FP16)
-    // TODO(mtklein)
-    return x;
-#else
+SI F old_exp2(F x) {
     F fract = x - floor_(x);
 
     I32 bits = cast<I32>((1.0f * (1<<23)) * (x + 121.274057500f
                                                -   1.490129070f*fract
                                                +  27.728023300f/(4.84252568f - fract)));
     return bit_pun<F>(bits);
+}
+
+SI F approx_exp2(F x) {
+    (void)old_exp2;
+#if defined(USING_NEON_FP16)
+    // TODO(mtklein)
+    return x;
+#else
+    // 2^x
+    //   == 2^(int(x) + fract(x))
+    //   == 2^int(x) * 2^fract(x)
+    //
+    // The details of int() and fract() aren't particularly important
+    // so long as int() returns an integer, and int(x) + fract(x) == x.
+
+    I32 int_x = cast<I32>(floor_(x));
+    F fract_x = x - floor_(x);
+
+    // 2^int(x) is pretty easy... just jam int(x) into the float exponent.
+    F i = bit_pun<F>( (int_x + 127) << 23 );
+
+    // 2^x is pretty easy to approximate between 0 and 1 with a polynomial.
+    F f = 1.0f
+        + 0.650f * fract_x
+        + 0.350f * fract_x * fract_x;
+
+    //fprintf(stderr, "%g --> %d, %g --> %g, want %g\n" , x[0], int_x[0], fract_x[0] , (i*f)[0], old_exp2(x)[0]);
+
+    return i*f;
 #endif
 }
 
