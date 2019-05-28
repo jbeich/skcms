@@ -41,19 +41,25 @@
         }                                                                             \
     } while(false)
 
-#define expect_close(x,y)                                                             \
-    do {                                                                              \
-        int X = (x),                                                                  \
-            Y = (y);                                                                  \
-        float ratio = (X < Y) ? (float)X / Y                                          \
-                    : (Y < X) ? (float)Y / X                                          \
-                    : 1.0f;                                                           \
-        if (ratio < (kFP16 ? 0.995f : 1.0f)) {                                        \
-            fprintf(stderr, "expect_close(" #x "==%d, " #y "==%d) failed at %s:%d\n", \
-                    X,Y, __FILE__,__LINE__);                                          \
-            fflush(stderr);   /* stderr is buffered on Windows. */                    \
-            DEBUGBREAK();                                                             \
-        }                                                                             \
+#define expect_close(x,y)                                                                 \
+    do {                                                                                  \
+        double X = (double)(x),                                                           \
+               Y = (double)(y);                                                           \
+        if (X == (double)(int)X &&                                                        \
+            Y == (double)(int)Y &&                                                        \
+            (X == Y-1 || Y == X-1)) {                                                     \
+            /* These are ints and off by one.  Sounds close to me. */                     \
+        } else {                                                                          \
+            double ratio = (X < Y) ? X / Y                                                \
+                         : (Y < X) ? Y / X                                                \
+                         : 1.0;                                                           \
+            if (ratio < (kFP16 ? 0.995 : 1.0)) {                                          \
+                fprintf(stderr, "expect_close(" #x "==%g, " #y "==%g) failed at %s:%d\n", \
+                        X,Y, __FILE__,__LINE__);                                          \
+                fflush(stderr);   /* stderr is buffered on Windows. */                    \
+                DEBUGBREAK();                                                             \
+            }                                                                             \
+        }                                                                                 \
     } while(false)
 
 
@@ -404,7 +410,7 @@ static void test_FormatConversions_half() {
         0x3c00,  // 1.0
         0x3800,  // 0.5
         0x1805,  // Should round up to 0x01
-        0x1804,  // Should round down to 0x00
+        0x1803,  // Should round down to 0x00  (0x1804 may go up or down depending on precision)
         0x4000,  // 2.0
         0x03ff,  // A denorm, may be flushed to zero.
         0x83ff,  // A negative denorm, may be flushed to zero.
@@ -523,7 +529,10 @@ static void test_FormatConversions_float() {
                             &fdst, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, NULL,
                            64));
     for (int i = 0; i < 256; i++) {
-        expect(fdst[i] == i*(1/255.0f));
+        expect_close(fdst[i], i*(1/255.0f));
+        if (i == 0 || i == 255) {
+            expect(fdst[i] == i*(1/255.0f));
+        }
     }
 
     float ffff[16] = { 0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15 };
@@ -1027,10 +1036,10 @@ static void test_Premul() {
         dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_PremulAsEncoded, &sRGB,
         64));
     for (int i = 0; i < 256; i+=4) {
-        expect( dst[i+0] == (uint8_t)( src[i+0] * (src[i+3]/255.0f) + 0.5f ) );
-        expect( dst[i+1] == (uint8_t)( src[i+1] * (src[i+3]/255.0f) + 0.5f ) );
-        expect( dst[i+2] == (uint8_t)( src[i+2] * (src[i+3]/255.0f) + 0.5f ) );
-        expect( dst[i+3] == src[i+3] );
+        expect_close( dst[i+0], (uint8_t)( src[i+0] * (src[i+3]/255.0f) + 0.5f ) );
+        expect_close( dst[i+1], (uint8_t)( src[i+1] * (src[i+3]/255.0f) + 0.5f ) );
+        expect_close( dst[i+2], (uint8_t)( src[i+2] * (src[i+3]/255.0f) + 0.5f ) );
+        expect      ( dst[i+3] == src[i+3] );
     }
 
     expect(skcms_Transform(
@@ -1038,10 +1047,10 @@ static void test_Premul() {
         dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul       , &sRGB,
         64));
     for (int i = 0; i < 256; i+=4) {
-        expect( dst[i+0] == (uint8_t)( src[i+0] / (src[i+3]/255.0f) + 0.5f ) );
-        expect( dst[i+1] == (uint8_t)( src[i+1] / (src[i+3]/255.0f) + 0.5f ) );
-        expect( dst[i+2] == (uint8_t)( src[i+2] / (src[i+3]/255.0f) + 0.5f ) );
-        expect( dst[i+3] == src[i+3] );
+        expect_close( dst[i+0], (uint8_t)( src[i+0] / (src[i+3]/255.0f) + 0.5f ) );
+        expect_close( dst[i+1], (uint8_t)( src[i+1] / (src[i+3]/255.0f) + 0.5f ) );
+        expect_close( dst[i+2], (uint8_t)( src[i+2] / (src[i+3]/255.0f) + 0.5f ) );
+        expect      ( dst[i+3] == src[i+3] );
     }
 
     free(ptr);
@@ -1260,7 +1269,7 @@ static void test_Clamp() {
     expect(flts[0] < 0);   // A typical out-of-gamut green.  r,b are negative, and g > 1.
     expect(flts[1] > 1);
     expect(flts[2] < 0);
-    expect(flts[3] == 127*(1/255.0f));
+    expect_close(flts[3], 127*(1/255.0f));
 
     // Now the real test, making sure we clamp that green channel to 1.0 before premul.
     skcms_Transform(rgba, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul       , &src,
@@ -1368,7 +1377,9 @@ int main(int argc, char** argv) {
     test_FormatConversions_161616LE();
     test_FormatConversions_16161616BE();
     test_FormatConversions_161616BE();
+    test_FormatConversions_half();
     test_FormatConversions_half_norm();
+    test_FormatConversions_float();
     test_ApproximateCurve_clamped();
     test_Matrix3x3_invert();
     test_SimpleRoundTrip();
@@ -1382,16 +1393,14 @@ int main(int argc, char** argv) {
     test_AliasedTransforms();
     test_Palette8();
     test_TF_invert();
+    test_Clamp();
+    test_Premul();
 
     // Temporarily disable some tests while getting FP16 compute working.
     if (!kFP16) {
-        test_FormatConversions_half();
-        test_FormatConversions_float();
         test_Parse(regenTestData);
         test_sRGB_AllBytes();
         test_TRC_Table16();
-        test_Premul();
-        test_Clamp();
     }
 #if 0
     test_CLUT();
