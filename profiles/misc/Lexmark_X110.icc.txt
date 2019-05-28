@@ -36,12 +36,12 @@ CLUT : 17 x 17 x 17 (8 bpp)
 	81b95a 8a86c5 5644a3 774525 a6d92b 180c68 9bbbcd
 	9fcf42 9a6fb3 7d8a7c 90726d 8fbeab 7f6259 9cb4cb
 81 edge-case pixels transformed to sRGB 8888 (unpremul):
-	00000000 000206a2 00243cff  0035d000 000bcabc 0002cffe  0063ff1e 005cf3cd 003dffff
-	00ff674a 00ff68df 00f55ffd  00f6fc00 00b5b5b5 00d4c7fd  00d1d464 00e1ffe5 00d9fffe
-	00ffa03e 00ffa4d1 00ffa4fd  00fff300 00ffddb7 00ffeefe  00fff240 00fff5aa 00ffffff
-	7f000000 7f0206a2 7f243cff  7f35d000 7f0bcabc 7f02cffe  7f63ff1e 7f5cf3cd 7f3dffff
-	7fff674a 7fff68df 7ff55ffd  7ff6fc00 7fb5b5b5 7fd4c7fd  7fd1d464 7fe1ffe5 7fd9fffe
-	7fffa03e 7fffa4d1 7fffa4fd  7ffff300 7fffddb7 7fffeefe  7ffff240 7ffff5aa 7fffffff
-	ff000000 ff0206a2 ff243cff  ff35d000 ff0bcabc ff02cffe  ff63ff1e ff5cf3cd ff3dffff
-	ffff674a ffff68df fff55ffd  fff6fc00 ffb5b5b5 ffd4c7fd  ffd1d464 ffe1ffe5 ffd9fffe
-	ffffa03e ffffa4d1 ffffa4fd  fffff300 ffffddb7 ffffeefe  fffff240 fffff5aa ffffffff
+	00000000 000206a2 00243cff  0035d000 000bcabc 0002cffe  0063ff1e 005cf3cd 003efffe
+	00ff674b 00ff68e0 00f55ffd  00f6fc00 00b5b5b5 00d4c7fd  00d1d464 00e2fee6 00d9fffe
+	00ffa03f 00ffa4d2 00ffa4fd  00fff300 00ffddb7 00ffeefe  00fff240 00fff4aa 00ffffff
+	7f000000 7f0206a2 7f243cff  7f35d000 7f0bcabc 7f02cffe  7f63ff1e 7f5cf3cd 7f3efffe
+	7fff674b 7fff68e0 7ff55ffd  7ff6fc00 7fb5b5b5 7fd4c7fd  7fd1d464 7fe2fee6 7fd9fffe
+	7fffa03f 7fffa4d2 7fffa4fd  7ffff300 7fffddb7 7fffeefe  7ffff240 7ffff4aa 7fffffff
+	ff000000 ff0206a2 ff243cff  ff35d000 ff0bcabc ff02cffe  ff63ff1e ff5cf3cd ff3efffe
+	ffff674b ffff68e0 fff55ffd  fff6fc00 ffb5b5b5 ffd4c7fd  ffd1d464 ffe2fee6 ffd9fffe
+	ffffa03f ffffa4d2 ffffa4fd  fffff300 ffffddb7 ffffeefe  fffff240 fffff4aa ffffffff
