@@ -72,11 +72,11 @@ CLUT : 16 x 16 x 16 (16 bpp)
 	2e510d 241616 1c231d 311f11 284520 29190c 273143
 81 edge-case pixels transformed to sRGB 8888 (unpremul):
 	00000000 00000060 000000c2  00015b00 00005a5e 000058c1  0002b800 0000b859 0000b7bf
-	005d1100 005c0d5e 005c00c1  005d5d00 005c5d5c 005c5bc1  005db900 005cb957 005cb8be
-	00bc2c00 00bc2b56 00bc26be  00bc6400 00bc6455 00bb63be  00bcbc00 00bcbc4f 00bcbbbc
+	005d1100 005c0d5e 005c00c1  005d5d00 005c5d5c 005c5bc0  005db900 005cb957 005cb8be
+	00bc2c00 00bc2b56 00bb26be  00bc6400 00bc6455 00bb63be  00bcbc00 00bcbc4f 00bbbbbc
 	7f000000 7f000060 7f0000c2  7f015b00 7f005a5e 7f0058c1  7f02b800 7f00b859 7f00b7bf
-	7f5d1100 7f5c0d5e 7f5c00c1  7f5d5d00 7f5c5d5c 7f5c5bc1  7f5db900 7f5cb957 7f5cb8be
-	7fbc2c00 7fbc2b56 7fbc26be  7fbc6400 7fbc6455 7fbb63be  7fbcbc00 7fbcbc4f 7fbcbbbc
+	7f5d1100 7f5c0d5e 7f5c00c1  7f5d5d00 7f5c5d5c 7f5c5bc0  7f5db900 7f5cb957 7f5cb8be
+	7fbc2c00 7fbc2b56 7fbb26be  7fbc6400 7fbc6455 7fbb63be  7fbcbc00 7fbcbc4f 7fbbbbbc
 	ff000000 ff000060 ff0000c2  ff015b00 ff005a5e ff0058c1  ff02b800 ff00b859 ff00b7bf
-	ff5d1100 ff5c0d5e ff5c00c1  ff5d5d00 ff5c5d5c ff5c5bc1  ff5db900 ff5cb957 ff5cb8be
-	ffbc2c00 ffbc2b56 ffbc26be  ffbc6400 ffbc6455 ffbb63be  ffbcbc00 ffbcbc4f ffbcbbbc
+	ff5d1100 ff5c0d5e ff5c00c1  ff5d5d00 ff5c5d5c ff5c5bc0  ff5db900 ff5cb957 ff5cb8be
+	ffbc2c00 ffbc2b56 ffbb26be  ffbc6400 ffbc6455 ffbb63be  ffbcbc00 ffbcbc4f ffbbbbbc

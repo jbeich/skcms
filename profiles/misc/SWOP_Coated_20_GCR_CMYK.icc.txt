@@ -46,5 +46,5 @@ CLUT : 16 x 16 x 16 x 16 (16 bpp)
 	ff300d1d ff2f0950 ff2c0081  ff433900 ff434851 ff42598b  ff595d00 ff59744b ff599193
 	ff45061e ff450051 ff450082  ff663900 ff694854 ff6d5b8d  ff886000 ff8e774d ff959493
 	ff332734 ff2e2389 ff2400dd  ff396700 ff2c7f88 ff009bed  ff3d9e00 ff25c57a ff00f3f6
-	ff581f39 ff56178d ff5200df  ff786800 ff788090 ff779df1  ff9ca300 ff9dc985 ff9df9fc
-	ff7b113c ff7b0090 ff7b00e1  ffb26800 ffb68094 ffbc9ff3  ffeba800 fff3ce8a fffffefc
+	ff581f39 ff56178d ff5200df  ff786800 ff788090 ff779df1  ff9ca300 ff9dc985 ff9df8fc
+	ff7b113c ff7b008f ff7b00e1  ffb26800 ffb68094 ffbc9ff3  ffeba800 fff3ce8a fffffefc
