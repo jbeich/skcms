@@ -1406,5 +1406,8 @@ int main(int argc, char** argv) {
     test_CLUT();
 #endif
 
+#if defined(__EMSCRIPTEN_major__)
+    fprintf(stderr, "Yer a wizard, Harry.\n");
+#endif
     return 0;
 }
