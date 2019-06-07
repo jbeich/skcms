@@ -1,15 +1,16 @@
 cc      = emcc
 cxx     = em++
-cflags  = -g3 -s WASM=1
-ldflags = -g3 -s WASM=1 --embed-file profiles --emrun
-exe     = .html
+cflags  = -g3 -s WASM=1 -s ENVIRONMENT=node
+ldflags = -g3 -s WASM=1 -s ENVIRONMENT=node --embed-file profiles
+exe     = .js
 out     = out/emscripten$mode
 
-# Run only when emrun is on your PATH, i.e. not on the bots.
+node = 'node'
+
 rule run
-    command = if which emrun >/dev/null; $
+    command = if which $node >/dev/null; $
               then $
-                  emrun $in > $out; $
+                  $node $in > $out; $
               else touch $out; fi
     description = run $in
 
