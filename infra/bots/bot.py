@@ -51,6 +51,7 @@ elif 'linux' in sys.platform:
   os.chdir('..')
 
   emscripten_sdk = os.path.realpath('emsdk')
+  node = emscripten_sdk + '/node/8.9.1_64bit/bin/node'
 
   em_config = os.path.realpath(os.path.join('.', 'em_config'))
   with open(em_config, 'w') as f:
@@ -63,7 +64,7 @@ JS_ENGINES = [NODE_JS]
   '''.format(
     emscripten_sdk + '/clang/e1.38.28_64bit/binaryen',
     emscripten_sdk + '/clang/e1.38.28_64bit',
-    emscripten_sdk + '/node/8.9.1_64bit/bin/node',
+    node,
   )
 
   append('skcms/build/emscripten',
@@ -72,6 +73,8 @@ JS_ENGINES = [NODE_JS]
   append('skcms/build/emscripten',
          'cxx = env EM_CONFIG={} {}/emscripten/1.38.28/em++'.format(
            em_config, emscripten_sdk))
+  append('skcms/build/emscripten',
+         'node = {}'.format(node))
 
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
 
