@@ -34,7 +34,7 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 			&specs.CipdPackage{
 				Name:    "skia/bots/android_ndk_linux",
 				Path:    "ndk",
-				Version: "version:14",
+				Version: "version:15",
 			},
 			&specs.CipdPackage{
 				Name:    "skia/bots/clang_linux",
@@ -56,7 +56,7 @@ func addTask(b *specs.TasksCfgBuilder, task string) {
 			&specs.CipdPackage{
 				Name:    "skia/bots/android_ndk_darwin",
 				Path:    "ndk",
-				Version: "version:8",
+				Version: "version:9",
 			},
 			// Copied from
 			// https://skia.googlesource.com/skia/+/30a4e3da4bf341d5968b8cdf5bc2260e7f0d4b04/infra/bots/gen_tasks.go#206

@@ -3,17 +3,18 @@ target  = arm-linux-androideabi
 arch    = arch-arm
 ndk_api = 24
 
-cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang   -target $target
-cxx     = $ndk/toolchains/llvm/prebuilt/*/bin/clang++ -target $target
+cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang   -target $target$ndk_api
+cxx     = $ndk/toolchains/llvm/prebuilt/*/bin/clang++ -target $target$ndk_api
 
-cflags  = -fcolor-diagnostics -Weverything $
-          -march=armv7-a -mthumb $
-          --sysroot $ndk/sysroot $
-          -I $ndk/sysroot/usr/include/$target
-ldflags = -pie -fuse-ld=gold $
+cflags  = -fcolor-diagnostics -Weverything --sysroot $ndk/sysroot $
+          -march=armv7-a -mthumb
+
+ldflags = -pie -fuse-ld=lld $
           --sysroot $ndk/platforms/android-$ndk_api/$arch $
-          -B $ndk/toolchains/${target}-4.9/prebuilt/*/$target/bin $
-          -L $ndk/toolchains/${target}-4.9/prebuilt/*/lib/gcc/$target/4.9.x
+          -L $ndk/toolchains/llvm/prebuilt/*/sysroot/usr/lib/$target/$ndk_api $
+          -L $ndk/toolchains/llvm/prebuilt/*/sysroot/usr/lib/$target $
+          -static-libstdc++
+
 out     = out/android-arm$mode
 
 rule run
@@ -21,7 +22,7 @@ rule run
               then $
                   adb push --sync profiles /data/local/tmp >/dev/null; $
                   adb push $in /data/local/tmp/$in >/dev/null; $
-                  adb shell "cd /data/local/tmp; ./$in" > $out; $
+                  adb shell "cd /data/local/tmp; taskset f ./$in" > $out; $
               else touch $out; fi
     description = run $in
 include build/common

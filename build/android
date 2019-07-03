@@ -3,16 +3,17 @@ target  = aarch64-linux-android
 arch    = arch-arm64
 ndk_api = 24
 
-cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang   -target $target
-cxx     = $ndk/toolchains/llvm/prebuilt/*/bin/clang++ -target $target
+cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang   -target $target$ndk_api
+cxx     = $ndk/toolchains/llvm/prebuilt/*/bin/clang++ -target $target$ndk_api
 
-cflags  = -fcolor-diagnostics -Weverything $
-          --sysroot $ndk/sysroot $
-          -I $ndk/sysroot/usr/include/$target
-ldflags = -pie -fuse-ld=gold $
+cflags  = -fcolor-diagnostics -Weverything --sysroot $ndk/sysroot
+
+ldflags = -pie -fuse-ld=lld $
           --sysroot $ndk/platforms/android-$ndk_api/$arch $
-          -B $ndk/toolchains/${target}-4.9/prebuilt/*/$target/bin $
-          -L $ndk/toolchains/${target}-4.9/prebuilt/*/lib/gcc/$target/4.9.x
+          -L $ndk/toolchains/llvm/prebuilt/*/sysroot/usr/lib/$target/$ndk_api $
+          -L $ndk/toolchains/llvm/prebuilt/*/sysroot/usr/lib/$target $
+          -static-libstdc++
+
 out     = out/android$mode
 
 rule run

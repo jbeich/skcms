@@ -34,7 +34,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "ndk",
-          "version": "version:14"
+          "version": "version:15"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -81,7 +81,7 @@
         {
           "name": "skia/bots/android_ndk_darwin",
           "path": "ndk",
-          "version": "version:8"
+          "version": "version:9"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
