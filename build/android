@@ -1,18 +1,9 @@
 ndk     = ../ndk
-target  = aarch64-linux-android
-arch    = arch-arm64
-ndk_api = 24
+cc      = $ndk/toolchains/llvm/prebuilt/*/bin/aarch64-linux-android24-clang
+cxx     = $ndk/toolchains/llvm/prebuilt/*/bin/aarch64-linux-android24-clang++
 
-cc      = $ndk/toolchains/llvm/prebuilt/*/bin/clang   -target $target$ndk_api
-cxx     = $ndk/toolchains/llvm/prebuilt/*/bin/clang++ -target $target$ndk_api
-
-cflags  = -fcolor-diagnostics -Weverything --sysroot $ndk/sysroot
-
-ldflags = -pie -fuse-ld=lld $
-          --sysroot $ndk/platforms/android-$ndk_api/$arch $
-          -L $ndk/toolchains/llvm/prebuilt/*/sysroot/usr/lib/$target/$ndk_api $
-          -L $ndk/toolchains/llvm/prebuilt/*/sysroot/usr/lib/$target $
-          -static-libstdc++
+cflags  = -fcolor-diagnostics -Weverything
+ldflags = -pie -fuse-ld=lld -static-libstdc++
 
 out     = out/android$mode
 
