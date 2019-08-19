@@ -155,6 +155,12 @@ static void dump_curve(FILE* fp, const char* name, const skcms_Curve* curve) {
         if (skcms_ApproximateCurve(curve, &tf, &max_error)) {
             dump_transfer_function(fp, "~=", &tf, max_error);
         }
+
+        float gamma;
+        if (skcms_ApproximateGamma(curve, &gamma, &max_error)) {
+            skcms_TransferFunction g = { gamma,1, 0,0,0,0,0 };
+            dump_transfer_function(fp, "γ", &g, max_error);
+        }
     }
 }
 

@@ -1760,6 +1760,47 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     return isfinitef_(*max_error);
 }
 
+bool skcms_ApproximateGamma(const skcms_Curve* curve,
+                            float* gamma,
+                            float* max_error) {
+    if (!curve || !gamma || !max_error) {
+        return false;
+    }
+
+    if (curve->table_entries == 0) {
+        // TODO: is there any point approximating a parametric function with a gamma?
+        return false;
+    }
+
+    if (curve->table_entries == 1 || curve->table_entries > (uint32_t)INT_MAX) {
+        // We need at least two points, and must put some reasonable cap on the maximum number.
+        return false;
+    }
+
+    int N = (int)curve->table_entries;
+
+    // Start by guessing a gamma by looking at the midpoint, as we do in skcms_ApproximateCurve().
+    int mid = N / 2;
+    float mid_x = mid / (N - 1.0f);
+    float mid_y = eval_curve(curve, mid_x);
+    *gamma = log2f_(mid_y) / log2f_(mid_x);
+
+    // TODO: Gauss-Newton fit this here.
+
+    skcms_TransferFunction tf = { *gamma,1, 0,0,0,0,0 },
+                           tf_inv;
+
+    if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
+        // Gamma-only functions _really_ should invert.  (To 1/gamma... it's a little ridiculous
+        // even to call skcms_TransferFunction_invert() instead of just inverting gamma.)
+        assert(false);
+        return false;
+    }
+
+    *max_error = max_roundtrip_error(curve, &tf_inv);
+    return true;
+}
+
 // ~~~~ Impl. of skcms_Transform() ~~~~
 
 typedef enum {
