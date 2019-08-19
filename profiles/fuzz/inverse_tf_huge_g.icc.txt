@@ -10,8 +10,11 @@
  'kTRC' : 'curv' :    244 : 212
 
 rTRC : 16-bit table with 43 entries
+  γ : 0.5930109, 1, 0, 0, 0, 0, 0 (Max error: 0.957599)
 gTRC : 16-bit table with 43 entries
+  γ : 0.5930109, 1, 0, 0, 0, 0, 0 (Max error: 0.957599)
 bTRC : 16-bit table with 43 entries
+  γ : 0.5930109, 1, 0, 0, 0, 0, 0 (Max error: 0.957599)
  XYZ : | 0.9642029 0 0 |
        | 0 1 0 |
        | 0 0 0.8249054 |

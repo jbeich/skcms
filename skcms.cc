@@ -1760,6 +1760,85 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     return isfinitef_(*max_error);
 }
 
+bool skcms_ApproximateGamma(const skcms_Curve* curve,
+                            float* gamma,
+                            float* max_error) {
+    if (!curve || !gamma || !max_error) {
+        return false;
+    }
+
+    if (curve->table_entries == 0) {
+        // TODO: is there any point approximating a parametric function with a gamma?
+        return false;
+    }
+
+    if (curve->table_entries == 1 || curve->table_entries > (uint32_t)INT_MAX) {
+        // We need at least two points, and must put some reasonable cap on the maximum number.
+        return false;
+    }
+
+    int N = (int)curve->table_entries;
+    const float dx = 1.0f / (N - 1);
+
+    // Start by guessing a gamma by looking at the midpoint, as we do in skcms_ApproximateCurve().
+    int mid = N / 2;
+    float mid_x = mid / (N - 1.0f);
+    float mid_y = eval_curve(curve, mid_x);
+    *gamma = log2f_(mid_y) / log2f_(mid_x);
+
+    // Use Newton's method to refine that estimate.
+    // Our error function E will be the sum of squared differences between the table and x^gamma.
+    //
+    //  E(g)   = sum over i of  (t[i] - x[i]^g)^2
+    //
+    //  E'(g)  = sum over i of  -2 x[i]^g ln  (x[i]) (t[i] -  x[i]^g)
+    //  E''(g) = sum over i of  -2 x[i]^g ln^2(x[i]) (t[i] - 2x[i]^g)
+    //
+    //  g' = g - E'(g) / E''(g)
+    //
+    //  Since we're dividing through, we can cancel those multiplicative -2 factors,
+    //  but do need to take care that we use the right log base since it's squared on the bottom.
+    for (int rounds = 1; rounds --> 0; ) {
+        double Ep  = 0,
+               Epp = 0;
+
+        float x = 0;
+        for (int i = 0; i < N; i++, x += dx) {
+            float t   = eval_curve(curve, x),    // Desired value from the table.
+                  y   = powf_(x, *gamma),        // Our approximation.
+                  lnx = 0.69314718f * log2f_(x);
+
+            float dEp  = y *       lnx * (t -   y),
+                  dEpp = y * lnx * lnx * (t - 2*y);
+
+            if (!isfinitef_(dEp) || !isfinitef_(dEpp)) {
+                continue;
+            }
+
+            Ep  += dEp;
+            Epp += dEpp;
+        }
+
+        *gamma -= (float)(Ep / Epp);
+        if (!isfinitef_(*gamma) || *gamma < 0) {
+            return false;
+        }
+    }
+
+    skcms_TransferFunction tf = { *gamma,1, 0,0,0,0,0 },
+                           tf_inv;
+
+    if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
+        // Gamma-only functions _really_ should invert.  (To 1/gamma... it's a little ridiculous
+        // even to call skcms_TransferFunction_invert() instead of just inverting gamma.)
+        assert(false);
+        return false;
+    }
+
+    *max_error = max_roundtrip_error(curve, &tf_inv);
+    return true;
+}
+
 // ~~~~ Impl. of skcms_Transform() ~~~~
 
 typedef enum {

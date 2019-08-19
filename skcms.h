@@ -148,6 +148,10 @@ SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
                                       skcms_TransferFunction* approx,
                                       float* max_error);
 
+SKCMS_API bool skcms_ApproximateGamma(const skcms_Curve* curve,
+                                      float* gamma,
+                                      float* max_error);
+
 typedef struct skcms_ICCTag {
     uint32_t       signature;
     uint32_t       type;
