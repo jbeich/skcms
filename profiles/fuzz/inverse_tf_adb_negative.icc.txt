@@ -18,8 +18,11 @@
  'gTRC' : 'curv' :   2080 : 508
 
 rTRC : 16-bit table with 1024 entries
+  γ : 11.01544, 1, 0, 0, 0, 0, 0 (Max error: 1)
 gTRC : 16-bit table with 1024 entries
+  γ : 11.01544, 1, 0, 0, 0, 0, 0 (Max error: 1)
 bTRC : 16-bit table with 1024 entries
+  γ : 11.01544, 1, 0, 0, 0, 0, 0 (Max error: 1)
  XYZ : | 8224.125 8224.125 8224.125 |
        | 8224.125 8224.125 8224.125 |
        | -0.0034179688 8224.125 8224.125 |

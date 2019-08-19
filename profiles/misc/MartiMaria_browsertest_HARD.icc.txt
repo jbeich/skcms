@@ -19,9 +19,12 @@
  'A2B2' : 'mft2' :  29554 : 2184
 
 rTRC : 16-bit table with 255 entries
+  γ : 2.38418e-06, 1, 0, 0, 0, 0, 0 (Max error: inf)
 gTRC : 16-bit table with 255 entries
   ~= : 1, 0.003875792, 0, 0, 0, 0, 0 (Max error: 0.000128567)
+  γ : 9.011298, 1, 0, 0, 0, 0, 0 (Max error: 0.460049)
 bTRC : 16-bit table with 255 entries
+  γ : 2.38418e-06, 1, 0, 0, 0, 0, 0 (Max error: inf)
  XYZ : | 0.9642029 0 0.9642029 |
        | 1 0 1 |
        | 0.8249054 0 0.8249054 |
