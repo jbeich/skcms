@@ -677,6 +677,9 @@ static const char* profile_test_cases[] = {
 
     // A zero g term causes a divide by zero when inverting.
     "profiles/fuzz/zero_g.icc",                       // oss-fuzz:12430
+
+    // Reasonable table, but gets approximated very badly
+    "profiles/misc/crbug_976551.icc",                 // chromium:976551
 };
 
 static void test_Parse(bool regen) {
