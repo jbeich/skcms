@@ -282,9 +282,8 @@ SI F approx_exp2(F x) {
 }
 
 SI F approx_pow(F x, float y) {
-    return if_then_else(x <= F0, F0,
-           if_then_else(x == F1, F1,
-                                approx_exp2(approx_log2(x) * y)));
+    return if_then_else((x == F0) | (x == F1), x
+                                             , approx_exp2(approx_log2(x) * y));
 }
 
 // Return tf(x).
