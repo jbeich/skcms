@@ -37,12 +37,12 @@ bTRC : 0, 1, 0, 0, 0, 0, 0
 	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
 	ffffff ffffff ffffff ffffff ffffff ffffff ffffff
 81 edge-case pixels transformed to sRGB 8888 (unpremul):
-	00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff
-	00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff
-	00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff  00ffffff 00ffffff 00ffffff
-	7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff
-	7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff
-	7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff  7fffffff 7fffffff 7fffffff
-	ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff
-	ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff
-	ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff  ffffffff ffffffff ffffffff
+	00000000 00000000 00000000  00000000 00000000 00000000  00000000 00000000 00000000
+	00ffff00 00ffff00 00ffff00  00ffff00 00ffff00 00ffff00  00ffff00 00ffff00 00ffff00
+	00ffff00 00ffff00 00ffff00  00ffff00 00ffff00 00ffff00  00ffff00 00ffff00 00ffff00
+	7f000000 7f000000 7f000000  7f000000 7f000000 7f000000  7f000000 7f000000 7f000000
+	7fffff00 7fffff00 7fffff00  7fffff00 7fffff00 7fffff00  7fffff00 7fffff00 7fffff00
+	7fffff00 7fffff00 7fffff00  7fffff00 7fffff00 7fffff00  7fffff00 7fffff00 7fffff00
+	ff000000 ff000000 ff000000  ff000000 ff000000 ff000000  ff000000 ff000000 ff000000
+	ffffff00 ffffff00 ffffff00  ffffff00 ffffff00 ffffff00  ffffff00 ffffff00 ffffff00
+	ffffff00 ffffff00 ffffff00  ffffff00 ffffff00 ffffff00  ffffff00 ffffff00 ffffff00

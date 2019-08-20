@@ -1404,8 +1404,10 @@ static float exp2f_(float x) {
 }
 
 float powf_(float x, float y) {
-    return (x == 0) || (x == 1) ? x
-                                : exp2f_(log2f_(x) * y);
+    // TODO: assert (x >= 0)?
+    return (x <= 0) ? 0 :
+           (x == 1) ? 1 :
+                      exp2f_(log2f_(x) * y);
 }
 
 float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
@@ -1662,6 +1664,9 @@ static bool fit_nonlinear(const skcms_Curve* curve, int L, int N, skcms_Transfer
     if (P[1] * tf->d + P[2] < 0) {
         P[2] = -P[1] * tf->d;
     }
+
+    assert (P[1] >= 0 &&
+            P[1] * tf->d + P[2] >= 0);
 
     tf->g = P[0];
     tf->a = P[1];
