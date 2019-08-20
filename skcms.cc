@@ -266,6 +266,11 @@ static bool tf_is_valid(const skcms_TransferFunction* tf) {
         return false;
     }
 
+    // It's rather _complex_ to raise a negative number to a fractional power tf->g.
+    if (tf->a * tf->d + tf->b < 0) {
+        return false;
+    }
+
     return true;
 }
 
@@ -1404,10 +1409,9 @@ static float exp2f_(float x) {
 }
 
 float powf_(float x, float y) {
-    // TODO: assert (x >= 0)?
-    return (x <= 0) ? 0 :
-           (x == 1) ? 1 :
-                      exp2f_(log2f_(x) * y);
+    assert (x >= 0);
+    return (x == 0 || x == 1) ? x
+                              : exp2f_(log2f_(x) * y);
 }
 
 float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
