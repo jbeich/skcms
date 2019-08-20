@@ -16,6 +16,24 @@
       "revId": "8a696b07e971bc4a5a78e8f98ee7be1665e15e28",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36b792b3_4751dd67",
+        "filename": "profiles/fuzz/polytf_big_float_to_int_cast.icc.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-20T19:42:37Z",
+      "side": 1,
+      "message": "Yup!  Feels cozy that this bug fix rooted this out.",
+      "parentUuid": "082e8f27_93019b94",
+      "revId": "8a696b07e971bc4a5a78e8f98ee7be1665e15e28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
