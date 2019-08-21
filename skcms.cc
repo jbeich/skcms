@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(__ARM_NEON)
+#if defined(__ARM_NEON)t
     #include <arm_neon.h>
 #elif defined(__SSE__)
     #include <immintrin.h>
@@ -1491,11 +1491,16 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     assert (inv.a * inv.d + inv.b >= 0);
 
     // Now in principle we're done.
-    // But to preserve the valuable invariant inv(src(1.0f)) == 1.0f,
-    // we'll tweak e.  These two values should be close to each other,
-    // just down to numerical precision issues, especially from powf_.
-    float s = powf_(src->a + src->b, src->g) + src->e;
-    inv.e = 1.0f - powf_(inv.a * s + inv.b, inv.g);
+    // But to preserve the valuable invariant inv(src(1.0f)) == 1.0f, we'll tweak
+    // e or f of the inverse, depending on which segments contains src(1.0f).
+    float s = skcms_TransferFunction_eval(src, 1.0f);
+    float sign = s < 0 ? -1.0f : 1.0f;
+    s *= sign;
+    if (s < inv.d) {
+        inv.f = 1.0f - sign * inv.c * s;
+    } else {
+        inv.e = 1.0f - sign * powf_(inv.a * s + inv.b, inv.g);
+    }
 
     *dst = inv;
     return tf_is_valid(dst);

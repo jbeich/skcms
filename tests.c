@@ -683,6 +683,9 @@ static const char* profile_test_cases[] = {
 
     // The a term goes negative when inverting.
     "profiles/fuzz/negative_a_when_inverted.icc",     // oss-fuzz:16581
+
+    // a + b is negative when inverting, because d>0
+    "profiles/fuzz/negative_a_plus_b.icc",            // oss-fuzz:16584
 };
 
 static void test_Parse(bool regen) {
