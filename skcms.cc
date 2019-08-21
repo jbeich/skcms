@@ -1494,8 +1494,14 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // But to preserve the valuable invariant inv(src(1.0f)) == 1.0f,
     // we'll tweak e.  These two values should be close to each other,
     // just down to numerical precision issues, especially from powf_.
-    float s = powf_(src->a + src->b, src->g) + src->e;
-    inv.e = 1.0f - powf_(inv.a * s + inv.b, inv.g);
+    float s = skcms_TransferFunction_eval(src, 1.0f);
+    float sign = s < 0 ? -1.0f : 1.0f;
+    s *= sign;
+    if (s < inv.d) {
+        inv.f = 1.0f - sign * inv.c * s;
+    } else {
+        inv.e = 1.0f - sign * powf_(inv.a * s + inv.b, inv.g);
+    }
 
     *dst = inv;
     return tf_is_valid(dst);
