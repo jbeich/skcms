@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "384643b0_1dbfd9f0",
+        "filename": "skcms.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-08-21T14:48:55Z",
+      "side": 1,
+      "message": "Maybe write \"inv(src(1.0f)) should be close to 1.0f\" or something?  Otherwise it makes it seem like \"These two values\" are e and f.",
+      "range": {
+        "startLine": 1495,
+        "startChar": 27,
+        "endLine": 1495,
+        "endChar": 43
+      },
+      "revId": "746dc5edb20bdd136ad67be3a8eb26af65909b6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
