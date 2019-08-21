@@ -680,6 +680,9 @@ static const char* profile_test_cases[] = {
 
     // Reasonable table, but gets approximated very badly
     "profiles/misc/crbug_976551.icc",                 // chromium:976551
+
+    // The a term goes negative when inverting.
+    "profiles/fuzz/negative_a_when_inverted.icc",     // oss-fuzz:16581
 };
 
 static void test_Parse(bool regen) {
