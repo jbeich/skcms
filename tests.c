@@ -686,6 +686,9 @@ static const char* profile_test_cases[] = {
 
     // a + b is negative when inverting, because d>0
     "profiles/fuzz/negative_a_plus_b.icc",            // oss-fuzz:16584
+
+    "profiles/fuzz/nan_s.icc",                        // oss-fuzz:16674
+    "profiles/fuzz/inf_a.icc",                        // oss-fuzz:16675
 };
 
 static void test_Parse(bool regen) {
