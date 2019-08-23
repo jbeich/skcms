@@ -1494,6 +1494,9 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     // But to preserve the valuable invariant inv(src(1.0f)) == 1.0f, we'll tweak
     // e or f of the inverse, depending on which segment contains src(1.0f).
     float s = skcms_TransferFunction_eval(src, 1.0f);
+    if (!isfinitef_(s)) {
+        return false;
+    }
     float sign = s < 0 ? -1.0f : 1.0f;
     s *= sign;
     if (s < inv.d) {

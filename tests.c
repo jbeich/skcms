@@ -686,6 +686,9 @@ static const char* profile_test_cases[] = {
 
     // a + b is negative when inverting, because d>0
     "profiles/fuzz/negative_a_plus_b.icc",            // oss-fuzz:16584
+
+    // Table fit produces huge gamma, causing NaN result from eval's powf_
+    "profiles/fuzz/nan_eval_during_invert.icc",       // oss-fuzz:16674
 };
 
 static void test_Parse(bool regen) {
