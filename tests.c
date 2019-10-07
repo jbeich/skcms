@@ -1373,6 +1373,51 @@ static void test_TF_invert() {
   //expect(0 == memcmp(sRGB, &sRGB2, sizeof(skcms_TransferFunction)));
 }
 
+static void test_PQ() {
+    {
+        // This PQ function maps [0,1] to [0,1].
+        skcms_TransferFunction pq;
+        expect(skcms_TransferFunction_makePQ(&pq));
+
+        expect(0.0000f == skcms_TransferFunction_eval(&pq, 0.0f));
+        expect(1.0000f == skcms_TransferFunction_eval(&pq, 1.0f));
+
+        // 100 nits is around 0.508.
+        expect(0.0099f < skcms_TransferFunction_eval(&pq, 0.508f));
+        expect(0.0101f > skcms_TransferFunction_eval(&pq, 0.508f));
+    }
+
+    {
+        // Let's see if we can get absolute 0-10000 nits.
+        skcms_TransferFunction pq_abs;
+
+        // Mathematically to get 10000 on the output, we want to
+        // scale the A and B PQ terms by R = 10000 ^ (1/F).
+        float R = powf_(10000.0f, 1305/8192.0f);   // ~= 4.33691
+        expect(skcms_TransferFunction_makePQish(&pq_abs,
+                    R*(-107/128.0f), R*       1.0f,   32/2523.0f,
+                       2413/128.0f,   -2392/128.0f, 8192/1305.0f));
+
+        // That gets us close.
+        expect(0.0f == skcms_TransferFunction_eval(&pq_abs, 0.0f));
+        expect(   99.8f < skcms_TransferFunction_eval(&pq_abs, 0.508f));
+        expect(  100.0f > skcms_TransferFunction_eval(&pq_abs, 0.508f));
+        expect( 9989.0f < skcms_TransferFunction_eval(&pq_abs, 1.0f));
+        expect( 9991.0f > skcms_TransferFunction_eval(&pq_abs, 1.0f));
+
+        // We can get a lot closer with an unprincpled tweak to that math.
+        R = powf_(10009.9f, 1305/8192.0f);  // ~= 4.33759
+        expect(skcms_TransferFunction_makePQish(&pq_abs,
+                    R*(-107/128.0f), R*       1.0f,   32/2523.0f,
+                       2413/128.0f,   -2392/128.0f, 8192/1305.0f));
+        expect(0.0f == skcms_TransferFunction_eval(&pq_abs, 0.0f));
+        expect(   99.9f < skcms_TransferFunction_eval(&pq_abs, 0.508f));
+        expect(  100.0f > skcms_TransferFunction_eval(&pq_abs, 0.508f));
+        expect( 9999.0f < skcms_TransferFunction_eval(&pq_abs, 1.0f));
+        expect(10000.0f > skcms_TransferFunction_eval(&pq_abs, 1.0f));
+    }
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1407,6 +1452,7 @@ int main(int argc, char** argv) {
     test_TF_invert();
     test_Clamp();
     test_Premul();
+    test_PQ();
 
     // Temporarily disable some tests while getting FP16 compute working.
     if (!kFP16) {
