@@ -51,6 +51,26 @@ SKCMS_API float skcms_TransferFunction_eval  (const skcms_TransferFunction*, flo
 SKCMS_API bool  skcms_TransferFunction_invert(const skcms_TransferFunction*,
                                               skcms_TransferFunction*);
 
+// We can jam a couple alternate transfer function forms into skcms_TransferFunction,
+// including those matching the general form of the SMPTE ST 2084 PQ function and its inverse:
+//
+//             (A + Bx^C)
+//    tf(x) =( ---------- ) ^ F
+//             (D + Ex^C)
+//
+SKCMS_API bool skcms_TransferFunction_makePQish(skcms_TransferFunction*,
+                                                float A, float B, float C,
+                                                float D, float E, float F);
+
+static inline bool skcms_TransferFunction_makePQ(skcms_TransferFunction* tf) {
+    return skcms_TransferFunction_makePQish(tf, -107/128.0f,         1.0f,   32/2523.0f
+                                              , 2413/128.0f, -2392/128.0f, 8192/1305.0f);
+}
+static inline bool skcms_TransferFunction_makePQinv(skcms_TransferFunction* tf) {
+    return skcms_TransferFunction_makePQish(tf, 107/128.0f, 2413/128.0f, 1305/8192.0f
+                                              ,       1.0f, 2392/128.0f, 2523/  32.0f);
+}
+
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
     struct {
