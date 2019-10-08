@@ -45,10 +45,20 @@
           "name": "skia/bots/mips64el_toolchain_linux",
           "path": "mips64el_toolchain_linux",
           "version": "version:4"
+        },
+        {
+          "name": "infra/python/cpython/linux-amd64",
+          "path": "python",
+          "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra/tools/luci/vpython/linux-amd64",
+          "path": "python",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         }
       ],
       "command": [
-        "python",
+        "python/vpython",
         "skcms/infra/bots/bot.py",
         "ninja",
         "ndk",
@@ -87,10 +97,20 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "infra/python/cpython/mac-amd64",
+          "path": "python",
+          "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra/tools/luci/vpython/mac-amd64",
+          "path": "python",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         }
       ],
       "command": [
-        "python",
+        "python/vpython",
         "skcms/infra/bots/bot.py",
         "ninja",
         "ndk",
@@ -122,10 +142,20 @@
           "name": "skia/bots/clang_win",
           "path": "clang_win",
           "version": "version:9"
+        },
+        {
+          "name": "infra/python/cpython/windows-amd64",
+          "path": "python",
+          "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra/tools/luci/vpython/windows-amd64",
+          "path": "python",
+          "version": "git_revision:f96db4b66034c859090be3c47eb38227277f228b"
         }
       ],
       "command": [
-        "python",
+        "python/vpython.exe",
         "skcms/infra/bots/bot.py",
         "ninja",
         "win_toolchain",
