@@ -1385,6 +1385,25 @@ static void test_PQ() {
         // 100 nits is around 0.508.
         expect(0.0099f < skcms_TransferFunction_eval(&pq, 0.508f));
         expect(0.0101f > skcms_TransferFunction_eval(&pq, 0.508f));
+
+        // Try again with skcms_transform().
+        float rgb[] = {0.0f,1.0f,0.508f};
+        skcms_ICCProfile src = *skcms_XYZD50_profile(),
+                         dst = *skcms_XYZD50_profile();
+        skcms_SetTransferFunction(&src, &pq);
+
+        expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src,
+                               rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst, 1));
+        expect(rgb[0] == 0.0f);
+        expect(rgb[1] == 1.0f);
+        expect(0.0099f < rgb[2] && rgb[2] < 0.0101f);
+
+        // And back.
+        expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst,
+                               rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src, 1));
+        expect(0 < rgb[0] && rgb[0] < 1e-6);  // TODO: can we get this perfect?
+        expect(rgb[1] == 1.0f);
+        expect(0.507f < rgb[2] && rgb[2] < 0.508f);
     }
 
     {
@@ -1456,6 +1475,32 @@ static void test_HLG() {
     // TODO: it'd be nice to get this to exactly 12.0f.
     expect(12.00000f < skcms_TransferFunction_eval(&dec, 1.0f));
     expect(12.00001f > skcms_TransferFunction_eval(&dec, 1.0f));
+
+    // Now let's try that all again with skcms_Transform(), first linear -> HLG.
+    float rgb[] = { 0.0f,1.0f,0.5f, 1.000001f,6.0f,12.0f };
+
+    skcms_ICCProfile src = *skcms_XYZD50_profile(),
+                     dst = *skcms_XYZD50_profile();
+    skcms_SetTransferFunction(&dst, &dec);
+
+    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src,
+                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst, 2));
+    expect(rgb[0] == 0.0f);
+    expect(rgb[1] == 0.5f);
+    expect(0.35350f < rgb[2] && rgb[2] < 0.35360f);
+    expect(0.50000f < rgb[3] && rgb[3] < 0.50010f);
+    expect(0.87164f < rgb[4] && rgb[4] < 0.87165f);
+    expect(0.99999f < rgb[5] && rgb[5] < 1.00000f);
+
+    // Convert back.
+    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst,
+                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src, 2));
+    expect(rgb[0] == 0.0f);
+    expect(rgb[1] == 1.0f);
+    expect( 0.50000f < rgb[2] && rgb[2] <  0.50001f);
+    expect( 1.00000f < rgb[3] && rgb[3] <  1.00001f);
+    expect( 6.00000f < rgb[4] && rgb[4] <  6.00001f);
+    expect(12.00000f < rgb[5] && rgb[5] < 12.00001f);
 }
 
 static void test_PQ_invert() {
@@ -1493,6 +1538,15 @@ static void test_PQ_invert() {
 
     // PQ functions invert to the same form.
     expect(pqA.g == invA.g);
+
+    // TODO: would be nice for this to pass.
+#if 0
+    skcms_Curve pq_curve = {{0,  pqA}},
+               inv_curve = {{0, invA}};
+
+    expect(skcms_AreApproximateInverses(& pq_curve, &invA));
+    expect(skcms_AreApproximateInverses(&inv_curve, & pqA));
+#endif
 }
 
 static void test_HLG_invert() {
@@ -1529,6 +1583,12 @@ static void test_HLG_invert() {
 
     // HLG functions invert between two different forms.
     expect(hlgA.g != invA.g);
+
+    skcms_Curve hlg_curve = {{0, hlgA}},
+                inv_curve = {{0, invA}};
+
+    expect(skcms_AreApproximateInverses(&hlg_curve, &invA));
+    expect(skcms_AreApproximateInverses(&inv_curve, &hlgA));
 }
 
 int main(int argc, char** argv) {
