@@ -160,12 +160,6 @@ static TFKind classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullpt
     return Bad;
 }
 
-// TODO: temporary shim for old call sites
-static bool tf_is_valid(const skcms_TransferFunction* tf) {
-    return classify(*tf) == sRGBish;
-}
-
-
 bool skcms_TransferFunction_makePQish(skcms_TransferFunction* tf,
                                       float A, float B, float C,
                                       float D, float E, float F) {
@@ -489,7 +483,7 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
             curve->parametric.f = read_big_fixed(paraTag->variable + 24);
             break;
     }
-    return tf_is_valid(&curve->parametric);
+    return classify(curve->parametric) == sRGBish;
 }
 
 typedef struct {
@@ -1511,12 +1505,32 @@ skcms_Matrix3x3 skcms_Matrix3x3_concat(const skcms_Matrix3x3* A, const skcms_Mat
 }
 
 #if defined(__clang__)
-    [[clang::no_sanitize("float-divide-by-zero")]]  // Checked for by tf_is_valid() on the way out.
+    [[clang::no_sanitize("float-divide-by-zero")]]  // Checked for by classify() on the way out.
 #endif
 bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_TransferFunction* dst) {
-    if (!tf_is_valid(src)) {
-        return false;
+    TF_PQish  pq;
+    TF_HLGish hlg;
+    switch (classify(*src, &pq, &hlg)) {
+        case Bad: return false;
+        case sRGBish: break;  // handled below
+
+        case PQish:
+            *dst = { TFKind_marker(PQish), -pq.A,  pq.D, 1.0f/pq.F
+                                         ,  pq.B, -pq.E, 1.0f/pq.C};
+            return true;
+
+        case HLGish:
+            *dst = { TFKind_marker(HLGinvish), 1.0f/hlg.R, 1.0f/hlg.G
+                                             , 1.0f/hlg.a, hlg.b, hlg.c, 0 };
+            return true;
+
+        case HLGinvish:
+            *dst = { TFKind_marker(HLGish), 1.0f/hlg.R, 1.0f/hlg.G
+                                          , 1.0f/hlg.a, hlg.b, hlg.c, 0 };
+            return true;
     }
+
+    assert (classify(*src) == sRGBish);
 
     // We're inverting this function, solving for x in terms of y.
     //   y = (cx + f)         x < d
@@ -1563,7 +1577,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     inv.e = -src->b / src->a;
 
     // We need to enforce the same constraints here that we do when fitting a curve,
-    // a >= 0 and ad+b >= 0.  These constraints are checked by tf_is_valid(), so they're true
+    // a >= 0 and ad+b >= 0.  These constraints are checked by classify(), so they're true
     // of the source function if we're here.
 
     // Just like when fitting the curve, there's really no way to rescue a < 0.
@@ -1575,9 +1589,9 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
         inv.b = -inv.a * inv.d;
     }
 
-    // That should usually make tf_is_valid(&inv) true, but there are a couple situations
+    // That should usually make classify(inv) == sRGBish true, but there are a couple situations
     // where we might still fail here, like non-finite parameter values.
-    if (!tf_is_valid(&inv)) {
+    if (classify(inv) != sRGBish) {
         return false;
     }
 
@@ -1601,7 +1615,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     }
 
     *dst = inv;
-    return tf_is_valid(dst);
+    return classify(*dst) == sRGBish;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
