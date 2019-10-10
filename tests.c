@@ -1418,6 +1418,46 @@ static void test_PQ() {
     }
 }
 
+static void test_HLG() {
+    skcms_TransferFunction enc, dec;
+    expect(skcms_TransferFunction_makeHLGinv(&enc));
+    expect(skcms_TransferFunction_makeHLG   (&dec));
+
+    // Spot check the lower half of the curve.
+    // Linear 0 encodes as 0.5*(0)^0.5 == 0.
+    expect(0.0f == skcms_TransferFunction_eval(&enc, 0.0f));
+    expect(0.0f == skcms_TransferFunction_eval(&dec, 0.0f));
+
+    // Linear 1 encodes as 0.5*(1)^0.5 == 0.5
+    expect(0.5f == skcms_TransferFunction_eval(&enc, 1.0f));
+    expect(1.0f == skcms_TransferFunction_eval(&dec, 0.5f));
+
+    // Linear 0.5 encodes as 0.5*(0.5)^0.5, about 0.3535.
+    expect(0.3535f < skcms_TransferFunction_eval(&enc, 0.5f));
+    expect(0.3536f > skcms_TransferFunction_eval(&enc, 0.5f));
+    expect(0.5000f < skcms_TransferFunction_eval(&dec, skcms_TransferFunction_eval(&enc, 0.5f)));
+    expect(0.5001f > skcms_TransferFunction_eval(&dec, skcms_TransferFunction_eval(&enc, 0.5f)));
+
+    // Spot check upper half of the curve.
+    // We should have some continuity with the lower half.
+    expect(0.5000f < skcms_TransferFunction_eval(&enc, 1.000001f));
+    expect(0.5001f > skcms_TransferFunction_eval(&enc, 1.000001f));
+
+    // TODO: this isn't really the best round-trip precision.
+    expect(1.000001f < skcms_TransferFunction_eval(&dec,
+                                                   skcms_TransferFunction_eval(&enc, 1.000001f)));
+    expect(1.000010f > skcms_TransferFunction_eval(&dec,
+                                                   skcms_TransferFunction_eval(&enc, 1.000001f)));
+
+    // The maximum value we can encode should be 12.
+    // TODO: it'd be nice to get this to exactly 1.0f.
+    expect(0.999999f < skcms_TransferFunction_eval(&enc, 12.0f));
+    expect(1.000000f > skcms_TransferFunction_eval(&enc, 12.0f));
+    // TODO: it'd be nice to get this to exactly 12.0f.
+    expect(12.00000f < skcms_TransferFunction_eval(&dec, 1.0f));
+    expect(12.00001f > skcms_TransferFunction_eval(&dec, 1.0f));
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1453,6 +1493,7 @@ int main(int argc, char** argv) {
     test_Clamp();
     test_Premul();
     test_PQ();
+    test_HLG();
 
     // Temporarily disable some tests while getting FP16 compute working.
     if (!kFP16) {
