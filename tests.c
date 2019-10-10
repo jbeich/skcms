@@ -1458,6 +1458,79 @@ static void test_HLG() {
     expect(12.00001f > skcms_TransferFunction_eval(&dec, 1.0f));
 }
 
+static void test_PQ_invert() {
+    skcms_TransferFunction pqA, invA, invB;
+
+    expect(skcms_TransferFunction_makePQ   (&pqA)  );
+    expect(skcms_TransferFunction_makePQinv(&invA));
+    expect(skcms_TransferFunction_invert(&pqA, &invB));
+
+    // a,b,d,e really just negate and swap around,
+    // so those should be exact.  c and f will 1.0f/x
+    // each other, so they might not be exactly perfect,
+    // but it turns out we do get lucky here.
+
+    expect(invA.g == invB.g);  // I.e. are we still PQ?
+    expect(invA.a == invB.a);
+    expect(invA.b == invB.b);
+    expect(invA.c == invB.c);  // We got lucky here.
+    expect(invA.d == invB.d);
+    expect(invA.e == invB.e);
+    expect(invA.f == invB.f);  // And here.
+
+    // Just for fun, invert back to PQ.
+    // This just tests the same code path twice.
+    skcms_TransferFunction pqB;
+    expect(skcms_TransferFunction_invert(&invA, &pqB));
+
+    expect(pqA.g == pqB.g);
+    expect(pqA.a == pqB.a);
+    expect(pqA.b == pqB.b);
+    expect(pqA.c == pqB.c);
+    expect(pqA.d == pqB.d);
+    expect(pqA.e == pqB.e);
+    expect(pqA.f == pqB.f);
+
+    // PQ functions invert to the same form.
+    expect(pqA.g == invA.g);
+}
+
+static void test_HLG_invert() {
+    skcms_TransferFunction hlgA, invA, invB;
+
+    expect(skcms_TransferFunction_makeHLG   (&hlgA) );
+    expect(skcms_TransferFunction_makeHLGinv(&invA));
+    expect(skcms_TransferFunction_invert(&hlgA, &invB));
+
+    // Like PQ above, some of these values are expected
+    // to be exact, and some of them we're just getting
+    // lucky with that they happen to round trip exactly.
+
+    expect(invA.g == invB.g);  // Is this still HLGinvish?
+    expect(invA.a == invB.a);  // Lucky.
+    expect(invA.b == invB.b);  // Lucky.
+    expect(invA.c == invB.c);  // Lucky.
+    expect(invA.d == invB.d);  // Exact.
+    expect(invA.e == invB.e);  // Exact.
+    expect(invA.f == invB.f);  // Exact (zero).
+
+    // ... and invert back to HLG.
+    // This tests a slightly different code path (really very similar).
+    skcms_TransferFunction hlgB;
+    expect(skcms_TransferFunction_invert(&invB, &hlgB));
+
+    expect(hlgA.g == hlgB.g);
+    expect(hlgA.a == hlgB.a);
+    expect(hlgA.b == hlgB.b);
+    expect(hlgA.c == hlgB.c);
+    expect(hlgA.d == hlgB.d);
+    expect(hlgA.e == hlgB.e);
+    expect(hlgA.f == hlgB.f);
+
+    // HLG functions invert between two different forms.
+    expect(hlgA.g != invA.g);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1494,6 +1567,8 @@ int main(int argc, char** argv) {
     test_Premul();
     test_PQ();
     test_HLG();
+    test_PQ_invert();
+    test_HLG_invert();
 
     // Temporarily disable some tests while getting FP16 compute working.
     if (!kFP16) {
