@@ -1938,6 +1938,21 @@ typedef enum {
     Op_tf_b,
     Op_tf_a,
 
+    Op_pq_r,
+    Op_pq_g,
+    Op_pq_b,
+    Op_pq_a,
+
+    Op_hlg_r,
+    Op_hlg_g,
+    Op_hlg_b,
+    Op_hlg_a,
+
+    Op_hlginv_r,
+    Op_hlginv_g,
+    Op_hlginv_b,
+    Op_hlginv_a,
+
     Op_table_r,
     Op_table_g,
     Op_table_b,
@@ -2124,9 +2139,9 @@ namespace baseline {
 
 #endif
 
-static bool is_identity_tf(const skcms_TransferFunction* tf) {
-    return tf->g == 1 && tf->a == 1
-        && tf->b == 0 && tf->c == 0 && tf->d == 0 && tf->e == 0 && tf->f == 0;
+static bool is_identity_tf(const skcms_TransferFunction& tf) {
+    return tf.g == 1 && tf.a == 1
+        && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0;
 }
 
 typedef struct {
@@ -2135,22 +2150,27 @@ typedef struct {
 } OpAndArg;
 
 static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
-    static const struct { Op parametric, table; } ops[] = {
-        { Op_tf_r, Op_table_r },
-        { Op_tf_g, Op_table_g },
-        { Op_tf_b, Op_table_b },
-        { Op_tf_a, Op_table_a },
+    static const struct { Op sRGBish, PQish, HLGish, HLGinvish, table; } ops[] = {
+        { Op_tf_r, Op_pq_r, Op_hlg_r, Op_hlginv_r, Op_table_r },
+        { Op_tf_g, Op_pq_g, Op_hlg_g, Op_hlginv_g, Op_table_g },
+        { Op_tf_b, Op_pq_b, Op_hlg_b, Op_hlginv_b, Op_table_b },
+        { Op_tf_a, Op_pq_a, Op_hlg_a, Op_hlginv_a, Op_table_a },
     };
-
-    const OpAndArg noop = { Op_load_a8/*doesn't matter*/, nullptr };
+    const auto& op = ops[channel];
 
     if (curve->table_entries == 0) {
-        return is_identity_tf(&curve->parametric)
-            ? noop
-            : OpAndArg{ ops[channel].parametric, &curve->parametric };
-    }
+        const OpAndArg noop = { Op_load_a8/*doesn't matter*/, nullptr };
 
-    return OpAndArg{ ops[channel].table, curve };
+        const skcms_TransferFunction& tf = curve->parametric;
+        switch (classify(curve->parametric)) {
+            case Bad:        return noop;
+            case sRGBish:    return is_identity_tf(tf) ? noop : OpAndArg{op.sRGBish, &tf};
+            case PQish:      return OpAndArg{op.PQish,     &tf};
+            case HLGish:     return OpAndArg{op.HLGish,    &tf};
+            case HLGinvish:  return OpAndArg{op.HLGinvish, &tf};
+        }
+    }
+    return OpAndArg{op.table, curve};
 }
 
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
@@ -2399,9 +2419,22 @@ bool skcms_TransformWithPalette(const void*             src,
         }
 
         // Encode back to dst RGB using its parametric transfer functions.
-        if (!is_identity_tf(&inv_dst_tf_r)) { *ops++ = Op_tf_r; *args++ = &inv_dst_tf_r; }
-        if (!is_identity_tf(&inv_dst_tf_g)) { *ops++ = Op_tf_g; *args++ = &inv_dst_tf_g; }
-        if (!is_identity_tf(&inv_dst_tf_b)) { *ops++ = Op_tf_b; *args++ = &inv_dst_tf_b; }
+        skcms_Curve curves[] = {
+            {{ 0, inv_dst_tf_r }},
+            {{ 0, inv_dst_tf_g }},
+            {{ 0, inv_dst_tf_b }},
+        };
+        for (int i = 0; i < 3; i++) {
+            OpAndArg oa = select_curve_op(curves+i, i);
+            if (oa.arg) {
+                assert (oa.op != Op_table_r &&
+                        oa.op != Op_table_g &&
+                        oa.op != Op_table_b &&
+                        oa.op != Op_table_a);
+                *ops++  = oa.op;
+                *args++ = oa.arg;
+            }
+        }
     }
 
     // Clamp here before premul to make sure we're clamping to normalized values _and_ gamut,
