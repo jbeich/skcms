@@ -1439,8 +1439,8 @@ static void test_PQ() {
 
 static void test_HLG() {
     skcms_TransferFunction enc, dec;
-    expect(skcms_TransferFunction_makeHLGinv(&enc));
-    expect(skcms_TransferFunction_makeHLG   (&dec));
+    expect(skcms_TransferFunction_makeHLG(&dec));
+    expect(skcms_TransferFunction_invert(&dec, &enc));
 
     // Spot check the lower half of the curve.
     // Linear 0 encodes as 0.5*(0)^0.5 == 0.
@@ -1506,8 +1506,10 @@ static void test_HLG() {
 static void test_PQ_invert() {
     skcms_TransferFunction pqA, invA, invB;
 
-    expect(skcms_TransferFunction_makePQ   (&pqA)  );
-    expect(skcms_TransferFunction_makePQinv(&invA));
+    expect(skcms_TransferFunction_makePQ(&pqA));
+    // PQ's inverse is actually also PQish, so we can write out its expected value here.
+    expect(skcms_TransferFunction_makePQish(&invA, 107/128.0f, 2413/128.0f, 1305/8192.0f
+                                                 ,       1.0f, 2392/128.0f, 2523/  32.0f));
     expect(skcms_TransferFunction_invert(&pqA, &invB));
 
     // a,b,d,e really just negate and swap around,
@@ -1550,45 +1552,31 @@ static void test_PQ_invert() {
 }
 
 static void test_HLG_invert() {
-    skcms_TransferFunction hlgA, invA, invB;
+    skcms_TransferFunction hlg, inv;
 
-    expect(skcms_TransferFunction_makeHLG   (&hlgA) );
-    expect(skcms_TransferFunction_makeHLGinv(&invA));
-    expect(skcms_TransferFunction_invert(&hlgA, &invB));
+    expect(skcms_TransferFunction_makeHLG(&hlg));
+    // Unlike PQ, we can't create HLG's inverse directly, only via _invert().
+    expect(skcms_TransferFunction_invert(&hlg, &inv));
 
-    // Like PQ above, some of these values are expected
-    // to be exact, and some of them we're just getting
-    // lucky with that they happen to round trip exactly.
+    skcms_TransferFunction back;
+    expect(skcms_TransferFunction_invert(&inv, &back));
 
-    expect(invA.g == invB.g);  // Is this still HLGinvish?
-    expect(invA.a == invB.a);  // Lucky.
-    expect(invA.b == invB.b);  // Lucky.
-    expect(invA.c == invB.c);  // Lucky.
-    expect(invA.d == invB.d);  // Exact.
-    expect(invA.e == invB.e);  // Exact.
-    expect(invA.f == invB.f);  // Exact (zero).
-
-    // ... and invert back to HLG.
-    // This tests a slightly different code path (really very similar).
-    skcms_TransferFunction hlgB;
-    expect(skcms_TransferFunction_invert(&invB, &hlgB));
-
-    expect(hlgA.g == hlgB.g);
-    expect(hlgA.a == hlgB.a);
-    expect(hlgA.b == hlgB.b);
-    expect(hlgA.c == hlgB.c);
-    expect(hlgA.d == hlgB.d);
-    expect(hlgA.e == hlgB.e);
-    expect(hlgA.f == hlgB.f);
+    expect(hlg.g == back.g);
+    expect(hlg.a == back.a);
+    expect(hlg.b == back.b);
+    expect(hlg.c == back.c);
+    expect(hlg.d == back.d);
+    expect(hlg.e == back.e);
+    expect(hlg.f == back.f);
 
     // HLG functions invert between two different forms.
-    expect(hlgA.g != invA.g);
+    expect(hlg.g != inv.g);
 
-    skcms_Curve hlg_curve = {{0, hlgA}},
-                inv_curve = {{0, invA}};
+    skcms_Curve hlg_curve = {{0, hlg}},
+                inv_curve = {{0, inv}};
 
-    expect(skcms_AreApproximateInverses(&hlg_curve, &invA));
-    expect(skcms_AreApproximateInverses(&inv_curve, &hlgA));
+    expect(skcms_AreApproximateInverses(&hlg_curve, &inv));
+    expect(skcms_AreApproximateInverses(&inv_curve, &hlg));
 }
 
 int main(int argc, char** argv) {
