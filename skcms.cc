@@ -168,14 +168,6 @@ bool skcms_TransferFunction_makePQish(skcms_TransferFunction* tf,
     return true;
 }
 
-bool skcms_TransferFunction_makeHLGinvish(skcms_TransferFunction* tf,
-                                          float R, float G,
-                                          float a, float b, float c) {
-    *tf = { TFKind_marker(HLGinvish), R,G, a,b,c, 0 };
-    assert(classify(*tf) == HLGinvish);
-    return true;
-}
-
 bool skcms_TransferFunction_makeHLGish(skcms_TransferFunction* tf,
                                        float R, float G,
                                        float a, float b, float c) {
