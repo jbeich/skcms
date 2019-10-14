@@ -171,8 +171,7 @@ bool skcms_TransferFunction_makePQish(skcms_TransferFunction* tf,
 bool skcms_TransferFunction_makeHLGish(skcms_TransferFunction* tf,
                                        float R, float G,
                                        float a, float b, float c) {
-    // The math for HLGish transfer functions is faster if we precompute 1/R, 1/G, 1/a.
-    *tf = { TFKind_marker(HLGish), 1.0f/R,1.0f/G, 1.0f/a,b,c, 0 };
+    *tf = { TFKind_marker(HLGish), R,G, a,b,c, 0 };
     assert(classify(*tf) == HLGish);
     return true;
 }
@@ -186,12 +185,10 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
     switch (classify(*tf, &pq, &hlg)) {
         case Bad:       break;
 
-        // Remember that hlg.R, hlg.G, and hlg.a are holding each value's reciprocal,
-        // so the math may look a bit funny...
         case HLGish:    return sign * (x*hlg.R <= 1 ? powf_(x*hlg.R, hlg.G)
                                                     : expf_((x-hlg.c)*hlg.a) + hlg.b);
 
-        // Here all the hlg fields mean what they look like, R,G,a,b,c.
+        // skcms_TransferFunction_invert() inverts R, G, and a for HLGinvish so this math is fast.
         case HLGinvish: return sign * (x <= 1 ? hlg.R * powf_(x, hlg.G)
                                               : hlg.a * logf_(x - hlg.b) + hlg.c);
 
