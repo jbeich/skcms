@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f0e94d1_fd04e0bc",
+        "filename": "skcms.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1530,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-10-14T13:52:13Z",
+      "side": 1,
+      "message": "This is pleasant.",
+      "range": {
+        "startLine": 1523,
+        "startChar": 0,
+        "endLine": 1530,
+        "endChar": 0
+      },
+      "revId": "4e0f2dace6f350c459170eb8ded3261494ac4364",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
