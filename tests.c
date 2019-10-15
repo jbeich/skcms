@@ -689,6 +689,8 @@ static const char* profile_test_cases[] = {
 
     "profiles/fuzz/nan_s.icc",                        // oss-fuzz:16674
     "profiles/fuzz/inf_a.icc",                        // oss-fuzz:16675
+
+    "profiles/fuzz/fit_pq.icc",                       // oss-fuzz:18249
 };
 
 static void test_Parse(bool regen) {
