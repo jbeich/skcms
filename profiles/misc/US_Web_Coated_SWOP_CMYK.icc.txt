@@ -31,6 +31,7 @@ CLUT : 9 x 9 x 9 x 9 (16 bpp)
   B0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
   B1 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
   B2 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+WTPT : | 0.70840454 0.73594666 0.5710449 |
 252 random bytes transformed to linear XYZD50 bytes:
 	121f24 392210 0a0c06 1b141c 1d1407 151f0c 242014
 	23223b 000001 0f1514 212d48 482f22 242619 020101
