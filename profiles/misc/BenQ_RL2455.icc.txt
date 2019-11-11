@@ -57,6 +57,7 @@ CLUT : 16 x 16 x 16 (16 bpp)
   ~= : 1, 1, 0, 0, 0, 0, 0 (Max error: 0.000332177) (~Identity)
   B2 : 16-bit table with 4096 entries
   ~= : 1, 1, 0, 0, 0, 0, 0 (Max error: 0.000332177) (~Identity)
+WTPT : | 0.96429443 1 0.82510376 |
 252 random bytes transformed to linear XYZD50 bytes:
 	192a1a 51680e 26320b 0d0818 100a26 312504 244213
 	391f17 0f0c08 3a2513 525109 272f06 152216 231648

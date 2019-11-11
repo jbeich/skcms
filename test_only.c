@@ -275,6 +275,32 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
         }
     }
 
+    skcms_Matrix3x3 chad;
+    if (skcms_GetCHAD(profile, &chad)) {
+        fprintf(fp, "CHAD : | ");
+        print_shortest_float(fp, chad.vals[0][0]); fprintf(fp, " ");
+        print_shortest_float(fp, chad.vals[0][1]); fprintf(fp, " ");
+        print_shortest_float(fp, chad.vals[0][2]); fprintf(fp, " |\n");
+
+        fprintf(fp, "       | ");
+        print_shortest_float(fp, chad.vals[1][0]); fprintf(fp, " ");
+        print_shortest_float(fp, chad.vals[1][1]); fprintf(fp, " ");
+        print_shortest_float(fp, chad.vals[1][2]); fprintf(fp, " |\n");
+
+        fprintf(fp, "       | ");
+        print_shortest_float(fp, chad.vals[2][0]); fprintf(fp, " ");
+        print_shortest_float(fp, chad.vals[2][1]); fprintf(fp, " ");
+        print_shortest_float(fp, chad.vals[2][2]); fprintf(fp, " |\n");
+    }
+
+    float wtpt[3];
+    if (skcms_GetWTPT(profile, wtpt)) {
+        fprintf(fp, "WTPT : | ");
+        print_shortest_float(fp, wtpt[0]); fprintf(fp, " ");
+        print_shortest_float(fp, wtpt[1]); fprintf(fp, " ");
+        print_shortest_float(fp, wtpt[2]); fprintf(fp, " |\n");
+    }
+
     dump_transform_to_XYZD50(fp, profile);
     dump_transform_to_sRGBA (fp, profile);
     if (skcms_ApproximatelyEqualProfiles(profile, skcms_sRGB_profile())) {
