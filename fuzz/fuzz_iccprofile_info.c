@@ -9,6 +9,7 @@
 // of info from it.
 
 #include "../skcms.h"
+#include "../skcms_internal.h"
 
 static volatile uint32_t g_FoolTheOptimizer = 0;
 
