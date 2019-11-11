@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9c35ec6_81f7e489",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-11T16:40:13Z",
+      "side": 1,
+      "message": "Does it seem odd to you that we\u0027ve made these GetTag??() public but none of the low-level parsing routines (e.g. read_tag_xyz)?  The end-to-end skcms_GetCHAD, skcms_GetWTPT, and of course, skcms_Parse totally make sense to me.  But I\u0027m not sure how I\u0027d use these GetTag??() without having the tools to take the results apart, and if I\u0027m supposed to bring those tools and that knowledge myself, I probably know how to implement GetTag??() too?",
+      "revId": "0be915315565918bd1607c1457781779288b7116",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
