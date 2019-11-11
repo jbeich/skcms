@@ -52,6 +52,24 @@
       "revId": "0be915315565918bd1607c1457781779288b7116",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ac59422_1d0ba257",
+        "filename": "skcms.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-11-11T17:03:33Z",
+      "side": 1,
+      "message": "Sounds good. I\u0027ll do a follow-up...",
+      "parentUuid": "9b57e816_5e5e27dd",
+      "revId": "0be915315565918bd1607c1457781779288b7116",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
