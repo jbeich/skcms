@@ -691,6 +691,9 @@ static const char* profile_test_cases[] = {
     "profiles/fuzz/inf_a.icc",                        // oss-fuzz:16675
 
     "profiles/fuzz/fit_pq.icc",                       // oss-fuzz:18249
+
+    // Reasonable table, bad approximation (converges very slowly)
+    "profiles/misc/MR2416GSDF.icc",                   // chromium:869115
 };
 
 static void test_Parse(bool regen) {
