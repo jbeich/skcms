@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "451de66f_c74a19f4",
+        "filename": "skcms_internal.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T16:19:31Z",
+      "side": 1,
+      "message": "Since this is extern \"C\" and name mangling won\u0027t happen, might be more neighborly to rename to skcms_max_roundtrip_error?",
+      "range": {
+        "startLine": 34,
+        "startChar": 10,
+        "endLine": 34,
+        "endChar": 14
+      },
+      "revId": "cfd6a39a2a5e6fd3b716588e8adc21c22704dbf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a911653_4e4d794e",
+        "filename": "test_only.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T16:19:31Z",
+      "side": 1,
+      "message": "Maybe just always print this?  1.0f isn\u0027t necessarily always the goal, is it?  Could be a funny table that maxes out below that?",
+      "revId": "cfd6a39a2a5e6fd3b716588e8adc21c22704dbf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65fbf9ee_9ab6158a",
+        "filename": "test_only.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T16:19:31Z",
+      "side": 1,
+      "message": "Think it\u0027s simpler to just print each curve\u0027s error?",
+      "revId": "cfd6a39a2a5e6fd3b716588e8adc21c22704dbf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
