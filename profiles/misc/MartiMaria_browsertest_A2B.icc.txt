@@ -14,14 +14,14 @@
 
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
-  A0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
-  A1 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
-  A2 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  A0 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  A1 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  A2 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
 CLUT : 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
-  B0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
-  B1 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
-  B2 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
 WTPT : | 0.9642029 1 0.8249054 |
 252 random bytes transformed to linear XYZD50 bytes:
 	181915 7b8069 7b8069 7b8069 7b8069 7b8069 090a08

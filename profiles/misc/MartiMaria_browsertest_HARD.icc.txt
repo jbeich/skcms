@@ -20,7 +20,7 @@
 
 rTRC : 16-bit table with 255 entries
 gTRC : 16-bit table with 255 entries
-  ~= : 1, 0.003875792, 0, 0, 0, 0, 0 (Max error: 0.000128567)
+  ~= : 1, 0.003875792, 0, 0, 0, 0, 0 (Max error: 0.000128567) (f(1) = 0.00387573)
 bTRC : 16-bit table with 255 entries
  XYZ : | 0.9642029 0 0.9642029 |
        | 1 0 1 |
@@ -28,14 +28,14 @@ bTRC : 16-bit table with 255 entries
  !!! This does not appear to use a D50 whitepoint, rather [1.92841 2 1.64981]
  A2B : "A", CLUT, "B"
  "A" : 3 inputs
-  A0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
-  A1 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
-  A2 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  A0 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  A1 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  A2 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
 CLUT : 17 x 17 x 17 (16 bpp)
  "B" : 3 outputs
-  B0 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
-  B1 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
-  B2 : 1, 1, 0, 0, 0, 0, 0 (~Identity)
+  B0 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  B1 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  B2 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
 WTPT : | 0.9642029 1 0.8249054 |
 252 random bytes transformed to linear XYZD50 bytes:
 	181915 7b8069 7b8069 7b8069 7b8069 7b8069 090a08
