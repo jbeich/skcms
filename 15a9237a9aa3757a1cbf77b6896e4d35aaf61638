@@ -16,6 +16,24 @@
       "revId": "15a9237a9aa3757a1cbf77b6896e4d35aaf61638",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d244ebc6_c72eebd3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T15:37:08Z",
+      "side": 1,
+      "message": "Oh, duh, Skia only supports one...",
+      "parentUuid": "48900b89_da9b23d1",
+      "revId": "15a9237a9aa3757a1cbf77b6896e4d35aaf61638",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
