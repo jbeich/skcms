@@ -1,0 +1,245 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e48ab37_2bdc4aef",
+        "filename": "profiles/misc/crbug_1017960_19.icc.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "This is the profile with the kink at the top of blue, right?",
+      "range": {
+        "startLine": 31,
+        "startChar": 34,
+        "endLine": 31,
+        "endChar": 42
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c28a79bb_ec1513ff",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1685,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "This space left intentionally blank?\n\nIf so I\u0027m cool with it.",
+      "range": {
+        "startLine": 1685,
+        "startChar": 30,
+        "endLine": 1685,
+        "endChar": 36
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "419998ff_b8db0b1e",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1689,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "Some of this get\u0027s a little confusing now that we haven\u0027t already mentioned P.\n\nI guess if we just say, \"let P \u003d [ tf-\u003eg, tf-\u003ea, tf-\u003eb ]\" it all makes sense?",
+      "range": {
+        "startLine": 1689,
+        "startChar": 21,
+        "endLine": 1689,
+        "endChar": 27
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e41337b_7a7a5bbe",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1763,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "Now that this is abstracted away a little, might be worth mentioning we\u0027re tweaking tf-\u003eb to meet our constraints, and then solving for tf-\u003ee by knowing the two pieces of the function must meet at d?\n\nIt really might be worth doing a second pass over the comments to remind us what our constraints are.\n\nI can\u0027t really remember why a \u003e\u003d 0, and not just the range between ad+b and a+b \u003e\u003d 0.  I know we don\u0027t want complex numbers, but is there some further principled reason a must be \u003e\u003d 0?  Monotonicity?",
+      "range": {
+        "startLine": 1763,
+        "startChar": 12,
+        "endLine": 1763,
+        "endChar": 20
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81239c6c_73d944b6",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1764,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "Probably better as \"gauss_newton_step()\u0027s optimization\" now?",
+      "range": {
+        "startLine": 1764,
+        "startChar": 71,
+        "endLine": 1764,
+        "endChar": 87
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e85ea30d_527a45f8",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1776,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "This part was a little different from our unprincipled tweaks, so I think we should note what we\u0027re doing or it\u0027ll feel lumped in with the hacks?",
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32721ec2_bed103d6",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1782,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "Is it just me or does this sound like it returns a bool?",
+      "range": {
+        "startLine": 1782,
+        "startChar": 13,
+        "endLine": 1782,
+        "endChar": 40
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4935fecd_00444a23",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1799,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "I can\u0027t remember why we check the constraints before the gauss_newton_step() calls too.  Do you?  Is it just, powf_() might explode?",
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7404f9b_fbaba33d",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1818,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "As an alternative to many of my comments above, might try making fixup_tf() a lambda?  That\u0027ll bring things conceptually closer together?",
+      "range": {
+        "startLine": 1818,
+        "startChar": 62,
+        "endLine": 1818,
+        "endChar": 69
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b435b329_306cbc1a",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1900,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "Does any of this simplify now that we\u0027re checking those inverts in fit_nonlinear()?",
+      "range": {
+        "startLine": 1892,
+        "startChar": 0,
+        "endLine": 1900,
+        "endChar": 13
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0f85cbc_8d876430",
+        "filename": "skcms.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1919,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T20:17:23Z",
+      "side": 1,
+      "message": "Possibly this too?",
+      "range": {
+        "startLine": 1917,
+        "startChar": 0,
+        "endLine": 1919,
+        "endChar": 9
+      },
+      "revId": "9d51b9de3ca726b6c666a5f6aab798bb4c2e25b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
