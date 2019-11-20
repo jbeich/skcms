@@ -128,6 +128,8 @@ static void dump_transfer_function(FILE* fp, const char* name,
         fprintf(fp, " (D-gap: %.6g)", (n_at_d - l_at_d));
     }
 
+    fprintf(fp, " (f(1) = %.6g)", skcms_TransferFunction_eval(tf, 1.0f));
+
     skcms_Curve curve;
     curve.table_entries = 0;
     curve.parametric = *tf;
@@ -198,6 +200,16 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
         skcms_TransferFunction inv;
         if (skcms_TransferFunction_invert(&best_single_curve.trc[0].parametric, &inv)) {
             dump_transfer_function(fp, "Inv ", &inv, 0.0f);
+
+            float max_errors[3] = {
+                skcms_MaxRoundtripError(&profile->trc[0], &inv),
+                skcms_MaxRoundtripError(&profile->trc[1], &inv),
+                skcms_MaxRoundtripError(&profile->trc[2], &inv)
+            };
+            if (max_errors[0] != max_errors[1] || max_errors[0] != max_errors[2]) {
+                fprintf(fp, "Best Error: | %.6g %.6g %.6g |\n",
+                        max_errors[0], max_errors[1], max_errors[2]);
+            }
         } else {
             fprintf(fp, "*** could not invert Best ***\n");
         }
