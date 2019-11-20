@@ -201,6 +201,13 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
         } else {
             fprintf(fp, "*** could not invert Best ***\n");
         }
+
+        float max_error = 0.0f;
+        for (int i = 0; i < 3; ++i) {
+            float err = max_roundtrip_error(&profile->trc[0], &inv);
+            max_error = err > max_error ? err : max_error;
+        }
+        fprintf(fp, "  Max single curve error: %.6g\n", max_error);
     }
 
     if (profile->has_toXYZD50) {
