@@ -193,10 +193,19 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
 
     skcms_ICCProfile best_single_curve = *profile;
     if (skcms_MakeUsableAsDestinationWithSingleCurve(&best_single_curve)) {
-        dump_transfer_function(fp, "Best", &best_single_curve.trc[0].parametric, 0.0f);
-
         skcms_TransferFunction inv;
-        if (skcms_TransferFunction_invert(&best_single_curve.trc[0].parametric, &inv)) {
+        float max_error = 0.0f;
+        bool inverted = skcms_TransferFunction_invert(&best_single_curve.trc[0].parametric, &inv);
+        for (int i = 0; i < 3; ++i) {
+            if (profile->trc[i].table_entries) {
+                float err = max_roundtrip_error(&profile->trc[i], &inv);
+                max_error = err > max_error ? err : max_error;
+            }
+        }
+
+        dump_transfer_function(fp, "Best", &best_single_curve.trc[0].parametric, max_error);
+
+        if (inverted) {
             dump_transfer_function(fp, "Inv ", &inv, 0.0f);
         } else {
             fprintf(fp, "*** could not invert Best ***\n");
