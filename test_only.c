@@ -128,6 +128,11 @@ static void dump_transfer_function(FILE* fp, const char* name,
         fprintf(fp, " (D-gap: %.6g)", (n_at_d - l_at_d));
     }
 
+    float f_1 = skcms_TransferFunction_eval(tf, 1.0f);
+    if (f_1 != 1.0f) {
+        fprintf(fp, " (f(1) = %.6g)", f_1);
+    }
+
     skcms_Curve curve;
     curve.table_entries = 0;
     curve.parametric = *tf;
@@ -193,10 +198,24 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
 
     skcms_ICCProfile best_single_curve = *profile;
     if (skcms_MakeUsableAsDestinationWithSingleCurve(&best_single_curve)) {
-        dump_transfer_function(fp, "Best", &best_single_curve.trc[0].parametric, 0.0f);
-
         skcms_TransferFunction inv;
-        if (skcms_TransferFunction_invert(&best_single_curve.trc[0].parametric, &inv)) {
+        float per_curve_error[3] = { 0.0f, 0.0f, 0.0f };
+        bool inverted = skcms_TransferFunction_invert(&best_single_curve.trc[0].parametric, &inv);
+        for (int i = 0; i < 3; ++i) {
+            per_curve_error[i] = max_roundtrip_error(&profile->trc[i], &inv);
+        }
+
+        // We only print an error term on the best single curve if the original curves are different
+        float max_error = 0.0f;
+        if (per_curve_error[0] != per_curve_error[1] || per_curve_error[0] != per_curve_error[2]) {
+            for (int i = 0; i < 3; ++i) {
+                max_error = per_curve_error[i] > max_error ? per_curve_error[i] : max_error;
+            }
+        }
+
+        dump_transfer_function(fp, "Best", &best_single_curve.trc[0].parametric, max_error);
+
+        if (inverted) {
             dump_transfer_function(fp, "Inv ", &inv, 0.0f);
         } else {
             fprintf(fp, "*** could not invert Best ***\n");
