@@ -230,7 +230,7 @@ static float eval_curve(const skcms_Curve* curve, float x) {
     return l + (h-l)*t;
 }
 
-static float max_roundtrip_error(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
+float max_roundtrip_error(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
     uint32_t N = curve->table_entries > 256 ? curve->table_entries : 256;
     const float dx = 1.0f / (N - 1);
     float err = 0;
