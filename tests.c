@@ -694,6 +694,9 @@ static const char* profile_test_cases[] = {
 
     // Reasonable table, bad approximation (converges very slowly)
     "profiles/misc/MR2416GSDF.icc",                   // chromium:869115
+
+    // Three different tables w/shoulders, bad approximation (slow convergence)
+    "profiles/misc/crbug_1017960_19.icc",             // chromium:1017960
 };
 
 static void test_Parse(bool regen) {
