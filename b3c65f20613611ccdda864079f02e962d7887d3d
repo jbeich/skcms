@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7906d017_564399af",
+        "filename": "skcms.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1445,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-10T16:56:52Z",
+      "side": 1,
+      "message": "(we tend to use 4-space indents.)",
+      "revId": "b3c65f20613611ccdda864079f02e962d7887d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d17308c3_1cd795c3",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1223,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-10T16:56:52Z",
+      "side": 1,
+      "message": "Let\u0027s get a \"D65\" somewhere in this name?  Will help to see we\u0027re doing D65 -\u003e D50.",
+      "revId": "b3c65f20613611ccdda864079f02e962d7887d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76b9a4b7_3e5743ac",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1233,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-10T16:56:52Z",
+      "side": 1,
+      "message": "See what you think about doing this with skcms_Matrix3x3_concat()?  Even with the unused parts of the matrix, it might read more clearly?",
+      "range": {
+        "startLine": 1224,
+        "startChar": 0,
+        "endLine": 1233,
+        "endChar": 57
+      },
+      "revId": "b3c65f20613611ccdda864079f02e962d7887d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e550fe1d_537e28df",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-10T16:56:52Z",
+      "side": 1,
+      "message": "Are these close enough to test against skcms_sRGB_profile()-\u003etoXYZD50?  That\u0027d really make the whole test feel cozy.",
+      "revId": "b3c65f20613611ccdda864079f02e962d7887d3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
