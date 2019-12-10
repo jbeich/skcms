@@ -1216,6 +1216,22 @@ static void test_MakeUsableAsDestinationAdobe() {
     free(ptr);
 }
 
+static void test_AdaptToD50() {
+    skcms_Matrix3x3 xyz_to_xyzD50;
+    float x_D65 = 0.3127f;
+    float y_D65 = 0.3290f;
+    expect(skcms_AdaptToXYZD50(x_D65, y_D65, &xyz_to_xyzD50));
+    skcms_Matrix3x3 sRGB_D65 = {{{0.4124564f, 0.3575761f, 0.1804375f},
+                                 {0.2126729f, 0.7151522f, 0.0721750f},
+                                 {0.0193339f, 0.1191920f, 0.9503041f}}};
+    skcms_Matrix3x3 sRGB_D50 = skcms_Matrix3x3_concat(&xyz_to_xyzD50, &sRGB_D65);
+    skcms_ICCProfile p = *skcms_sRGB_profile();
+    for (int r = 0; r < 3; ++r)
+        for (int c = 0; c < 3; ++c) {
+            expect(fabsf_(sRGB_D50.vals[r][c] - p.toXYZD50.vals[r][c]) < 0.0001f);
+        }
+}
+
 static void test_PrimariesToXYZ() {
     skcms_Matrix3x3 srgb_to_xyz;
     expect(skcms_PrimariesToXYZD50(0.64f, 0.33f,
@@ -1613,6 +1629,7 @@ int main(int argc, char** argv) {
     test_ByteToLinearFloat();
     test_MakeUsableAsDestination();
     test_MakeUsableAsDestinationAdobe();
+    test_AdaptToD50();
     test_PrimariesToXYZ();
     test_Programmatic_sRGB();
     test_ExactlyEqual();
