@@ -10,9 +10,9 @@
 rTRC : 16-bit table with 3 entries
 gTRC : 16-bit table with 3 entries
 bTRC : 16-bit table with 3 entries
- XYZ : | 0.9614258 0 0 |
-       | 0 1.0083008 0 |
-       | 0 0 0.81689453 |
+ XYZ : | 0.961425 0 0 |
+       | 0 1.008300 0 |
+       | 0 0 0.8168945 |
 252 random bytes transformed to linear XYZD50 bytes:
 	1f201a 1f201a 1f201a 1f201a 1f201a 1f201a 1f201a
 	1f201a 1f201a 1f201a 1f201a 1f201a 1f201a 1f201a
