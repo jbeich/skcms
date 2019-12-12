@@ -17,9 +17,9 @@
 
 static void print_shortest_float(FILE* fp, float x) {
     char buf[80];
-    int chars = 0;
-    for (int digits = 0; digits < 12; digits++) {
-        chars = snprintf(buf, sizeof(buf), "%.*f", digits, x);
+    int digits;
+    for (digits = 0; digits < 12; digits++) {
+        snprintf(buf, sizeof(buf), "%.*f", digits, x);
         float back;
         if (1 != sscanf(buf, "%f", &back) || back == x) {
             break;
@@ -30,16 +30,12 @@ static void print_shortest_float(FILE* fp, float x) {
     // That'd be the ideal thing to print, but sadly fprintf() rounding is
     // implementation specific, so results vary in the last digit.
     //
-    // We compromise by dropping that last digit.
+    // So we'll print out one _extra_ digit, then chop that off.
     //
-    // E.g. glibc prints 0x1.7p-6 == 0x3cb80000 as 0.022460938 in 11 digits,
-    // while newlib prints as 0.022460937.  We print 0.02246094.
+    // (0x1.7p-6 == 0x3cb80000 is a good number to test this sort of thing with.)
 
-    bool is_fractional = NULL != strchr(buf, '.');
-    if (is_fractional) {
-        chars--;
-    }
-    fprintf(fp, "%.*s", chars, buf);
+    int chars = snprintf(buf, sizeof(buf), "%.*f", digits+1, x);
+    fprintf(fp, "%.*s", chars-1, buf);
 }
 
 static void dump_transform_to_XYZD50(FILE* fp,
