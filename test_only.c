@@ -25,6 +25,20 @@ static void print_shortest_float(FILE* fp, float x) {
             break;
         }
     }
+
+    // We've found the smallest number of digits that roundtrips our float.
+    // That'd be the ideal thing to print, but sadly fprintf() rounding is
+    // implementation specific, so results vary in the last digit.
+    //
+    // We compromise by printing one fewer fractional digit than ideal.
+    //
+    // E.g. glibc prints 0x1.7p-6 == 0x3cb80000 as 0.022460938 in 11 digits,
+    // while newlib prints as 0.022460937.  Both print 0.02246094 in 10.
+
+    bool is_fractional = NULL != strchr(buf, '.');
+    if (is_fractional) {
+        digits--;
+    }
     fprintf(fp, "%.*f", digits, x);
 }
 
