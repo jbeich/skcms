@@ -749,10 +749,19 @@ static void test_Parse(bool regen) {
             expect(load_file(ref_filename, &ref_buf, &ref_len));
 
             if (dump_len != ref_len || memcmp(dump_buf, ref_buf, dump_len) != 0) {
+                const char* cur = dump_buf;
+                const char* ref =  ref_buf;
+                while (*cur == *ref) { cur++; ref++; }
+                size_t off = (size_t)(cur - (const char*)dump_buf);
                 // Write out the new data on a mismatch
                 fprintf(stderr, "Parse mismatch for %s:\n", filename);
                 fwrite(dump_buf, 1, dump_len, stderr);
                 fprintf(stderr, "\n");
+
+                fprintf(stderr, "Mismatch begins at offset %zu, expected '%c', got,\n", off, *ref);
+                fwrite(cur, 1, dump_len - off, stderr);
+                fprintf(stderr, "\n");
+
                 expect(false);
             }
             free(ref_buf);
