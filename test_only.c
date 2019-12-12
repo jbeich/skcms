@@ -17,15 +17,29 @@
 
 static void print_shortest_float(FILE* fp, float x) {
     char buf[80];
-    int digits;
-    for (digits = 0; digits < 12; digits++) {
-        snprintf(buf, sizeof(buf), "%.*f", digits, x);
+    int chars = 0;
+    for (int digits = 0; digits < 12; digits++) {
+        chars = snprintf(buf, sizeof(buf), "%.*f", digits, x);
         float back;
         if (1 != sscanf(buf, "%f", &back) || back == x) {
             break;
         }
     }
-    fprintf(fp, "%.*f", digits, x);
+
+    // We've found the smallest number of digits that roundtrips our float.
+    // That'd be the ideal thing to print, but sadly fprintf() rounding is
+    // implementation specific, so results vary in the last digit.
+    //
+    // We compromise by dropping that last digit.
+    //
+    // E.g. glibc prints 0x1.7p-6 == 0x3cb80000 as 0.022460938 in 11 digits,
+    // while newlib prints as 0.022460937.  We print 0.02246094.
+
+    bool is_fractional = NULL != strchr(buf, '.');
+    if (is_fractional) {
+        chars--;
+    }
+    fprintf(fp, "%.*s", chars, buf);
 }
 
 static void dump_transform_to_XYZD50(FILE* fp,
