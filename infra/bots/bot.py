@@ -45,9 +45,10 @@ elif 'linux' in sys.platform:
   append('skcms/build/clang', 'cxx = {}/bin/clang++'.format(clang_linux))
 
   # Get an Emscripten environment all set up.
+  EM_VER = '1.39.4'
   call('git clone https://github.com/emscripten-core/emsdk.git')
   os.chdir('emsdk')
-  call('./emsdk install sdk-1.38.28-64bit')
+  call('./emsdk install sdk-{}-64bit'.format(EM_VER))
   os.chdir('..')
 
   emscripten_sdk = os.path.realpath('emsdk')
@@ -62,17 +63,17 @@ NODE_JS = '{}'
 COMPILER_ENGINE = NODE_JS
 JS_ENGINES = [NODE_JS]
   '''.format(
-    emscripten_sdk + '/clang/e1.38.28_64bit/binaryen',
-    emscripten_sdk + '/clang/e1.38.28_64bit',
+    emscripten_sdk + '/clang/e{}_64bit/binaryen'.format(EM_VER),
+    emscripten_sdk + '/clang/e{}_64bit'.format(EM_VER),
     node,
   )
 
   append('skcms/build/emscripten',
-         'cc  = env EM_CONFIG={} {}/emscripten/1.38.28/emcc'.format(
-           em_config, emscripten_sdk))
+         'cc  = env EM_CONFIG={} {}/emscripten/{}/emcc'.format(
+           em_config, emscripten_sdk, EM_VER))
   append('skcms/build/emscripten',
-         'cxx = env EM_CONFIG={} {}/emscripten/1.38.28/em++'.format(
-           em_config, emscripten_sdk))
+         'cxx = env EM_CONFIG={} {}/emscripten/{}/em++'.format(
+           em_config, emscripten_sdk, EM_VER))
   append('skcms/build/emscripten',
          'node = {}'.format(node))
 
