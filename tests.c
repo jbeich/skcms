@@ -697,6 +697,8 @@ static const char* profile_test_cases[] = {
 
     // Three different tables w/shoulders, bad approximation (slow convergence)
     "profiles/misc/crbug_1017960_19.icc",             // chromium:1017960
+
+    "profiles/fuzz/direct_fit_not_invertible.icc",    // oss-fuzz:19341
 };
 
 static void test_Parse(bool regen) {
