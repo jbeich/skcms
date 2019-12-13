@@ -699,6 +699,7 @@ static const char* profile_test_cases[] = {
     "profiles/misc/crbug_1017960_19.icc",             // chromium:1017960
 
     "profiles/fuzz/direct_fit_not_invertible.icc",    // oss-fuzz:19341
+    "profiles/fuzz/direct_fit_negative_a.icc",        // oss-fuzz:19467
 };
 
 static void test_Parse(bool regen) {
