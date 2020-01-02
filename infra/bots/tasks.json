@@ -147,7 +147,7 @@
         "clang_win"
       ],
       "dimensions": [
-        "os:Windows-2016Server",
+        "os:Windows-Server-14393",
         "gpu:none",
         "pool:Skia"
       ],
