@@ -77,13 +77,16 @@ JS_ENGINES = [NODE_JS]
 
 else:  # Windows
   win_toolchain = os.path.realpath(sys.argv[2])
-  os.environ['PATH'] = win_toolchain + '\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX64\\x64;' + os.environ['PATH']
-  os.environ['INCLUDE'] = win_toolchain + '\\VC\\Tools\\MSVC\\14.16.27023\\include;'
-  os.environ['INCLUDE'] += win_toolchain + '\\win_sdk\\Include\\10.0.17763.0\\shared;'
-  os.environ['INCLUDE'] += win_toolchain + '\\win_sdk\\Include\\10.0.17763.0\\ucrt;'
-  os.environ['INCLUDE'] += win_toolchain + '\\win_sdk\\Include\\10.0.17763.0\\um;'
-  os.environ['LIB'] = win_toolchain + '\\VC\\Tools\\MSVC\\14.16.27023\\lib\\x64;'
-  os.environ['LIB'] += win_toolchain + '\\win_sdk\\Lib\\10.0.17763.0\\um\\x64;'
-  os.environ['LIB'] += win_toolchain + '\\win_sdk\\Lib\\10.0.17763.0\\ucrt\\x64;'
+  msvc = win_toolchain + '\\VC\\Tools\\MSVC\\14.24.28314\\'
+  sdk  = win_toolchain + '\\win_sdk\\'
+
+  os.environ['PATH'] = msvc + 'bin\\HostX86\\x64;' + os.environ['PATH']
+  os.environ['INCLUDE'] = msvc + 'include;'
+  os.environ['INCLUDE'] += sdk + 'Include\\10.0.17763.0\\shared;'
+  os.environ['INCLUDE'] += sdk + 'Include\\10.0.17763.0\\ucrt;'
+  os.environ['INCLUDE'] += sdk + 'Include\\10.0.17763.0\\um;'
+  os.environ['LIB'] = msvc + 'lib\\x64;'
+  os.environ['LIB'] += sdk + 'Lib\\10.0.17763.0\\um\\x64;'
+  os.environ['LIB'] += sdk + 'Lib\\10.0.17763.0\\ucrt\\x64;'
 
   call('{ninja}\\ninja.exe -C skcms -f msvs.ninja -k 0'.format(ninja=ninja))
