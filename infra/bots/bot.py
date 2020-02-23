@@ -22,7 +22,7 @@ if 'darwin' in sys.platform:
   xcode_app_path = os.path.join(os.getcwd(), sys.argv[4])
   # See mapping of Xcode version to Xcode build version here:
   # https://chromium.googlesource.com/chromium/tools/build/+/master/scripts/slave/recipe_modules/ios/api.py#37
-  XCODE_BUILD_VERSION = '9c40b'
+  XCODE_BUILD_VERSION = '11c29'
   call(('{mac_toolchain}/mac_toolchain install '
         '-kind mac '
         '-xcode-version {xcode_build_version} '
