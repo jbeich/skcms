@@ -985,9 +985,8 @@ static void test_sRGB_AllBytes() {
     expect( skcms_Parse(ptr, len, &sRGB) );
 
     skcms_ICCProfile linear_sRGB = sRGB;
-    linear_sRGB.trc[0].parametric = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
-    linear_sRGB.trc[1].parametric = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
-    linear_sRGB.trc[2].parametric = (skcms_TransferFunction){ 1,1,0,0,0,0,0 };
+    skcms_TransferFunction linearTF = { 1,1,0,0,0,0,0 };
+    skcms_SetTransferFunction(&linear_sRGB, &linearTF);
 
     // Enough to hit all distinct bytes when interpreted as RGB 888.
     uint8_t src[258],
@@ -1617,6 +1616,69 @@ static void test_HLG_invert() {
     expect(skcms_AreApproximateInverses(&inv_curve, &hlg));
 }
 
+static void test_RGBA_8888_sRGB() {
+    // We'll convert sRGB to Display P3 two ways and test they're equivalent.
+
+    // Method A: normal sRGB profile we're used to, paired with RGBA_8888.
+    const skcms_ICCProfile* sRGB = skcms_sRGB_profile();
+
+    // Method B: linear sRGB profile paired with RGBA_8888_sRGB.
+    skcms_ICCProfile linear_sRGB = *sRGB;
+    skcms_TransferFunction linearTF = { 1,1,0,0,0,0,0 };
+    skcms_SetTransferFunction(&linear_sRGB, &linearTF);
+
+    struct {
+        skcms_PixelFormat       fmt;
+        const skcms_ICCProfile* prof;
+        float                   f32[256];
+    } A = { skcms_PixelFormat_RGBA_8888     ,         sRGB, {0} },
+      B = { skcms_PixelFormat_RGBA_8888_sRGB, &linear_sRGB, {0} };
+
+    // We'll skip some bytes as alpha, but this is probably plenty of testing.
+    uint8_t bytes[256];
+    for (int i = 0; i < 256; i++) {
+        bytes[i] = i & 0xff;
+    }
+
+    // We transform to another gamut to make sure both methods go through a full-power transform.
+    void*  ptr;
+    size_t len;
+    expect(load_file("profiles/mobile/Display_P3_parametric.icc", &ptr,&len));
+    skcms_ICCProfile dp3;
+    expect(skcms_Parse(ptr, len, &dp3));
+
+    expect(skcms_Transform(bytes,                       A.fmt, skcms_AlphaFormat_Unpremul, A.prof,
+                           A.f32, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul,   &dp3,
+                           64));
+    expect(skcms_Transform(bytes,                       B.fmt, skcms_AlphaFormat_Unpremul, B.prof,
+                           B.f32, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul,   &dp3,
+                           64));
+
+    // The two methods should be bit-exact.
+    for (int i = 0; i < 256; i++) {
+        expect(A.f32[i] == B.f32[i]);
+    }
+
+    // Now let's transform both back and test they're round-trip the same.
+    for (int i = 0; i < 256; i++) { bytes[i] = 0; }
+    expect(skcms_Transform(A.f32, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul,   &dp3,
+                           bytes,                       A.fmt, skcms_AlphaFormat_Unpremul, A.prof,
+                           64));
+    for (int i = 0; i < 256; i++) {
+        expect(bytes[i] == i);
+    }
+
+    for (int i = 0; i < 256; i++) { bytes[i] = 0; }
+    expect(skcms_Transform(B.f32, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul,   &dp3,
+                           bytes,                       B.fmt, skcms_AlphaFormat_Unpremul, B.prof,
+                           64));
+    for (int i = 0; i < 256; i++) {
+        expect(bytes[i] == i);
+    }
+
+    free(ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1656,6 +1718,7 @@ int main(int argc, char** argv) {
     test_HLG();
     test_PQ_invert();
     test_HLG_invert();
+    test_RGBA_8888_sRGB();
 
     // Temporarily disable some tests while getting FP16 compute working.
     if (!kFP16) {
