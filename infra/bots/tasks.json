@@ -42,11 +42,6 @@
           "version": "version:16"
         },
         {
-          "name": "skia/bots/mips64el_toolchain_linux",
-          "path": "mips64el_toolchain_linux",
-          "version": "version:4"
-        },
-        {
           "name": "infra/python/cpython/linux-amd64",
           "path": "python",
           "version": "version:2.7.15.chromium14"
@@ -57,8 +52,7 @@
         "skcms/infra/bots/bot.py",
         "ninja",
         "ndk",
-        "clang_linux",
-        "mips64el_toolchain_linux"
+        "clang_linux"
       ],
       "dimensions": [
         "os:Linux",
