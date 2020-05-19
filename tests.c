@@ -700,6 +700,9 @@ static const char* profile_test_cases[] = {
 
     "profiles/fuzz/direct_fit_not_invertible.icc",    // oss-fuzz:19341
     "profiles/fuzz/direct_fit_negative_a.icc",        // oss-fuzz:19467
+
+    // g = 1027 -> -nan from exp2f_, sign-strip doesn't work, leading to powf_ assert
+    "profiles/fuzz/large_g.icc",                      // chromium:996795
 };
 
 static void test_Parse(bool regen) {
