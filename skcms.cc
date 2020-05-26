@@ -32,6 +32,11 @@
     #endif
 #endif
 
+// Set to false at startup to disable runtime CPU detection.
+extern
+bool skcms_runtime_cpu_detection;
+bool skcms_runtime_cpu_detection = true;
+
 // sizeof(x) will return size_t, which is 32-bit on some machines and 64-bit on others.
 // We have better testing on 64-bit machines, so force 32-bit machines to behave like 64-bit.
 //
@@ -2142,6 +2147,9 @@ namespace baseline {
     #if defined(TEST_FOR_HSW) || defined(TEST_FOR_SKX)
         enum class CpuType { None, HSW, SKX };
         static CpuType cpu_type() {
+            if (!skcms_runtime_cpu_detection) {
+                return CpuType::None;
+            }
             static const CpuType type = []{
                 // See http://www.sandpile.org/x86/cpuid.htm
 
