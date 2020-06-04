@@ -632,6 +632,10 @@ static const char* profile_test_cases[] = {
     "profiles/misc/ThinkpadX1YogaV2.icc",
     "profiles/misc/XPS13_9360.icc",
 
+    // Calibrated profile where A2B/B2A and XYZ+TRC produce very different gamut mappings.
+    // User was (rightly) confused & convinced that profile was being ignored.
+    "profiles/misc/Calibrated_A2B_XYZ_Mismatch.icc",  // chromium:1055154
+
     // fuzzer generated profiles that found parsing bugs
 
     // Bad tag table data - these should not parse
