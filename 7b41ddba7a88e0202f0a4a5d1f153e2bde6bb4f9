@@ -34,6 +34,24 @@
       "revId": "7b41ddba7a88e0202f0a4a5d1f153e2bde6bb4f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4fce92e8_58ba32c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-07T20:39:04Z",
+      "side": 1,
+      "message": "Do you mean you can\u0027t read the logs?  Make sure to click on Raw Output.  These bots have no Rich Output.\n\nhttps://chromium-swarm.appspot.com/task?id\u003d4d43bf3252028810\u0026o\u003dtrue",
+      "parentUuid": "ae9f6c9d_c19a02f1",
+      "revId": "7b41ddba7a88e0202f0a4a5d1f153e2bde6bb4f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
