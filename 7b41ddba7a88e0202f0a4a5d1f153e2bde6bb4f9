@@ -52,6 +52,24 @@
       "revId": "7b41ddba7a88e0202f0a4a5d1f153e2bde6bb4f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e5e9b49_dcca09a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9943
+      },
+      "writtenOn": "2020-07-07T20:53:27Z",
+      "side": 1,
+      "message": "Ah, okay I saw a 403 at the rich output tab and assumed I didn\u0027t have permissions. Thanks!",
+      "parentUuid": "4fce92e8_58ba32c4",
+      "revId": "7b41ddba7a88e0202f0a4a5d1f153e2bde6bb4f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
