@@ -1,5 +1,4 @@
 mode          = .simd
-extra_cflags  = -s SIMD=1
-extra_ldflags = -s SIMD=1
+extra_cflags  = -msimd128
 
 include build/emscripten
