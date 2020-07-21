@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22bc9ce9_16dd8fcc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-07-21T20:51:38Z",
+      "side": 1,
+      "message": "(There\u0027s nothing real to run here through the CQ, but I am curious whether anything will mind a file named BUILD and a directory named build/.)",
+      "revId": "d88ea4e17705baca9b35c6f86a0ec69adde721d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
