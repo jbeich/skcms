@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3b367ac_570fe92c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9943
+      },
+      "writtenOn": "2020-07-21T17:57:18Z",
+      "side": 1,
+      "message": "Nice, thanks! I think we can also remove `--embed-file profiles` from build/emscipten (follow-up change?)",
+      "revId": "e7e023e990a645e98fe4eb1c2f41ccbefe572416",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
