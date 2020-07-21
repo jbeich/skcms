@@ -34,15 +34,15 @@ if 'darwin' in sys.platform:
       xcode_app_path=xcode_app_path))
 
   # Our Mac bot toolchains are too old for LSAN.
-  append('skcms/build/clang.lsan', 'disabled = true')
+  append('skcms/ninja/clang.lsan', 'disabled = true')
 
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
 
 elif 'linux' in sys.platform:
   # Point to clang in our clang_linux package.
   clang_linux = os.path.realpath(sys.argv[3])
-  append('skcms/build/clang', 'cc  = {}/bin/clang  '.format(clang_linux))
-  append('skcms/build/clang', 'cxx = {}/bin/clang++'.format(clang_linux))
+  append('skcms/ninja/clang', 'cc  = {}/bin/clang  '.format(clang_linux))
+  append('skcms/ninja/clang', 'cxx = {}/bin/clang++'.format(clang_linux))
 
   # Get an Emscripten environment all set up.
   call('git clone https://github.com/emscripten-core/emsdk.git')
@@ -64,13 +64,13 @@ COMPILER_ENGINE = NODE_JS
 JS_ENGINES = [NODE_JS]
   '''.format(emscripten_sdk, emscripten_sdk, emscripten_sdk, node)
 
-  append('skcms/build/emscripten',
+  append('skcms/ninja/emscripten',
          'cc  = env EM_CONFIG={} {}/upstream/emscripten/emcc'.format(
            em_config, emscripten_sdk))
-  append('skcms/build/emscripten',
+  append('skcms/ninja/emscripten',
          'cxx = env EM_CONFIG={} {}/upstream/emscripten/em++'.format(
            em_config, emscripten_sdk))
-  append('skcms/build/emscripten',
+  append('skcms/ninja/emscripten',
          'node = {}'.format(node))
 
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
