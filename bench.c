@@ -46,8 +46,8 @@ static float src_pixels[NPIXELS * 4],
 
 int main(int argc, char** argv) {
     int           n = 100000;
-    const char* src = "profiles/mobile/sRGB_parametric.icc";
-    const char* dst = "profiles/mobile/Display_P3_parametric.icc";
+    const char* src = NULL;
+    const char* dst = NULL;
 
     for (int i = 0; i < argc; i++) {
         if (0 == strcmp(argv[i], "-n")) { n   = atoi(argv[++i]); }
@@ -55,15 +55,30 @@ int main(int argc, char** argv) {
         if (0 == strcmp(argv[i], "-d")) { dst =      argv[++i] ; }
     }
 
-    void  *src_buf, *dst_buf;
-    size_t src_len,  dst_len;
-    load_file(src, &src_buf, &src_len);
-    load_file(dst, &dst_buf, &dst_len);
+    // Default to sRGB -> Display P3.
+    skcms_ICCProfile src_profile = *skcms_sRGB_profile(),
+                     dst_profile = *skcms_sRGB_profile();
+    dst_profile.toXYZD50 = (skcms_Matrix3x3){{
+        { 0.51512146f  , 0.29197692f , 0.15710449f},
+        { 0.24119567f  , 0.6922454f  , 0.0665741f },
+        {-0.0010375976f, 0.041885376f, 0.7840728f },
+    }};
 
-    skcms_ICCProfile src_profile, dst_profile;
-    if (!skcms_Parse(src_buf, src_len, &src_profile) ||
-        !skcms_Parse(dst_buf, dst_len, &dst_profile)) {
-        return 1;
+    void *src_buf = NULL,
+         *dst_buf = NULL;
+    size_t src_len,
+           dst_len;
+    if (src) {
+        load_file(src, &src_buf, &src_len);
+        if (!skcms_Parse(src_buf, src_len, &src_profile)) {
+            return 1;
+        }
+    }
+    if (dst) {
+        load_file(dst, &dst_buf, &dst_len);
+        if (!skcms_Parse(dst_buf, dst_len, &dst_profile)) {
+            return 1;
+        }
     }
 
     // We'll rotate through pixel formats to get samples from all the various stages.
@@ -93,8 +108,8 @@ int main(int argc, char** argv) {
     printf("%d loops in %g clock ticks, %.3g ns / pixel\n",
             n, (double)ticks, ticks / (CLOCKS_PER_SEC * 1e-9) / (n * NPIXELS));
 
-    free(src_buf);
-    free(dst_buf);
+    if (src_buf) { free(src_buf); }
+    if (dst_buf) { free(dst_buf); }
 
     return all_ok ? 0 : 1;
 }
