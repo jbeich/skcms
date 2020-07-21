@@ -1,6 +1,6 @@
 cc     = clang
 cxx    = clang++
-cflags = -fcolor-diagnostics -Weverything
+cflags = -fcolor-diagnostics -Weverything -Wno-implicit-int-float-conversion
 out    = out/clang$mode
 
 include build/local
