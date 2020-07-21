@@ -16,6 +16,24 @@
       "revId": "d88ea4e17705baca9b35c6f86a0ec69adde721d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13813b16_09bec4e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-07-21T20:54:29Z",
+      "side": 1,
+      "message": "That\u0027s not going to work on Windows (case insensitive file system)",
+      "parentUuid": "22bc9ce9_16dd8fcc",
+      "revId": "d88ea4e17705baca9b35c6f86a0ec69adde721d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
