@@ -1,0 +1,9 @@
+build:clang --action_env=CC=clang
+build:clang --action_env=CXX=clang++
+
+build:asan --copt -fsanitize=address
+build:asan --linkopt -fsanitize=address
+
+build:msan --config=clang
+build:msan --copt -fsanitize=memory
+build:msan --linkopt -fsanitize=memory
