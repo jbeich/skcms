@@ -1301,6 +1301,15 @@ static void test_ExactlyEqual() {
     expect(0 == memcmp(&exact, srgb, sizeof(skcms_ICCProfile)));
 }
 
+static void test_GrayscaleAndRGBCanBeEqual() {
+    const skcms_ICCProfile* srgb = skcms_sRGB_profile();
+    skcms_ICCProfile        gray = *srgb;
+    gray.data_color_space = skcms_Signature_Gray;
+
+    expect(skcms_ApproximatelyEqualProfiles(srgb, &gray));
+    expect(skcms_ApproximatelyEqualProfiles(&gray, srgb));
+}
+
 static void test_Clamp() {
     // Test that we clamp out-of-gamut values when converting to fixed point,
     // not just to byte value range but also to gamut (for compatibility with
@@ -1716,6 +1725,7 @@ int main(int argc, char** argv) {
     test_PrimariesToXYZ();
     test_Programmatic_sRGB();
     test_ExactlyEqual();
+    test_GrayscaleAndRGBCanBeEqual();
     test_AliasedTransforms();
     test_Palette8();
     test_TF_invert();
