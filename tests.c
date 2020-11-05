@@ -1556,6 +1556,51 @@ static void test_HLG() {
     expect(12.00000f < rgb[5] && rgb[5] < 12.00001f);
 }
 
+static void test_scaled_HLG() {
+    // HLG curve scaled 4x, spot checked at a bunch of interesting points.
+    skcms_TransferFunction enc, dec;
+    expect(skcms_TransferFunction_makeScaledHLGish(
+                &dec, 4.0f, 2.0f,2.0f
+                    , 1/0.17883277f, 0.28466892f, 0.55991073f));
+    expect(skcms_TransferFunction_invert(&dec, &enc));
+
+    // TODO: tolerance in ulps?
+    const float exact = 0.0000f,
+                tight = 0.0001f,
+                loose = 0.0002f;
+    struct {
+        float tol, linear, encoded;
+    } cases[] = {
+        // Points well on the gamma side of the curve.
+        {exact, 0.0f, 0.0f},                 // = 0.5*(0.0/4)^0.5
+        {tight, 0.5f, 0.1767766952966369f},  // ≈ 0.5*(0.5/4)^0.5
+        {tight, 1.0f, 0.25f},                // = 0.5*(1.0/4)^0.5
+        {tight, 2.0f, 0.3535533905932738f},  // ≈ 0.5*(2.0/4)^0.5
+
+        // With a scale of 4, linear 4.0f is the border between gamma and exponential curves.
+        {tight, 3.999f, 0.49993749609326166f},   // ≈ 0.5*(3.999/4)^0.5
+        {exact, 4.000f, 0.5f},                   // = 0.5*(4.000/4)^0.5
+        {tight, 4.001f, 0.5000624895514657f},    // ≈ 0.17883*ln(4.001/4 - 0.28467) + 0.55991
+
+        // Points well on the exponential side of the curve.
+        {loose,  6.0f, 0.5947860768815979f},     // ≈ 0.17883*ln( 6.0/4 - 0.28467) + 0.55991
+        {tight, 12.0f, 0.7385492680658274f},     // ≈ 0.17883*ln(12.0/4 - 0.28467) + 0.55991
+        {tight, 48.0f, 1.0f},
+    };
+
+    for (int i = 0; i < ARRAY_COUNT(cases); i++) {
+        float encoded = skcms_TransferFunction_eval(&enc, cases[i].linear);
+        //fprintf(stderr, "%g -> %g, want %g\n", cases[i].linear, encoded, cases[i].encoded);
+        expect(encoded <= cases[i].encoded + cases[i].tol);
+        expect(encoded >= cases[i].encoded - cases[i].tol);
+
+        float linear = skcms_TransferFunction_eval(&dec, cases[i].encoded);
+        //fprintf(stderr, "%g -> %g, want %g\n", cases[i].encoded, linear, cases[i].linear);
+        expect(linear <= cases[i].linear + cases[i].tol);
+        expect(linear >= cases[i].linear - cases[i].tol);
+    }
+}
+
 static void test_PQ_invert() {
     skcms_TransferFunction pqA, invA, invB;
 
@@ -1733,6 +1778,7 @@ int main(int argc, char** argv) {
     test_Premul();
     test_PQ();
     test_HLG();
+    test_scaled_HLG();
     test_PQ_invert();
     test_HLG_invert();
     test_RGBA_8888_sRGB();
