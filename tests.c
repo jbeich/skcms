@@ -1556,6 +1556,36 @@ static void test_HLG() {
     expect(12.00000f < rgb[5] && rgb[5] < 12.00001f);
 }
 
+static void test_weighted_HLG() {
+    // HLG curve scaled 4x, spot checked where test_HLG() does.
+    skcms_TransferFunction enc, dec;
+    expect(skcms_TransferFunction_makeWeightedHLGish(
+                &dec, 4.0f, 2.0f,2.0f
+                    , 1/0.17883277f, 0.28466892f, 0.55991073f));
+    expect(skcms_TransferFunction_invert(&dec, &enc));
+
+    // Zero continues to map to zero, of course.
+    expect(0.0f == skcms_TransferFunction_eval(&enc, 0.0f));
+    expect(0.0f == skcms_TransferFunction_eval(&dec, 0.0f));
+
+    // Linear 1 encodes as 0.5*(1)^0.5 = 0.5 with an unweighted HLG curve,
+    // but here with K=4, encodes as 0.5*(1/K)^0.5 ≈ 0.25.
+    expect(0.2500f < skcms_TransferFunction_eval(&enc, 1.0f));
+    expect(0.2501f > skcms_TransferFunction_eval(&enc, 1.0f));
+    // And that should roundtrip decode right back to around 1.0f.
+    expect(1.0000f < skcms_TransferFunction_eval(&dec, skcms_TransferFunction_eval(&enc, 1.0f)));
+    expect(1.0001f > skcms_TransferFunction_eval(&dec, skcms_TransferFunction_eval(&enc, 1.0f)));
+
+    // Linear 0.5 encodes as 0.5*(0.5 / 4)^0.5 ≈ 0.1768.
+    expect(0.1767f < skcms_TransferFunction_eval(&enc, 0.5f));
+    expect(0.1768f > skcms_TransferFunction_eval(&enc, 0.5f));
+    // And its round trip,
+    expect(0.5000f < skcms_TransferFunction_eval(&dec, skcms_TransferFunction_eval(&enc, 0.5f)));
+    expect(0.5001f > skcms_TransferFunction_eval(&dec, skcms_TransferFunction_eval(&enc, 0.5f)));
+
+    // TODO more tests, covering the upper half of the curve and the boundary.
+}
+
 static void test_PQ_invert() {
     skcms_TransferFunction pqA, invA, invB;
 
@@ -1733,6 +1763,7 @@ int main(int argc, char** argv) {
     test_Premul();
     test_PQ();
     test_HLG();
+    test_weighted_HLG();
     test_PQ_invert();
     test_HLG_invert();
     test_RGBA_8888_sRGB();
