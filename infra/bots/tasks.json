@@ -1,30 +1,28 @@
 {
+  "casSpecs": {
+    "whole-repo": {
+      "root": "..",
+      "paths": ["skcms"],
+      "excludes": ["^(.*\\/)*\\.git(\\/.*)*$"]
+    }
+  },
   "jobs": {
     "skcms": {
-      "tasks": [
-        "skcms-Linux",
-        "skcms-Mac",
-        "skcms-Win"
-      ]
+      "tasks": ["skcms-Linux", "skcms-Mac", "skcms-Win"]
     },
     "skcms-Linux": {
-      "tasks": [
-        "skcms-Linux"
-      ]
+      "tasks": ["skcms-Linux"]
     },
     "skcms-Mac": {
-      "tasks": [
-        "skcms-Mac"
-      ]
+      "tasks": ["skcms-Mac"]
     },
     "skcms-Win": {
-      "tasks": [
-        "skcms-Win"
-      ]
+      "tasks": ["skcms-Win"]
     }
   },
   "tasks": {
     "skcms-Linux": {
+      "casSpec": "whole-repo",
       "cipd_packages": [
         {
           "name": "infra/ninja/linux-amd64",
@@ -60,7 +58,6 @@
         "gpu:none",
         "pool:Skia"
       ],
-      "isolate": "bot.isolate",
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -71,6 +68,7 @@
           "path": "cache/Xcode_skcms.app"
         }
       ],
+      "casSpec": "whole-repo",
       "cipd_packages": [
         {
           "name": "infra/ninja/mac-amd64",
@@ -101,16 +99,12 @@
         "mac_toolchain",
         "cache/Xcode_skcms.app"
       ],
-      "dimensions": [
-        "os:Mac-10.14.6",
-        "gpu:none",
-        "pool:Skia"
-      ],
-      "isolate": "bot.isolate",
+      "dimensions": ["os:Mac-10.14.6", "gpu:none", "pool:Skia"],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "skcms-Win": {
+      "casSpec": "whole-repo",
       "cipd_packages": [
         {
           "name": "skia/bots/win_ninja",
@@ -140,12 +134,7 @@
         "win_toolchain",
         "clang_win"
       ],
-      "dimensions": [
-        "os:Windows-Server-17763",
-        "gpu:none",
-        "pool:Skia"
-      ],
-      "isolate": "bot.isolate",
+      "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     }
