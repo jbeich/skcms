@@ -1,4 +1,15 @@
 {
+  "casSpecs": {
+    "whole-repo": {
+      "root": "..",
+      "paths": [
+        "skcms"
+      ],
+      "excludes": [
+        "^(.*\\/)*\\.git(\\/.*)*$"
+      ]
+    }
+  }
   "jobs": {
     "skcms": {
       "tasks": [
@@ -25,6 +36,7 @@
   },
   "tasks": {
     "skcms-Linux": {
+      "casSpec": "whole-repo",
       "cipd_packages": [
         {
           "name": "infra/ninja/linux-amd64",
@@ -60,7 +72,6 @@
         "gpu:none",
         "pool:Skia"
       ],
-      "isolate": "bot.isolate",
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -71,6 +82,7 @@
           "path": "cache/Xcode_skcms.app"
         }
       ],
+      "casSpec": "whole-repo",
       "cipd_packages": [
         {
           "name": "infra/ninja/mac-amd64",
@@ -106,11 +118,11 @@
         "gpu:none",
         "pool:Skia"
       ],
-      "isolate": "bot.isolate",
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "skcms-Win": {
+      "casSpec": "whole-repo",
       "cipd_packages": [
         {
           "name": "skia/bots/win_ninja",
@@ -145,7 +157,6 @@
         "gpu:none",
         "pool:Skia"
       ],
-      "isolate": "bot.isolate",
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     }
