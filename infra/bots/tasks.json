@@ -99,7 +99,7 @@
         "mac_toolchain",
         "cache/Xcode_skcms.app"
       ],
-      "dimensions": ["os:Mac-10.14.6", "gpu:none", "pool:Skia"],
+      "dimensions": ["os:Mac", "gpu:none", "pool:Skia"],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -134,7 +134,7 @@
         "win_toolchain",
         "clang_win"
       ],
-      "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
+      "dimensions": ["os:Windows", "gpu:none", "pool:Skia"],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     }
