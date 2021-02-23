@@ -1,6 +1,7 @@
 cc     = clang
 cxx    = clang++
-cflags = -fcolor-diagnostics -Weverything
+cflags = -fcolor-diagnostics -Weverything $
+         -Wno-unknown-warning-option -Wno-poison-system-directories
 out    = out/clang$mode
 
 include ninja/local
