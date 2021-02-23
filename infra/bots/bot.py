@@ -34,9 +34,6 @@ if 'darwin' in sys.platform:
   call('sudo xcode-select -switch {xcode_app_path}'.format(
       xcode_app_path=xcode_app_path))
 
-  # Our Mac bot toolchains are too old for LSAN.
-  append('skcms/ninja/clang.lsan', 'disabled = true')
-
   call('{ninja}/ninja -C skcms -k 0'.format(ninja=ninja))
 
 elif 'linux' in sys.platform:
