@@ -4,6 +4,8 @@ disabled = false
 # Each compiler has enabled all the warnings it can.
 # Here we make them errors, and disable a few we don't want bothering us.
 warnings = -Werror $
+           -Wno-unknown-warning-option $
+           -Wno-poison-system-directories $
            -Wno-double-promotion $
            -Wno-float-equal $
            -Wno-padded $
