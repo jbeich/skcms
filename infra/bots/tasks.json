@@ -102,7 +102,7 @@
         "cache/Xcode_skcms.app"
       ],
       "dimensions": [
-        "os:Mac-10.14.6",
+        "os:Mac",
         "gpu:none",
         "pool:Skia"
       ],
@@ -141,7 +141,7 @@
         "clang_win"
       ],
       "dimensions": [
-        "os:Windows-Server-17763",
+        "os:Windows",
         "gpu:none",
         "pool:Skia"
       ],
