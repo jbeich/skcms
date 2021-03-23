@@ -1769,6 +1769,36 @@ static void test_RGBA_8888_sRGB() {
     free(ptr);
 }
 
+static void test_ParseWithA2BPriority() {
+    void*  ptr;
+    size_t len;
+    expect(load_file("profiles/misc/US_Web_Coated_SWOP_CMYK.icc", &ptr,&len));
+
+    skcms_ICCProfile simple;
+    expect(skcms_Parse(ptr, len, &simple));  // This will pick up A2B0.
+    expect(simple.has_A2B);
+
+    for (int priority = -1; priority < 4; priority++) {
+        skcms_ICCProfile profile;
+
+        bool ok = skcms_ParseWithA2BPriority(ptr, len, &priority, 1, &profile);
+        if (priority < 0 || priority > 2) {
+            expect(!ok);
+            continue;
+        }
+        expect(ok);
+        if (priority == 0 || priority == 2) {
+            // A2B0 and A2B2 are the same in this profile.
+            expect(0 == memcmp(&profile, &simple, sizeof(profile)));
+        } else {
+            // A2B1 is different.
+            expect(0 != memcmp(&profile, &simple, sizeof(profile)));
+        }
+    }
+
+    free(ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1811,6 +1841,7 @@ int main(int argc, char** argv) {
     test_PQ_invert();
     test_HLG_invert();
     test_RGBA_8888_sRGB();
+    test_ParseWithA2BPriority();
 
     // Temporarily disable some tests while getting FP16 compute working.
     if (!kFP16) {
