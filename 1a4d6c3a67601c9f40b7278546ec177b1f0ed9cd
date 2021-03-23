@@ -34,6 +34,24 @@
       "parentUuid": "b63815c6_2e0763ef",
       "revId": "1a4d6c3a67601c9f40b7278546ec177b1f0ed9cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "222c6542_4a35e486",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-23T16:42:14Z",
+      "side": 1,
+      "message": "Gotcha.  I think this should be fine there.",
+      "parentUuid": "411c5168_f4c5c507",
+      "revId": "1a4d6c3a67601c9f40b7278546ec177b1f0ed9cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
