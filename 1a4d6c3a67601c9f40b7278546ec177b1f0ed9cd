@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b63815c6_2e0763ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-23T15:42:04Z",
+      "side": 1,
+      "message": "Anywhere else outside the skcms tree we should test this?",
+      "revId": "1a4d6c3a67601c9f40b7278546ec177b1f0ed9cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
