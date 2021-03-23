@@ -180,9 +180,20 @@ SKCMS_API bool skcms_TRCs_AreApproximateInverse(const skcms_ICCProfile* profile,
                                                 const skcms_TransferFunction* inv_tf);
 
 // Parse an ICC profile and return true if possible, otherwise return false.
-// The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
-// will be used.
-SKCMS_API bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
+// Selects an A2B profile (if present) according to priority list (each entry 0-2).
+// The buffer is not copied; it must remain valid as long as the skcms_ICCProfile will be used.
+SKCMS_API bool skcms_ParseWithA2BPriority(const void*, size_t,
+                                          const int priority[], int priorities,
+                                          skcms_ICCProfile*);
+
+static inline bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
+    // For continuity of existing user expectations,
+    // prefer A2B0 (perceptual) over A2B1 (relative colormetric), and ignore A2B2 (saturation).
+    const int priority[] = {0,1};
+    return skcms_ParseWithA2BPriority(buf, len,
+                                      priority, sizeof(priority)/sizeof(*priority),
+                                      profile);
+}
 
 SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
                                       skcms_TransferFunction* approx,
