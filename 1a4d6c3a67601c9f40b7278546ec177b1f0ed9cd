@@ -16,6 +16,24 @@
       "message": "Anywhere else outside the skcms tree we should test this?",
       "revId": "1a4d6c3a67601c9f40b7278546ec177b1f0ed9cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "411c5168_f4c5c507",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-23T15:48:22Z",
+      "side": 1,
+      "message": "Probably just Google3, per cl/362291353. (However, I don\u0027t see any new CLs landed by the author since then - so I\u0027m not sure if the previously blocked NDK upgrade has landed).",
+      "parentUuid": "b63815c6_2e0763ef",
+      "revId": "1a4d6c3a67601c9f40b7278546ec177b1f0ed9cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
