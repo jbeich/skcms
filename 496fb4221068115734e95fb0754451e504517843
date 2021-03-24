@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6317e45c_b55ad734",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-24T15:25:04Z",
+      "side": 1,
+      "message": "Yes, I prefer the separate struct. I had to go back and make sure I remembered how this worked - the mirror B2A struct does encapsulate the possible set of operations of both mft and BtoA tags. (At one point I was picturing a single tag that represented the union of mft, AtoB, and BtoA, but that\u0027s just messy. This definitely looks like the cleanest solution.",
+      "revId": "496fb4221068115734e95fb0754451e504517843",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
