@@ -1787,11 +1787,10 @@ static void test_ParseWithA2BPriority() {
             continue;
         }
         expect(ok);
-        if (priority == 0 || priority == 2) {
-            // A2B0 and A2B2 are the same in this profile.
+        if (priority == 0) {
             expect(0 == memcmp(&profile, &simple, sizeof(profile)));
         } else {
-            // A2B1 is different.
+            // A2B1 != A2B0, and B2A2 != B2A0  (though interestingly, A2B2 does alias A2B0).
             expect(0 != memcmp(&profile, &simple, sizeof(profile)));
         }
     }
