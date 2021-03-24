@@ -104,27 +104,32 @@ typedef union skcms_Curve {
     };
 } skcms_Curve;
 
-typedef struct skcms_A2B {
+// An A2B (device->PCS) or B2A (PCS->device) transformation, written as if A2B.
+// B2A reverses the order of operations:
+//
+//   A2B:  device -> [ A_curves -> CLUT ] -> [ M_curves -> matrix ] -> B_curves -> PCS
+//   B2a:  device <- [ A_curves <- CLUT ] <- [ M_curves <- matrix ] <- B_curves <- PCS
+typedef struct skcms_ComplexTransform {
     // Optional: N 1D curves, followed by an N-dimensional CLUT.
-    // If input_channels == 0, these curves and CLUT are skipped,
-    // Otherwise, input_channels must be in [1, 4].
-    uint32_t        input_channels;
-    skcms_Curve     input_curves[4];
+    // If A_channels == 0, these curves and CLUT are skipped,
+    // Otherwise, A_channels must be in [1, 4].
+    uint32_t        A_channels;
+    skcms_Curve     A_curves[4];
     uint8_t         grid_points[4];
     const uint8_t*  grid_8;
     const uint8_t*  grid_16;
 
     // Optional: 3 1D curves, followed by a color matrix.
-    // If matrix_channels == 0, these curves and matrix are skipped,
-    // Otherwise, matrix_channels must be 3.
-    uint32_t        matrix_channels;
-    skcms_Curve     matrix_curves[3];
+    // If M_channels == 0, these curves and matrix are skipped,
+    // Otherwise, M_channels must be 3.
+    uint32_t        M_channels;
+    skcms_Curve     M_curves[3];
     skcms_Matrix3x4 matrix;
 
-    // Required: 3 1D curves. Always present, and output_channels must be 3.
-    uint32_t        output_channels;
-    skcms_Curve     output_curves[3];
-} skcms_A2B;
+    // Required: 3 1D curves. Always present, and B_channels must be 3.
+    uint32_t        B_channels;
+    skcms_Curve     B_curves[3];
+} skcms_ComplexTransform;
 
 typedef struct skcms_ICCProfile {
     const uint8_t* buffer;
@@ -150,7 +155,7 @@ typedef struct skcms_ICCProfile {
     // that data, and has_A2B to true.  skcms_ParseWithA2BPriority() does the
     // same following any user-provided prioritization of A2B0, A2B1, or A2B2.
     bool                   has_A2B;
-    skcms_A2B              A2B;
+    skcms_ComplexTransform A2B;
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
