@@ -1179,7 +1179,7 @@ const skcms_ICCProfile* skcms_sRGB_profile() {
             { 0.013916016f, 0.097076416f, 0.714096069f },
         }},
 
-        false, // has_A2B, followed by a2b itself which we don't care about.
+        false, // has_A2B, followed by A2B itself, which we don't care about.
         {
             0,
             {
@@ -1206,6 +1206,39 @@ const skcms_ICCProfile* skcms_sRGB_profile() {
 
             0,
             {
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+            },
+        },
+
+        false, // has_B2A, followed by B2A itself, which we also don't care about.
+        {
+            0,
+            {
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+            },
+
+            0,
+            {{
+                { 0,0,0,0 },
+                { 0,0,0,0 },
+                { 0,0,0,0 },
+            }},
+            {
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+            },
+
+            0,
+            {0,0,0,0},
+            nullptr,
+            nullptr,
+            {
+                {{0, {0,0, 0,0,0,0,0}}},
                 {{0, {0,0, 0,0,0,0,0}}},
                 {{0, {0,0, 0,0,0,0,0}}},
                 {{0, {0,0, 0,0,0,0,0}}},
@@ -1239,7 +1272,7 @@ const skcms_ICCProfile* skcms_XYZD50_profile() {
             { 0,0,1 },
         }},
 
-        false, // has_A2B, followed by a2b itself which we don't care about.
+        false, // has_A2B, followed by A2B itself, which we don't care about.
         {
             0,
             {
@@ -1266,6 +1299,39 @@ const skcms_ICCProfile* skcms_XYZD50_profile() {
 
             0,
             {
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+            },
+        },
+
+        false, // has_B2A, followed by B2A itself, which we also don't care about.
+        {
+            0,
+            {
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+            },
+
+            0,
+            {{
+                { 0,0,0,0 },
+                { 0,0,0,0 },
+                { 0,0,0,0 },
+            }},
+            {
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+                {{0, {0,0, 0,0,0,0,0}}},
+            },
+
+            0,
+            {0,0,0,0},
+            nullptr,
+            nullptr,
+            {
+                {{0, {0,0, 0,0,0,0,0}}},
                 {{0, {0,0, 0,0,0,0,0}}},
                 {{0, {0,0, 0,0,0,0,0}}},
                 {{0, {0,0, 0,0,0,0,0}}},
@@ -2296,6 +2362,13 @@ static bool prep_for_destination(const skcms_ICCProfile* profile,
                                  skcms_TransferFunction* invB) {
     // We only support destinations with parametric transfer functions
     // and with gamuts that can be transformed from XYZD50.
+    //
+    // Logically we'd return true here if profile->has_B2A.  Instead we check
+    // has_B2A only in skcms_TransformWithPalette(), before calling this function.
+    // This preserves the old behavior of assert_usable_as_destination() (requiring
+    // TRC and gamut matrix) and by extension, skcms_MakeUsableAsDestination() and co.
+    // TODO: maybe we only need to preserve skcms_MakeUsableAsDestinationWithSingleCurve()?
+    // TODO: do check has_B2A here?
     return profile->has_trc
         && profile->has_toXYZD50
         && profile->trc[0].table_entries == 0
@@ -2433,11 +2506,12 @@ bool skcms_TransformWithPalette(const void*             src,
 
     if (dstProfile != srcProfile) {
 
-        if (!prep_for_destination(dstProfile,
-                                  &from_xyz,
-                                  &dst_curves[0].parametric,
-                                  &dst_curves[1].parametric,
-                                  &dst_curves[2].parametric)) {
+        // See note in prep_for_destination() about why we check has_B2A here and not there.
+        if (!dstProfile->has_B2A && !prep_for_destination(dstProfile,
+                                                          &from_xyz,
+                                                          &dst_curves[0].parametric,
+                                                          &dst_curves[1].parametric,
+                                                          &dst_curves[2].parametric)) {
             return false;
         }
 
