@@ -1799,6 +1799,56 @@ static void test_ParseWithA2BPriority() {
     free(ptr);
 }
 
+static void test_B2A() {
+    void*  ptr;
+    size_t len;
+    expect(load_file("profiles/color.org/Upper_Left.icc", &ptr,&len));
+
+    skcms_ICCProfile profile;
+    expect(skcms_Parse(ptr, len, &profile));
+    expect(!profile.has_trc);
+    expect(!profile.has_toXYZD50);
+    expect( profile.has_A2B);
+    expect( profile.has_B2A);
+
+    // A B2A profile is usable as a destination unchanged.
+    skcms_ICCProfile copy = profile;
+    expect(skcms_MakeUsableAsDestination(&copy));
+    expect(0 == memcmp(&copy, &profile, sizeof(profile)));
+
+    // A B2A-only profile does not have the TRC curves that …WithSingleCurve() needs.
+    expect(!skcms_MakeUsableAsDestinationWithSingleCurve(&profile));
+
+    // A2B transform should be well-supported.
+    const uint8_t* src = skcms_252_random_bytes;
+    float xyza[252];
+    expect(skcms_Transform(
+            src,  skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+            xyza, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+            252/4));
+
+    // Now convert back using B2A.
+    uint8_t dst[252];
+    expect(skcms_Transform(
+            xyza, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+            dst,  skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+            252/4));
+
+    for (int i = 0; i < 252; i++) {
+        // Alpha should not be changed.
+        if (i % 4 == 3) {
+            expect(dst[i] == src[i]);
+            continue;
+        }
+#if 0  // TODO: this looks nothing like an identity transform!
+        fprintf(stderr, "%3d   %02x  % .4f   %02x\n", i, src[i], xyza[i], dst[i]);
+        //expect(dst[i] == src[i]);
+#endif
+    }
+
+    free(ptr);
+}
+
 int main(int argc, char** argv) {
     bool regenTestData = false;
     for (int i = 1; i < argc; ++i) {
@@ -1842,6 +1892,7 @@ int main(int argc, char** argv) {
     test_HLG_invert();
     test_RGBA_8888_sRGB();
     test_ParseWithA2BPriority();
+    test_B2A();
 
     // Temporarily disable some tests while getting FP16 compute working.
     if (!kFP16) {
