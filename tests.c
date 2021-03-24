@@ -1787,13 +1787,61 @@ static void test_ParseWithA2BPriority() {
             continue;
         }
         expect(ok);
-        if (priority == 0 || priority == 2) {
-            // A2B0 and A2B2 are the same in this profile.
+        if (priority == 0) {
             expect(0 == memcmp(&profile, &simple, sizeof(profile)));
         } else {
-            // A2B1 is different.
+            // A2B1 != A2B0, and B2A2 != B2A0  (though interestingly, A2B2 does alias A2B0).
             expect(0 != memcmp(&profile, &simple, sizeof(profile)));
         }
+    }
+
+    free(ptr);
+}
+
+static void test_B2A() {
+    void*  ptr;
+    size_t len;
+    expect(load_file("profiles/color.org/Upper_Left.icc", &ptr,&len));
+
+    skcms_ICCProfile profile;
+    expect(skcms_Parse(ptr, len, &profile));
+    expect(!profile.has_trc);
+    expect(!profile.has_toXYZD50);
+    expect( profile.has_A2B);
+    expect( profile.has_B2A);
+
+    // No curves to approximate... no way we'd ever do this.
+    expect(!skcms_MakeUsableAsDestinationWithSingleCurve(&profile));
+
+    // Up for debate... maybe this should just return true with no changes to profile?
+    expect(!skcms_MakeUsableAsDestination(&profile));
+
+
+    // A2B transform should be well-supported.
+    const uint8_t* src = skcms_252_random_bytes;
+    float xyza[252];
+    expect(skcms_Transform(
+            src,  skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+            xyza, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+            252/4));
+
+    // Now convert back using B2A.
+    uint8_t dst[252];
+    expect(skcms_Transform(
+            xyza, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+            dst,  skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+            252/4));
+
+    for (int i = 0; i < 252; i++) {
+        // Alpha should not be changed.
+        if (i % 4 == 3) {
+            expect(dst[i] == src[i]);
+            continue;
+        }
+#if 0  // TODO: this looks nothing like an identity transform!
+        fprintf(stderr, "%3d   %02x  % .4f   %02x\n", i, src[i], xyza[i], dst[i]);
+        //expect(dst[i] == src[i]);
+#endif
     }
 
     free(ptr);
@@ -1842,6 +1890,7 @@ int main(int argc, char** argv) {
     test_HLG_invert();
     test_RGBA_8888_sRGB();
     test_ParseWithA2BPriority();
+    test_B2A();
 
     // Temporarily disable some tests while getting FP16 compute working.
     if (!kFP16) {

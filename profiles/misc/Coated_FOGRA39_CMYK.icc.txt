@@ -35,6 +35,22 @@ CLUT : 11 x 11 x 11 x 11 (16 bpp)
   B0 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
   B1 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
   B2 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+ B2A : "B", CLUT, "A"
+ "B" : 3 inputs
+  B0 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
+  B1 : 8-bit table with 256 entries
+  ~= : 0.9774613, 1, -6.263144e-07, 1, 0.003921569, -0.0005111694, 0 (Max error: 0.121116) (D-gap: 9.56608e-06) (f(1) = 0.999504)
+  B2 : 8-bit table with 256 entries
+  ~= : 0.9774613, 1, -6.263144e-07, 1, 0.003921569, -0.0005111694, 0 (Max error: 0.121116) (D-gap: 9.56608e-06) (f(1) = 0.999504)
+CLUT : 33 x 33 x 33 (8 bpp)
+ "A" : 4 outputs
+  A0 : 8-bit table with 256 entries
+  ~= : 0.80226, 1, 0.05881047, 0, 0, -0.1026993, 0 (Max error: 0.22774) (f(1) = 0.944099)
+  A1 : 8-bit table with 256 entries
+  ~= : 0.80226, 1, 0.05881047, 0, 0, -0.1026993, 0 (Max error: 0.22774) (f(1) = 0.944099)
+  A2 : 8-bit table with 256 entries
+  ~= : 0.80226, 1, 0.05881047, 0, 0, -0.1026993, 0 (Max error: 0.22774) (f(1) = 0.944099)
+  A3 : 1, 1, 0, 0, 0, 0, 0 (f(1) = 1) (~Identity)
 WTPT : | 0.84480285 0.87620544 0.745697 |
 252 random bytes transformed to linear XYZD50 bytes:
 	111c23 3a220f 0c0e06 1b131a 1c1305 18220c 251f11

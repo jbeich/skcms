@@ -251,8 +251,8 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
 
     if (profile->has_A2B) {
         const skcms_A2B* a2b = &profile->A2B;
-        fprintf(fp, " A2B : %s%s\"B\"\n", a2b->input_channels ? "\"A\", CLUT, " : "",
-                                          a2b->matrix_channels ? "\"M\", Matrix, " : "");
+        fprintf(fp, " A2B : %s%s\"B\"\n", a2b-> input_channels ? "\"A\", CLUT, "   : ""
+                                        , a2b->matrix_channels ? "\"M\", Matrix, " : "");
         if (a2b->input_channels) {
             fprintf(fp, "%4s : %u inputs\n", "\"A\"", a2b->input_channels);
             const char* curveNames[4] = { "A0", "A1", "A2", "A3" };
@@ -288,6 +288,50 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
             const char* curveNames[3] = { "B0", "B1", "B2" };
             for (uint32_t i = 0; i < a2b->output_channels; ++i) {
                 dump_curve(fp, curveNames[i], &a2b->output_curves[i]);
+            }
+        }
+    }
+
+    if (profile->has_B2A) {
+        const skcms_B2A* b2a = &profile->B2A;
+        fprintf(fp, " B2A : \"B\"%s%s\n", b2a->matrix_channels ? ", Matrix, \"M\"" : ""
+                                        , b2a->output_channels ? ", CLUT, \"A\""   : "");
+
+        {
+            fprintf(fp, "%4s : %u inputs\n", "\"B\"", b2a->input_channels);
+            const char* curveNames[3] = { "B0", "B1", "B2" };
+            for (uint32_t i = 0; i < b2a->input_channels; ++i) {
+                dump_curve(fp, curveNames[i], &b2a->input_curves[i]);
+            }
+        }
+
+        if (b2a->matrix_channels) {
+            const skcms_Matrix3x4* m = &b2a->matrix;
+            fprintf(fp, "Mtrx : | %.9g %.9g %.9g %.9g |\n"
+                        "       | %.9g %.9g %.9g %.9g |\n"
+                        "       | %.9g %.9g %.9g %.9g |\n",
+                   m->vals[0][0], m->vals[0][1], m->vals[0][2], m->vals[0][3],
+                   m->vals[1][0], m->vals[1][1], m->vals[1][2], m->vals[1][3],
+                   m->vals[2][0], m->vals[2][1], m->vals[2][2], m->vals[2][3]);
+            fprintf(fp, "%4s : %u inputs\n", "\"M\"", b2a->matrix_channels);
+            const char* curveNames[4] = { "M0", "M1", "M2" };
+            for (uint32_t i = 0; i < b2a->matrix_channels; ++i) {
+                dump_curve(fp, curveNames[i], &b2a->matrix_curves[i]);
+            }
+        }
+
+        if (b2a->output_channels) {
+            fprintf(fp, "%4s : ", "CLUT");
+            const char* sep = "";
+            for (uint32_t i = 0; i < b2a->input_channels; ++i) {
+                fprintf(fp, "%s%u", sep, b2a->grid_points[i]);
+                sep = " x ";
+            }
+            fprintf(fp, " (%d bpp)\n", b2a->grid_8 ? 8 : 16);
+            fprintf(fp, "%4s : %u outputs\n", "\"A\"", b2a->output_channels);
+            const char* curveNames[4] = { "A0", "A1", "A2", "A3" };
+            for (uint32_t i = 0; i < b2a->output_channels; ++i) {
+                dump_curve(fp, curveNames[i], &b2a->output_curves[i]);
             }
         }
     }
