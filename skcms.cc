@@ -2299,7 +2299,8 @@ typedef enum {
     Op_table_b,
     Op_table_a,
 
-    Op_clut,
+    Op_clut_A2B,
+    Op_clut_B2A,
 
     Op_store_a8,
     Op_store_g8,
@@ -2551,6 +2552,13 @@ static bool prep_for_destination(const skcms_ICCProfile* profile,
                                  skcms_TransferFunction* invB) {
     // We only support destinations with parametric transfer functions
     // and with gamuts that can be transformed from XYZD50.
+    //
+    // Logically we'd return true here if profile->has_B2A.  Instead we check
+    // has_B2A only in skcms_TransformWithPalette(), before calling this function.
+    // This preserves the old behavior of assert_usable_as_destination() (requiring
+    // TRC and gamut matrix) and by extension, skcms_MakeUsableAsDestination() and co.
+    // TODO: maybe we only need to preserve skcms_MakeUsableAsDestinationWithSingleCurve()?
+    // TODO: do check has_B2A here?
     return profile->has_trc
         && profile->has_toXYZD50
         && profile->trc[0].table_entries == 0
@@ -2687,12 +2695,17 @@ bool skcms_TransformWithPalette(const void*             src,
     }
 
     if (dstProfile != srcProfile) {
-
-        if (!prep_for_destination(dstProfile,
-                                  &from_xyz,
-                                  &dst_curves[0].parametric,
-                                  &dst_curves[1].parametric,
-                                  &dst_curves[2].parametric)) {
+        // See note in prep_for_destination() about why we check has_B2A here and not there.
+        bool use_B2A = false;   // TODO: prefer B2A over TRC?
+        if (prep_for_destination(dstProfile,
+                                 &from_xyz,
+                                 &dst_curves[0].parametric,
+                                 &dst_curves[1].parametric,
+                                 &dst_curves[2].parametric)) {
+            use_B2A = false;
+        } else if (dstProfile->has_B2A) {
+            use_B2A = true;
+        } else {
             return false;
         }
 
@@ -2705,8 +2718,8 @@ bool skcms_TransformWithPalette(const void*             src,
                         *args++ = oa.arg;
                     }
                 }
-                *ops++ = Op_clamp;
-                *ops++ = Op_clut;
+                *ops++  = Op_clamp;
+                *ops++  = Op_clut_A2B;
                 *args++ = &srcProfile->A2B;
             }
 
@@ -2756,38 +2769,95 @@ bool skcms_TransformWithPalette(const void*             src,
             return false;
         }
 
-        // A2B sources should already be in XYZD50 at this point.
-        // Others still need to be transformed using their toXYZD50 matrix.
-        // N.B. There are profiles that contain both A2B tags and toXYZD50 matrices.
-        // If we use the A2B tags, we need to ignore the XYZD50 matrix entirely.
+        // A2B sources are in XYZD50 by now, but TRC sources are still in their original gamut.
         assert (srcProfile->has_A2B || srcProfile->has_toXYZD50);
-        static const skcms_Matrix3x3 I = {{
-            { 1.0f, 0.0f, 0.0f },
-            { 0.0f, 1.0f, 0.0f },
-            { 0.0f, 0.0f, 1.0f },
-        }};
-        const skcms_Matrix3x3* to_xyz = srcProfile->has_A2B ? &I : &srcProfile->toXYZD50;
 
-        // There's a chance the source and destination gamuts are identical,
-        // in which case we can skip the gamut transform.
-        if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
-            // Concat the entire gamut transform into from_xyz,
-            // now slightly misnamed but it's a handy spot to stash the result.
-            from_xyz = skcms_Matrix3x3_concat(&from_xyz, to_xyz);
-            *ops++  = Op_matrix_3x3;
-            *args++ = &from_xyz;
-        }
+        if (use_B2A) {
+            // B2A needs its input in XYZD50, so transform TRC sources now.
+            if (!srcProfile->has_A2B) {
+                *ops++  = Op_matrix_3x3;
+                *args++ = &srcProfile->toXYZD50;
+            }
 
-        // Encode back to dst RGB using its parametric transfer functions.
-        for (int i = 0; i < 3; i++) {
-            OpAndArg oa = select_curve_op(dst_curves+i, i);
-            if (oa.arg) {
-                assert (oa.op != Op_table_r &&
-                        oa.op != Op_table_g &&
-                        oa.op != Op_table_b &&
-                        oa.op != Op_table_a);
-                *ops++  = oa.op;
-                *args++ = oa.arg;
+            if (dstProfile->pcs == skcms_Signature_Lab) {
+                assert (false); // TODO?
+                return false;
+            }
+
+            if (dstProfile->B2A.input_channels == 3) {
+                for (int i = 0; i < 3; i++) {
+                    OpAndArg oa = select_curve_op(&dstProfile->B2A.input_curves[i], i);
+                    if (oa.arg) {
+                        *ops++  = oa.op;
+                        *args++ = oa.arg;
+                    }
+                }
+            }
+
+            if (dstProfile->B2A.matrix_channels == 3) {
+                static const skcms_Matrix3x4 I = {{
+                    {1,0,0,0},
+                    {0,1,0,0},
+                    {0,0,1,0},
+                }};
+                if (0 != memcmp(&I, &dstProfile->B2A.matrix, sizeof(I))) {
+                    *ops++  = Op_matrix_3x4;
+                    *args++ = &dstProfile->B2A.matrix;
+                }
+
+                for (int i = 0; i < 3; i++) {
+                    OpAndArg oa = select_curve_op(&dstProfile->B2A.matrix_curves[i], i);
+                    if (oa.arg) {
+                        *ops++  = oa.op;
+                        *args++ = oa.arg;
+                    }
+                }
+            }
+
+            if (dstProfile->B2A.output_channels) {
+                *ops++  = Op_clamp;  // TODO: double check I've copied this sensibly.
+                *ops++  = Op_clut_B2A;
+                *args++ = &dstProfile->B2A;
+                for (int i = 0; i < (int)dstProfile->B2A.output_channels; i++) {
+                    OpAndArg oa = select_curve_op(&dstProfile->B2A.output_curves[i], i);
+                    if (oa.arg) {
+                        *ops++  = oa.op;
+                        *args++ = oa.arg;
+                    }
+                }
+            }
+        } else {
+            // This is a TRC destination.
+            // We'll concat any src->xyz matrix with our xyz->dst matrix into one src->dst matrix.
+            // (A2B sources are already in XYZD50, making that src->xyz matrix I.)
+            static const skcms_Matrix3x3 I = {{
+                { 1.0f, 0.0f, 0.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 0.0f, 1.0f },
+            }};
+            const skcms_Matrix3x3* to_xyz = srcProfile->has_A2B ? &I : &srcProfile->toXYZD50;
+
+            // There's a chance the source and destination gamuts are identical,
+            // in which case we can skip the gamut transform.
+            if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
+                // Concat the entire gamut transform into from_xyz,
+                // now slightly misnamed but it's a handy spot to stash the result.
+                from_xyz = skcms_Matrix3x3_concat(&from_xyz, to_xyz);
+                *ops++  = Op_matrix_3x3;
+                *args++ = &from_xyz;
+            }
+
+            // Encode back to dst RGB using its parametric transfer functions.
+            for (int i = 0; i < 3; i++) {
+                OpAndArg oa = select_curve_op(dst_curves+i, i);
+                if (oa.arg) {
+                    assert (oa.op != Op_table_r &&
+                            oa.op != Op_table_g &&
+                            oa.op != Op_table_b &&
+                            oa.op != Op_table_a);
+                    *ops++  = oa.op;
+                    *args++ = oa.arg;
+                }
             }
         }
     }
