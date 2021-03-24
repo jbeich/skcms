@@ -65,6 +65,7 @@ WTPT : | 0.75927734 0.78593444 0.664032 |
      0.22  0.25  0.07     0.10  0.10  0.08     0.07  0.06  0.09     0.04  0.04  0.06
      0.00  0.00  0.00     0.04  0.05  0.09     0.05  0.03  0.02     0.10  0.09  0.08
      0.02  0.02  0.00     0.08  0.07  0.05     0.13  0.12  0.15
+skcms_MakeUsableAsDestination() was true but skcms_Transform() failed!
 81 edge-case pixels transformed to sRGB 8888 (unpremul):
 	ff010000 ff010000 ff020020  ff010000 ff010000 ff000023  ff000700 ff001600 ff001c22
 	ff010000 ff010000 ff02001f  ff010000 ff010000 ff010024  ff090400 ff021400 ff001b24
