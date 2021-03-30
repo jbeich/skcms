@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1148d629_3af60fa5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-30T20:52:02Z",
+      "side": 1,
+      "message": "I agree that profiles tend to be used as src xor dst, which I think means what I\u0027ve got here will be fine in practice.  And if you really want both directions with different priorities you can always call skcms_Parse() twice.\n\nI think I agree that we should prefer B2A if present and that MakeUsableForDestination() should allow B2A while MakeUsableAsDestinationWithSingleCurve() shouldn\u0027t unless we add B2A support to Skia.\n\nBut I might flip each of those policies from conservative no-change to what-we-ideally-want in separate CLs so we can isolate any downstream fallout from each change.  Using B2A at all even as a backup is probably also a policy to isolate in its own change.",
+      "parentUuid": "4c1b766b_06793893",
+      "revId": "b15bd649b2579e011924f47822d08d77afbdd27d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6efe3669_9474af1a",
@@ -60,6 +78,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "12518821_cfa3b969",
+        "filename": "tests.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1793,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-30T20:52:02Z",
+      "side": 1,
+      "message": "I sure picked a lucky interesting profile to try this out on.\n\nThat A2B0 \u003d\u003d A2B2 and B2A0 !\u003d B2A2 does imply that testing through round-tripping is probably naive.",
+      "parentUuid": "6efe3669_9474af1a",
+      "range": {
+        "startLine": 1793,
+        "startChar": 33,
+        "endLine": 1793,
+        "endChar": 91
+      },
+      "revId": "b15bd649b2579e011924f47822d08d77afbdd27d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bafa69b8_b897905a",
         "filename": "tests.c",
         "patchSetId": 12
@@ -71,6 +113,30 @@
       "writtenOn": "2021-03-30T20:33:30Z",
       "side": 1,
       "message": "Does ColorSync let you experiment with this at all? I\u0027m really curious how reflexive we should expect these to be.",
+      "range": {
+        "startLine": 1841,
+        "startChar": 10,
+        "endLine": 1841,
+        "endChar": 62
+      },
+      "revId": "b15bd649b2579e011924f47822d08d77afbdd27d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b1550be_670ef2ae",
+        "filename": "tests.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1841,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-03-30T20:52:02Z",
+      "side": 1,
+      "message": "I\u0027m not sure, but I obviously need to find some source of truth.",
+      "parentUuid": "bafa69b8_b897905a",
       "range": {
         "startLine": 1841,
         "startChar": 10,
