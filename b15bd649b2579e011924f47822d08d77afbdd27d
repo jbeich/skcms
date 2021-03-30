@@ -16,6 +16,69 @@
       "message": "Worth a look I think.  If this is daunting I think I could break it into bite-size pieces.\n\nLots of open questions, especially around testing/correctness.\nI kind of thought maybe I\u0027d punt that to a Skia-repo GM that demos various ways to use this all.",
       "revId": "b15bd649b2579e011924f47822d08d77afbdd27d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c1b766b_06793893",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-30T20:33:30Z",
+      "side": 1,
+      "message": "Overall looks good. My quick thoughts about the open questions:\n\n- Choosing render intents is tough, given how we\u0027ve split up source and dest. Ideally you\u0027d negotiate between both profiles to decide which one to use - being able to round-trip in a single profile is less important than using the same A2B from source as B2A from dest, I\u0027d think? To that end, I think we either:\n  1) Just offer the one set of priorities used for both tags, as any particular profile is really only used as either src or dst. Let clients deal with profile pairs and a policy for prioritizing their src choices after they\u0027ve picked a dst?\n  2) Go all the way, inflate skcs_Profile to include the parsed tags for all rendering intents, and defer the decision so we can line things up in skcms_Transform.\n\n- At this point, MakeUsableAsDestinationWithSingleCurve really means - \"MakeUsableForSkiaRasterization\". I think we can keep the naming, but I tend to think having a valid B2A should qualify as usable as destination. If we\u0027re going to this trouble, we may as well try to adhere to 8.10.2 (always use A2B and B2A if present).",
+      "revId": "b15bd649b2579e011924f47822d08d77afbdd27d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6efe3669_9474af1a",
+        "filename": "tests.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1793,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-30T20:33:30Z",
+      "side": 1,
+      "message": "😕",
+      "range": {
+        "startLine": 1793,
+        "startChar": 33,
+        "endLine": 1793,
+        "endChar": 91
+      },
+      "revId": "b15bd649b2579e011924f47822d08d77afbdd27d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bafa69b8_b897905a",
+        "filename": "tests.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1841,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-30T20:33:30Z",
+      "side": 1,
+      "message": "Does ColorSync let you experiment with this at all? I\u0027m really curious how reflexive we should expect these to be.",
+      "range": {
+        "startLine": 1841,
+        "startChar": 10,
+        "endLine": 1841,
+        "endChar": 62
+      },
+      "revId": "b15bd649b2579e011924f47822d08d77afbdd27d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
