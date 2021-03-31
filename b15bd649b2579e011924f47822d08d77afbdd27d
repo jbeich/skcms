@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b7dcbfb_f95df0fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-31T13:33:26Z",
+      "side": 1,
+      "message": "Agreed - lets not change policy at the same time as adding the new parsing.",
+      "parentUuid": "1148d629_3af60fa5",
+      "revId": "b15bd649b2579e011924f47822d08d77afbdd27d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6efe3669_9474af1a",
