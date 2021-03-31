@@ -48,30 +48,22 @@ static void dump_transform_to_XYZD50(FILE* fp,
         npixels = 63;
     }
 
-    uint8_t dst[252];
+    float xyz[252];
 
     if (!skcms_Transform(
                 skcms_252_random_bytes,    fmt, skcms_AlphaFormat_Unpremul, profile,
-                dst, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+                xyz, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
                 npixels)) {
         fprintf(fp, "We can parse this profile, but not transform it to XYZD50!\n");
         return;
     }
 
-    fprintf(fp, "252 random bytes transformed to linear XYZD50 bytes:\n");
-    // 252 = 3 * 3 * 7 * 4, so we will print either 9 or 12 rows of 7 XYZ values here.
-    for (size_t i = 0; i < npixels; i += 7) {
-        fprintf(fp, "\t"
-                    "%02x%02x%02x %02x%02x%02x %02x%02x%02x %02x%02x%02x "
-                    "%02x%02x%02x %02x%02x%02x %02x%02x%02x\n",
-                dst[3*i+ 0], dst[3*i+ 1], dst[3*i+ 2],
-                dst[3*i+ 3], dst[3*i+ 4], dst[3*i+ 5],
-                dst[3*i+ 6], dst[3*i+ 7], dst[3*i+ 8],
-                dst[3*i+ 9], dst[3*i+10], dst[3*i+11],
-                dst[3*i+12], dst[3*i+13], dst[3*i+14],
-                dst[3*i+15], dst[3*i+16], dst[3*i+17],
-                dst[3*i+18], dst[3*i+19], dst[3*i+20]);
+    fprintf(fp, "252 random bytes transformed to %zu linear XYZD50 pixels:", npixels);
+    for (size_t i = 0; i < npixels; i++) {
+        if (i % 4 == 0) { fprintf(fp, "\n"); }
+        fprintf(fp, "    % .2f % .2f % .2f", xyz[3*i+0], xyz[3*i+1], xyz[3*i+2]);
     }
+    fprintf(fp, "\n");
 }
 
 static void dump_transform_to_sRGBA(FILE* fp,
