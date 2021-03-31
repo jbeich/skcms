@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "178c9be3_de8c0e92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-31T19:05:10Z",
+      "side": 1,
+      "message": "Neat!",
+      "revId": "21dbe5e3bce9d49bb5309c8f32e57b7270ffae0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b355b180_2c5134b0",
+        "filename": "profiles/misc/Calibrated_A2B_XYZ_Mismatch.icc.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-03-31T19:05:10Z",
+      "side": 1,
+      "message": "From what I remember, this one is going to be interesting when we start favoring B2A. This profile specifically has very different A2B and XYZ/TRC transforms.",
+      "revId": "21dbe5e3bce9d49bb5309c8f32e57b7270ffae0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
