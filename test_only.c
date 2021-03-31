@@ -64,6 +64,36 @@ static void dump_transform_to_XYZD50(FILE* fp,
         fprintf(fp, "    % .2f % .2f % .2f", xyz[3*i+0], xyz[3*i+1], xyz[3*i+2]);
     }
     fprintf(fp, "\n");
+
+    skcms_ICCProfile dstProfile = *profile;
+    if (skcms_MakeUsableAsDestination(&dstProfile)) {
+        uint8_t back[252];
+
+        if (!skcms_Transform(
+                xyz, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+                back,                      fmt, skcms_AlphaFormat_Unpremul, &dstProfile,
+                npixels)) {
+            fprintf(fp, "skcms_MakeUsableAsDestination() was true but skcms_Transform() failed!\n");
+            return;
+        }
+
+        int max_err = 0;
+        for (int i = 0; i < 252; i++) {
+            int err = abs((int)back[i] - (int)skcms_252_random_bytes[i]);
+            if (max_err < err) {
+                max_err = err;
+            }
+        }
+
+        fprintf(fp, "%d max error transforming back from XYZ:", max_err);
+        for (int i = 0; i < 252; i++) {
+            if (i % 21 == 0) { fprintf(fp, "\n   "); }
+            int err = abs((int)back[i] - (int)skcms_252_random_bytes[i]);
+            fprintf(fp, " %3d", err);
+        }
+        fprintf(fp, "\n");
+
+    }
 }
 
 static void dump_transform_to_sRGBA(FILE* fp,
