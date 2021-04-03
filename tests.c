@@ -670,6 +670,9 @@ static const char* profile_test_cases[] = {
     // mAB has a CLUT with 1 input channel
     "profiles/fuzz/one_d_clut.icc",                   // chromium:874433
 
+    // I'm unsure if there's anything uniquely wrong with this one.
+    "profiles/fuzz/oss-fuzz-32837.icc",               // oss-fuzz:32837
+
     // Non-D50 profiles.
     "profiles/misc/SM245B.icc",
     "profiles/misc/BenQ_GL2450.icc",
