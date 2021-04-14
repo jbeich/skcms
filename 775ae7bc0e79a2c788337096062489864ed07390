@@ -16,6 +16,23 @@
       "message": "Can you take a fresh look Brian?\n\nDespite the crazy CMYK results, I think we\u0027ve got something interesting here to land given the non-CMYK B2A profile changes.  That\u0027s enough to get going through various rollers in itself I think, and I\u0027ll keep plugging away at things like Upper_Left.icc and CMYK.",
       "revId": "775ae7bc0e79a2c788337096062489864ed07390",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "242c9715_0403d290",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 23
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-04-14T15:52:27Z",
+      "side": 1,
+      "message": "Agree with rationale. Wish we had a better way to visualize the complex transforms...",
+      "revId": "775ae7bc0e79a2c788337096062489864ed07390",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
