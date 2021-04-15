@@ -650,6 +650,7 @@ static const char* profile_test_cases[] = {
     "profiles/fuzz/a2b_too_many_input_channels2.icc", // oss-fuzz:32765
     "profiles/fuzz/mangled_trc_tags.icc",             // chromium:835666
     "profiles/fuzz/negative_g_para.icc",              // chromium:836634
+    "profiles/fuzz/b2a_too_few_output_channels.icc",  // oss-fuzz:33281
 
     // Caused skcms_PolyTF fit to round trip indices outside the range of int.
     "profiles/fuzz/infinite_roundtrip.icc",           // oss-fuzz:8101
