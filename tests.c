@@ -652,6 +652,9 @@ static const char* profile_test_cases[] = {
     "profiles/fuzz/negative_g_para.icc",              // chromium:836634
     "profiles/fuzz/b2a_too_few_output_channels.icc",  // oss-fuzz:33281
 
+    // A B2A profile with no CLUT.
+    "profiles/fuzz/b2a_no_clut.icc",  // oss-fuzz:33396
+
     // Caused skcms_PolyTF fit to round trip indices outside the range of int.
     "profiles/fuzz/infinite_roundtrip.icc",           // oss-fuzz:8101
     "profiles/fuzz/polytf_big_float_to_int_cast.icc", // oss-fuzz:8142
