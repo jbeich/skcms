@@ -297,12 +297,21 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
                 dump_curve(fp, curveNames[i], &a2b->matrix_curves[i]);
             }
             const skcms_Matrix3x4* m = &a2b->matrix;
-            fprintf(fp, "Mtrx : | %.9g %.9g %.9g %.9g |\n"
-                        "       | %.9g %.9g %.9g %.9g |\n"
-                        "       | %.9g %.9g %.9g %.9g |\n",
-                   m->vals[0][0], m->vals[0][1], m->vals[0][2], m->vals[0][3],
-                   m->vals[1][0], m->vals[1][1], m->vals[1][2], m->vals[1][3],
-                   m->vals[2][0], m->vals[2][1], m->vals[2][2], m->vals[2][3]);
+            fprintf(fp, "Mtrx : | ");
+            print_shortest_float(fp, m->vals[0][0]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[0][1]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[0][2]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[0][3]); fprintf(fp, " |\n");
+            fprintf(fp, "       | ");
+            print_shortest_float(fp, m->vals[1][0]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[1][1]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[1][2]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[1][3]); fprintf(fp, " |\n");
+            fprintf(fp, "       | ");
+            print_shortest_float(fp, m->vals[2][0]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[2][1]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[2][2]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[2][3]); fprintf(fp, " |\n");
         }
 
         {
@@ -329,12 +338,21 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
 
         if (b2a->matrix_channels) {
             const skcms_Matrix3x4* m = &b2a->matrix;
-            fprintf(fp, "Mtrx : | %.9g %.9g %.9g %.9g |\n"
-                        "       | %.9g %.9g %.9g %.9g |\n"
-                        "       | %.9g %.9g %.9g %.9g |\n",
-                   m->vals[0][0], m->vals[0][1], m->vals[0][2], m->vals[0][3],
-                   m->vals[1][0], m->vals[1][1], m->vals[1][2], m->vals[1][3],
-                   m->vals[2][0], m->vals[2][1], m->vals[2][2], m->vals[2][3]);
+            fprintf(fp, "Mtrx : | ");
+            print_shortest_float(fp, m->vals[0][0]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[0][1]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[0][2]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[0][3]); fprintf(fp, " |\n");
+            fprintf(fp, "       | ");
+            print_shortest_float(fp, m->vals[1][0]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[1][1]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[1][2]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[1][3]); fprintf(fp, " |\n");
+            fprintf(fp, "       | ");
+            print_shortest_float(fp, m->vals[2][0]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[2][1]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[2][2]); fprintf(fp, " ");
+            print_shortest_float(fp, m->vals[2][3]); fprintf(fp, " |\n");
             fprintf(fp, "%4s : %u inputs\n", "\"M\"", b2a->matrix_channels);
             const char* curveNames[4] = { "M0", "M1", "M2" };
             for (uint32_t i = 0; i < b2a->matrix_channels; ++i) {
