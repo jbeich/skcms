@@ -34,8 +34,11 @@ static void print_shortest_float(FILE* fp, float x) {
     //
     // (0x1.7p-6 == 0x3cb80000 is a good number to test this sort of thing with.)
 
-    int chars = snprintf(buf, sizeof(buf), "%.*f", digits+1, x);
-    fprintf(fp, "%.*s", chars-1, buf);
+    int chars = snprintf(buf, sizeof(buf), "% .*f", digits+1, x);
+    chars = fprintf(fp, "%.*s", chars-1, buf);
+    while (chars < 15) {
+        chars += fprintf(fp, " ");
+    }
 }
 
 static void dump_transform_to_XYZD50(FILE* fp,
