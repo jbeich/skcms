@@ -60,8 +60,16 @@ static void dump_transform_to_XYZD50(FILE* fp,
 
     fprintf(fp, "252 random bytes transformed to %zu linear XYZD50 pixels:", npixels);
     for (size_t i = 0; i < npixels; i++) {
-        if (i % 4 == 0) { fprintf(fp, "\n"); }
-        fprintf(fp, "    % .2f % .2f % .2f", xyz[3*i+0], xyz[3*i+1], xyz[3*i+2]);
+        if (i % 2 == 0) {
+            fprintf(fp, "\n  ");
+        } else {
+            fprintf(fp, " | ");
+        }
+        print_shortest_float(fp, xyz[3*i+0]);
+        fprintf(fp, " ");
+        print_shortest_float(fp, xyz[3*i+1]);
+        fprintf(fp, " ");
+        print_shortest_float(fp, xyz[3*i+2]);
     }
     fprintf(fp, "\n");
 
