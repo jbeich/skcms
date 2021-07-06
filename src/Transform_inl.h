@@ -49,7 +49,8 @@ using U8  = V<uint8_t>;
 // This is more for organizational clarity... skcms.cc doesn't force these.
 #if N > 1 && defined(__ARM_NEON)
     #define USING_NEON
-    #if __ARM_FP & 2
+    #if (__ARM_FP & 2) && (defined(__ARM_FP16_FORMAT_IEEE) ||      \
+                           defined(__ARM_FP16_FORMAT_ALTERNATIVE))
         #define USING_NEON_F16C
     #endif
     #if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC) && defined(SKCMS_OPT_INTO_NEON_FP16)
