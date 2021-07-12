@@ -46,6 +46,30 @@
       },
       "revId": "3a3d13e8536fffde11379b84a32cf7b1985b6770",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4aacd39b_59eb0458",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 18014
+      },
+      "writtenOn": "2021-07-12T15:31:26Z",
+      "side": 1,
+      "message": "(perhaps I\u0027m wrong about single and double support; quote does not say that those are the only permitted values)",
+      "parentUuid": "d00b346f_f9547f4e",
+      "range": {
+        "startLine": 52,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 21
+      },
+      "revId": "3a3d13e8536fffde11379b84a32cf7b1985b6770",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
