@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f4f8e05_1c5faa40",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-07-12T13:44:55Z",
+      "side": 1,
+      "message": "Brian, looking at the ARM docs I think the current check may just be wrong.  The value of 2 indicates support for 32-bit floats not 16-bit, it should either be 1 or 3.  Should we just remove the __ARM_FP check in favor of the code added in this CL?\n\nhttps://developer.arm.com/documentation/dui0774/g/chr1383660321827",
+      "range": {
+        "startLine": 52,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 21
+      },
+      "revId": "3a3d13e8536fffde11379b84a32cf7b1985b6770",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
