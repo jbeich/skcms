@@ -22,6 +22,30 @@
       },
       "revId": "3a3d13e8536fffde11379b84a32cf7b1985b6770",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d00b346f_f9547f4e",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 18014
+      },
+      "writtenOn": "2021-07-12T15:29:42Z",
+      "side": 1,
+      "message": "The value of 2 corresponds to 1-st bit, so it is 16-bit floats, indeed.\nMoreover, this also means that single and double are supported as well.\nBut this flag (as I understand) reports scalar capabilities, not necessarily supported by NEON.\n\nQuote:\n\"\"\"\nThese bits can be bitwise or-ed together. Permitted values include:\n\n0x04 for single-support.\n0x0C for single- and double-support.\n0x0E for half-, single-, and double-support.\n\"\"\"",
+      "parentUuid": "3f4f8e05_1c5faa40",
+      "range": {
+        "startLine": 52,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 21
+      },
+      "revId": "3a3d13e8536fffde11379b84a32cf7b1985b6770",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
