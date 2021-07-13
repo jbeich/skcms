@@ -34,6 +34,24 @@
       "parentUuid": "8c22d922_1ff6b000",
       "revId": "fdb5b85b5582413b3e393ffd107a58ad44d49d6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "129a5092_686496b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-13T15:21:15Z",
+      "side": 1,
+      "message": "Blah, push/pop don\u0027t work here. You can\u0027t push the state of a single warning, just the entire diagnostic state.",
+      "parentUuid": "c28ff905_e8f1b2fe",
+      "revId": "fdb5b85b5582413b3e393ffd107a58ad44d49d6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
