@@ -70,6 +70,24 @@
       "parentUuid": "129a5092_686496b7",
       "revId": "fdb5b85b5582413b3e393ffd107a58ad44d49d6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3467f20d_9e795f49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-13T15:37:21Z",
+      "side": 1,
+      "message": "The build hasn\u0027t actually completed yet, but splitting it in two seems to have done the trick...",
+      "parentUuid": "fccc64fd_f9dceafa",
+      "revId": "fdb5b85b5582413b3e393ffd107a58ad44d49d6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
