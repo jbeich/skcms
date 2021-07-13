@@ -16,6 +16,24 @@
       "message": "Might be simpler to do what we have in skia in a few places:\n\n  #pragma GCC diagnostic ignored \"-Wunknown-warning-option\"\n  #pragma GCC diagnostic ignored \"-Wpsabi\"\n",
       "revId": "fdb5b85b5582413b3e393ffd107a58ad44d49d6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c28ff905_e8f1b2fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-13T15:18:41Z",
+      "side": 1,
+      "message": "Should we push/pop around Wunknown-warning-option?",
+      "parentUuid": "8c22d922_1ff6b000",
+      "revId": "fdb5b85b5582413b3e393ffd107a58ad44d49d6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
