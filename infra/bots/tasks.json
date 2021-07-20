@@ -6,6 +6,9 @@
       "excludes": ["^(.*\\/)*\\.git(\\/.*)*$"]
     }
   },
+  "commit_queue": {
+    "skcms": {}
+  },
   "jobs": {
     "skcms": {
       "tasks": ["skcms-Linux", "skcms-Mac", "skcms-Win"]
