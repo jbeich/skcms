@@ -1,3 +1,105 @@
+# Copyright 2016 The Bazel Authors. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This .bazelrc file contains all of the flags required for the provided
+# toolchain with Remote Build Execution.
+# Note your WORKSPACE must contain an rbe_autoconfig target with
+# name="rbe_default" to use these flags as-is.
+
+# Depending on how many machines are in the remote execution instance, setting
+# this higher can make builds faster by allowing more jobs to run in parallel.
+# Setting it too high can result in jobs that timeout, however, while waiting
+# for a remote machine to execute them.
+build:remote --jobs=50
+
+# Set several flags related to specifying the platform, toolchain and java
+# properties.
+# These flags should only be used as is for the rbe-ubuntu16-04 container
+# and need to be adapted to work with other toolchain containers.
+build:remote --java_runtime_version=rbe_jdk
+build:remote --tool_java_runtime_version=rbe_jdk
+build:remote --extra_toolchains=//bazel/rbe/java:all
+
+build:remote --crosstool_top=//bazel/rbe/cc:toolchain
+build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+# Platform flags:
+# The toolchain container used for execution is defined in the target indicated
+# by "extra_execution_platforms", "host_platform" and "platforms".
+# More about platforms: https://docs.bazel.build/versions/master/platforms.html
+build:remote --extra_toolchains=//bazel/rbe/config:cc-toolchain
+build:remote --extra_execution_platforms=//bazel/rbe/config:platform
+build:remote --host_platform=//bazel/rbe/config:platform
+build:remote --platforms=//bazel/rbe/config:platform
+
+# Starting with Bazel 0.27.0 strategies do not need to be explicitly
+# defined. See https://github.com/bazelbuild/bazel/issues/7480
+build:remote --define=EXECUTOR=remote
+
+# Enable remote execution so actions are performed on the remote systems.
+build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
+
+# Enforce stricter environment rules, which eliminates some non-hermetic
+# behavior and therefore improves both the remote cache hit rate and the
+# correctness and repeatability of the build.
+build:remote --incompatible_strict_action_env=true
+
+# Set a higher timeout value, just in case.
+build:remote --remote_timeout=3600
+
+# Use the RBE instance on the skia-infra-rbe GCP project.
+build:remote --remote_instance_name projects/skia-rbe/instances/default_instance
+
+# Note that running remote builds requires a service account key with the correct permissions.
+#
+# Instructions:
+#
+# Step 1: Create service account under the skia-public GCP project, if you don't have one already:
+#
+#     $ gcloud iam service-accounts create somegoogler-rbe \
+#           --description "somegoogler's RBE service account" \
+#           --project skia-public
+#
+# Step 2: Grant your service account the Remote Build Execution Artifact Creator[1] role under the
+# skia-rbe GCP project, which is where Skia's RBE instance[2] lives:
+#
+#     $ gcloud projects add-iam-policy-binding skia-rbe \
+#           --role roles/remotebuildexecution.artifactCreator \
+#           --member serviceAccount:somegoogler-rbe@skia-public.iam.gserviceaccount.com
+#
+# Step 3: Create a JSON service account key:
+#
+#     $ gcloud iam service-accounts keys create path/to/somegoogler-rbe.json \
+#           --project skia-infra \
+#           --iam-account somegoogler-rbe@skia-public.iam.gserviceaccount.com
+#
+# Step 4: Create a .bazelrc file in your home directory with the following contents:
+#
+#     build:remote --google_credentials=path/to/somegoogler-rbe.json
+#
+# Note that service account keys expire after 3 months, so you might have to repeat this step if
+# you run into permission issues.
+#
+# Step 5: Verify that everything works:
+#
+#     $ bazel build //... --config=remote
+#     $ bazel test //... --config=remote
+#
+# [1] https://cloud.google.com/remote-build-execution/docs/access-control#granting_the_ability_to_run_builds_remotely
+# [2] https://pantheon.corp.google.com/apis/api/remotebuildexecution.googleapis.com/overview?project=skia-rbe
+
+# SkCMS-specific configs
+
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
 
