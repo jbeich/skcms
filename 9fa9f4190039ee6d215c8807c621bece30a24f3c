@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e81b832_de987fe0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-08-10T14:44:57Z",
+      "side": 1,
+      "message": "Is this really on an Ubuntu16.04 box? This version is completely unmaintained at this point unless you have ESM (https://ubuntu.com/security/esm) and even then it\u0027s really only getting kernel patches that RedHat makes and patches directly requested by those paying. Why is this so very out of date (due to the way feature freeze worked for 16.04, the base packages on this release are over six years old now).",
+      "revId": "9fa9f4190039ee6d215c8807c621bece30a24f3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
