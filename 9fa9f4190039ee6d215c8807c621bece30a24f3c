@@ -16,6 +16,24 @@
       "message": "Is this really on an Ubuntu16.04 box? This version is completely unmaintained at this point unless you have ESM (https://ubuntu.com/security/esm) and even then it\u0027s really only getting kernel patches that RedHat makes and patches directly requested by those paying. Why is this so very out of date (due to the way feature freeze worked for 16.04, the base packages on this release are over six years old now).",
       "revId": "9fa9f4190039ee6d215c8807c621bece30a24f3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5108af0_18471b4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-08-11T19:49:56Z",
+      "side": 1,
+      "message": "I\u0027m only using RBE\u0027s default image here as proof-of-concept. We need to replace it with a custom image before we can use this in practice. The custom image can be based on any image we want. I\u0027ve updated the CL description with more details on this. Let me know if anything\u0027s unclear!",
+      "parentUuid": "4e81b832_de987fe0",
+      "revId": "9fa9f4190039ee6d215c8807c621bece30a24f3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
