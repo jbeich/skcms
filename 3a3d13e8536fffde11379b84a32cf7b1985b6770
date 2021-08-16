@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "053bbab3_3eb2286f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-08-16T13:36:37Z",
+      "side": 1,
+      "message": "This still seems overly strict (I looked at a handful of different variants of arm_neon.h from other compilers, as well as the history of the guarded intrinsics being added to GCC and other projects, etc.). In all cases, it seems that they\u0027re just guarded by (__ARM_FP \u0026 2). But I also verified that this change doesn\u0027t cause us to stop using those intrinsics with any of the android variants we build, so it seems ok.",
+      "revId": "3a3d13e8536fffde11379b84a32cf7b1985b6770",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3f4f8e05_1c5faa40",
