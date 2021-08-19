@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "162114b5_b839a933",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-08-19T13:38:06Z",
+      "side": 1,
+      "message": "I\u0027m not familiar wit this SkCMS code, but the code used by this #define seem to be doing 16-to-32 bit float conversion and vice versa.  If that matches then I think we should be doing (__ARM_FP \u0026 3) since we want to ensure that we have both 16 \u0026 32 bit precision.\n https://www.keil.com/support/man/docs/armclang_ref/armclang_ref_chr1383660321827.htm",
+      "range": {
+        "startLine": 52,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 21
+      },
+      "revId": "5139e8dbe5ed2bfd94f125a2009c9de759003c9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74411a4f_894b5200",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-08-19T13:38:06Z",
+      "side": 1,
+      "message": "I think checking for the presence of either extension works because if __fp16 is defined then one or the other is defined.  However, isn\u0027t that equivalent to just checking for defined(__fp16)?\n\nhttps://developer.arm.com/documentation/101028/0012/3--C-language-extensions",
+      "range": {
+        "startLine": 53,
+        "startChar": 35,
+        "endLine": 53,
+        "endChar": 64
+      },
+      "revId": "5139e8dbe5ed2bfd94f125a2009c9de759003c9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
