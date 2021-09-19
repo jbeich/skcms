@@ -1,0 +1,82 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000015480310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/437918?revision\u003d12",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "fa250648_34a630df",
+        "filename": "toolchains/README.md",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-09-19T05:56:56Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 54,
+        "startChar": 50,
+        "endLine": 54,
+        "endChar": 51
+      },
+      "revId": "eeaa6e2e1e9e2fd9aeb8ba6b04da3a3513526dac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000015480310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/437918?revision\u003d12",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "69266b7e_b979b661",
+        "filename": "toolchains/linux-bazel-4.2.1/cc/module.modulemap",
+        "patchSetId": 12
+      },
+      "lineNbr": 3587,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-09-19T05:56:56Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 3587,
+        "startChar": 57,
+        "endLine": 3587,
+        "endChar": 66
+      },
+      "revId": "eeaa6e2e1e9e2fd9aeb8ba6b04da3a3513526dac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000015480310",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/437918?revision\u003d12",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "2b837018_d24ca148",
+        "filename": "toolchains/linux-bazel-4.2.1/cc/module.modulemap",
+        "patchSetId": 12
+      },
+      "lineNbr": 3588,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-09-19T05:56:56Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 3588,
+        "startChar": 57,
+        "endLine": 3588,
+        "endChar": 66
+      },
+      "revId": "eeaa6e2e1e9e2fd9aeb8ba6b04da3a3513526dac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
