@@ -17,8 +17,15 @@ $ bazel test //...
 
 ### Building and testing on RBE
 
-TODO(lovisolo): Add instructions after
-[this CL](https://skia-review.googlesource.com/c/skcms/+/437918) lands.
+Same as above, but add `--config=linux-rbe` to your `bazel` invocation, e.g.:
+
+```
+$ bazel build //... --config=linux-rbe
+
+$ bazel test //... --config=linux-rbe
+```
+
+Note that you need to obtain RBE credentials for this to work (instructions below).
 
 ## macOS
 
@@ -109,3 +116,46 @@ TODO(lovisolo): Investigate adding a platform target to the top-level
 ### Building and testing on RBE
 
 TODO(lovisolo)
+
+## RBE Credentials
+
+Note that running remote builds requires a service account key with the correct permissions.
+
+Instructions:
+
+Step 1: Create service account under the skia-public GCP project, if you don't have one already:
+
+```
+$ gcloud iam service-accounts create somegoogler-rbe \
+      --description "somegoogler's RBE service account" \
+      --project skia-public
+```
+
+Step 2: Grant your service account the
+[Remote Build Execution Artifact Creator](https://cloud.google.com/remote-build-execution/docs/access-control#granting_the_ability_to_run_builds_remotely)
+role under the skia-rbe GCP project, which is where Skia's
+[RBE instance](https://pantheon.corp.google.com/apis/api/remotebuildexecution.googleapis.com/overview?project=skia-rbe)
+lives:
+
+```
+$ gcloud projects add-iam-policy-binding skia-rbe \
+      --role roles/remotebuildexecution.artifactCreator \
+      --member serviceAccount:somegoogler-rbe@skia-public.iam.gserviceaccount.com
+```
+
+Step 3: Create a JSON service account key:
+
+```
+$ gcloud iam service-accounts keys create path/to/somegoogler-rbe.json \
+      --project skia-public \
+      --iam-account somegoogler-rbe@skia-public.iam.gserviceaccount.com
+```
+
+Step 4: Create a .bazelrc file in your home directory with the following contents:
+
+```
+build:remote --google_credentials=path/to/somegoogler-rbe.json
+```
+
+Note that service account keys expire after 3 months, so you might have to repeat this step if
+you run into permission issues.
