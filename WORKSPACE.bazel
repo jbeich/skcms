@@ -1,0 +1,4 @@
+local_repository(
+  name = "rbe_linux_toolchains",
+  path = "toolchains/linux-bazel-4.2.1",
+)
