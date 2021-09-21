@@ -11,7 +11,7 @@
   },
   "jobs": {
     "skcms": {
-      "tasks": ["skcms-Linux", "skcms-Mac", "skcms-Win"]
+      "tasks": ["skcms-Linux", "skcms-Mac", "skcms-Win", "skcms-Linux-Bazel-Build-RBE"]
     },
     "skcms-Linux": {
       "tasks": ["skcms-Linux"]
@@ -21,6 +21,9 @@
     },
     "skcms-Win": {
       "tasks": ["skcms-Win"]
+    },
+    "skcms-Linux-Bazel-Build-RBE": {
+      "tasks": ["skcms-Linux-Bazel-Build-RBE"]
     }
   },
   "tasks": {
@@ -138,6 +141,46 @@
         "clang_win"
       ],
       "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "skcms-Linux-Bazel-Build-RBE": {
+      "casSpec": "whole-repo",
+      "cipd_packages": [
+        {
+          "name": "infra/ninja/linux-amd64",
+          "path": "ninja",
+          "version": "version:1.8.2"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "ndk",
+          "version": "version:16"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:16"
+        },
+        {
+          "name": "infra/python/cpython/linux-amd64",
+          "path": "python",
+          "version": "version:2.7.15.chromium14"
+        }
+      ],
+      "command": [
+        "python/bin/python",
+        "skcms/infra/bots/bot.py",
+        "ninja",
+        "ndk",
+        "clang_linux"
+      ],
+      "dimensions": [
+        "os:Linux",
+        "cpu:x86-64-Skylake_GCE",
+        "gpu:none",
+        "pool:Skia"
+      ],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     }
