@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "405fbb5b_c79dab69",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-09-22T21:44:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "027cf269_a1a2f9fd",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 20
+      },
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "76a9b104_283f23f0",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-09-22T18:35:06Z",
       "side": 1,
       "message": "Style nits:\n\n- 2 blank lines between top-level items\n- Let\u0027s wrap the functionality in a `def main()`",
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf1a3243_47c44253",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-09-22T21:44:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76a9b104_283f23f0",
       "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e779d10_1220a972",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-09-22T21:44:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b42ddb7_2ab02fd1",
+      "range": {
+        "startLine": 16,
+        "startChar": 29,
+        "endLine": 16,
+        "endChar": 39
+      },
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "66096f97_2265581c",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-09-22T18:35:06Z",
       "side": 1,
       "message": "We should clean this up once we\u0027re finished.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 15
+      },
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "128cb3e0_20e9e524",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-09-22T21:44:49Z",
+      "side": 1,
+      "message": "Note that the Bazel cache dir gets created under /b/s/w (e.g. see the --output_user_root flag here: https://chromium-swarm.appspot.com/task?id\u003d562836c1b1b36410).\n\nIIUC, /b/s/w is a temporary working directory that is created for each task and then deleted (source: https://chromium.googlesource.com/infra/luci/luci-py/+/HEAD/appengine/swarming/doc/Bot.md#directory-layout).\n\nDo we need to delete the Bazel cache dir by hand, or can we rely on the above mechanism to clean it up after the task finishes?\n\nNote that we don\u0027t manually delete the Bazel cache dir in the Infra-PerCommit-{Build,Test}-Bazel-RBE tasks, so if we do need to delete said dir manually here, we should probably delete it on the infra tasks as well.",
+      "parentUuid": "66096f97_2265581c",
       "range": {
         "startLine": 44,
         "startChar": 0,
