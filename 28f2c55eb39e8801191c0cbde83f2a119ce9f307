@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fa36ddb_ca825971",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-09-22T13:46:43Z",
+      "side": 1,
+      "message": "I suppose this is fine, though I\u0027m not sure why one wouldn\u0027t just use the already old Ubuntu 20.04 (still in full support) or a better stable distro like debian (Ubuntu has been pushing unauditable snaps, but is otherwise mostly out of date debian for everything else).",
+      "revId": "28f2c55eb39e8801191c0cbde83f2a119ce9f307",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
