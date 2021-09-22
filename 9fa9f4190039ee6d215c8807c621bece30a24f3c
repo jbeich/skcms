@@ -34,6 +34,24 @@
       "parentUuid": "4e81b832_de987fe0",
       "revId": "9fa9f4190039ee6d215c8807c621bece30a24f3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a7bd379_7d3fe0d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-09-22T02:18:56Z",
+      "side": 1,
+      "message": "This CL now uses a custom RBE toolchain container image based on a Google-provided Ubuntu 18.04 base image. PTAL.",
+      "parentUuid": "c5108af0_18471b4b",
+      "revId": "9fa9f4190039ee6d215c8807c621bece30a24f3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
