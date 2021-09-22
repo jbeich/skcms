@@ -34,6 +34,24 @@
       "parentUuid": "7fa36ddb_ca825971",
       "revId": "28f2c55eb39e8801191c0cbde83f2a119ce9f307",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07c958ff_82fabb5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-09-22T18:40:05Z",
+      "side": 1,
+      "message": "Just note that if this is the base image recommended by anyone, that means that the recommender isn\u0027t around anymore to \"un-recommend\" it. The statement that \"Google recommends it\" is an appeal to authority. However, that authority is was only interesting back when the recommendation was written, since it\u0027s very likely that someone randomly put this image out there and has probably moved on. If they were still around, this image would have long since been marked as deprecated and not for new use and something would be replacing it (probably a recent Debian release, since Ubuntu has kinda gone off the rails).",
+      "parentUuid": "87375a76_46ab3b47",
+      "revId": "28f2c55eb39e8801191c0cbde83f2a119ce9f307",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
