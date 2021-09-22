@@ -16,6 +16,24 @@
       "message": "I suppose this is fine, though I\u0027m not sure why one wouldn\u0027t just use the already old Ubuntu 20.04 (still in full support) or a better stable distro like debian (Ubuntu has been pushing unauditable snaps, but is otherwise mostly out of date debian for everything else).",
       "revId": "28f2c55eb39e8801191c0cbde83f2a119ce9f307",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87375a76_46ab3b47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-09-22T18:26:04Z",
+      "side": 1,
+      "message": "Thanks! What sold me about this base image is that Google recommends it as a base image for production services. I went with the most recent Google-provided Ubuntu base image because I\u0027m familiar with that distro, but we can swap it for any other base image we wish in the future.",
+      "parentUuid": "7fa36ddb_ca825971",
+      "revId": "28f2c55eb39e8801191c0cbde83f2a119ce9f307",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
