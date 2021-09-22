@@ -11,7 +11,13 @@
   },
   "jobs": {
     "skcms": {
-      "tasks": ["skcms-Linux", "skcms-Mac", "skcms-Win"]
+      "tasks": [
+        "skcms-Linux",
+        "skcms-Mac",
+        "skcms-Win",
+        "skcms-Linux-Bazel-Build-RBE",
+        "skcms-Linux-Bazel-Test-RBE"
+      ]
     },
     "skcms-Linux": {
       "tasks": ["skcms-Linux"]
@@ -21,6 +27,12 @@
     },
     "skcms-Win": {
       "tasks": ["skcms-Win"]
+    },
+    "skcms-Linux-Bazel-Build-RBE": {
+      "tasks": ["skcms-Linux-Bazel-Build-RBE"]
+    },
+    "skcms-Linux-Bazel-Test-RBE": {
+      "tasks": ["skcms-Linux-Bazel-Test-RBE"]
     }
   },
   "tasks": {
@@ -138,6 +150,100 @@
         "clang_win"
       ],
       "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "skcms-Linux-Bazel-Build-RBE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "whole-repo",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:2@3.8.10.chromium.19"
+        },
+        {
+          "name": "skia/bots/bazel",
+          "path": "bazel",
+          "version": "version:3"
+        }
+      ],
+      "command": [
+        "python/bin/python",
+        "skcms/infra/bots/bazel.py",
+        "build",
+        "rbe"
+      ],
+      "dimensions": [
+        "pool:Skia",
+        "os:Debian-10.3",
+        "gpu:none",
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-highcpu-64",
+        "docker_installed:true"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "bazel/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "skcms-Linux-Bazel-Test-RBE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "whole-repo",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:2@3.8.10.chromium.19"
+        },
+        {
+          "name": "skia/bots/bazel",
+          "path": "bazel",
+          "version": "version:3"
+        }
+      ],
+      "command": [
+        "python/bin/python",
+        "skcms/infra/bots/bazel.py",
+        "test",
+        "rbe"
+      ],
+      "dimensions": [
+        "pool:Skia",
+        "os:Debian-10.3",
+        "gpu:none",
+        "cpu:x86-64-Haswell_GCE",
+        "machine_type:n1-highcpu-64",
+        "docker_installed:true"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "bazel/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     }
