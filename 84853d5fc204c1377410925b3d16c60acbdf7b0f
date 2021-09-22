@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "027cf269_a1a2f9fd",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-09-22T18:35:06Z",
+      "side": 1,
+      "message": "Nit: please include a copyright header, eg. https://skia.googlesource.com/skia/+/main/infra/bots/infra_tests.py#3\n\nAlso, is there any reason this can\u0027t use Python 3?  We should prefer that if at all possible.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 20
+      },
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76a9b104_283f23f0",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-09-22T18:35:06Z",
+      "side": 1,
+      "message": "Style nits:\n\n- 2 blank lines between top-level items\n- Let\u0027s wrap the functionality in a `def main()`",
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b42ddb7_2ab02fd1",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-09-22T18:35:06Z",
+      "side": 1,
+      "message": "shell\u003dtrue should almost never be used, and is unsafe in combination with user input.",
+      "range": {
+        "startLine": 16,
+        "startChar": 29,
+        "endLine": 16,
+        "endChar": 39
+      },
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66096f97_2265581c",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-09-22T18:35:06Z",
+      "side": 1,
+      "message": "We should clean this up once we\u0027re finished.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 15
+      },
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
