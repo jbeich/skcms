@@ -175,6 +175,30 @@
       },
       "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ded16f78_df1c8303",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-09-23T12:09:13Z",
+      "side": 1,
+      "message": "You\u0027re right; the swarming task directory does get cleaned up automatically.  I still have a personal preference to clean up after ourselves whenever possible, in case this code is ever used in another context, eg. manually run on a developer machine, or grafted into some other build script.",
+      "parentUuid": "128cb3e0_20e9e524",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 15
+      },
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
