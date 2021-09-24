@@ -199,6 +199,30 @@
       },
       "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9fd0f25_493256fe",
+        "filename": "infra/bots/bazel.py",
+        "patchSetId": 23
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-09-24T03:31:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ded16f78_df1c8303",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 15
+      },
+      "revId": "84853d5fc204c1377410925b3d16c60acbdf7b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
