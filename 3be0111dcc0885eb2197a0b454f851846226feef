@@ -1,0 +1,82 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000015670762",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/452361?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "b38aeb1d_5e9a5413",
+        "filename": "bazel/toolchains/windows-bazel-4.2.1/cc/builtin_include_directory_paths_mingw",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-09-25T02:51:32Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 8,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 8
+      },
+      "revId": "3be0111dcc0885eb2197a0b454f851846226feef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000015670762",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/452361?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "73275883_66eea6bd",
+        "filename": "bazel/toolchains/windows-bazel-4.2.1/cc/get_env.bat",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-09-25T02:51:32Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 2,
+        "startChar": 139,
+        "endLine": 2,
+        "endChar": 140
+      },
+      "revId": "3be0111dcc0885eb2197a0b454f851846226feef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000015670762",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/452361?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "15063749_16a1fdcf",
+        "filename": "bazel/toolchains/windows-bazel-4.2.1/cc/get_env.bat",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-09-25T02:51:32Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 3,
+        "startChar": 74,
+        "endLine": 3,
+        "endChar": 75
+      },
+      "revId": "3be0111dcc0885eb2197a0b454f851846226feef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
