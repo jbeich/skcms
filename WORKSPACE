@@ -7,6 +7,11 @@ local_repository(
   path = "bazel/toolchains/linux-bazel-4.2.1",
 )
 
+local_repository(
+  name = "rbe_windows_toolchains",
+  path = "bazel/toolchains/windows-bazel-4.2.1",
+)
+
 ##################################
 # Docker rules and dependencies. #
 ##################################

@@ -56,7 +56,7 @@ Add an empty `//bazel/toolchains/linux-bazel-<BAZEL VERSION>/WORKSPACE` file.
 #### Step 4
 
 Open file `//bazel/toolchains/linux-bazel-<BAZEL VERSION>/config/BUILD`, look for the `toolchain`
-rule named `cc-toolchain`, and replace the `toolchain` attribute as follows:
+rule named `cc-toolchain`, and change the `toolchain` attribute as follows:
 
 ```
 # Before.
@@ -76,7 +76,10 @@ toolchain(
 )
 ```
 
-Next, look for the `platform` rule named `platform`, and make the following change:
+#### Step 5
+
+Open file `//bazel/toolchains/linux-bazel-<BAZEL VERSION>/config/BUILD`, look for the `platform`
+rule named `platform`, and make change the `exec_properties` attribute as follows:
 
 ```
 # Before.
@@ -107,13 +110,40 @@ This is necessary to run tests on Linux RBE with `--config=asan` (details
 (As an alternative, we could disable memory leak detection by setting the environment variable
 `ASAN_OPTIONS=detect_leaks=1` via the `--action_env` Bazel flag.)
 
-#### Step 5
+#### Step 6
 
 Update the paths in `//WORKSPACE` as needed.
 
 ## Windows
 
-TODO(lovisolo)
+Directories `windows-bazel-<BAZEL VERSION>` contain Bazel toolchain configurations for Windows RBE
+builds. Multiple such directories may exist to ease migrating from one Bazel version to the next.
+
+### Toolchain configuration regeneration instructions
+
+The Windows RBE toolchain configuration must be regenerated whenever the Windows RBE toolchain
+container image changes, or when upgrading to a new Bazel version.
+
+The instructions to regenerate the Windows RBE toolchain are the same as for the Linux RBE
+toolchain, with the following differences:
+
+- Any paths should be changed as needed.
+
+- In Step 2, run the following command instead:
+
+```
+# Replace the <PLACEHOLDERS> as needed.
+$ rbe_configs_gen.exe \
+      --bazel_version=<BAZEL VERSION> \
+      --toolchain_container=gcr.io/skia-public/rbe-container-skia-windows@sha256:<HASH OF MOST RECENT IMAGE> \
+      --output_src_root=<PATH TO REPOSITORY CHECKOUT> \
+      --output_config_path=bazel/toolchains/windows-bazel-<BAZEL VERSION> \
+      --generate_java_configs=false \
+      --exec_os=windows \
+      --target_os=windows
+```
+
+- Step 5 can be omitted.
 
 ## macOS
 
