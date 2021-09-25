@@ -52,3 +52,11 @@ build:linux-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
 build:linux-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
 build:linux-rbe --host_platform=@rbe_linux_toolchains//config:platform
 build:linux-rbe --platforms=@rbe_linux_toolchains//config:platform
+
+# Windows RBE configuration.
+build:windows-rbe --config=remote
+build:windows-rbe --crosstool_top=@rbe_windows_toolchains//cc:toolchain
+build:windows-rbe --extra_toolchains=@rbe_windows_toolchains//config:cc-toolchain
+build:windows-rbe --extra_execution_platforms=@rbe_windows_toolchains//config:platform
+build:windows-rbe --host_platform=@rbe_windows_toolchains//config:platform
+build:windows-rbe --platforms=@rbe_windows_toolchains//config:platform
