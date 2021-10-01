@@ -2,8 +2,12 @@
   "casSpecs": {
     "whole-repo": {
       "root": "..",
-      "paths": ["skcms"],
-      "excludes": ["^(.*\\/)*\\.git(\\/.*)*$"]
+      "paths": [
+        "skcms"
+      ],
+      "excludes": [
+        "^(.*\\/)*\\.git(\\/.*)*$"
+      ]
     }
   },
   "commit_queue": {
@@ -16,23 +20,45 @@
         "skcms-Mac",
         "skcms-Win",
         "skcms-Linux-Bazel-Build-RBE",
-        "skcms-Linux-Bazel-Test-RBE"
+        "skcms-Linux-Bazel-Test-RBE",
+        "skcms-Win-Bazel-Build-RBE",
+        "skcms-Win-Bazel-Test-RBE"
       ]
     },
     "skcms-Linux": {
-      "tasks": ["skcms-Linux"]
+      "tasks": [
+        "skcms-Linux"
+      ]
     },
     "skcms-Mac": {
-      "tasks": ["skcms-Mac"]
+      "tasks": [
+        "skcms-Mac"
+      ]
     },
     "skcms-Win": {
-      "tasks": ["skcms-Win"]
+      "tasks": [
+        "skcms-Win"
+      ]
     },
     "skcms-Linux-Bazel-Build-RBE": {
-      "tasks": ["skcms-Linux-Bazel-Build-RBE"]
+      "tasks": [
+        "skcms-Linux-Bazel-Build-RBE"
+      ]
     },
     "skcms-Linux-Bazel-Test-RBE": {
-      "tasks": ["skcms-Linux-Bazel-Test-RBE"]
+      "tasks": [
+        "skcms-Linux-Bazel-Test-RBE"
+      ]
+    },
+    "skcms-Win-Bazel-Build-RBE": {
+      "tasks": [
+        "skcms-Win-Bazel-Build-RBE"
+      ]
+    },
+    "skcms-Win-Bazel-Test-RBE": {
+      "tasks": [
+        "skcms-Win-Bazel-Test-RBE"
+      ]
     }
   },
   "tasks": {
@@ -114,7 +140,11 @@
         "mac_toolchain",
         "cache/Xcode_skcms.app"
       ],
-      "dimensions": ["os:Mac-10.15", "gpu:none", "pool:Skia"],
+      "dimensions": [
+        "os:Mac-10.15",
+        "gpu:none",
+        "pool:Skia"
+      ],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -149,7 +179,11 @@
         "win_toolchain",
         "clang_win"
       ],
-      "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
+      "dimensions": [
+        "os:Windows-Server-17763",
+        "gpu:none",
+        "pool:Skia"
+      ],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -244,6 +278,84 @@
           "cache/vpython"
         ]
       },
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "skcms-Win-Bazel-Build-RBE": {
+      "casSpec": "whole-repo",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/win_ninja",
+          "path": "ninja",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/win_toolchain",
+          "path": "win_toolchain",
+          "version": "version:11"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:14"
+        },
+        {
+          "name": "infra/python/cpython/windows-amd64",
+          "path": "python",
+          "version": "version:2.7.15.chromium14"
+        }
+      ],
+      "command": [
+        "python/bin/python.exe",
+        "skcms/infra/bots/bot.py",
+        "ninja",
+        "win_toolchain",
+        "clang_win"
+      ],
+      "dimensions": [
+        "os:Windows-Server-17763",
+        "gpu:none",
+        "pool:Skia"
+      ],
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "skcms-Win-Bazel-Test-RBE": {
+      "casSpec": "whole-repo",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/win_ninja",
+          "path": "ninja",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/win_toolchain",
+          "path": "win_toolchain",
+          "version": "version:11"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:14"
+        },
+        {
+          "name": "infra/python/cpython/windows-amd64",
+          "path": "python",
+          "version": "version:2.7.15.chromium14"
+        }
+      ],
+      "command": [
+        "python/bin/python.exe",
+        "skcms/infra/bots/bot.py",
+        "ninja",
+        "win_toolchain",
+        "clang_win"
+      ],
+      "dimensions": [
+        "os:Windows-Server-17763",
+        "gpu:none",
+        "pool:Skia"
+      ],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     }
