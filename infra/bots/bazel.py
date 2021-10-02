@@ -26,6 +26,8 @@ def main():
   print("Hello from {platform} in {cwd}!".format(platform=sys.platform,
                                                  cwd=os.getcwd()))
 
+  linux = "linux" in sys.platform  # We assume it's Windows if this is false.
+
   # Create a temporary directory for the Bazel cache.
   #
   # We cannot use the default Bazel cache location ($HOME/.cache/bazel) because:
@@ -48,19 +50,30 @@ def main():
   with tempfile.TemporaryDirectory(prefix="bazel-cache-",
                                    dir=os.environ["TMPDIR"]) as cache_dir:
     def bazel(args):
-      cmd = ["bazel", "--output_user_root=" + cache_dir] + args
-      call(cmd)
+      cmd = ["bazel", "--output_user_root=" + cache_dir] if linux \
+            else ["C:\\b\\s\\w\\ir\\bazel_win\\bazel.exe"]
+      call(cmd + args)
 
-    # Print the Bazel version.
-    bazel(["version"])
+    subprocess.check_call("dir", shell=True)
+    import time
+    time.sleep(600)
 
-    # Run the requested Bazel command.
-    os.chdir("skcms")
-    cmd = [build_or_test, "//..."]
-    if local_or_rbe == "rbe":
-      cmd += ["--config=linux-rbe", "--google_default_credentials"]
-    bazel(cmd)
+    try:
+      # Print the Bazel version.
+      bazel(["version"])
 
+      # Run the requested Bazel command.
+      os.chdir("skcms")
+      cmd = [build_or_test, "//..."]
+      if local_or_rbe == "rbe":
+        cmd += ["--config=linux-rbe" if linux else "--config=windows-rbe",
+                "--google_default_credentials"]
+      bazel(cmd)
+
+    finally:
+      # Kill the Bazel server, so as not to leave any children processes
+      # outliving the Swarming task.
+      bazel(["shutdown"])
 
 if __name__ == "__main__":
   main()
