@@ -272,11 +272,6 @@
           "name": "skia/bots/bazel_win",
           "path": "bazel_win",
           "version": "version:0"
-        },
-        {
-          "name": "skia/internal/skia_infra_rbe_key",
-          "path": "skia_infra_rbe_key",
-          "version": "version:3"
         }
       ],
       "command": [
@@ -309,11 +304,6 @@
           "name": "skia/bots/bazel_win",
           "path": "bazel_win",
           "version": "version:0"
-        },
-        {
-          "name": "skia/internal/skia_infra_rbe_key",
-          "path": "skia_infra_rbe_key",
-          "version": "version:3"
         }
       ],
       "command": [
