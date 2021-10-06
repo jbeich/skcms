@@ -63,12 +63,10 @@ def main():
       cmd = [build_or_test, "//..."]
       if local_or_rbe == "rbe":
         if linux:
-          cmd += ["--config=linux-rbe", "--google_default_credentials"]
+          cmd += ["--config=linux-rbe"]
         else: # Windows
-          # TODO(lovisolo): Use --google_default_credentials when Windows bots
-          #                 are rebuilt with the correct credentials.
-          cmd += ["--config=windows-rbe",
-                  "--google_credentials=C:\\b\\s\\w\\ir\\skia_infra_rbe_key\\rbe-ci.json"]
+          cmd += ["--config=windows-rbe"]
+        cmd += ["--google_default_credentials"]
 
       bazel(cmd)
 
