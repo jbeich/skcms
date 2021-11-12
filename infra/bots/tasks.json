@@ -122,7 +122,12 @@
         "mac_toolchain",
         "cache/Xcode_skcms.app"
       ],
-      "dimensions": ["os:Mac-10.15", "gpu:none", "pool:Skia"],
+      "dimensions": [
+        "cores:12",
+        "cpu:x86-64",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
