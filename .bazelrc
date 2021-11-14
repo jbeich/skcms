@@ -60,3 +60,39 @@ build:windows-rbe --extra_toolchains=@rbe_windows_toolchains//config:cc-toolchai
 build:windows-rbe --extra_execution_platforms=@rbe_windows_toolchains//config:platform
 build:windows-rbe --host_platform=@rbe_windows_toolchains//config:platform
 build:windows-rbe --platforms=@rbe_windows_toolchains//config:platform
+
+# Note: All Android configurations require the ANDROID_NDK_HOME environment variable to point to a
+# local copy of the Android NDK.
+#
+# For RBE builds, a local NDK is still needed because the list of input files of some C/C++ build
+# actions contains NDK source files, which Bazel pulls from the local NDK. See http://b/195294181.
+#
+# Warning: Currently, the most recent NDK version supported by Bazel (version 4.2.1 at the time of
+# writing) is r21e (https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip).
+# Make sure your local NDK is r21e or older. See:
+#  - https://github.com/bazelbuild/bazel/blob/286fb80081db0af43b1f86292ce417c6541d4ad4/src/main/java/com/google/devtools/build/lib/bazel/rules/android/ndkcrosstools/AndroidNdkCrosstools.java#L39-L59
+#  - https://github.com/google/mediapipe/issues/1281
+
+# Android configuration for 32-bit ARM (armeabi-v7a ABI).
+build:android-arm --crosstool_top=@androidndk//:default_crosstool
+build:android-arm --cpu=armeabi-v7a
+build:android-arm --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+
+# Android RBE configuration for 32-bit ARM (armeabi-v7a ABI).
+build:android-arm-rbe --config=remote
+build:android-arm-rbe --config=android-arm
+build:android-arm-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
+build:android-arm-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
+build:android-arm-rbe --platforms=@rbe_linux_toolchains//config:platform
+
+# Android configuration for 64-bit ARM (arm64-v8a ABI).
+build:android-arm64 --crosstool_top=@androidndk//:default_crosstool
+build:android-arm64 --cpu=arm64-v8a
+build:android-arm64 --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+
+# Android RBE configuration for 64-bit ARM (arm64-v8a ABI).
+build:android-arm64-rbe --config=remote
+build:android-arm64-rbe --config=android-arm64
+build:android-arm64-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
+build:android-arm64-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
+build:android-arm64-rbe --platforms=@rbe_linux_toolchains//config:platform
