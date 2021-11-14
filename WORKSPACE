@@ -12,6 +12,18 @@ local_repository(
   path = "bazel/toolchains/windows-bazel-4.2.1",
 )
 
+############
+# Android. #
+############
+
+# Name *must* be "androidndk". The path to the NDK is pulled from $ANDROID_NDK_HOME.
+#
+# See https://docs.bazel.build/versions/main/android-ndk.html.
+android_ndk_repository(
+  name = "androidndk",
+  api_level = 31,
+)
+
 ##################################
 # Docker rules and dependencies. #
 ##################################
