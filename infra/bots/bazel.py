@@ -23,10 +23,11 @@ def main():
   local_or_rbe = sys.argv[2]
   assert local_or_rbe in ["local", "rbe"]
 
+  target = sys.argv[3]
+  assert target in ["android-arm", "android-arm64", "linux", "windows"]
+
   print("Hello from {platform} in {cwd}!".format(platform=sys.platform,
                                                  cwd=os.getcwd()))
-
-  linux = "linux" in sys.platform  # We assume it's Windows if this is false.
 
   # Create a temporary directory for the Bazel cache.
   #
@@ -50,25 +51,22 @@ def main():
   with tempfile.TemporaryDirectory(prefix="bazel-cache-",
                                    dir=os.environ["TMPDIR"]) as cache_dir:
     def bazel(args):
-      cmd = ["bazel", "--output_user_root=" + cache_dir] if linux \
-            else ["C:\\b\\s\\w\\ir\\bazel_win\\bazel.exe"]
+      cmd = ["C:\\b\\s\\w\\ir\\bazel_win\\bazel.exe"] if target == "windows" \
+            else ["bazel", "--output_user_root=" + cache_dir]
       call(cmd + args)
 
     try:
       # Print the Bazel version.
       bazel(["version"])
 
+      # Compute the Bazel configuration to use.
+      config = target
+      if local_or_rbe == "rbe":
+        config += "-rbe"
+
       # Run the requested Bazel command.
       os.chdir("skcms")
-      cmd = [build_or_test, "//..."]
-      if local_or_rbe == "rbe":
-        if linux:
-          cmd += ["--config=linux-rbe"]
-        else: # Windows
-          cmd += ["--config=windows-rbe"]
-        cmd += ["--google_default_credentials"]
-
-      bazel(cmd)
+      bazel([build_or_test, "//...", "--config=" + config, "--google_default_credentials"])
 
     finally:
       # Kill the Bazel server, so as not to leave any children processes
