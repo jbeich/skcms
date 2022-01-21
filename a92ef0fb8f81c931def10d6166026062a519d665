@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bad1812_258e6962",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2022-01-21T15:36:25Z",
+      "side": 1,
+      "message": "I think you may need to declare infinity bits value as \u0027F\u0027, rather than float. See also the line I tagged where doing that is compiler dependent...",
+      "revId": "a92ef0fb8f81c931def10d6166026062a519d665",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9746a37b_427af597",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2022-01-21T15:36:25Z",
+      "side": 1,
+      "message": "^^^",
+      "revId": "a92ef0fb8f81c931def10d6166026062a519d665",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
