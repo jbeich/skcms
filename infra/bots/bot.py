@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import time
 
 ninja = sys.argv[1]
 
@@ -50,6 +51,10 @@ elif 'linux' in sys.platform:
 
   emscripten_sdk = os.path.realpath('emsdk')
   node = emscripten_sdk + '/node/14.15.5_64bit/bin/node'
+
+  ##### HELLO ######
+  print 'Sleeping for 1 hour...'
+  time.sleep(3600)
 
   em_config = os.path.realpath(os.path.join('.', 'em_config'))
   with open(em_config, 'w') as f:
