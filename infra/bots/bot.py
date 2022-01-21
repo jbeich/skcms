@@ -51,6 +51,8 @@ elif 'linux' in sys.platform:
   emscripten_sdk = os.path.realpath('emsdk')
   node = emscripten_sdk + '/node/14.15.5_64bit/bin/node'
 
+  ##### HELLO ######
+
   em_config = os.path.realpath(os.path.join('.', 'em_config'))
   with open(em_config, 'w') as f:
     print >>f, '''
