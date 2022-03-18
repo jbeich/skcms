@@ -96,3 +96,28 @@ build:android-arm64-rbe --config=android-arm64
 build:android-arm64-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
 build:android-arm64-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
 build:android-arm64-rbe --platforms=@rbe_linux_toolchains//config:platform
+
+# Skia bot RBE.
+
+constraint_setting(name = "skia_bot_color")
+constraint_value(
+    name = "purple",
+    constraint_setting = ":skia_bot_color",
+)
+
+platform(
+    name = "skia_pretty_bot",
+    constraint_values = [
+        "skia_bot_color:purple",
+    ],
+#     exec_properties = {
+#         "random_data_for_worker": "how's it going?",
+#     },
+)
+
+# Config for some arbitrary kind of bot, like Mac11x86 or something. We
+# might choose to inline this, depending on how much there ends up being
+# to factor up.
+build:pretty_bot --config=remote
+build:pretty_bot --extra_execution_platforms=:skia_pretty_bot
+build:pretty_bot --platforms=:skia_pretty_bot

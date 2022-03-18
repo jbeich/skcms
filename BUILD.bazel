@@ -100,3 +100,8 @@ cc_binary(
     srcs = ["bench.c"],
     deps = [":skcms"],
 )
+
+sh_test(
+    name = "skia_bot_test",
+    srcs = ["skia_bot_test.sh"],
+)
