@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "adbc25d9_275dac6e",
+        "filename": ".bazelrc",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2022-03-18T20:44:58Z",
+      "side": 1,
+      "message": "You\u0027ll want to define these in a BUILD.bazel file somewhere.\n\ne.g. https://github.com/google/skia/blob/main/bazel/common_config_settings/BUILD.bazel#L6",
+      "revId": "f98176618562e938c3ec06bc35c9ecf5b320940d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e2e7cc4_7c17c139",
+        "filename": ".bazelrc",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2022-03-18T20:44:58Z",
+      "side": 1,
+      "message": "And then refer to them by their fully qualified name:\nhttps://github.com/google/skia/blob/main/.bazelrc#L10",
+      "range": {
+        "startLine": 123,
+        "startChar": 29,
+        "endLine": 123,
+        "endChar": 45
+      },
+      "revId": "f98176618562e938c3ec06bc35c9ecf5b320940d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
