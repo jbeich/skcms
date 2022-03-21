@@ -101,6 +101,23 @@ cc_binary(
     deps = [":skcms"],
 )
 
+
+constraint_setting(name = "skia_bot_color")
+constraint_value(
+    name = "purple",
+    constraint_setting = ":skia_bot_color",
+)
+
+platform(
+    name = "skia_pretty_bot",
+    constraint_values = [
+        ":purple",
+    ],
+#     exec_properties = {
+#         "random_data_for_worker": "how's it going?",
+#     },
+)
+
 sh_test(
     name = "skia_bot_test",
     srcs = ["skia_bot_test.sh"],
