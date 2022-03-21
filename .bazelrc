@@ -102,6 +102,10 @@ build:android-arm64-rbe --platforms=@rbe_linux_toolchains//config:platform
 # Config for some arbitrary kind of bot, like Mac11x86 or something. We
 # might choose to inline this, depending on how much there ends up being
 # to factor up.
-build:pretty_bot --config=remote
+#build:pretty_bot --config=remote
 build:pretty_bot --extra_execution_platforms=:skia_pretty_bot
 build:pretty_bot --platforms=//:skia_pretty_bot
+# It wasn't the platform.
+build:pretty_bot --define=EXECUTOR=remote
+build:pretty_bot --remote_executor=grpcs://remotebuildexecution.googleapis.com
+build:pretty_bot --remote_instance_name=projects/skia-rbe/instances/default_instance
