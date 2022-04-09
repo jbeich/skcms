@@ -1,0 +1,35 @@
+load(":ndk_cc_toolchain_config.bzl", "ndk_arm64_v8a_toolchain_config")
+
+package(default_visibility = ["//visibility:public"])
+
+# https://bazel.build/reference/be/c-cpp#cc_toolchain_suite
+cc_toolchain_suite(
+    name = "ndk_suite",
+    toolchains = {
+        "arm64-v8a": ":ndk_arm64-v8a_toolchain",
+    },
+)
+
+# https://bazel.build/reference/be/c-cpp#cc_toolchain
+cc_toolchain(
+    name = "ndk_arm64-v8a_toolchain",
+    all_files = ":ndk_arm64-v8a_toolchain_all_files",
+    ar_files = ":ndk_arm64-v8a_toolchain_all_files",
+    compiler_files = ":ndk_arm64-v8a_toolchain_all_files",
+    dwp_files = ":ndk_arm64-v8a_toolchain_all_files",
+    dynamic_runtime_lib = "@android_ndk//:arm64-v8a_dynamic_runtime_libraries",
+    linker_files = ":ndk_arm64-v8a_toolchain_all_files",
+    objcopy_files = ":ndk_arm64-v8a_toolchain_all_files",
+    strip_files = ":ndk_arm64-v8a_toolchain_all_files",
+    static_runtime_lib = "@android_ndk//:arm64-v8a_static_runtime_libraries",
+    supports_param_files = False,
+    toolchain_identifier = "ndk-arm64-v8a-toolchain",
+    toolchain_config = ":ndk_arm64-v8a_toolchain_config",
+)
+
+filegroup(
+    name = "ndk_arm64-v8a_toolchain_all_files",
+    srcs = glob(["trampolines/*.sh"]) + ["@android_ndk//:arm64-v8a_all_files"],
+)
+
+ndk_arm64_v8a_toolchain_config(name = "ndk_arm64-v8a_toolchain_config")

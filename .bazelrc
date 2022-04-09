@@ -96,3 +96,15 @@ build:android-arm64-rbe --config=android-arm64
 build:android-arm64-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
 build:android-arm64-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
 build:android-arm64-rbe --platforms=@rbe_linux_toolchains//config:platform
+
+# Experimental hermetic Android configuration for 64-bit ARM (arm64-v8a ABI).
+build:android-arm64-hermetic --crosstool_top=//toolchain:ndk_suite
+build:android-arm64-hermetic --cpu=arm64-v8a
+build:android-arm64-hermetic --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+
+# Experimental hermetic Android RBE configuration for 64-bit ARM (arm64-v8a ABI).
+build:android-arm64-hermetic-rbe --config=remote
+build:android-arm64-hermetic-rbe --config=android-arm64-hermetic
+build:android-arm64-hermetic-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
+build:android-arm64-hermetic-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
+build:android-arm64-hermetic-rbe --platforms=@rbe_linux_toolchains//config:platform

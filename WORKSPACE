@@ -24,6 +24,11 @@ android_ndk_repository(
   api_level = 31,
 )
 
+load("//toolchain:download_android_ndk.bzl", "download_android_ndk")
+
+# Used by the experimental hermetic Android NDK C++ toolchain.
+download_android_ndk()
+
 ##################################
 # Docker rules and dependencies. #
 ##################################
