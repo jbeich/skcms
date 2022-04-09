@@ -1,0 +1,93 @@
+load(":ndk_cc_toolchain_config.bzl", "ndk_arm64_v8a_toolchain_config")
+
+package(default_visibility = ["//visibility:public"])
+
+cc_toolchain_suite(
+    name = "ndk_suite",
+    toolchains = {
+        "arm64-v8a": ":ndk_arm64-v8a_toolchain",
+    },
+)
+
+# filegroup(name = "empty")
+
+# cc_toolchain(
+#     name = "ndk_arm64-v8a_toolchain",
+#     toolchain_identifier = "ndk-arm64-v8a-toolchain",
+#     toolchain_config = ":ndk_arm64-v8a_toolchain_config",
+#     all_files = ":empty",
+#     compiler_files = ":empty",
+#     dwp_files = ":empty",
+#     linker_files = ":empty",
+#     objcopy_files = ":empty",
+#     strip_files = ":empty",
+#     supports_param_files = 0,
+# )
+
+# cc_toolchain(
+#     name = "ndk_arm64-v8a_toolchain",
+#     all_files = ":ndk_arm64-v8a_all_files",
+#     ar_files = ":ndk_arm64-v8a_all_files",
+#     as_files = ":ndk_arm64-v8a_all_files",
+#     compiler_files = ":ndk_arm64-v8a_all_files",
+#     dwp_files = ":ndk_arm64-v8a_all_files",
+#     dynamic_runtime_lib = ":ndk_arm64-v8a_dynamic_runtime_libraries",
+#     linker_files = ":ndk_arm64-v8a_all_files",
+#     objcopy_files = ":ndk_arm64-v8a_all_files",
+#     static_runtime_lib = ":ndk_arm64-v8a_static_runtime_libraries",
+#     strip_files = ":ndk_arm64-v8a_all_files",
+#     supports_param_files = 0,
+#     toolchain_identifier = "ndk-arm64-v8a-toolchain",
+#     toolchain_config = ":ndk_arm64-v8a_toolchain_config",
+# )
+
+cc_toolchain(
+    name = "ndk_arm64-v8a_toolchain",
+    all_files = ":ndk_arm64-v8a_toolchain_all_files",
+    ar_files = ":ndk_arm64-v8a_toolchain_all_files",
+    compiler_files = ":ndk_arm64-v8a_toolchain_all_files",
+    dwp_files = ":ndk_arm64-v8a_toolchain_all_files",
+    dynamic_runtime_lib = "@android_ndk//:arm64-v8a_dynamic_runtime_libraries",
+    linker_files = ":ndk_arm64-v8a_toolchain_all_files",
+    objcopy_files = ":ndk_arm64-v8a_toolchain_all_files",
+    strip_files = ":ndk_arm64-v8a_toolchain_all_files",
+    static_runtime_lib = "@android_ndk//:arm64-v8a_static_runtime_libraries",
+    supports_param_files = False,
+    toolchain_identifier = "ndk-arm64-v8a-toolchain",
+    toolchain_config = ":ndk_arm64-v8a_toolchain_config",
+)
+
+filegroup(
+    name = "ndk_arm64-v8a_toolchain_all_files",
+    srcs = [
+        "aarch64-linux-android-ar.sh",
+        "clang.sh",
+        "@android_ndk//:arm64-v8a_all_files",
+    ],
+)
+
+# filegroup(
+#     name = "ndk_arm64-v8a_all_files",
+#     srcs = glob([NDK_PATH + "/toolchains/llvm/**"]) + glob([
+#         NDK_PATH + "/platforms/android-29/arch-arm64/**/*",
+#         NDK_PATH + "/sources/cxx-stl/llvm-libc++/include/**/*",
+#         NDK_PATH + "/sources/cxx-stl/llvm-libc++abi/include/**/*",
+#         NDK_PATH + "/sources/android/support/include/**/*",
+#         NDK_PATH + "/sysroot/**/*",
+#         NDK_PATH + "/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/**/*",
+#     ]) + [
+#       ":ndk_arm64-v8a_dynamic_runtime_libraries",
+#       ":ndk_arm64-v8a_static_runtime_libraries",
+#     ],
+# )
+# filegroup(
+#     name = "ndk_arm64-v8a_dynamic_runtime_libraries",
+#     srcs = glob([NDK_PATH + "/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/*.so"]),
+# )
+
+# filegroup(
+#     name = "ndk_arm64-v8a_static_runtime_libraries",
+#     srcs = glob([NDK_PATH + "/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/*.a"]),
+# )
+
+ndk_arm64_v8a_toolchain_config(name = "ndk_arm64-v8a_toolchain_config")
