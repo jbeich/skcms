@@ -24,6 +24,10 @@ android_ndk_repository(
   api_level = 31,
 )
 
+load("//toolchain:download_android_ndk.bzl", "download_android_ndk")
+
+download_android_ndk()
+
 ##################################
 # Docker rules and dependencies. #
 ##################################
