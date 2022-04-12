@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f21437a3_2a3f4519",
+        "filename": "WORKSPACE",
+        "patchSetId": 17
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "IIRC the reason why this is necessary is that `//bazel/toolchains/linux-bazel-4.2.1` contains a `WORKSPACE` file, and if we don\u0027t declare that directory as a local repository, Bazel won\u0027t let us reference any build targets inside that directory from `//.bazelrc`.",
+      "parentUuid": "af5848a3_cd8880ea",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 1
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9948388c_4f7342a7",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-04-12T12:39:38Z",
       "side": 1,
       "message": "You can remove all of this is you add\n\n    tags \u003d [\n      \"manual\",  # Exclude it from wildcard queries, e.g. \"bazel build //...\".\n    ]\n\nto this target.",
+      "range": {
+        "startLine": 16,
+        "startChar": 8,
+        "endLine": 23,
+        "endChar": 54
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f999a9d0_87ee42bc",
+        "filename": "toolchain/BUILD.bazel",
+        "patchSetId": 17
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "Nice, thanks!",
+      "parentUuid": "9948388c_4f7342a7",
       "range": {
         "startLine": 16,
         "startChar": 8,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f891f454_15cd0fca",
+        "filename": "toolchain/README.md",
+        "patchSetId": 17
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0757ecfe_c0c9fae1",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 23
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "24711d44_7523cb32",
@@ -83,6 +155,30 @@
       "writtenOn": "2022-04-12T12:39:38Z",
       "side": 1,
       "message": "Let\u0027s make this a little more general, like download_toolchains or download_toolchains_for_skcms [1]. It should have some parameters that include the name of the toolchain (\"android_ndk\"). The reason I like to specify the name of the http_archive in WORKSPACE.bazel is that if I see @android_ndk or @clang_linux_amd64, I\u0027m going to search for that string in WORKSPACE to see where it comes from. If we bury the name in the rule, it gets harder to find things.\n\n[1] https://github.com/google/skia/blob/main/toolchain/download_toolchains.bzl#L24",
+      "range": {
+        "startLine": 8,
+        "startChar": 4,
+        "endLine": 8,
+        "endChar": 26
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a89defd_21a99199",
+        "filename": "toolchain/download_android_ndk.bzl",
+        "patchSetId": 17
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24711d44_7523cb32",
       "range": {
         "startLine": 8,
         "startChar": 4,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9878f878_78153b93",
+        "filename": "toolchain/download_android_ndk.bzl",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d805d64c_97ebfcf0",
+      "range": {
+        "startLine": 14,
+        "startChar": 8,
+        "endLine": 14,
+        "endChar": 12
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2c8f5ce3_9e8007b0",
@@ -133,6 +253,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5a07551_b2daa68d",
+        "filename": "toolchain/ndk.BUILD",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c8f5ce3_9e8007b0",
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "49c93000_aa30e75f",
@@ -146,6 +284,30 @@
       "writtenOn": "2022-04-12T12:39:38Z",
       "side": 1,
       "message": "To be clear, you didn\u0027t write this file, it was generated by some process and you copied it? Any idea where the template file or generation code is (in Bazel\u0027s source or adjacent tooling)?  I did a quick look and found https://github.com/bazelbuild/bazel/blob/4710ef82ce34572878e07c52e83a0144d707f140/src/main/java/com/google/devtools/build/lib/bazel/rules/android/android_ndk_cc_toolchain_config_template.txt but that doesn\u0027t quite seem to be the right template.\n\nIf you do find it, please link to it as a reference.",
+      "range": {
+        "startLine": 1,
+        "startChar": 27,
+        "endLine": 1,
+        "endChar": 50
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fccde65_7c8c908e",
+        "filename": "toolchain/ndk_cc_toolchain_config.bzl",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "\u003e To be clear, you didn\u0027t write this file, it was generated by some process and you copied it? Any idea where the template file or generation code is (in Bazel\u0027s source or adjacent tooling)? \n\nYes, this file is based on the `cc_toolchain_config.bzl` file produced by the `android_ndk_repository` rule, modulo manual changes to only keep what\u0027s useful to us, and to make things more readable and easier to maintain.\n\n\u003e https://github.com/bazelbuild/bazel/blob/4710ef82ce34572878e07c52e83a0144d707f140/src/main/java/com/google/devtools/build/lib/bazel/rules/android/android_ndk_cc_toolchain_config_template.txt but that doesn\u0027t quite seem to be the right template. If you do find it, please link to it as a reference.\n\nThat\u0027s the right template, but it only contains the base structure of the file. `AndroidNdkRepositoryFunction.java`[1] does a lot more templating. I added some extra comments to the docstring at the top of this file. See also: `//toolchain/README.md`.\n\n[1] https://github.com/bazelbuild/bazel/blob/4710ef82ce34572878e07c52e83a0144d707f140/src/main/java/com/google/devtools/build/lib/bazel/rules/android/AndroidNdkRepositoryFunction.java#L422",
+      "parentUuid": "49c93000_aa30e75f",
       "range": {
         "startLine": 1,
         "startChar": 27,
@@ -181,6 +343,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2aed6f1d_aa60f6fb",
+        "filename": "toolchain/trampolines/clang.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "I would rather move approximately everything in this CL under `//toolchains/ndk` the moment we introduce a new hermetic toolchain. WDYT?",
+      "parentUuid": "81ee9e88_d83a53c0",
+      "range": {
+        "startLine": 1,
+        "startChar": 7,
+        "endLine": 1,
+        "endChar": 9
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8af230c4_26f32a38",
         "filename": "toolchain/trampolines/gen_trampolines.py",
         "patchSetId": 17
@@ -192,6 +378,30 @@
       "writtenOn": "2022-04-12T12:39:38Z",
       "side": 1,
       "message": "Please don\u0027t add any new python code that we don\u0027t have to. Use Golang for scripts.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 22
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a94b1554_fa5b81d0",
+        "filename": "toolchain/trampolines/gen_trampolines.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8af230c4_26f32a38",
       "range": {
         "startLine": 1,
         "startChar": 0,
@@ -225,6 +435,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "178d93cc_6c8d767d",
+        "filename": "toolchain/trampolines/gen_trampolines.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f49777d_c148bb34",
+      "range": {
+        "startLine": 4,
+        "startChar": 54,
+        "endLine": 4,
+        "endChar": 59
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "574916a2_fa5e3db3",
@@ -238,6 +472,30 @@
       "writtenOn": "2022-04-12T12:39:38Z",
       "side": 1,
       "message": "These paths can be determined by inspecting the zip file downloaded by download_android_ndk.bzl",
+      "range": {
+        "startLine": 15,
+        "startChar": 41,
+        "endLine": 15,
+        "endChar": 50
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "677cac02_8a2726a2",
+        "filename": "toolchain/trampolines/gen_trampolines.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2022-04-12T21:38:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "574916a2_fa5e3db3",
       "range": {
         "startLine": 15,
         "startChar": 41,
