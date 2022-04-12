@@ -1,0 +1,103 @@
+load(":ndk_cc_toolchain_config.bzl", "empty_k8_cc_toolchain_config", "ndk_cc_toolchain_config")
+
+package(default_visibility = ["//visibility:public"])
+
+# https://bazel.build/reference/be/c-cpp#cc_toolchain_suite
+cc_toolchain_suite(
+    name = "ndk_toolchain",
+    toolchains = {
+        "arm64-v8a": ":ndk_arm64-v8a_toolchain",
+        "armeabi-v7a": ":ndk_armeabi-v7a_toolchain",
+        # If we do not specify a toolchain for K8 CPUs, "bazel build //..." fails with
+        # "cc_toolchain_suite does not contain a toolchain for cpu 'k8'" when compiling under
+        # Linux. We make that error go away by specify an empty toolchain. This toolchain does not
+        # affect builds targeting K8 Linux binaries, and can be replaced with an actual Android NDK
+        # K8 toolchain in the future if we ever wish to compile for Android on K8 CPUs.
+        "k8": ":empty_k8_toolchain",
+    },
+)
+
+############################
+# arm64-v8a C++ toolchain. #
+############################
+
+# https://bazel.build/reference/be/c-cpp#cc_toolchain
+cc_toolchain(
+    name = "ndk_arm64-v8a_toolchain",
+    all_files = ":ndk_arm64-v8a_toolchain_all_files",
+    ar_files = ":ndk_arm64-v8a_toolchain_all_files",
+    compiler_files = ":ndk_arm64-v8a_toolchain_all_files",
+    dwp_files = ":ndk_arm64-v8a_toolchain_all_files",
+    dynamic_runtime_lib = "@android_ndk//:arm64-v8a_dynamic_runtime_libraries",
+    linker_files = ":ndk_arm64-v8a_toolchain_all_files",
+    objcopy_files = ":ndk_arm64-v8a_toolchain_all_files",
+    strip_files = ":ndk_arm64-v8a_toolchain_all_files",
+    static_runtime_lib = "@android_ndk//:arm64-v8a_static_runtime_libraries",
+    supports_param_files = False,
+    toolchain_identifier = "ndk-arm64-v8a-toolchain",
+    toolchain_config = ":ndk_arm64-v8a_toolchain_config",
+)
+
+filegroup(
+    name = "ndk_arm64-v8a_toolchain_all_files",
+    srcs = glob(["trampolines/*.sh"]) + ["@android_ndk//:arm64-v8a_all_files"],
+)
+
+ndk_cc_toolchain_config(
+    name = "ndk_arm64-v8a_toolchain_config",
+    cpu = "arm64-v8a",
+)
+
+##############################
+# armeabi-v7a C++ toolchain. #
+##############################
+
+# https://bazel.build/reference/be/c-cpp#cc_toolchain
+cc_toolchain(
+    name = "ndk_armeabi-v7a_toolchain",
+    all_files = ":ndk_armeabi-v7a_toolchain_all_files",
+    ar_files = ":ndk_armeabi-v7a_toolchain_all_files",
+    compiler_files = ":ndk_armeabi-v7a_toolchain_all_files",
+    dwp_files = ":ndk_armeabi-v7a_toolchain_all_files",
+    dynamic_runtime_lib = "@android_ndk//:armeabi-v7a_dynamic_runtime_libraries",
+    linker_files = ":ndk_armeabi-v7a_toolchain_all_files",
+    objcopy_files = ":ndk_armeabi-v7a_toolchain_all_files",
+    strip_files = ":ndk_armeabi-v7a_toolchain_all_files",
+    static_runtime_lib = "@android_ndk//:armeabi-v7a_static_runtime_libraries",
+    supports_param_files = False,
+    toolchain_identifier = "ndk-armeabi-v7a-toolchain",
+    toolchain_config = ":ndk_armeabi-v7a_toolchain_config",
+)
+
+filegroup(
+    name = "ndk_armeabi-v7a_toolchain_all_files",
+    srcs = glob(["trampolines/*.sh"]) + ["@android_ndk//:armeabi-v7a_all_files"],
+)
+
+ndk_cc_toolchain_config(
+    name = "ndk_armeabi-v7a_toolchain_config",
+    cpu = "armeabi-v7a",
+)
+
+###########################
+# Empty K8 C++ toolchain. #
+###########################
+
+cc_toolchain(
+    name = "empty_k8_toolchain",
+    toolchain_identifier = "empty-k8-toolchain",
+    toolchain_config = ":empty_k8_toolchain_config",
+    all_files = ":empty",
+    compiler_files = ":empty",
+    dwp_files = ":empty",
+    linker_files = ":empty",
+    objcopy_files = ":empty",
+    strip_files = ":empty",
+    supports_param_files = 0,
+)
+
+filegroup(name = "empty")
+
+empty_k8_cc_toolchain_config(
+    name = "empty_k8_toolchain_config",
+)
