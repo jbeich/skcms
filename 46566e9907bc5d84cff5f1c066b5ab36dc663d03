@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c91c4e35_85ac734c",
+        "filename": "WORKSPACE",
+        "patchSetId": 17
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2022-04-13T11:40:19Z",
+      "side": 1,
+      "message": "That\u0027s probably worth coming back to in a future CL. I didn\u0027t need the empty workspaces in the Skia repo.",
+      "parentUuid": "f21437a3_2a3f4519",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 1
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9948388c_4f7342a7",
@@ -365,6 +389,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d28997d0_185b5e1e",
+        "filename": "toolchain/trampolines/clang.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2022-04-13T11:40:19Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "2aed6f1d_aa60f6fb",
+      "range": {
+        "startLine": 1,
+        "startChar": 7,
+        "endLine": 1,
+        "endChar": 9
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8af230c4_26f32a38",
@@ -402,6 +450,30 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "8af230c4_26f32a38",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 22
+      },
+      "revId": "46566e9907bc5d84cff5f1c066b5ab36dc663d03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d5f168e_71f1d639",
+        "filename": "toolchain/trampolines/gen_trampolines.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2022-04-13T11:40:19Z",
+      "side": 1,
+      "message": "Don\u0027t forget to delete this file.",
+      "parentUuid": "a94b1554_fa5b81d0",
       "range": {
         "startLine": 1,
         "startChar": 0,
