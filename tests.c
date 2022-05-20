@@ -529,9 +529,9 @@ static void test_FormatConversions_float() {
                             &fdst, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, NULL,
                            64));
     for (int i = 0; i < 256; i++) {
-        expect_close(fdst[i], i*(1/255.0f));
+        expect_close(fdst[i], (float)i*(1/255.0f));
         if (i == 0 || i == 255) {
-            expect(fdst[i] == i*(1/255.0f));
+            expect(fdst[i] == (float)i*(1/255.0f));
         }
     }
 
@@ -1012,7 +1012,7 @@ static void test_sRGB_AllBytes() {
                             258/3) );
 
     for (int i = 0; i < 256; i++) {
-        float linear = skcms_TransferFunction_eval(&sRGB.trc[0].parametric, i * (1/255.0f));
+        float linear = skcms_TransferFunction_eval(&sRGB.trc[0].parametric, (float)i * (1/255.0f));
         uint8_t expected = (uint8_t)(linear * 255.0f + 0.5f);
 
         if (dst[i] != expected) {

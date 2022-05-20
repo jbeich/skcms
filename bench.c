@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 
     clock_t ticks = clock() - start;
     printf("%d loops in %g clock ticks, %.3g ns / pixel\n",
-            n, (double)ticks, ticks / (CLOCKS_PER_SEC * 1e-9) / (n * NPIXELS));
+            n, (double)ticks, (double)ticks / (CLOCKS_PER_SEC * 1e-9) / (n * NPIXELS));
 
     if (src_buf) { free(src_buf); }
     if (dst_buf) { free(dst_buf); }
