@@ -362,7 +362,7 @@ static void svg_transfer_function(FILE* fp, const skcms_TransferFunction* tf, co
             "points=\"\n", color);
 
     for (int i = 0; i < 256; ++i) {
-        float x = i / 255.0f;
+        float x = (float)i / 255.0f;
         float t = skcms_TransferFunction_eval(tf, x);
         fprintf(fp, "%g, %g\n", x, t);
     }
