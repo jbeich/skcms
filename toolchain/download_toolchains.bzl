@@ -1,6 +1,7 @@
 """
 This module defines the download_android_ndk repository rule.
 """
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _download_android_ndk_rule_name = "android_ndk"
