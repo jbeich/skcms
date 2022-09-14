@@ -318,6 +318,12 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
         print_shortest_float(fp, wtpt[2]); fprintf(fp, " |\n");
     }
 
+    if (profile->has_CICP) {
+        fprintf(fp, "CICP : CP: %d TF: %d MC: %d FR: %d\n",
+                profile->CICP.color_primaries, profile->CICP.transfer_characteristics,
+                profile->CICP.matrix_coefficients, profile->CICP.video_full_range_flag);
+    }
+
     dump_transform_to_XYZD50(fp, profile);
     dump_transform_to_sRGBA (fp, profile);
     if (skcms_ApproximatelyEqualProfiles(profile, skcms_sRGB_profile())) {
