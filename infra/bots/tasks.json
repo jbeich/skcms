@@ -189,9 +189,9 @@
           "version": "version:2@3.8.10.chromium.19"
         },
         {
-          "name": "skia/bots/bazel",
-          "path": "bazel",
-          "version": "version:3"
+          "name": "skia/bots/bazelisk",
+          "path": "bazelisk",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -213,7 +213,7 @@
         "PATH": [
           "cipd_bin_packages/cpython3",
           "cipd_bin_packages/cpython3/bin",
-          "bazel/bin"
+          "bazelisk"
         ],
         "VPYTHON_VIRTUALENV_ROOT": [
           "cache/vpython"
