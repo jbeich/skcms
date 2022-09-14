@@ -12,7 +12,7 @@ which generates C++ toolchains based on a local NDK installation provided via th
 installation.
 
 This directory provides a `download_android_ndk` repository rule, which downloads the Android NDK
-under `external/android_ndk`, and a C++ toolchain suite that targets 32- and 64-bit ARM.
+under `external/ndk_linux_amd64`, and a C++ toolchain suite that targets 32- and 64-bit ARM.
 
 ## Design
 
@@ -32,6 +32,6 @@ Steps taken:
 The
 [`cc_common.create_cc_toolchain_config_info`](https://bazel.build/rules/lib/cc_common#create_cc_toolchain_config_info)
 function expects tool paths to point to files under the directory in which it is invoked. This
-means we cannot directly reference tools under `external/android_ndk`. The solution is to use
+means we cannot directly reference tools under `external/ndk_linux_amd64`. The solution is to use
 "trampoline" scripts that pass through any command-line arguments to the NDK binaries under
 `external/android_sdk`.
