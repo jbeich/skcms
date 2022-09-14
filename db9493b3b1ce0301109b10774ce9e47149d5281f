@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36da1a4e_09780f73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2022-09-14T16:39:42Z",
+      "side": 1,
+      "message": "Thanks, this is great!\n\nIs there a way that we can save ICC profiles with this information (I\u0027d like to be able to create some sample images that use this scheme).",
+      "revId": "db9493b3b1ce0301109b10774ce9e47149d5281f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
