@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef1a773a_7e06f5ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2022-09-14T19:14:00Z",
+      "side": 1,
+      "message": "Windows is not working because it is using an old version of Bazel. We need to either update the one in CIPD or start using Bazelisk.\n\nIt\u0027s a touch puzzling *why* the Windows build is downloading the Linux toolchain, but probably something to do with //...",
+      "revId": "b64469e91bd1dff7091f9fa6e8461dfb3a002c2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
