@@ -5,7 +5,7 @@ built-in `android_ndk_repository` Bazel rule[1], which was used to build the SkC
 until this revision[2].
 
 The paths in this file point to locations inside the expanded Android NDK ZIP file (found at
-external/android_ndk), and must be updated every time we upgrade to a new Android NDK version.
+external/ndk_linux_amd64), and must be updated every time we upgrade to a new Android NDK version.
 
 [1] https://github.com/bazelbuild/bazel/blob/4710ef82ce34572878e07c52e83a0144d707f140/src/main/java/com/google/devtools/build/lib/bazel/rules/android/AndroidNdkRepositoryFunction.java#L422
 [2] https://skia.googlesource.com/skcms/+/30c8e303800c256febb03a09fdcda7f75d119b1b/WORKSPACE#22
@@ -20,7 +20,7 @@ load(
     "tool_path",
     "with_feature_set",
 )
-load("download_toolchains.bzl", "NDK_PATH")
+load(":download_ndk_linux_amd64.bzl", "NDK_PATH")
 
 # Supported CPUs.
 _ARMEABI_V7A = "armeabi-v7a"
@@ -165,19 +165,19 @@ def _get_tool_paths(cpu):
         return [
             tool_path(
                 name = "ar",
-                path = "trampolines/arm-linux-androideabi-ar.sh",
+                path = "android_trampolines/arm-linux-androideabi-ar.sh",
             ),
             tool_path(
                 name = "cpp",
-                path = "trampolines/clang.sh",
+                path = "android_trampolines/clang.sh",
             ),
             tool_path(
                 name = "dwp",
-                path = "trampolines/arm-linux-androideabi-dwp.sh",
+                path = "android_trampolines/arm-linux-androideabi-dwp.sh",
             ),
             tool_path(
                 name = "gcc",
-                path = "trampolines/clang.sh",
+                path = "android_trampolines/clang.sh",
             ),
             tool_path(
                 name = "gcov",
@@ -185,42 +185,42 @@ def _get_tool_paths(cpu):
             ),
             tool_path(
                 name = "ld",
-                path = "trampolines/arm-linux-androideabi-ld.sh",
+                path = "android_trampolines/arm-linux-androideabi-ld.sh",
             ),
             tool_path(
                 name = "nm",
-                path = "trampolines/arm-linux-androideabi-nm.sh",
+                path = "android_trampolines/arm-linux-androideabi-nm.sh",
             ),
             tool_path(
                 name = "objcopy",
-                path = "trampolines/arm-linux-androideabi-objcopy.sh",
+                path = "android_trampolines/arm-linux-androideabi-objcopy.sh",
             ),
             tool_path(
                 name = "objdump",
-                path = "trampolines/arm-linux-androideabi-objdump.sh",
+                path = "android_trampolines/arm-linux-androideabi-objdump.sh",
             ),
             tool_path(
                 name = "strip",
-                path = "trampolines/arm-linux-androideabi-strip.sh",
+                path = "android_trampolines/arm-linux-androideabi-strip.sh",
             ),
         ]
     if cpu == _ARM64_V8A:
         return [
             tool_path(
                 name = "ar",
-                path = "trampolines/aarch64-linux-android-ar.sh",
+                path = "android_trampolines/aarch64-linux-android-ar.sh",
             ),
             tool_path(
                 name = "cpp",
-                path = "trampolines/clang.sh",
+                path = "android_trampolines/clang.sh",
             ),
             tool_path(
                 name = "dwp",
-                path = "trampolines/aarch64-linux-android-dwp.sh",
+                path = "android_trampolines/aarch64-linux-android-dwp.sh",
             ),
             tool_path(
                 name = "gcc",
-                path = "trampolines/clang.sh",
+                path = "android_trampolines/clang.sh",
             ),
             tool_path(
                 name = "gcov",
@@ -228,23 +228,23 @@ def _get_tool_paths(cpu):
             ),
             tool_path(
                 name = "ld",
-                path = "trampolines/aarch64-linux-android-ld.sh",
+                path = "android_trampolines/aarch64-linux-android-ld.sh",
             ),
             tool_path(
                 name = "nm",
-                path = "trampolines/aarch64-linux-android-nm.sh",
+                path = "android_trampolines/aarch64-linux-android-nm.sh",
             ),
             tool_path(
                 name = "objcopy",
-                path = "trampolines/aarch64-linux-android-objcopy.sh",
+                path = "android_trampolines/aarch64-linux-android-objcopy.sh",
             ),
             tool_path(
                 name = "objdump",
-                path = "trampolines/aarch64-linux-android-objdump.sh",
+                path = "android_trampolines/aarch64-linux-android-objdump.sh",
             ),
             tool_path(
                 name = "strip",
-                path = "trampolines/aarch64-linux-android-strip.sh",
+                path = "android_trampolines/aarch64-linux-android-strip.sh",
             ),
         ]
     fail("Unknown CPU: " + cpu)
@@ -398,7 +398,7 @@ ndk_cc_toolchain_config = rule(
             mandatory = True,
             values = [_ARMEABI_V7A, _ARM64_V8A],
             doc = "Target CPU.",
-        )
+        ),
     },
     provides = [CcToolchainConfigInfo],
 )
