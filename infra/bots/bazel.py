@@ -52,7 +52,8 @@ def main():
                                    dir=os.environ["TMPDIR"]) as cache_dir:
     def bazel(args):
       cmd = ["C:\\b\\s\\w\\ir\\bazel_win\\bazel.exe"] if target == "windows" \
-            else ["bazel", "--output_user_root=" + cache_dir]
+            else ["bazelisk", "--output_user_root=" + cache_dir]
+      print("Running", cmd)
       call(cmd + args)
 
     try:
@@ -66,7 +67,7 @@ def main():
 
       # Run the requested Bazel command.
       os.chdir("skcms")
-      bazel([build_or_test, "//...", "--config=" + config, "--google_default_credentials"])
+      bazel([build_or_test, "//...", "--config=" + config])
 
     finally:
       # Kill the Bazel server, so as not to leave any children processes
