@@ -66,7 +66,7 @@ def main():
 
       # Run the requested Bazel command.
       os.chdir("skcms")
-      bazel([build_or_test, "//...", "--config=" + config, "--google_default_credentials"])
+      bazel([build_or_test, "//...", "--config=" + config])
 
     finally:
       # Kill the Bazel server, so as not to leave any children processes
