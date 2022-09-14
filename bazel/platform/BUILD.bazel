@@ -1,0 +1,17 @@
+# https://bazel.build/concepts/platforms-intro
+# https://bazel.build/docs/platforms
+platform(
+    name = "android_arm32",
+    constraint_values = [
+        "@platforms//os:android",  # https://github.com/bazelbuild/platforms/blob/main/os/BUILD
+        "@platforms//cpu:armv7",  # https://github.com/bazelbuild/platforms/blob/main/cpu/BUILD
+    ],
+)
+
+platform(
+    name = "android_arm64",
+    constraint_values = [
+        "@platforms//os:android",
+        "@platforms//cpu:arm64",
+    ],
+)

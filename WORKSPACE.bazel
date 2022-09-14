@@ -16,11 +16,9 @@ local_repository(
 # Android. #
 ############
 
-load("//toolchain:download_toolchains.bzl", "download_toolchains")
+load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skia")
 
-download_toolchains(
-    android_ndk_repository_name = "android_ndk",
-)
+download_toolchains_for_skia("clang_linux_amd64", "ndk_linux_amd64")
 
 ##################################
 # Docker rules and dependencies. #

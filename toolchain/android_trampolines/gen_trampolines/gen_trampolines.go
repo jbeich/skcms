@@ -5,7 +5,7 @@
 //
 // Trampoline scripts are necessary because the `cc_common.create_cc_toolchain_config_info`[1]
 // built-in Bazel function expects tool paths to point to files under the directory in which it is
-// invoked, thus we cannot directly reference tools under `external/android_ndk`. The solution is
+// invoked, thus we cannot directly reference tools under `external/ndk_linux_amd64`. The solution is
 // to use trampoline scripts that pass through any command-line arguments to the NDK binaries under
 // `external/android_sdk`.
 //
@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 )
 
-const bazelNdkPath = "external/android_ndk"
+const bazelNdkPath = "external/ndk_linux_amd64"
 
 // Paths relative to the Android NDK root directory. These paths can be determined by inspecting
 // the Android NDK ZIP file downloaded by the `download_toolchains` macro defined in

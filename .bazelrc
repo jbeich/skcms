@@ -1,14 +1,23 @@
+# https://bazel.build/concepts/platforms-intro#cxx
+# This forces Bazel's C++ rules use platforms to select toolchains instead of the default
+# --crosstool_top, --compiler, etc.
+build --incompatible_enable_cc_toolchain_resolution
+
+# We do not want Bazel to detect any C++ toolchains on the remote machine
+# https://github.com/bazelbuild/bazel/blob/4ccc21f2f089971e5f4032397764a4be3549c40a/tools/cpp/cc_configure.bzl#L47
+build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
 # SkCMS-specific configs
 
-build:clang --action_env=CC=clang
-build:clang --action_env=CXX=clang++
+#build:clang --action_env=CC=clang
+#build:clang --action_env=CXX=clang++
 
-build:asan --copt -fsanitize=address
-build:asan --linkopt -fsanitize=address
+#build:asan --copt -fsanitize=address
+#build:asan --linkopt -fsanitize=address
 
-build:msan --config=clang
-build:msan --copt -fsanitize=memory
-build:msan --linkopt -fsanitize=memory
+#build:msan --config=clang
+#build:msan --copt -fsanitize=memory
+#build:msan --linkopt -fsanitize=memory
 
 # This sets various variables used to stamp Docker container images.
 build --workspace_status_command=bazel/get_workspace_status.sh
@@ -19,20 +28,13 @@ build --workspace_status_command=bazel/get_workspace_status.sh
 # for a remote machine to execute them.
 build:remote --jobs=50
 
-# Set several flags related to specifying the platform, toolchain and java
-# properties.
-# These flags should only be used as is for the rbe-ubuntu16-04 container
-# and need to be adapted to work with other toolchain containers.
-#build:remote --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-#build:remote --java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8
-build:remote --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-
 # Starting with Bazel 0.27.0 strategies do not need to be explicitly
 # defined. See https://github.com/bazelbuild/bazel/issues/7480
 build:remote --define=EXECUTOR=remote
 
 # Enable remote execution so actions are performed on the remote systems.
 build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
+build:remote --google_default_credentials=true
 
 # Enforce stricter environment rules, which eliminates some non-hermetic
 # behavior and therefore improves both the remote cache hit rate and the
@@ -47,7 +49,6 @@ build:remote --remote_instance_name=projects/skia-rbe/instances/default_instance
 
 # Linux RBE configuration.
 build:linux-rbe --config=remote
-build:linux-rbe --crosstool_top=@rbe_linux_toolchains//cc:toolchain
 build:linux-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
 build:linux-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
 build:linux-rbe --host_platform=@rbe_linux_toolchains//config:platform
@@ -55,32 +56,27 @@ build:linux-rbe --platforms=@rbe_linux_toolchains//config:platform
 
 # Windows RBE configuration.
 build:windows-rbe --config=remote
-build:windows-rbe --crosstool_top=@rbe_windows_toolchains//cc:toolchain
 build:windows-rbe --extra_toolchains=@rbe_windows_toolchains//config:cc-toolchain
 build:windows-rbe --extra_execution_platforms=@rbe_windows_toolchains//config:platform
 build:windows-rbe --host_platform=@rbe_windows_toolchains//config:platform
 build:windows-rbe --platforms=@rbe_windows_toolchains//config:platform
 
 # Android configuration for 32-bit ARM (armeabi-v7a ABI).
-build:android-arm --crosstool_top=//toolchain:ndk_toolchain
-build:android-arm --cpu=armeabi-v7a
-build:android-arm --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+build:android-arm --platforms=//bazel/platform:android_arm32
+build:android-arm --extra_toolchains=//toolchain:linux_ndk_arm32_toolchain
 
 # Android RBE configuration for 32-bit ARM (armeabi-v7a ABI).
 build:android-arm-rbe --config=remote
 build:android-arm-rbe --config=android-arm
 build:android-arm-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
 build:android-arm-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
-build:android-arm-rbe --platforms=@rbe_linux_toolchains//config:platform
 
 # Android configuration for 64-bit ARM (arm64-v8a ABI).
-build:android-arm64 --crosstool_top=//toolchain:ndk_toolchain
-build:android-arm64 --cpu=arm64-v8a
-build:android-arm64 --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
+build:android-arm64 --platforms=//bazel/platform:android_arm64
+build:android-arm64 --extra_toolchains=//toolchain:linux_ndk_arm64_toolchain
 
 # Android RBE configuration for 64-bit ARM (arm64-v8a ABI).
 build:android-arm64-rbe --config=remote
 build:android-arm64-rbe --config=android-arm64
 build:android-arm64-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
 build:android-arm64-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
-build:android-arm64-rbe --platforms=@rbe_linux_toolchains//config:platform
