@@ -31,7 +31,7 @@ $ go build -o $HOME/bin/rbe_configs_gen ./cmd/rbe_configs_gen/rbe_configs_gen.go
 
 #### Step 2
 
-Generate a new `//bazel/toolchains/linux-bazel-<BAZEL VERSION>` directory with the
+Generate a new `//bazel/rbe/linux-bazel-<BAZEL VERSION>` directory with the
 `rbe_configs_gen` CLI tool:
 
 ```
@@ -40,22 +40,22 @@ $ rbe_configs_gen \
       --bazel_version=<BAZEL VERSION> \
       --toolchain_container=gcr.io/skia-public/rbe-container-skcms-linux@sha256:<HASH OF MOST RECENT IMAGE> \
       --output_src_root=<PATH TO REPOSITORY CHECKOUT> \
-      --output_config_path=bazel/toolchains/linux-bazel-<BAZEL VERSION> \
+      --output_config_path=bazel/rbe/linux-bazel-<BAZEL VERSION> \
       --generate_java_configs=false \
       --exec_os=linux \
       --target_os=linux
 ```
 
 If `rbe_configs_gen` fails, try deleting all files under
-`//bazel/toolchains/linux-bazel-<BAZEL VERSION>` (if it exists) and re-run `rbe_configs_gen`.
+`//bazel/rbe/linux-bazel-<BAZEL VERSION>` (if it exists) and re-run `rbe_configs_gen`.
 
 #### Step 3
 
-Add an empty `//bazel/toolchains/linux-bazel-<BAZEL VERSION>/WORKSPACE` file.
+Add an empty `//bazel/rbe/linux-bazel-<BAZEL VERSION>/WORKSPACE` file.
 
 #### Step 4
 
-Open file `//bazel/toolchains/linux-bazel-<BAZEL VERSION>/config/BUILD`, look for the `toolchain`
+Open file `//bazel/rbe/linux-bazel-<BAZEL VERSION>/config/BUILD`, look for the `toolchain`
 rule named `cc-toolchain`, and change the `toolchain` attribute as follows:
 
 ```
@@ -63,7 +63,7 @@ rule named `cc-toolchain`, and change the `toolchain` attribute as follows:
 toolchain(
     name = "cc-toolchain",
     ...
-    toolchain = "//bazel/toolchains/linux-bazel-4.2.1/cc:cc-compiler-k8",
+    toolchain = "//bazel/rbe/linux-bazel-4.2.1/cc:cc-compiler-k8",
     ...
 )
 
@@ -78,7 +78,7 @@ toolchain(
 
 #### Step 5
 
-Open file `//bazel/toolchains/linux-bazel-<BAZEL VERSION>/config/BUILD`, look for the `platform`
+Open file `//bazel/rbe/linux-bazel-<BAZEL VERSION>/config/BUILD`, look for the `platform`
 rule named `platform`, and make change the `exec_properties` attribute as follows:
 
 ```
@@ -137,7 +137,7 @@ $ rbe_configs_gen.exe \
       --bazel_version=<BAZEL VERSION> \
       --toolchain_container=gcr.io/skia-public/rbe-container-skia-windows@sha256:<HASH OF MOST RECENT IMAGE> \
       --output_src_root=<PATH TO REPOSITORY CHECKOUT> \
-      --output_config_path=bazel/toolchains/windows-bazel-<BAZEL VERSION> \
+      --output_config_path=bazel/rbe/windows-bazel-<BAZEL VERSION> \
       --generate_java_configs=false \
       --exec_os=windows \
       --target_os=windows
