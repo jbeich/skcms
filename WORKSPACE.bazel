@@ -4,23 +4,21 @@
 
 local_repository(
   name = "rbe_linux_toolchains",
-  path = "bazel/toolchains/linux-bazel-4.2.1",
+  path = "bazel/rbe/linux-bazel-4.2.1",
 )
 
 local_repository(
   name = "rbe_windows_toolchains",
-  path = "bazel/toolchains/windows-bazel-4.2.1",
+  path = "bazel/rbe/windows-bazel-4.2.1",
 )
 
 ############
 # Android. #
 ############
 
-load("//toolchain:download_toolchains.bzl", "download_toolchains")
+load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skcms")
 
-download_toolchains(
-    android_ndk_repository_name = "android_ndk",
-)
+download_toolchains_for_skcms("clang_linux_amd64", "ndk_linux_amd64")
 
 ##################################
 # Docker rules and dependencies. #
