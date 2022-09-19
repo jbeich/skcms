@@ -16,6 +16,23 @@
       "message": "Added three test profiles.",
       "revId": "d54d3714933eb29482066a20f1d611aca9e70639",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea3705df_7bc08358",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2022-09-19T21:16:01Z",
+      "side": 1,
+      "message": "lgtm!",
+      "revId": "d54d3714933eb29482066a20f1d611aca9e70639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
