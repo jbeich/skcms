@@ -636,6 +636,11 @@ static const char* profile_test_cases[] = {
     // User was (rightly) confused & convinced that profile was being ignored.
     "profiles/misc/Calibrated_A2B_XYZ_Mismatch.icc",  // chromium:1055154
 
+    // HDR profiles that include the new 'cicp' tag (from ICC 4.4.0)
+    "profiles/misc/P3_PQ_cicp.icc",
+    "profiles/misc/Rec2020_HLG_cicp.icc",
+    "profiles/misc/Rec2020_PQ_cicp.icc",
+
     // fuzzer generated profiles that found parsing bugs
 
     // Bad tag table data - these should not parse
