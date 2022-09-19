@@ -33,6 +33,24 @@
       "message": "lgtm!",
       "revId": "d54d3714933eb29482066a20f1d611aca9e70639",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dfc3a5f_f2f40211",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2022-09-19T21:24:55Z",
+      "side": 1,
+      "message": "Are you able to give a Code-Review +1 vote? Not actually sure...",
+      "parentUuid": "ea3705df_7bc08358",
+      "revId": "d54d3714933eb29482066a20f1d611aca9e70639",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
