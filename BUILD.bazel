@@ -76,6 +76,7 @@ cc_library(
 
 cc_test(
     name = "tests",
+    size = "small",
     srcs = ["tests.c"],
     data = glob(["profiles/**"]),
     deps = [
