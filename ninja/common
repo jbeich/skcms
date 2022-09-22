@@ -10,6 +10,9 @@ warnings = -Werror $
            -Wno-float-equal $
            -Wno-padded $
 
+warnings_c = $warnings $
+           -Wno-declaration-after-statement $
+
 warnings_cc = $warnings $
            -Wno-c++98-compat-pedantic $
            -Wno-gnu-anonymous-struct $
@@ -17,7 +20,7 @@ warnings_cc = $warnings $
 
 
 rule compile_c
-    command = $disabled && touch $out || $cc -std=c11 -g -Os $warnings $cflags $extra_cflags $
+    command = $disabled && touch $out || $cc -std=c11 -g -Os $warnings_c $cflags $extra_cflags $
              -MD -MF $out.d -c $in -o $out
     depfile = $out.d
     deps    = gcc
