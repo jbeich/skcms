@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da22264f_94c63fa1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2022-12-09T21:07:37Z",
+      "side": 1,
+      "message": "We actually have this implemented twice (it also appears in Skia), and clients are now depending on having this information, too. My plan is to make this version part of the skcms API, so that Android (eg) can query it directly. I\u0027m also going to update all of the Skia code to use this version, rather than the copy we have SkColorSpacePriv.",
+      "revId": "b0fb313efb581eaf33fac083bf19beee782ed900",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
