@@ -1313,6 +1313,14 @@ static void exec_ops(const Op* ops, const void** args,
                                | cast<U32>(to_fixed(a * 255)) << 24);
             } return;
 
+            case Op_store_101010x_XR: {
+                static constexpr float min = -0.752941f;
+                static constexpr float max = 1.25098f;
+                store(dst + 4*i, cast<U32>(((r - min) / (max - min)) * 1023) <<  0
+                               | cast<U32>(((g - min) / (max - min)) * 1023) << 10
+                               | cast<U32>(((b - min) / (max - min)) * 1023) << 20);
+                return;
+            }
             case Op_store_1010102: {
                 store(dst + 4*i, cast<U32>(to_fixed(r * 1023)) <<  0
                                | cast<U32>(to_fixed(g * 1023)) << 10
