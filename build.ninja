@@ -18,7 +18,6 @@ subninja ninja/clang.xsan-portable
 subninja ninja/gcc
 subninja ninja/gcc.O0
 subninja ninja/gcc.m32
-subninja ninja/gcc.m32-O0
 subninja ninja/gcc.native
 subninja ninja/gcc.portable
 subninja ninja/gcc.tiny
