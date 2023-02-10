@@ -52,6 +52,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed07d693_ddfc5b83",
+        "filename": "skcms.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 9944
+      },
+      "writtenOn": "2023-02-10T18:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc9819eb_52ec51c8",
+      "revId": "3a388e610a0fc8ca8b2bd6e5e0175ff223da0643",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "784cb8ee_724a1a92",
@@ -65,6 +83,30 @@
       "writtenOn": "2023-02-10T18:11:49Z",
       "side": 1,
       "message": "I think you want to wrap these in `to_fixed`, like in the other store ops. (It helps with performance, but the key thing is to get correct rounding).",
+      "range": {
+        "startLine": 1330,
+        "startChar": 43,
+        "endLine": 1330,
+        "endChar": 69
+      },
+      "revId": "3a388e610a0fc8ca8b2bd6e5e0175ff223da0643",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "021aba37_44b2c6db",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1330,
+      "author": {
+        "id": 9944
+      },
+      "writtenOn": "2023-02-10T18:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "784cb8ee_724a1a92",
       "range": {
         "startLine": 1330,
         "startChar": 43,
