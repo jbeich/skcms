@@ -405,6 +405,27 @@ static void test_FormatConversions_101010() {
                   | (uint32_t)   3 << 30));
 }
 
+static void test_FormatConversions_101010_xr() {
+    uint32_t src = 0xff007fff;
+    uint32_t dst = 0;
+    expect(skcms_Transform(&src, skcms_PixelFormat_BGRA_8888,
+                           skcms_AlphaFormat_Unpremul, NULL, &dst,
+                           skcms_PixelFormat_BGR_101010x_XR,
+                           skcms_AlphaFormat_Unpremul, NULL, 1));
+    expect(((dst >> 0) & 0x3ff) == 895);
+    expect(((dst >> 10) & 0x3ff) == 639);
+    expect(((dst >> 20) & 0x3ff) == 384);
+
+    uint32_t dst2 = 0;
+    expect(skcms_Transform(&dst, skcms_PixelFormat_BGR_101010x_XR,
+                           skcms_AlphaFormat_Unpremul, NULL, &dst2,
+                           skcms_PixelFormat_BGRA_8888,
+                           skcms_AlphaFormat_Unpremul, NULL, 1));
+    expect(((dst2 >> 0) & 0xff) == 255);
+    expect(((dst2 >> 8) & 0xff) == 127);
+    expect(((dst2 >> 16) & 0xff) == 0);
+}
+
 static void test_FormatConversions_half() {
     uint16_t src[] = {
         0x3c00,  // 1.0
@@ -1870,6 +1891,7 @@ int main(int argc, char** argv) {
     test_FormatConversions();
     test_FormatConversions_565();
     test_FormatConversions_101010();
+    test_FormatConversions_101010_xr();
     test_FormatConversions_16161616LE();
     test_FormatConversions_161616LE();
     test_FormatConversions_16161616BE();
