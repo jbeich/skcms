@@ -299,7 +299,7 @@
       "env_prefixes": {
         "PATH": ["win_toolchain/sys64", "bazelisk"]
       },
-      "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
+      "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia", "id:skia-e-gce-002"],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
