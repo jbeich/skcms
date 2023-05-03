@@ -1,6 +1,6 @@
 cc     = gcc
 cxx    = g++
-cflags = -fdiagnostics-color -Wall -Wextra -ffp-contract=off -fstack-usage
+cflags = -fdiagnostics-color -Wall -Wextra -Wno-init-self -ffp-contract=off -fstack-usage
 out    = out/gcc$mode
 
 include ninja/local
