@@ -51,8 +51,19 @@ using U8  = V<uint8_t>;
 // This is more for organizational clarity... skcms.cc doesn't force these.
 #if N > 1 && defined(__ARM_NEON)
     #define USING_NEON
-    #if __ARM_FP & 2
-        #define USING_NEON_F16C
+
+    // We have to use two different mechanisms to enable the f16 conversion intrinsics:
+    #if defined(__clang__)
+        // Clang's arm_neon.h guards them with the FP hardware bit:
+        #if __ARM_FP & 2
+            #define USING_NEON_F16C
+        #endif
+    #elif defined(__GNUC__)
+        // GCC's arm_neon.h guards them with the FP16 format macros (IEEE and ALTERNATIVE).
+        // We don't actually want the alternative format - we're reading/writing IEEE f16 values.
+        #if defined(__ARM_FP16_FORMAT_IEEE)
+            #define USING_NEON_F16C
+        #endif
     #endif
 #endif
 
