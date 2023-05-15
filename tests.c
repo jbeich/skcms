@@ -18,12 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC) && defined(SKCMS_OPT_INTO_NEON_FP16)
-    static bool kFP16 = true;
-#else
-    static bool kFP16 = false;
-#endif
-
 #if defined(_MSC_VER)
     #define DEBUGBREAK __debugbreak
 #elif defined(__clang__)
@@ -53,7 +47,7 @@
             double ratio = (X < Y) ? X / Y                                                \
                          : (Y < X) ? Y / X                                                \
                          : 1.0;                                                           \
-            if (ratio < (kFP16 ? 0.995 : 1.0)) {                                          \
+            if (ratio < 1.0) {                                                            \
                 fprintf(stderr, "expect_close(" #x "==%g, " #y "==%g) failed at %s:%d\n", \
                         X,Y, __FILE__,__LINE__);                                          \
                 fflush(stderr);   /* stderr is buffered on Windows. */                    \
@@ -319,7 +313,7 @@ static void test_FormatConversions_16161616BE() {
     // so the low lanes are actually the most significant byte, and the high least.
 
     expect(dst[    0] == 0x03020100);
-    expect(dst[ 8127] == (kFP16 ? 0xfffefdfc : 0xfefefdfc));
+    expect(dst[ 8127] == 0xfefefdfc);
     expect(dst[16383] == 0xfffefdfc);
 
     // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
@@ -353,7 +347,7 @@ static void test_FormatConversions_161616BE() {
 
     expect(dst[0] == 0xff020100);
     expect(dst[1] == 0xfffdfc03);
-    expect(dst[2] == (kFP16 ? 0xfffcfffe : 0xfffcfefe));
+    expect(dst[2] == 0xfffcfefe);
     expect(dst[3] == 0xfffffefd);
 
     // We've lost precision when transforming to 8-bit, so these won't quite round-trip.
@@ -1925,12 +1919,10 @@ int main(int argc, char** argv) {
     test_ParseWithA2BPriority();
     test_B2A();
 
-    // Temporarily disable some tests while getting FP16 compute working.
-    if (!kFP16) {
-        test_Parse(regenTestData);
-        test_sRGB_AllBytes();
-        test_TRC_Table16();
-    }
+    test_Parse(regenTestData);
+    test_sRGB_AllBytes();
+    test_TRC_Table16();
+
 #if 0
     test_CLUT();
 #endif

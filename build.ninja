@@ -25,7 +25,6 @@ subninja ninja/gcc.tiny
 subninja ninja/gcc.xsan
 
 subninja ninja/android
-subninja ninja/android.fp16
 subninja ninja/android.nofp16
 subninja ninja/android.lsan
 subninja ninja/android.portable
