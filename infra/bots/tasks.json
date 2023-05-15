@@ -17,8 +17,6 @@
         "skcms-Win",
         "skcms-Linux-Bazel-Build-RBE",
         "skcms-Linux-Bazel-Test-RBE",
-        "skcms-Win-Bazel-Build-RBE",
-        "skcms-Win-Bazel-Test-RBE",
         "skcms-Android-ARM-Bazel-Build-RBE",
         "skcms-Android-ARM64-Bazel-Build-RBE"
       ]
@@ -37,12 +35,6 @@
     },
     "skcms-Linux-Bazel-Test-RBE": {
       "tasks": ["skcms-Linux-Bazel-Test-RBE"]
-    },
-    "skcms-Win-Bazel-Build-RBE": {
-      "tasks": ["skcms-Win-Bazel-Build-RBE"]
-    },
-    "skcms-Win-Bazel-Test-RBE": {
-      "tasks": ["skcms-Win-Bazel-Test-RBE"]
     },
     "skcms-Android-ARM-Bazel-Build-RBE": {
       "tasks": ["skcms-Android-ARM-Bazel-Build-RBE"]
@@ -267,72 +259,6 @@
           "cache/vpython"
         ]
       },
-      "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "skcms-Win-Bazel-Build-RBE": {
-      "casSpec": "whole-repo",
-      "cipd_packages": [
-        {
-          "name": "infra/python/cpython3/windows-amd64",
-          "path": "python",
-          "version": "version:3.8.0b1.chromium.1"
-        },
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "win_toolchain",
-          "version": "version:11"
-        },
-        {
-          "name": "skia/bots/bazelisk_win_amd64",
-          "path": "bazelisk",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "python/bin/python3.exe",
-        "skcms/infra/bots/bazel.py",
-        "build",
-        "rbe",
-        "windows"
-      ],
-      "env_prefixes": {
-        "PATH": ["win_toolchain/sys64", "bazelisk"]
-      },
-      "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
-      "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "skcms-Win-Bazel-Test-RBE": {
-      "casSpec": "whole-repo",
-      "cipd_packages": [
-        {
-          "name": "infra/python/cpython3/windows-amd64",
-          "path": "python",
-          "version": "version:3.8.0b1.chromium.1"
-        },
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "win_toolchain",
-          "version": "version:11"
-        },
-        {
-          "name": "skia/bots/bazelisk_win_amd64",
-          "path": "bazelisk",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "python/bin/python3.exe",
-        "skcms/infra/bots/bazel.py",
-        "test",
-        "rbe",
-        "windows"
-      ],
-      "env_prefixes": {
-        "PATH": ["win_toolchain/sys64", "bazelisk"]
-      },
-      "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
