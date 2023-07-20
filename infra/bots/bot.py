@@ -46,6 +46,7 @@ elif 'linux' in sys.platform:
   call('git clone https://github.com/emscripten-core/emsdk.git')
   os.chdir('emsdk')
   call('./emsdk install 2.0.14')
+  call('./emsdk install node-15.14.0-64bit')
   os.chdir('..')
 
   emscripten_sdk = os.path.realpath('emsdk')
