@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "757bbf1c_03715035",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-07-20T14:41:36Z",
+      "side": 1,
+      "message": "We\u0027ve had node version drift again [1]. I think this CL will ensure it continues to work without further maintenance.\n\n[1] https://skia-review.googlesource.com/c/skcms/+/726416?tab\u003dchecks",
+      "revId": "ef50384e2d190fdac5eab666b7a41dece48ce145",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
