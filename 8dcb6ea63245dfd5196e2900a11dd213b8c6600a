@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d945096_a374ea23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18014
+      },
+      "writtenOn": "2023-07-20T10:01:09Z",
+      "side": 1,
+      "message": "It seems that CQ fails because EMCC can not find Node, or something like that.",
+      "revId": "8dcb6ea63245dfd5196e2900a11dd213b8c6600a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
