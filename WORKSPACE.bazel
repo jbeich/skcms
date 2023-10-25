@@ -18,7 +18,7 @@ local_repository(
 
 load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skcms")
 
-download_toolchains_for_skcms("clang_linux_amd64", "ndk_linux_amd64")
+download_toolchains_for_skcms("clang_linux_amd64", "clang_mac", "ndk_linux_amd64")
 
 ##################################
 # Docker rules and dependencies. #

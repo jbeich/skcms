@@ -11,10 +11,12 @@ Planned:
 """
 
 load(":download_clang_linux_amd64.bzl", "download_clang_linux_amd64")
+load(":download_mac_toolchain.bzl", "download_mac_toolchain")
 load(":download_ndk_linux_amd64.bzl", "download_ndk_linux_amd64")
 
 name_toolchain = {
     "clang_linux_amd64": download_clang_linux_amd64,
+    "clang_mac": download_mac_toolchain,
     "ndk_linux_amd64": download_ndk_linux_amd64,
 }
 
