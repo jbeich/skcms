@@ -301,6 +301,8 @@ def _make_default_flags():
                     # We do not want clang to search in absolute paths for files. This makes
                     # Bazel think we are using an outside resource and fail the compile.
                     "-no-canonical-prefixes",
+                    # skcms behaves unpredictably when fp-contract is enabled.
+                    "-ffp-contract=off",
                 ],
             ),
         ],
