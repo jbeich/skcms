@@ -303,6 +303,30 @@ def _make_default_flags():
                     "-no-canonical-prefixes",
                     # skcms behaves unpredictably when fp-contract is enabled.
                     "-ffp-contract=off",
+                    # Enable color highlights in Clang diagnostics.
+                    "-fcolor-diagnostics",
+                    # Start by enabling all warnings, then disable ones that we don't need.
+                    "-Weverything",
+                    "-Werror",
+                    "-Wno-unknown-warning-option",
+                    "-Wno-poison-system-directories",
+                    "-Wno-double-promotion",
+                    "-Wno-float-equal",
+                    "-Wno-padded",
+                ],
+            ),
+        ],
+    )
+
+    c_compile_flags = flag_set(
+        actions = [
+            ACTION_NAMES.c_compile,
+        ],
+        flag_groups = [
+            flag_group(
+                flags = [
+                    "-std=c11",
+                    "-Wno-declaration-after-statement",
                 ],
             ),
         ],
@@ -318,6 +342,9 @@ def _make_default_flags():
             flag_group(
                 flags = [
                     "-std=c++17",
+                    "-Wno-c++98-compat-pedantic",
+                    "-Wno-gnu-anonymous-struct",
+                    "-Wno-old-style-cast",
                 ],
             ),
         ],
@@ -375,8 +402,9 @@ def _make_default_flags():
         "default_flags",
         enabled = True,
         flag_sets = [
-            cpp_compile_flags,
             cxx_compile_includes,
+            c_compile_flags,
+            cpp_compile_flags,
             link_exe_flags,
             objc_compile_flags,
         ],
