@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <float.h>
 #include <limits.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -121,14 +122,6 @@ static float fmaxf_(float x, float y) { return x > y ? x : y; }
 static float fminf_(float x, float y) { return x < y ? x : y; }
 
 static bool isfinitef_(float x) { return 0 == x*0; }
-
-static float minus_1_ulp(float x) {
-    int32_t bits;
-    memcpy(&bits, &x, sizeof(bits));
-    bits = bits - 1;
-    memcpy(&x, &bits, sizeof(bits));
-    return x;
-}
 
 // Most transfer functions we work with are sRGBish.
 // For exotic HDR transfer functions, we encode them using a tf.g that makes no sense,
@@ -253,8 +246,8 @@ static float eval_curve(const skcms_Curve* curve, float x) {
     }
 
     float ix = fmaxf_(0, fminf_(x, 1)) * static_cast<float>(curve->table_entries - 1);
-    int   lo = (int)                   ix        ,
-          hi = (int)(float)minus_1_ulp(ix + 1.0f);
+    int   lo = (int)           ix        ,
+          hi = (int)nextafterf(ix + 1.0f, -INFINITY_);
     float t = ix - (float)lo;
 
     float l, h;
