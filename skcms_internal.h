@@ -45,6 +45,8 @@ extern "C" {
     }
     static inline float fabsf_(float x) { return x < 0 ? -x : x; }
     float powf_(float, float);
+    float fmaxf_(float x, float y);
+    float fminf_(float x, float y);
 
 #ifdef __cplusplus
 }

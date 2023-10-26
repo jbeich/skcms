@@ -34,8 +34,11 @@ static void print_shortest_float(FILE* fp, float x) {
     //
     // (0x1.7p-6 == 0x3cb80000 is a good number to test this sort of thing with.)
 
-    int chars = snprintf(buf, sizeof(buf), "%.*f", digits+1, x);
-    fprintf(fp, "%.*s", chars-1, buf);
+    int chars = snprintf(buf, sizeof(buf), "%.*f", digits+1, x) - 1;
+    if (buf[chars-1] == '.') {
+        --chars;
+    }
+    fprintf(fp, "%.*s", chars, buf);
 }
 
 static void dump_transform_to_XYZD50(FILE* fp,
@@ -150,14 +153,20 @@ static void dump_transfer_function(FILE* fp, const char* name,
             tf->g, tf->a, tf->b, tf->c, tf->d, tf->e, tf->f);
 
     if (max_error > 0) {
-        fprintf(fp, " (Max error: %.6g)", max_error);
+        fprintf(fp, " (Max error: ");
+        print_shortest_float(fp, max_error);
+        fprintf(fp, ")");
     }
 
     if (tf->d > 0) {
         // Has both linear and nonlinear sections, include the discontinuity at D
         float l_at_d = (tf->c * tf->d + tf->f);
-        float n_at_d = powf_(tf->a * tf->d + tf->b, tf->g) + tf->e;
-        fprintf(fp, " (D-gap: %.6g)", (n_at_d - l_at_d));
+        float n_at_d = powf_(fmaxf_(0.0f, tf->a * tf->d + tf->b), tf->g) + tf->e;
+        float discontinuity = n_at_d - l_at_d;
+        fprintf(fp, " (D-gap: ");
+        print_shortest_float(fp, discontinuity);
+        fprintf(fp, ")");
+
     }
 
     fprintf(fp, " (f(1) = %.6g)", skcms_TransferFunction_eval(tf, 1.0f));
