@@ -29,7 +29,24 @@ Note that you need to obtain RBE credentials for this to work (instructions belo
 
 ## macOS
 
-TODO(lovisolo)
+Ensure you have a local Xcode installation, then run:
+
+```
+$ bazel build //...
+
+$ bazel test //...
+```
+
+Our Bazel macOS build does not support RBE at this time.
+
+Note however that it is possible to use RBE from macOS to cross-compile for Linux and run tests on
+Linux RBE workers, e.g.:
+
+```
+$ bazel build //... --config=linux-rbe
+
+$ bazel test //... --config=linux-rbe
+```
 
 ## Windows
 
