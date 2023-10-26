@@ -29,7 +29,15 @@ Note that you need to obtain RBE credentials for this to work (instructions belo
 
 ## macOS
 
-TODO(lovisolo)
+Ensure you have a local Xcode installation, then run:
+
+```
+$ bazel build //...
+
+$ bazel test //...
+```
+
+Our Bazel macOS build does not support RBE at this time.
 
 ## Windows
 
