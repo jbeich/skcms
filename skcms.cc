@@ -37,6 +37,14 @@ void skcms_DisableRuntimeCPUDetection() {
     runtime_cpu_detection = false;
 }
 
+#if defined(__clang__) || defined(__GNUC__)
+    #define SKCMS_MAYBE_UNUSED __attribute__((unused))
+#elif defined(_MSC_VER)
+    #define SKCMS_MAYBE_UNUSED __pragma(warning(suppress:4100))
+#else
+    #define SKCMS_MAYBE_UNUSED
+#endif
+
 // sizeof(x) will return size_t, which is 32-bit on some machines and 64-bit on others.
 // We have better testing on 64-bit machines, so force 32-bit machines to behave like 64-bit.
 //
@@ -2302,80 +2310,89 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 
 // ~~~~ Impl. of skcms_Transform() ~~~~
 
+#define SKCMS_LOAD_OPS(M) \
+    M(load_a8)            \
+    M(load_g8)            \
+    M(load_4444)          \
+    M(load_565)           \
+    M(load_888)           \
+    M(load_8888)          \
+    M(load_1010102)       \
+    M(load_101010x_XR)    \
+    M(load_161616LE)      \
+    M(load_16161616LE)    \
+    M(load_161616BE)      \
+    M(load_16161616BE)    \
+    M(load_hhh)           \
+    M(load_hhhh)          \
+    M(load_fff)           \
+    M(load_ffff)
+
+#define SKCMS_WORK_OPS(M) \
+    M(swap_rb)            \
+    M(clamp)              \
+    M(invert)             \
+    M(force_opaque)       \
+    M(premul)             \
+    M(unpremul)           \
+    M(matrix_3x3)         \
+    M(matrix_3x4)         \
+                          \
+    M(lab_to_xyz)         \
+    M(xyz_to_lab)         \
+                          \
+    M(tf_r)               \
+    M(tf_g)               \
+    M(tf_b)               \
+    M(tf_a)               \
+                          \
+    M(pq_r)               \
+    M(pq_g)               \
+    M(pq_b)               \
+    M(pq_a)               \
+                          \
+    M(hlg_r)              \
+    M(hlg_g)              \
+    M(hlg_b)              \
+    M(hlg_a)              \
+                          \
+    M(hlginv_r)           \
+    M(hlginv_g)           \
+    M(hlginv_b)           \
+    M(hlginv_a)           \
+                          \
+    M(table_r)            \
+    M(table_g)            \
+    M(table_b)            \
+    M(table_a)            \
+                          \
+    M(clut_A2B)           \
+    M(clut_B2A)
+
+#define SKCMS_STORE_OPS(M) \
+    M(store_a8)            \
+    M(store_g8)            \
+    M(store_4444)          \
+    M(store_565)           \
+    M(store_888)           \
+    M(store_8888)          \
+    M(store_1010102)       \
+    M(store_161616LE)      \
+    M(store_16161616LE)    \
+    M(store_161616BE)      \
+    M(store_16161616BE)    \
+    M(store_101010x_XR)    \
+    M(store_hhh)           \
+    M(store_hhhh)          \
+    M(store_fff)           \
+    M(store_ffff)
+
 typedef enum {
-    Op_load_a8,
-    Op_load_g8,
-    Op_load_4444,
-    Op_load_565,
-    Op_load_888,
-    Op_load_8888,
-    Op_load_1010102,
-    Op_load_101010x_XR,
-    Op_load_161616LE,
-    Op_load_16161616LE,
-    Op_load_161616BE,
-    Op_load_16161616BE,
-    Op_load_hhh,
-    Op_load_hhhh,
-    Op_load_fff,
-    Op_load_ffff,
-
-    Op_swap_rb,
-    Op_clamp,
-    Op_invert,
-    Op_force_opaque,
-    Op_premul,
-    Op_unpremul,
-    Op_matrix_3x3,
-    Op_matrix_3x4,
-
-    Op_lab_to_xyz,
-    Op_xyz_to_lab,
-
-    Op_tf_r,
-    Op_tf_g,
-    Op_tf_b,
-    Op_tf_a,
-
-    Op_pq_r,
-    Op_pq_g,
-    Op_pq_b,
-    Op_pq_a,
-
-    Op_hlg_r,
-    Op_hlg_g,
-    Op_hlg_b,
-    Op_hlg_a,
-
-    Op_hlginv_r,
-    Op_hlginv_g,
-    Op_hlginv_b,
-    Op_hlginv_a,
-
-    Op_table_r,
-    Op_table_g,
-    Op_table_b,
-    Op_table_a,
-
-    Op_clut_A2B,
-    Op_clut_B2A,
-
-    Op_store_a8,
-    Op_store_g8,
-    Op_store_4444,
-    Op_store_565,
-    Op_store_888,
-    Op_store_8888,
-    Op_store_1010102,
-    Op_store_161616LE,
-    Op_store_16161616LE,
-    Op_store_161616BE,
-    Op_store_16161616BE,
-    Op_store_101010x_XR,
-    Op_store_hhh,
-    Op_store_hhhh,
-    Op_store_fff,
-    Op_store_ffff,
+#define M(op) Op_##op,
+    SKCMS_LOAD_OPS(M)
+    SKCMS_WORK_OPS(M)
+    SKCMS_STORE_OPS(M)
+#undef M
 } Op;
 
 #if defined(__clang__)

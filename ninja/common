@@ -9,6 +9,7 @@ warnings = -Werror $
            -Wno-double-promotion $
            -Wno-float-equal $
            -Wno-padded $
+           -Wno-used-but-marked-unused $
 
 warnings_c = $warnings $
            -Wno-declaration-after-statement $
