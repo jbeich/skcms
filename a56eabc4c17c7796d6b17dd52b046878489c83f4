@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47eea9b1_8bfccc6a",
+        "filename": "BAZEL.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-10-26T20:36:52Z",
+      "side": 1,
+      "message": "`--config\u003dlinux-rbe` does work now, though!",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 56
+      },
+      "revId": "a56eabc4c17c7796d6b17dd52b046878489c83f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
