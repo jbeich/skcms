@@ -313,6 +313,7 @@ def _make_default_flags():
                     "-Wno-double-promotion",
                     "-Wno-float-equal",
                     "-Wno-padded",
+                    "-Wno-used-but-marked-unused",
                 ],
             ),
         ],
