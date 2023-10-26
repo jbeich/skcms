@@ -34,6 +34,23 @@
       "parentUuid": "cc9ccd60_65b6cffb",
       "revId": "f97537ebdadae972856bb7baeff656215aab1ff4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb5d8887_ead7e0af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-10-26T13:57:08Z",
+      "side": 1,
+      "message": "I\u0027m trying this now and I noticed it\u0027s downloading two separate Clang+LLVM versions, for different architectures. Is this intentional? I would have assumed we would at least want to stick to one version.\n\n    Fetching https://github.com/.../llvmorg-15.0.1/clang+llvm-15.0.1-arm64-apple-darwin21.0.tar.xz; 407,227,200B 123s\n    Fetching https://github.com/.../llvmorg-13.0.0/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz; 340,613,637B 123s",
+      "revId": "f97537ebdadae972856bb7baeff656215aab1ff4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
