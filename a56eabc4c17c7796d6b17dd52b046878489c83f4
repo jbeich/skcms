@@ -22,6 +22,30 @@
       },
       "revId": "a56eabc4c17c7796d6b17dd52b046878489c83f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd2ab4dd_9094c49e",
+        "filename": "BAZEL.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2023-10-26T20:46:20Z",
+      "side": 1,
+      "message": "Ack, it works for me too. Updated `BAZEL.md`.",
+      "parentUuid": "47eea9b1_8bfccc6a",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 56
+      },
+      "revId": "a56eabc4c17c7796d6b17dd52b046878489c83f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
