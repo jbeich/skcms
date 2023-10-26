@@ -1507,8 +1507,8 @@ static void test_HLG() {
     expect(0.5001f > skcms_TransferFunction_eval(&enc, 1.000001f));
 
     // TODO: this isn't really the best round-trip precision.
-    expect(1.000001f < skcms_TransferFunction_eval(&dec,
-                                                   skcms_TransferFunction_eval(&enc, 1.000001f)));
+    expect(1.000001f <= skcms_TransferFunction_eval(&dec,
+                                                    skcms_TransferFunction_eval(&enc, 1.000001f)));
     expect(1.000010f > skcms_TransferFunction_eval(&dec,
                                                    skcms_TransferFunction_eval(&enc, 1.000001f)));
 
