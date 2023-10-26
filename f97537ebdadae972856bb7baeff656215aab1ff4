@@ -16,6 +16,24 @@
       "message": "Please update `BAZEL.md`. It still says TODO(lovisolo)",
       "revId": "f97537ebdadae972856bb7baeff656215aab1ff4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65ac9b26_dae63aa3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-10-26T13:53:20Z",
+      "side": 1,
+      "message": "Active",
+      "parentUuid": "cc9ccd60_65b6cffb",
+      "revId": "f97537ebdadae972856bb7baeff656215aab1ff4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
