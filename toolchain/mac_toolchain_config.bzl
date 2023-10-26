@@ -316,6 +316,7 @@ def _make_default_flags():
             flag_group(
                 flags = [
                     "-std=c++17",
+                    "-ffp-contract=off",
                 ],
             ),
         ],

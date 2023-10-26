@@ -117,8 +117,8 @@ static float expf_(float x) {
     return exp2f_(log2_e * x);
 }
 
-static float fmaxf_(float x, float y) { return x > y ? x : y; }
-static float fminf_(float x, float y) { return x < y ? x : y; }
+float fmaxf_(float x, float y) { return x > y ? x : y; }
+float fminf_(float x, float y) { return x < y ? x : y; }
 
 static bool isfinitef_(float x) { return 0 == x*0; }
 
