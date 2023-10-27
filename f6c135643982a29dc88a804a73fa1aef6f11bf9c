@@ -46,6 +46,30 @@
       },
       "revId": "f6c135643982a29dc88a804a73fa1aef6f11bf9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d71d0207_226bffe0",
+        "filename": "toolchain/mac_toolchain_config.bzl",
+        "patchSetId": 4
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-10-27T17:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "435b365e_331a6191",
+      "range": {
+        "startLine": 405,
+        "startChar": 12,
+        "endLine": 405,
+        "endChar": 32
+      },
+      "revId": "f6c135643982a29dc88a804a73fa1aef6f11bf9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
