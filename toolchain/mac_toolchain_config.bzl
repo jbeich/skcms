@@ -303,7 +303,6 @@ def _make_default_flags():
                     "-no-canonical-prefixes",
                     # skcms behaves unpredictably when fp-contract is enabled.
                     "-ffp-contract=off",
-                    "-Wno-used-but-marked-unused",
                 ],
             ),
         ],
