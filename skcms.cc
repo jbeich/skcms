@@ -37,7 +37,10 @@ void skcms_DisableRuntimeCPUDetection() {
     runtime_cpu_detection = false;
 }
 
-#if defined(__clang__) || defined(__GNUC__)
+#if defined(__clang__)
+    #define SKCMS_MAYBE_UNUSED __attribute__((unused))
+    #pragma clang diagnostic ignored "-Wused-but-marked-unused"
+#elif defined(__GNUC__)
     #define SKCMS_MAYBE_UNUSED __attribute__((unused))
 #elif defined(_MSC_VER)
     #define SKCMS_MAYBE_UNUSED __pragma(warning(suppress:4100))
