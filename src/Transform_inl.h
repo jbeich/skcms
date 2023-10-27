@@ -757,6 +757,52 @@ static void clut(const skcms_B2A* b2a, F* r, F* g, F* b, F* a) {
 
 struct NoCtx {};
 
+#define USE_TAILCALL_CHAIN 1
+#if USE_TAILCALL_CHAIN
+
+// This path works well when we can rely on tailcalling via [[clang::musttail]].
+
+struct skcms_Stage;
+
+struct Ctx {
+    const void* fArg;
+    operator NoCtx()                    { return NoCtx{}; }
+    template <typename T> operator T*() { return (const T*)fArg; }
+};
+
+using StageFn = void (*)(const skcms_Stage* program, const char* s, char* d,
+                         F& r, F& g, F& b, F& a, int i);
+
+struct skcms_Stage {
+    StageFn fn;
+    const void* ctx;
+};
+
+// just_return() is a simple no-op stage that only exists to end the chain, returning back
+// up to exec_ops().
+SI void just_return(const skcms_Stage*, const char*, char*, F&, F&, F&, F&, int) {}
+
+#define STAGE(name, arg)                                                                     \
+    SI void Exec_##name##_k(arg, const char* src, char* dst, F& r, F& g, F& b, F& a, int i); \
+                                                                                             \
+    SI void Exec_##name(const skcms_Stage* program, const char* s, char* d,                  \
+                        F& r, F& g, F& b, F& a, int i) {                                     \
+        Exec_##name##_k(Ctx{program->ctx}, s, d, r, g, b, a, i);                             \
+        ++program;                                                                           \
+        [[clang::musttail]] return program->fn(program, s, d, r, g, b, a, i);                \
+    }                                                                                        \
+                                                                                             \
+    SI void Exec_##name##_k(arg,                                                             \
+                            SKCMS_MAYBE_UNUSED const char* src,                              \
+                            SKCMS_MAYBE_UNUSED char* dst,                                    \
+                            SKCMS_MAYBE_UNUSED F& r,                                         \
+                            SKCMS_MAYBE_UNUSED F& g,                                         \
+                            SKCMS_MAYBE_UNUSED F& b,                                         \
+                            SKCMS_MAYBE_UNUSED F& a,                                         \
+                            SKCMS_MAYBE_UNUSED int i)
+
+#else  // !USE_TAILCALL_CHAIN
+
 struct Ctx {
     const void**& fArg;
     operator NoCtx()                    { return NoCtx{}; }
@@ -778,6 +824,8 @@ struct Ctx {
                             SKCMS_MAYBE_UNUSED F& b,                                              \
                             SKCMS_MAYBE_UNUSED F& a,                                              \
                             SKCMS_MAYBE_UNUSED int i)
+
+#endif
 
 STAGE(load_a8, NoCtx) {
     a = F_from_U8(load<U8>(src + 1*i));
@@ -1385,6 +1433,49 @@ STAGE(store_ffff, NoCtx) {
 #endif
 }
 
+#if USE_TAILCALL_CHAIN
+
+SI void exec_stages(const skcms_Stage* stages, const char* src, char* dst, int i) {
+    F r = F0, g = F0, b = F0, a = F1;
+    stages[0].fn(stages, src, dst, r, g, b, a, i);
+}
+
+static void run_program(const Op* program, const void** arguments, ptrdiff_t programSize,
+                        const char* src, char* dst, int n,
+                        const size_t src_bpp, const size_t dst_bpp) {
+    // Convert the program into an array of tailcall stages.
+    skcms_Stage stages[33];
+    assert((programSize + 1) <= ARRAY_COUNT(stages));
+
+    static constexpr StageFn kStageFns[] = {
+#define M(name) &Exec_##name,
+        SKCMS_ALL_OPS(M)
+#undef M
+    };
+
+    for (ptrdiff_t index = 0; index < programSize; ++index) {
+        stages[index].fn  = kStageFns[program[index]];
+        stages[index].ctx = arguments[index];
+    }
+    stages[programSize].fn = &just_return;
+
+    int i = 0;
+    while (n >= N) {
+        exec_stages(stages, src, dst, i);
+        i += N;
+        n -= N;
+    }
+    if (n > 0) {
+        char tmp[4*4*N] = {0};
+
+        memcpy(tmp, (const char*)src + (size_t)i*src_bpp, (size_t)n*src_bpp);
+        exec_stages(stages, tmp, tmp, 0);
+        memcpy((char*)dst + (size_t)i*dst_bpp, tmp, (size_t)n*dst_bpp);
+    }
+}
+
+#else // !USE_TAILCALL_CHAIN
+
 static void exec_ops(const Op* ops, const void** args,
                      const char* src, char* dst, int i) {
     F r = F0, g = F0, b = F0, a = F1;
@@ -1401,8 +1492,7 @@ static void exec_ops(const Op* ops, const void** args,
     }
 }
 
-
-static void run_program(const Op* program, const void** arguments,
+static void run_program(const Op* program, const void** arguments, ptrdiff_t,
                         const char* src, char* dst, int n,
                         const size_t src_bpp, const size_t dst_bpp) {
     int i = 0;
@@ -1419,6 +1509,9 @@ static void run_program(const Op* program, const void** arguments,
         memcpy((char*)dst + (size_t)i*dst_bpp, tmp, (size_t)n*dst_bpp);
     }
 }
+
+#endif
+
 
 // Clean up any #defines we may have set so that we can be #included again.
 #if defined(USING_AVX)
