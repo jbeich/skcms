@@ -2678,6 +2678,7 @@ bool skcms_Transform(const void*             src,
 
     auto add_op = [&](Op o) {
         *ops++ = o;
+        *contexts++ = nullptr;
     };
 
     auto add_op_ctx = [&](Op o, const void* c) {

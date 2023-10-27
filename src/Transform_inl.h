@@ -758,25 +758,25 @@ static void clut(const skcms_B2A* b2a, F* r, F* g, F* b, F* a) {
 struct NoCtx {};
 
 struct Ctx {
-    const void**& fArg;
+    const void* fArg;
     operator NoCtx()                    { return NoCtx{}; }
-    template <typename T> operator T*() { return *(const T**)(fArg++); }
+    template <typename T> operator T*() { return (const T*)fArg; }
 };
 
-#define STAGE(name, arg)                                                                          \
-    SI void Exec_##name##_k(arg, const char* src, char* dst, F& r, F& g, F& b, F& a, int i);      \
-                                                                                                  \
-    SI void Exec_##name(const void**& v, const char* s, char* d, F& r, F& g, F& b, F& a, int i) { \
-        Exec_##name##_k(Ctx{v}, s, d, r, g, b, a, i);                                             \
-    }                                                                                             \
-                                                                                                  \
-    SI void Exec_##name##_k(arg,                                                                  \
-                            SKCMS_MAYBE_UNUSED const char* src,                                   \
-                            SKCMS_MAYBE_UNUSED char* dst,                                         \
-                            SKCMS_MAYBE_UNUSED F& r,                                              \
-                            SKCMS_MAYBE_UNUSED F& g,                                              \
-                            SKCMS_MAYBE_UNUSED F& b,                                              \
-                            SKCMS_MAYBE_UNUSED F& a,                                              \
+#define STAGE(name, arg)                                                                        \
+    SI void Exec_##name##_k(arg, const char* src, char* dst, F& r, F& g, F& b, F& a, int i);    \
+                                                                                                \
+    SI void Exec_##name(const void* v, const char* s, char* d, F& r, F& g, F& b, F& a, int i) { \
+        Exec_##name##_k(Ctx{v}, s, d, r, g, b, a, i);                                           \
+    }                                                                                           \
+                                                                                                \
+    SI void Exec_##name##_k(arg,                                                                \
+                            SKCMS_MAYBE_UNUSED const char* src,                                 \
+                            SKCMS_MAYBE_UNUSED char* dst,                                       \
+                            SKCMS_MAYBE_UNUSED F& r,                                            \
+                            SKCMS_MAYBE_UNUSED F& g,                                            \
+                            SKCMS_MAYBE_UNUSED F& b,                                            \
+                            SKCMS_MAYBE_UNUSED F& a,                                            \
                             SKCMS_MAYBE_UNUSED int i)
 
 STAGE(load_a8, NoCtx) {
@@ -1390,11 +1390,11 @@ static void exec_ops(const Op* ops, const void** args,
     F r = F0, g = F0, b = F0, a = F1;
     while (true) {
         switch (*ops++) {
-#define M(name) case Op_##name: Exec_##name(args, src, dst, r, g, b, a, i); break;
+#define M(name) case Op_##name: Exec_##name(*args++, src, dst, r, g, b, a, i); break;
             SKCMS_LOAD_OPS(M)
             SKCMS_WORK_OPS(M)
 #undef M
-#define M(name) case Op_##name: Exec_##name(args, src, dst, r, g, b, a, i); return;
+#define M(name) case Op_##name: Exec_##name(*args++, src, dst, r, g, b, a, i); return;
             SKCMS_STORE_OPS(M)
 #undef M
         }
