@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5d0b542_a1f5de02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-10-27T14:02:52Z",
+      "side": 1,
+      "message": "Similar on x64 (AVX512) - code-gen is slightly different, but no measurable performance change.",
+      "revId": "1591e0899a442c43e18632ed037ea267d100e059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
