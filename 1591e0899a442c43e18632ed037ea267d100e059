@@ -16,6 +16,24 @@
       "message": "Similar on x64 (AVX512) - code-gen is slightly different, but no measurable performance change.",
       "revId": "1591e0899a442c43e18632ed037ea267d100e059",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c10fcb2_85ea4bde",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-10-27T14:04:03Z",
+      "side": 1,
+      "message": "I also checked on (AMD EPYC) cloudtop to be sure, and it was neutral there.\n\nWe have Skcms perf benchmarks now so we can check those tomorrow as well.",
+      "parentUuid": "b5d0b542_a1f5de02",
+      "revId": "1591e0899a442c43e18632ed037ea267d100e059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
