@@ -22,6 +22,30 @@
       },
       "revId": "f6c135643982a29dc88a804a73fa1aef6f11bf9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "435b365e_331a6191",
+        "filename": "toolchain/mac_toolchain_config.bzl",
+        "patchSetId": 4
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2023-10-27T17:05:14Z",
+      "side": 1,
+      "message": "Please add a comment here, something like:\n\n```\n# Please ensure that -Weverything comes before any -Wno_xxx flags in the flag sets below.\n# The idea is to first enable all warnings, then disable the ones we do not need.\n```",
+      "parentUuid": "7fb30891_160ac960",
+      "range": {
+        "startLine": 405,
+        "startChar": 12,
+        "endLine": 405,
+        "endChar": 32
+      },
+      "revId": "f6c135643982a29dc88a804a73fa1aef6f11bf9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
