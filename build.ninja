@@ -4,6 +4,7 @@ subninja ninja/clang
 subninja ninja/clang.O0
 subninja ninja/clang.sse2
 subninja ninja/clang.sse41
+subninja ninja/clang.hsw
 subninja ninja/clang.avx512
 subninja ninja/clang.lsan
 subninja ninja/clang.m32
