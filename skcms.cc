@@ -2390,11 +2390,15 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     M(store_fff)           \
     M(store_ffff)
 
+// The combined set of all skcms ops:
+#define SKCMS_ALL_OPS(M) \
+    SKCMS_LOAD_OPS(M)    \
+    SKCMS_WORK_OPS(M)    \
+    SKCMS_STORE_OPS(M)
+
 typedef enum {
 #define M(op) Op_##op,
-    SKCMS_LOAD_OPS(M)
-    SKCMS_WORK_OPS(M)
-    SKCMS_STORE_OPS(M)
+    SKCMS_ALL_OPS(M)
 #undef M
 } Op;
 
@@ -2973,7 +2977,7 @@ bool skcms_Transform(const void*             src,
         case CpuType::SKX: run = skx::run_program; break;
     }
 #endif
-    run(program, context, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
+    run(program, context, ops - program, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
     return true;
 }
 
