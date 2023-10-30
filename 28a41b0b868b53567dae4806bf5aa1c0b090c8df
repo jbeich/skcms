@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd3f48bb_c8e16fed",
+        "filename": "BAZEL.md",
+        "patchSetId": 9
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-10-30T19:08:23Z",
+      "side": 1,
+      "message": "Honestly, even newer is better, but we really want 13.0.0 or better for `[[clang::musttail]]`.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 73
+      },
+      "revId": "28a41b0b868b53567dae4806bf5aa1c0b090c8df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
