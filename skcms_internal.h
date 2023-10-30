@@ -11,6 +11,7 @@
 // Please don't use this header from outside the skcms repo.
 
 #include "skcms.h"  // NO_G3_REWRITE
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -40,6 +41,9 @@ extern "C" {
 
 // ~~~~ Portable Math ~~~~
     static inline float floorf_(float x) {
+        if (x <= (float)(INT_MIN) || x >= (float)(INT_MAX)) {
+            return x;
+        }
         float roundtrip = (float)((int)x);
         return roundtrip > x ? roundtrip - 1 : roundtrip;
     }
