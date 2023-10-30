@@ -2315,7 +2315,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 
 // ~~~~ Impl. of skcms_Transform() ~~~~
 
-#define SKCMS_LOAD_OPS(M) \
+#define SKCMS_ALL_OPS(M)  \
     M(load_a8)            \
     M(load_g8)            \
     M(load_4444)          \
@@ -2331,9 +2331,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     M(load_hhh)           \
     M(load_hhhh)          \
     M(load_fff)           \
-    M(load_ffff)
-
-#define SKCMS_WORK_OPS(M) \
+    M(load_ffff)          \
     M(swap_rb)            \
     M(clamp)              \
     M(invert)             \
@@ -2382,31 +2380,28 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     M(table_a)            \
                           \
     M(clut_A2B)           \
-    M(clut_B2A)
-
-#define SKCMS_STORE_OPS(M) \
-    M(store_a8)            \
-    M(store_g8)            \
-    M(store_4444)          \
-    M(store_565)           \
-    M(store_888)           \
-    M(store_8888)          \
-    M(store_1010102)       \
-    M(store_161616LE)      \
-    M(store_16161616LE)    \
-    M(store_161616BE)      \
-    M(store_16161616BE)    \
-    M(store_101010x_XR)    \
-    M(store_hhh)           \
-    M(store_hhhh)          \
-    M(store_fff)           \
+    M(clut_B2A)           \
+                          \
+    M(store_a8)           \
+    M(store_g8)           \
+    M(store_4444)         \
+    M(store_565)          \
+    M(store_888)          \
+    M(store_8888)         \
+    M(store_1010102)      \
+    M(store_161616LE)     \
+    M(store_16161616LE)   \
+    M(store_161616BE)     \
+    M(store_16161616BE)   \
+    M(store_101010x_XR)   \
+    M(store_hhh)          \
+    M(store_hhhh)         \
+    M(store_fff)          \
     M(store_ffff)
 
 typedef enum {
 #define M(op) Op_##op,
-    SKCMS_LOAD_OPS(M)
-    SKCMS_WORK_OPS(M)
-    SKCMS_STORE_OPS(M)
+    SKCMS_ALL_OPS(M)
 #undef M
 } Op;
 
@@ -3006,7 +3001,7 @@ bool skcms_Transform(const void*             src,
         case CpuType::SKX: run = skx::run_program; break;
     }
 #endif
-    run(program, context, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
+    run(program, context, ops - program, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
     return true;
 }
 
