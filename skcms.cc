@@ -2350,26 +2350,31 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     M(gamma_g)            \
     M(gamma_b)            \
     M(gamma_a)            \
+    M(gamma_rgb)          \
                           \
     M(tf_r)               \
     M(tf_g)               \
     M(tf_b)               \
     M(tf_a)               \
+    M(tf_rgb)             \
                           \
     M(pq_r)               \
     M(pq_g)               \
     M(pq_b)               \
     M(pq_a)               \
+    M(pq_rgb)             \
                           \
     M(hlg_r)              \
     M(hlg_g)              \
     M(hlg_b)              \
     M(hlg_a)              \
+    M(hlg_rgb)            \
                           \
     M(hlginv_r)           \
     M(hlginv_g)           \
     M(hlginv_b)           \
     M(hlginv_a)           \
+    M(hlginv_rgb)         \
                           \
     M(table_r)            \
     M(table_g)            \
@@ -2616,7 +2621,35 @@ static int select_curve_ops(const skcms_Curve* curves, int numChannels, OpAndArg
         if (ops[position].arg) {
             ++position;
         }
+
+        // Identify separate R/G/B functions which can be fused into a single op.
+        // (We do this check inside the loop in order to allow R+G+B+A to be fused into RGB+A.)
+        if (index == 2 && position == 3) {
+            struct FusableOps {
+                Op r, g, b, rgb;
+            };
+            static constexpr FusableOps kFusableOps[] = {
+                {Op_gamma_r,  Op_gamma_g,  Op_gamma_b,  Op_gamma_rgb},
+                {Op_tf_r,     Op_tf_g,     Op_tf_b,     Op_tf_rgb},
+                {Op_pq_r,     Op_pq_g,     Op_pq_b,     Op_pq_rgb},
+                {Op_hlg_r,    Op_hlg_g,    Op_hlg_b,    Op_hlg_rgb},
+                {Op_hlginv_r, Op_hlginv_g, Op_hlginv_b, Op_hlginv_rgb},
+            };
+            for (const FusableOps& fusableOp : kFusableOps) {
+                if (ops[0].op == fusableOp.r &&
+                    ops[1].op == fusableOp.g &&
+                    ops[2].op == fusableOp.b &&
+                    (0 == memcmp(ops[0].arg, ops[1].arg, sizeof(skcms_TransferFunction))) &&
+                    (0 == memcmp(ops[0].arg, ops[2].arg, sizeof(skcms_TransferFunction)))) {
+
+                    ops[0].op = fusableOp.rgb;
+                    position = 1;
+                    break;
+                }
+            }
+        }
     }
+
     return position;
 }
 
@@ -2712,9 +2745,14 @@ bool skcms_Transform(const void*             src,
         *contexts++ = c;
     };
 
-    auto add_op_list = [&](const OpAndArg* oa, int count) {
-        for (const OpAndArg* end = oa + count; oa != end; ++oa) {
-            add_op_ctx(oa->op, oa->arg);
+    auto add_curve_ops = [&](const skcms_Curve* curves, int numChannels) {
+        OpAndArg oa[4];
+        assert(numChannels <= ARRAY_COUNT(oa));
+
+        int numOps = select_curve_ops(curves, numChannels, oa);
+
+        for (int i = 0; i < numOps; ++i) {
+            add_op_ctx(oa[i].op, oa[i].arg);
         }
     };
 
@@ -2749,9 +2787,7 @@ bool skcms_Transform(const void*             src,
 
         case skcms_PixelFormat_RGBA_8888_sRGB >> 1:
             add_op(Op_load_8888);
-            add_op_ctx(Op_tf_r, skcms_sRGB_TransferFunction());
-            add_op_ctx(Op_tf_g, skcms_sRGB_TransferFunction());
-            add_op_ctx(Op_tf_b, skcms_sRGB_TransferFunction());
+            add_op_ctx(Op_tf_rgb, skcms_sRGB_TransferFunction());
             break;
     }
     if (srcFmt == skcms_PixelFormat_RGB_hhh_Norm ||
@@ -2796,21 +2832,14 @@ bool skcms_Transform(const void*             src,
 
         if (srcProfile->has_A2B) {
             if (srcProfile->A2B.input_channels) {
-                OpAndArg oa[4];
-                assert(srcProfile->A2B.input_channels <= ARRAY_COUNT(oa));
-                int numOps = select_curve_ops(srcProfile->A2B.input_curves,
-                                              (int)srcProfile->A2B.input_channels,
-                                              oa);
-                add_op_list(oa, numOps);
-
+                add_curve_ops(srcProfile->A2B.input_curves,
+                              (int)srcProfile->A2B.input_channels);
                 add_op(Op_clamp);
                 add_op_ctx(Op_clut_A2B, &srcProfile->A2B);
             }
 
             if (srcProfile->A2B.matrix_channels == 3) {
-                OpAndArg oa[3];
-                int numOps = select_curve_ops(srcProfile->A2B.matrix_curves, /*numChannels=*/3, oa);
-                add_op_list(oa, numOps);
+                add_curve_ops(srcProfile->A2B.matrix_curves, /*numChannels=*/3);
 
                 static const skcms_Matrix3x4 I = {{
                     {1,0,0,0},
@@ -2823,9 +2852,7 @@ bool skcms_Transform(const void*             src,
             }
 
             if (srcProfile->A2B.output_channels == 3) {
-                OpAndArg oa[3];
-                int numOps = select_curve_ops(srcProfile->A2B.output_curves, /*numChannels=*/3, oa);
-                add_op_list(oa, numOps);
+                add_curve_ops(srcProfile->A2B.output_curves, /*numChannels=*/3);
             }
 
             if (srcProfile->pcs == skcms_Signature_Lab) {
@@ -2833,9 +2860,7 @@ bool skcms_Transform(const void*             src,
             }
 
         } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
-            OpAndArg oa[3];
-            int numOps = select_curve_ops(srcProfile->trc, /*numChannels=*/3, oa);
-            add_op_list(oa, numOps);
+            add_curve_ops(srcProfile->trc, /*numChannels=*/3);
         } else {
             return false;
         }
@@ -2854,9 +2879,7 @@ bool skcms_Transform(const void*             src,
             }
 
             if (dstProfile->B2A.input_channels == 3) {
-                OpAndArg oa[3];
-                int numOps = select_curve_ops(dstProfile->B2A.input_curves, /*numChannels=*/3, oa);
-                add_op_list(oa, numOps);
+                add_curve_ops(dstProfile->B2A.input_curves, /*numChannels=*/3);
             }
 
             if (dstProfile->B2A.matrix_channels == 3) {
@@ -2869,21 +2892,15 @@ bool skcms_Transform(const void*             src,
                     add_op_ctx(Op_matrix_3x4, &dstProfile->B2A.matrix);
                 }
 
-                OpAndArg oa[3];
-                int numOps = select_curve_ops(dstProfile->B2A.matrix_curves, /*numChannels=*/3, oa);
-                add_op_list(oa, numOps);
+                add_curve_ops(dstProfile->B2A.matrix_curves, /*numChannels=*/3);
             }
 
             if (dstProfile->B2A.output_channels) {
                 add_op(Op_clamp);
                 add_op_ctx(Op_clut_B2A, &dstProfile->B2A);
 
-                OpAndArg oa[4];
-                assert(dstProfile->B2A.output_channels <= ARRAY_COUNT(oa));
-                int numOps = select_curve_ops(dstProfile->B2A.output_curves,
-                                              (int)dstProfile->B2A.output_channels,
-                                              oa);
-                add_op_list(oa, numOps);
+                add_curve_ops(dstProfile->B2A.output_curves,
+                              (int)dstProfile->B2A.output_channels);
             }
         } else {
             // This is a TRC destination.
@@ -2913,8 +2930,8 @@ bool skcms_Transform(const void*             src,
                        oa[index].op != Op_table_g &&
                        oa[index].op != Op_table_b &&
                        oa[index].op != Op_table_a);
+                add_op_ctx(oa[index].op, oa[index].arg);
             }
-            add_op_list(oa, numOps);
         }
     }
 
@@ -2966,9 +2983,7 @@ bool skcms_Transform(const void*             src,
         case skcms_PixelFormat_RGBA_ffff       >> 1: add_op(Op_store_ffff);       break;
 
         case skcms_PixelFormat_RGBA_8888_sRGB >> 1:
-            add_op_ctx(Op_tf_r, skcms_sRGB_Inverse_TransferFunction());
-            add_op_ctx(Op_tf_g, skcms_sRGB_Inverse_TransferFunction());
-            add_op_ctx(Op_tf_b, skcms_sRGB_Inverse_TransferFunction());
+            add_op_ctx(Op_tf_rgb, skcms_sRGB_Inverse_TransferFunction());
             add_op(Op_store_8888);
             break;
     }
