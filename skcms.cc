@@ -94,6 +94,8 @@ static float logf_(float x) {
 static float exp2f_(float x) {
     if (x > 128.0f) {
         return INFINITY_;
+    } else if (x < -127.0f) {
+        return 0.0f;
     }
     float fract = x - floorf_(x);
 
