@@ -2607,6 +2607,17 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
     return OpAndArg{op.table, curve};
 }
 
+static int select_curve_ops(const skcms_Curve* curves, int numChannels, OpAndArg* ops) {
+    int position = 0;
+    for (int index = 0; index < numChannels; ++index) {
+        ops[position] = select_curve_op(&curves[index], index);
+        if (ops[position].arg) {
+            ++position;
+        }
+    }
+    return position;
+}
+
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     switch (fmt >> 1) {   // ignore rgb/bgr
         case skcms_PixelFormat_A_8             >> 1: return  1;
@@ -2699,6 +2710,12 @@ bool skcms_Transform(const void*             src,
         *contexts++ = c;
     };
 
+    auto add_op_list = [&](const OpAndArg* oa, int count) {
+        for (const OpAndArg* end = oa + count; oa != end; ++oa) {
+            add_op_ctx(oa->op, oa->arg);
+        }
+    };
+
     // These are always parametric curves of some sort.
     skcms_Curve dst_curves[3];
     dst_curves[0].table_entries =
@@ -2777,23 +2794,21 @@ bool skcms_Transform(const void*             src,
 
         if (srcProfile->has_A2B) {
             if (srcProfile->A2B.input_channels) {
-                for (int i = 0; i < (int)srcProfile->A2B.input_channels; i++) {
-                    OpAndArg oa = select_curve_op(&srcProfile->A2B.input_curves[i], i);
-                    if (oa.arg) {
-                        add_op_ctx(oa.op, oa.arg);
-                    }
-                }
+                OpAndArg oa[4];
+                assert(srcProfile->A2B.input_channels <= ARRAY_COUNT(oa));
+                int numOps = select_curve_ops(srcProfile->A2B.input_curves,
+                                              (int)srcProfile->A2B.input_channels,
+                                              oa);
+                add_op_list(oa, numOps);
+
                 add_op(Op_clamp);
                 add_op_ctx(Op_clut_A2B, &srcProfile->A2B);
             }
 
             if (srcProfile->A2B.matrix_channels == 3) {
-                for (int i = 0; i < 3; i++) {
-                    OpAndArg oa = select_curve_op(&srcProfile->A2B.matrix_curves[i], i);
-                    if (oa.arg) {
-                        add_op_ctx(oa.op, oa.arg);
-                    }
-                }
+                OpAndArg oa[3];
+                int numOps = select_curve_ops(srcProfile->A2B.matrix_curves, /*numChannels=*/3, oa);
+                add_op_list(oa, numOps);
 
                 static const skcms_Matrix3x4 I = {{
                     {1,0,0,0},
@@ -2806,12 +2821,9 @@ bool skcms_Transform(const void*             src,
             }
 
             if (srcProfile->A2B.output_channels == 3) {
-                for (int i = 0; i < 3; i++) {
-                    OpAndArg oa = select_curve_op(&srcProfile->A2B.output_curves[i], i);
-                    if (oa.arg) {
-                        add_op_ctx(oa.op, oa.arg);
-                    }
-                }
+                OpAndArg oa[3];
+                int numOps = select_curve_ops(srcProfile->A2B.output_curves, /*numChannels=*/3, oa);
+                add_op_list(oa, numOps);
             }
 
             if (srcProfile->pcs == skcms_Signature_Lab) {
@@ -2819,12 +2831,9 @@ bool skcms_Transform(const void*             src,
             }
 
         } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
-            for (int i = 0; i < 3; i++) {
-                OpAndArg oa = select_curve_op(&srcProfile->trc[i], i);
-                if (oa.arg) {
-                    add_op_ctx(oa.op, oa.arg);
-                }
-            }
+            OpAndArg oa[3];
+            int numOps = select_curve_ops(srcProfile->trc, /*numChannels=*/3, oa);
+            add_op_list(oa, numOps);
         } else {
             return false;
         }
@@ -2843,12 +2852,9 @@ bool skcms_Transform(const void*             src,
             }
 
             if (dstProfile->B2A.input_channels == 3) {
-                for (int i = 0; i < 3; i++) {
-                    OpAndArg oa = select_curve_op(&dstProfile->B2A.input_curves[i], i);
-                    if (oa.arg) {
-                        add_op_ctx(oa.op, oa.arg);
-                    }
-                }
+                OpAndArg oa[3];
+                int numOps = select_curve_ops(dstProfile->B2A.input_curves, /*numChannels=*/3, oa);
+                add_op_list(oa, numOps);
             }
 
             if (dstProfile->B2A.matrix_channels == 3) {
@@ -2861,23 +2867,21 @@ bool skcms_Transform(const void*             src,
                     add_op_ctx(Op_matrix_3x4, &dstProfile->B2A.matrix);
                 }
 
-                for (int i = 0; i < 3; i++) {
-                    OpAndArg oa = select_curve_op(&dstProfile->B2A.matrix_curves[i], i);
-                    if (oa.arg) {
-                        add_op_ctx(oa.op, oa.arg);
-                    }
-                }
+                OpAndArg oa[3];
+                int numOps = select_curve_ops(dstProfile->B2A.matrix_curves, /*numChannels=*/3, oa);
+                add_op_list(oa, numOps);
             }
 
             if (dstProfile->B2A.output_channels) {
                 add_op(Op_clamp);
                 add_op_ctx(Op_clut_B2A, &dstProfile->B2A);
-                for (int i = 0; i < (int)dstProfile->B2A.output_channels; i++) {
-                    OpAndArg oa = select_curve_op(&dstProfile->B2A.output_curves[i], i);
-                    if (oa.arg) {
-                        add_op_ctx(oa.op, oa.arg);
-                    }
-                }
+
+                OpAndArg oa[4];
+                assert(dstProfile->B2A.output_channels <= ARRAY_COUNT(oa));
+                int numOps = select_curve_ops(dstProfile->B2A.output_curves,
+                                              (int)dstProfile->B2A.output_channels,
+                                              oa);
+                add_op_list(oa, numOps);
             }
         } else {
             // This is a TRC destination.
@@ -2900,16 +2904,15 @@ bool skcms_Transform(const void*             src,
             }
 
             // Encode back to dst RGB using its parametric transfer functions.
-            for (int i = 0; i < 3; i++) {
-                OpAndArg oa = select_curve_op(dst_curves+i, i);
-                if (oa.arg) {
-                    assert (oa.op != Op_table_r &&
-                            oa.op != Op_table_g &&
-                            oa.op != Op_table_b &&
-                            oa.op != Op_table_a);
-                    add_op_ctx(oa.op, oa.arg);
-                }
+            OpAndArg oa[3];
+            int numOps = select_curve_ops(dst_curves, /*numChannels=*/3, oa);
+            for (int index = 0; index < numOps; ++index) {
+                assert(oa[index].op != Op_table_r &&
+                       oa[index].op != Op_table_g &&
+                       oa[index].op != Op_table_b &&
+                       oa[index].op != Op_table_a);
             }
+            add_op_list(oa, numOps);
         }
     }
 
