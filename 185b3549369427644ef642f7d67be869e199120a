@@ -16,6 +16,24 @@
       "message": "We should call `classify` first, and ensure that the result is `skcms_TFType_sRGBish`. Otherwise, you could have a TF with a negative gamma, and that\u0027s going to wreak havoc.",
       "revId": "185b3549369427644ef642f7d67be869e199120a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e85b4c2_20826c4f",
+        "filename": "skcms.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 2593,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-10-30T14:07:37Z",
+      "side": 1,
+      "message": "WDYT about just checking for a positive `g`?",
+      "parentUuid": "de188bc4_c7aa1c23",
+      "revId": "185b3549369427644ef642f7d67be869e199120a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
