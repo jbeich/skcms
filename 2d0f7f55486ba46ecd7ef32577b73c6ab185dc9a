@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b127c6ec_852701da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-10-30T15:14:55Z",
+      "side": 1,
+      "message": "Please add `Bug: b/...`  in the change description",
+      "revId": "2d0f7f55486ba46ecd7ef32577b73c6ab185dc9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
