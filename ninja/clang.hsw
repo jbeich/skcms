@@ -2,4 +2,4 @@ mode         = .hsw
 extra_cflags = -march=haswell -DSKCMS_NO_RUNTIME_CPU_DETECTION
 include ninja/clang
 
-disabled = (uname | grep -q Darwin && sysctl machdep.cpu.leaf7_features | grep -qv AVX2 || grep '^flags' /proc/cpuinfo | grep -vq avx2)
+disabled = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv AVX2 || grep '^flags' /proc/cpuinfo | grep -vq avx2)
