@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "012a8223_bbb2d2c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-10-30T20:28:13Z",
+      "side": 1,
+      "message": "Want to wait to land this and add it to .hsw, too (once my CL lands?). I guess we could do the same for .avx512?",
+      "revId": "a67c808ca032a366035a986004f760576172cafb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
