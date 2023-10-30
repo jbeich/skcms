@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de188bc4_c7aa1c23",
+        "filename": "skcms.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 2593,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-10-30T14:05:35Z",
+      "side": 1,
+      "message": "We should call `classify` first, and ensure that the result is `skcms_TFType_sRGBish`. Otherwise, you could have a TF with a negative gamma, and that\u0027s going to wreak havoc.",
+      "revId": "185b3549369427644ef642f7d67be869e199120a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
