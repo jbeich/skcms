@@ -84,12 +84,6 @@ using U8  = V<uint8_t>;
     #endif
 #endif
 
-#if defined(__clang__)
-    #define FALLTHROUGH [[clang::fallthrough]]
-#else
-    #define FALLTHROUGH
-#endif
-
 // We tag most helper functions as SI, to enforce good code generation
 // but also work around what we think is a bug in GCC: when targeting 32-bit
 // x86, GCC tends to pass U16 (4x uint16_t vector) function arguments in the
