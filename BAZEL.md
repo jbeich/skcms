@@ -106,7 +106,7 @@ for Visual Studio 2019 (rationale
 Please install the latter by following the above instructions before proceeding.
 
 Download and install LLVM from this
-[link](https://github.com/llvm/llvm-project/releases/tag/llvmorg-12.0.1).
+[link](https://github.com/llvm/llvm-project/releases/tag/llvmorg-13.0.0).
 
 Open `cmd.exe` and `cd` into your SkCMS repository checkout, then run:
 
