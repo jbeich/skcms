@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "6303bc9d_0c4b45b2",
+        "filename": "src/Transform.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-11-01T14:29:25Z",
+      "side": 1,
+      "message": "This isn\u0027t new code, it\u0027s moving existing code; the older year is preferable IIRC",
+      "parentUuid": "764f6ead_ef67cac0",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "26aebb1ebd7a0c518bed00b806cc9ff31e838f1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "51026327_1576f02c",
@@ -37,6 +61,24 @@
       "writtenOn": "2023-11-01T14:28:28Z",
       "side": 1,
       "message": "I was about to ask why `pragma once` rather than guards. Then I realized that all the skcms headers are using it. Huh.",
+      "revId": "26aebb1ebd7a0c518bed00b806cc9ff31e838f1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d284806_6c980c39",
+        "filename": "src/Transform.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-11-01T14:29:25Z",
+      "side": 1,
+      "message": "Yeah, this goes against Google style rules but that\u0027s a battle for another day",
+      "parentUuid": "51026327_1576f02c",
       "revId": "26aebb1ebd7a0c518bed00b806cc9ff31e838f1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
