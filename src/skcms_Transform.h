@@ -109,6 +109,17 @@ enum class Op : int {
 #undef M
 };
 
+/** Constants */
+
+#if defined(__clang__) || defined(__GNUC__)
+    static constexpr float INFINITY_ = __builtin_inff();
+#else
+    static const union {
+        uint32_t bits;
+        float    f;
+    } INFINITY_ = { 0x7f800000 };
+#endif
+
 /** Vector type */
 
 #if defined(__clang__)

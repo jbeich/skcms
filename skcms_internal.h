@@ -43,7 +43,6 @@ extern "C" {
     #define SKCMS_MUSTTAIL
 #endif
 
-
 #if defined(__clang__)
     #define SKCMS_MAYBE_UNUSED __attribute__((unused))
     #pragma clang diagnostic ignored "-Wused-but-marked-unused"
@@ -84,6 +83,7 @@ float skcms_MaxRoundtripError(const skcms_Curve* curve, const skcms_TransferFunc
 extern const uint8_t skcms_252_random_bytes[252];
 
 // ~~~~ Portable Math ~~~~
+
 static inline float floorf_(float x) {
     float roundtrip = (float)((int)x);
     return roundtrip > x ? roundtrip - 1 : roundtrip;
