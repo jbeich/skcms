@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "23f9c071_1b0e3c5d",
+        "filename": "src/Transform.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-11-01T14:32:46Z",
+      "side": 1,
+      "message": "Ah, yes, I guess it is. (Though interestingly the guidelines *do* suggest updating Inc to LLC).",
+      "parentUuid": "6303bc9d_0c4b45b2",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "26aebb1ebd7a0c518bed00b806cc9ff31e838f1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "51026327_1576f02c",
