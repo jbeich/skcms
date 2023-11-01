@@ -22,6 +22,30 @@
       },
       "revId": "0184321c948684517bedc4afc60532a91168afd7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e7fc900_c31c01ec",
+        "filename": "ninja/msvs",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-11-01T14:52:39Z",
+      "side": 1,
+      "message": "Well, that\u0027s unfortunate. Honestly - I like that MSVC has this warning - it would eliminate the need for the overly clever macro. 😐",
+      "parentUuid": "2f66e0d5_b6df239c",
+      "range": {
+        "startLine": 2,
+        "startChar": 59,
+        "endLine": 2,
+        "endChar": 63
+      },
+      "revId": "0184321c948684517bedc4afc60532a91168afd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
