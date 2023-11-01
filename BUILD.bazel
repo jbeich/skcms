@@ -60,6 +60,7 @@ cc_library(
     srcs = [
         "skcms.cc",
         "skcms_internal.h",
+        "src/Transform.h",
         "src/Transform_inl.h",
     ],
     hdrs = ["skcms.h"],
