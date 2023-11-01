@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e360e51_212b3da8",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-11-01T14:28:20Z",
+      "side": 0,
+      "message": "Comment should have been deleted at http://review.skia.org/772598 but it drifted a few lines up from the `small_memcpy` call that it is referring to.",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 0
+      },
+      "revId": "26aebb1ebd7a0c518bed00b806cc9ff31e838f1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
