@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f66e0d5_b6df239c",
+        "filename": "ninja/msvs",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-11-01T14:46:16Z",
+      "side": 1,
+      "message": "\"Dividing sizeof a pointer by another value\", triggered by the upgraded implementation of ARRAY_COUNT (which does this intentionally as a safeguard against misuse of ARRAY_COUNT)",
+      "range": {
+        "startLine": 2,
+        "startChar": 59,
+        "endLine": 2,
+        "endChar": 63
+      },
+      "revId": "0184321c948684517bedc4afc60532a91168afd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
