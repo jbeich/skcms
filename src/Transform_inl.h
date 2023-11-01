@@ -1438,11 +1438,11 @@ static void exec_ops(const Op* ops, const void** contexts,
     F r = F0, g = F0, b = F0, a = F1;
     while (true) {
         switch (*ops++) {
-#define M(name) case Op_##name: Exec_##name(*contexts++, src, dst, r, g, b, a, i); break;
+#define M(name) case Op::name: Exec_##name(*contexts++, src, dst, r, g, b, a, i); break;
             SKCMS_LOAD_OPS(M)
             SKCMS_WORK_OPS(M)
 #undef M
-#define M(name) case Op_##name: Exec_##name(*contexts++, src, dst, r, g, b, a, i); return;
+#define M(name) case Op::name: Exec_##name(*contexts++, src, dst, r, g, b, a, i); return;
             SKCMS_STORE_OPS(M)
 #undef M
         }
