@@ -7,7 +7,7 @@
 
 #include "skcms.h"  // NO_G3_REWRITE
 #include "skcms_internal.h"  // NO_G3_REWRITE
-#include "src/Transform.h"  // NO_G3_REWRITE
+#include "src/skcms_Transform.h"  // NO_G3_REWRITE
 #include <assert.h>
 #include <float.h>
 #include <limits.h>
