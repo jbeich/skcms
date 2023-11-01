@@ -2969,7 +2969,7 @@ bool skcms_Transform(const void*             src,
         case CpuType::SKX: run = skx::run_program; break;
     }
 #endif
-    run(program, context, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
+    run(program, context, ops - program, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
     return true;
 }
 
