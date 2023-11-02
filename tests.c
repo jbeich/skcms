@@ -11,8 +11,8 @@
 #endif
 
 #include "skcms.h"
-#include "skcms_internal.h"
 #include "test_only.h"
+#include "src/skcms_internals.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
