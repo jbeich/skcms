@@ -7,7 +7,7 @@
 
 #pragma once
 
-// skcms_internal.h contains APIs shared by skcms' internals and its test tools.
+// skcms_internals.h contains APIs shared by skcms' internals and its test tools.
 // Please don't use this header from outside the skcms repo.
 
 #include <stdbool.h>
