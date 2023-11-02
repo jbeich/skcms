@@ -2285,32 +2285,6 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 
 // ~~~~ Impl. of skcms_Transform() ~~~~
 
-// First, instantiate our default exec_ops() implementation using the default compiliation target.
-
-namespace baseline {
-#if defined(SKCMS_PORTABLE) || !(defined(__clang__) || defined(__GNUC__)) \
-                            || (defined(__EMSCRIPTEN_major__) && !defined(__wasm_simd128__))
-    #define N 1
-    template <typename T> using V = T;
-    using Color = float;
-#elif defined(__AVX512F__) && defined(__AVX512DQ__)
-    #define N 16
-    template <typename T> using V = skcms_private::Vec<N,T>;
-    using Color = float;
-#elif defined(__AVX__)
-    #define N 8
-    template <typename T> using V = skcms_private::Vec<N,T>;
-    using Color = float;
-#else
-    #define N 4
-    template <typename T> using V = skcms_private::Vec<N,T>;
-    using Color = float;
-#endif
-
-    #include "src/Transform_inl.h"
-    #undef N
-}
-
 // Now, instantiate any other versions of run_program() we may want for runtime detection.
 #if !defined(SKCMS_PORTABLE) &&                           \
     !defined(SKCMS_NO_RUNTIME_CPU_DETECTION) &&           \
@@ -2855,7 +2829,7 @@ bool skcms_Transform(const void*             src,
     assert(ops      <= program + ARRAY_COUNT(program));
     assert(contexts <= context + ARRAY_COUNT(context));
 
-    auto run = baseline::run_program;
+    auto run = skcms_private::baseline::run_program;
 #if defined(TEST_FOR_HSW)
     switch (cpu_type()) {
         case CpuType::None:                        break;
