@@ -9,7 +9,7 @@
     #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "skcms.h"
+#include "src/skcms_public.h"
 #include "src/skcms_internals.h"
 #include "test_only.h"
 #include <stdlib.h>

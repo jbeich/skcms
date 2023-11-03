@@ -8,7 +8,7 @@
 // This fuzz target parses an ICCProfile and then queries several pieces
 // of info from it.
 
-#include "../skcms.h"
+#include "../src/skcms_public.h"
 #include "../src/skcms_internals.h"
 
 static volatile uint32_t g_FoolTheOptimizer = 0;

@@ -8,7 +8,7 @@
 // This fuzz target parses an ICCProfile and attempts to do some transforms
 // between a known profile and that profile.
 
-#include "../skcms.h"
+#include "../src/skcms_public.h"
 
 // This is profiles/sRGB_Facebook.icc, copied here (xxd -i ...) so that this
 // binary does not need any files as input, other than the fuzzed input.
