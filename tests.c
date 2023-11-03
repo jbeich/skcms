@@ -10,9 +10,9 @@
 #pragma warning( disable : 6011 ) // dereferencing NULL pointer (from malloc)
 #endif
 
-#include "skcms.h"
-#include "test_only.h"
+#include "src/skcms_public.h"
 #include "src/skcms_internals.h"
+#include "test_only.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
