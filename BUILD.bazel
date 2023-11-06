@@ -60,6 +60,7 @@ cc_library(
     srcs = [
         "skcms.cc",
         "src/skcms_internals.h",
+        "src/skcms_public.h",
         "src/skcms_Transform.h",
         "src/Transform_inl.h",
     ],
