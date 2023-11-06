@@ -9,7 +9,7 @@
 // approximateTransferFunction.  This is separate from fuzz_iccprofile_info
 // because it is a much more time-consuming function call.
 
-#include "../skcms.h"
+#include "../src/skcms_public.h"
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {

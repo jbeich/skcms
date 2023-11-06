@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "skcms.h"  // NO_G3_REWRITE
+#include "src/skcms_public.h"  // NO_G3_REWRITE
 #include "src/skcms_internals.h"  // NO_G3_REWRITE
 #include "src/skcms_Transform.h"  // NO_G3_REWRITE
 #include <assert.h>
