@@ -1,5 +1,5 @@
 mode          = .m32
-extra_cflags  = -m32 -msse2
+extra_cflags  = -m32 -msse2 -DSKCMS_DISABLE_HSW -DSKCMS_DISABLE_SKX
 extra_ldflags = -m32
 include ninja/clang
 
