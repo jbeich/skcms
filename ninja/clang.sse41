@@ -1,4 +1,5 @@
 mode         = .sse41
-extra_cflags = -msse4.1 -DSKCMS_NO_RUNTIME_CPU_DETECTION
+extra_cflags = -msse4.1 -DSKCMS_DISABLE_HSW -DSKCMS_DISABLE_SKX
 include ninja/clang
 
+disabled = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv SSE4.1)
