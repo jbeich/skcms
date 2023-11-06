@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32f0b540_8289ced6",
+        "filename": "skcms.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 2887,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-11-06T18:14:56Z",
+      "side": 1,
+      "message": "nit: To keep the same behavior, I think we want to rearrange this slightly? Maybe like:\n\n```\nswitch (cpu_type()) {\n    case CpuType::SKX:\n        #if !defined(SKCMS_DISABLE_SKX)\n            run \u003d skx::run_program;\n            break;\n        #endif\n    case CpuType::HSW:\n        #if !defined(SKCMS_DISABLE_HSW)\n            run \u003d hsw::run_program;\n            break;\n        #endif\n    case CpuType::Baseline:\n        break;\n}\n```\n\nThat ensures that if (only) `SKCMS_DISABLE_SKX` is defined, we still use the HSW code on an SKX chip (rather than falling all the way back to baseline).",
+      "range": {
+        "startLine": 2872,
+        "startChar": 0,
+        "endLine": 2887,
+        "endChar": 5
+      },
+      "revId": "74456bcc487f1259391dffb15ead90709fcbc54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
