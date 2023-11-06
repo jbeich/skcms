@@ -62,6 +62,11 @@ cc_library(
         "src/skcms_internals.h",
         "src/skcms_public.h",
         "src/skcms_Transform.h",
+
+        # skcms_TransformBaseline always matches the minimum architecture of the min-spec platform
+        # (the default -march setting).
+        "src/skcms_TransformBaseline.cc",
+
         "src/Transform_inl.h",
     ],
     hdrs = ["skcms.h"],
