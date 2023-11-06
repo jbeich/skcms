@@ -1,5 +1,5 @@
 mode         = .hsw
-extra_cflags = -march=haswell -DSKCMS_NO_RUNTIME_CPU_DETECTION
+extra_cflags = -march=haswell -DSKCMS_FORCE_HSW
 include ninja/clang
 
 disabled = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv AVX2 || grep '^flags' /proc/cpuinfo | grep -vq avx2)
