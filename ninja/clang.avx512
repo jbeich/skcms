@@ -1,5 +1,5 @@
 mode         = .avx512
-extra_cflags = -march=skylake-avx512 -DSKCMS_NO_RUNTIME_CPU_DETECTION
+extra_cflags = -march=skylake-avx512 -DSKCMS_FORCE_SKX
 include ninja/clang
 
 disabled = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv AVX512F || grep '^flags' /proc/cpuinfo | grep -vq avx512f)
