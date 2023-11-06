@@ -2315,24 +2315,8 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     #endif
 #endif
 
-namespace baseline {
-#if defined(SKCMS_PORTABLE)
-    // Build skcms in a portable scalar configuration.
-    #define N 1
-    template <typename T> using V = T;
-#else
-    // Build skcms with basic four-line SIMD support. (SSE on Intel, or Neon on ARM.) The precise
-    // level of support--e.g. SSE2 vs SSE4.1, or Neon F16C support--is decided by the `-march`
-    // compiler setting.
-    #define N 4
-    template <typename T> using V = skcms_private::Vec<N, T>;
-#endif
-
-    #include "src/Transform_inl.h"
-    #undef N
-}
-
-// Now, instantiate any other versions of run_program() we may want for runtime detection.
+// Instantiate specialized versions of run_program().
+// TODO(johnstiles): move these into separate translation units
 #if !defined(SKCMS_DISABLE_HSW)
     #if defined(__clang__)
         #pragma clang attribute push(__attribute__((target("avx2,f16c"))), apply_to=function)
