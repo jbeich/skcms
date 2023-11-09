@@ -23,7 +23,9 @@ if 'darwin' in sys.platform:
   # See mapping of Xcode version to Xcode build version here:
   # https://chrome-infra-packages.appspot.com/p/infra_internal/ios/xcode/mac/+/
   XCODE_BUILD_VERSION = '12d4e'   # xcode 12.4
-  call('rm -rf {xcode_app_path}'.format(xcode_app_path=xcode_app_path))
+  # When updating Xcode to a different version, it might be necessary to delete any existing
+  # installations with a line such as:
+  #     call('rm -rf {xcode_app_path}'.format(xcode_app_path=xcode_app_path))
   call(('{mac_toolchain}/mac_toolchain install '
         '-kind mac '
         '-xcode-version {xcode_build_version} '
