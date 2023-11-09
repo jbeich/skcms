@@ -16,3 +16,5 @@ rule run
               else touch $out; fi
     description = run $in
 include ninja/common
+
+disabled = ! test -d $ndk
