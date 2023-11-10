@@ -1,3 +1,4 @@
 mode         = .native
-extra_cflags = -march=native
+target_flags = -march=native
+
 include ninja/gcc

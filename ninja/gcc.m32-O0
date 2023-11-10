@@ -1,4 +1,5 @@
 mode          = .m32-O0
-extra_cflags  = -m32 -msse2 -mfpmath=sse -O0
+extra_cflags  = -O0
+target_flags  = -m32 -mfpmath=sse -msse2
 extra_ldflags = -m32
 include ninja/gcc
