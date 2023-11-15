@@ -4,3 +4,5 @@ target_flags = -msse4.1
 include ninja/clang
 
 disabled = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv SSE4.1)
+no_hsw   = true
+no_skx   = true
