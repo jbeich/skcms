@@ -5,3 +5,5 @@ target_flags  = -m32 -msse2
 include ninja/clang
 
 disabled = (uname | grep -qv Linux)
+no_hsw   = true
+no_skx   = true
