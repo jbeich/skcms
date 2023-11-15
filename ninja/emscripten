@@ -17,3 +17,5 @@ rule run
 include ninja/common
 
 disabled = (uname | grep -qv Linux)
+no_hsw   = true
+no_skx   = true

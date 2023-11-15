@@ -3,4 +3,4 @@ extra_cflags = -DSKCMS_FORCE_HSW
 target_flags = -march=haswell
 include ninja/clang
 
-disabled = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv AVX2 || grep '^flags' /proc/cpuinfo | grep -vq avx2)
+disabled = $no_hsw
