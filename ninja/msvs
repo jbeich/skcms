@@ -20,6 +20,18 @@ rule compile_cc
     deps = msvc
     description = compile $out
 
+rule compile_cc_hsw
+    command = $cl /c /showIncludes /nologo /Zi /WX /MT /Fo"$out" /Fd"$out.pdb" $
+              $cflags $extra_cflags /DSKCMS_DISABLE_HSW $in
+    deps = msvc
+    description = compile $out
+
+rule compile_cc_skx
+    command = $cl /c /showIncludes /nologo /Zi /WX /MT /Fo"$out" /Fd"$out.pdb" $
+              $cflags $extra_cflags /DSKCMS_DISABLE_SKX $in
+    deps = msvc
+    description = compile $out
+
 rule link
     command = link.exe /nologo /DEBUG $extra_ldflags $in /OUT:"$out" /PDB:"$out.pdb"
     description = link $out
