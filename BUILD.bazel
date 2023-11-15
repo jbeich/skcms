@@ -56,16 +56,83 @@ container_push(
 #########
 
 cc_library(
-    name = "skcms",
+    name = "skcms_public",
     srcs = [
         "skcms.cc",
         "src/skcms_internals.h",
         "src/skcms_public.h",
-        "src/skcms_Transform.h",
-        "src/Transform_inl.h",
     ],
     hdrs = ["skcms.h"],
+    deps = [":skcms_TransformBaseline"] +
+           select({
+               "@platforms//cpu:x86_64": [
+                   ":skcms_TransformHsw",
+                   ":skcms_TransformSkx",
+               ],
+               "//conditions:default": [],
+           }),
+)
+
+cc_library(
+    name = "skcms_TransformBaseline",
+    srcs = [
+        "src/skcms_Transform.h",
+        "src/skcms_TransformBaseline.cc",
+        "src/skcms_internals.h",
+        "src/skcms_public.h",
+    ],
+    # This header does not compile on its own and is meant to be included from skcms_Transform*.cc
+    textual_hdrs = [
+        "src/Transform_inl.h",
+    ],
+)
+
+cc_library(
+    name = "skcms_TransformHsw",
+    srcs = [
+        "src/skcms_Transform.h",
+        "src/skcms_TransformHsw.cc",
+        "src/skcms_internals.h",
+        "src/skcms_public.h",
+    ],
+    copts = select({
+        "@platforms//cpu:x86_64": ["-march=haswell"],
+        "//conditions:default": [],
+    }),
+    # This header does not compile on its own and is meant to be included from skcms_Transform*.cc
+    textual_hdrs = [
+        "src/Transform_inl.h",
+    ],
+)
+
+cc_library(
+    name = "skcms_TransformSkx",
+    srcs = [
+        "src/skcms_Transform.h",
+        "src/skcms_TransformSkx.cc",
+        "src/skcms_internals.h",
+        "src/skcms_public.h",
+    ],
+    copts = select({
+        "@platforms//cpu:x86_64": ["-march=skylake-avx512"],
+        "//conditions:default": [],
+    }),
+    # This header does not compile on its own and is meant to be included from skcms_Transform*.cc
+    textual_hdrs = [
+        "src/Transform_inl.h",
+    ],
+)
+
+cc_library(
+    name = "skcms",
+    hdrs = ["skcms.h"],
     visibility = ["//visibility:public"],
+    deps = [
+        ":skcms_TransformBaseline",
+        ":skcms_TransformHsw",
+        ":skcms_TransformSkx",
+        ":skcms_public",
+    ],
 )
 
 cc_library(

@@ -9,3 +9,5 @@ rule run
 include ninja/common
 
 disabled = (uname | grep -qv Darwin)
+no_hsw   = true
+no_skx   = true
