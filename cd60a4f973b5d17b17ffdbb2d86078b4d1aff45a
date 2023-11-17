@@ -22,6 +22,30 @@
       },
       "revId": "cd60a4f973b5d17b17ffdbb2d86078b4d1aff45a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41beda67_1535b2d0",
+        "filename": "skcms.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 2301,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-11-17T15:32:59Z",
+      "side": 0,
+      "message": "Acknowledged",
+      "parentUuid": "18802b47_8d09bc86",
+      "range": {
+        "startLine": 2301,
+        "startChar": 31,
+        "endLine": 2301,
+        "endChar": 92
+      },
+      "revId": "cd60a4f973b5d17b17ffdbb2d86078b4d1aff45a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
