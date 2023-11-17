@@ -72,17 +72,6 @@ using U8  = V<uint8_t>;
     #pragma clang diagnostic ignored "-Wvector-conversion"
 #endif
 
-// GCC & Clang (but not clang-cl) warn returning U64 on x86 is larger than a register.
-// You'd see warnings like, "using AVX even though AVX is not enabled".
-// We stifle these warnings; our helpers that return U64 are always inlined.
-#if defined(__SSE__) && defined(__GNUC__)
-    #if !defined(__has_warning)
-        #pragma GCC diagnostic ignored "-Wpsabi"
-    #elif __has_warning("-Wpsabi")
-        #pragma GCC diagnostic ignored "-Wpsabi"
-    #endif
-#endif
-
 // We tag most helper functions as SI, to enforce good code generation
 // but also work around what we think is a bug in GCC: when targeting 32-bit
 // x86, GCC tends to pass U16 (4x uint16_t vector) function arguments in the
@@ -1466,24 +1455,3 @@ void run_program(const Op* program, const void** contexts, ptrdiff_t /*programSi
         memcpy((char*)dst + (size_t)i*dst_bpp, tmp, (size_t)n*dst_bpp);
     }
 }
-
-// Clean up any #defines we may have set so that we can be #included again.
-#if defined(USING_AVX)
-    #undef  USING_AVX
-#endif
-#if defined(USING_AVX_F16C)
-    #undef  USING_AVX_F16C
-#endif
-#if defined(USING_AVX2)
-    #undef  USING_AVX2
-#endif
-#if defined(USING_AVX512F)
-    #undef  USING_AVX512F
-#endif
-
-#if defined(USING_NEON)
-    #undef  USING_NEON
-#endif
-#if defined(USING_NEON_F16C)
-    #undef  USING_NEON_F16C
-#endif
