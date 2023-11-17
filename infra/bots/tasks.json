@@ -164,6 +164,9 @@
       ],
       "dimensions": ["os:Windows-Server-17763", "gpu:none", "pool:Skia"],
       "max_attempts": 1,
+      "outputs": [
+        "skcms/out"
+      ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "skcms-Linux-Bazel-Build-RBE": {
