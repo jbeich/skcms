@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79fed355_2844fce3",
+        "filename": "src/skcms_TransformBaseline.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-11-17T14:20:23Z",
+      "side": 1,
+      "message": "Unrelated to this CL, but this condition looked wrong to me (the emscripten part, specifically). Sure enough, I figured out when it broke. (I just added comments on https://skia-review.googlesource.com/c/skcms/+/774641/8/skcms.cc explaining what happened).",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 94
+      },
+      "revId": "a9c99bac610e55f3df50e1b3915328be7c617e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
