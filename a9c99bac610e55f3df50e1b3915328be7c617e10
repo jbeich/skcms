@@ -22,6 +22,30 @@
       },
       "revId": "a9c99bac610e55f3df50e1b3915328be7c617e10",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4077ace0_17d90db0",
+        "filename": "src/skcms_TransformBaseline.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-11-17T15:30:41Z",
+      "side": 1,
+      "message": "Great catch. I went back to the original code and re-did the work from scratch just to be sure, and you were dead on.\nhttp://review.skia.org/780576",
+      "parentUuid": "79fed355_2844fce3",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 94
+      },
+      "revId": "a9c99bac610e55f3df50e1b3915328be7c617e10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
