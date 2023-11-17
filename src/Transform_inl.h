@@ -1449,6 +1449,7 @@ static void exec_ops(const Op* ops, const void** contexts,
     }
 }
 
+// NOLINTNEXTLINE(misc-definitions-in-headers)
 void run_program(const Op* program, const void** contexts, ptrdiff_t /*programSize*/,
                  const char* src, char* dst, int n,
                  const size_t src_bpp, const size_t dst_bpp) {
