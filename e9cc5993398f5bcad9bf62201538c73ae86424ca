@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1516e247_1a4cf116",
+        "filename": "skcms.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 2301,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-11-17T14:20:01Z",
+      "side": 1,
+      "message": "The inverted logic grouped the emscripten check with the GCC and clang ones, but kept the SIMD condition, so the compiler-based portable check now reads:\n```\n  If the compiler is not clang or GCC or emscripten-without-SIMD\n```",
+      "range": {
+        "startLine": 2299,
+        "startChar": 32,
+        "endLine": 2301,
+        "endChar": 96
+      },
+      "revId": "e9cc5993398f5bcad9bf62201538c73ae86424ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
