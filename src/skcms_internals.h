@@ -26,12 +26,14 @@ extern "C" {
         #define SKCMS_FALLTHROUGH [[clang::fallthrough]]
     #endif
 
-    #if __has_cpp_attribute(clang::musttail) && !__has_feature(memory_sanitizer) \
-                                             && !__has_feature(address_sanitizer)
-        // Sanitizers do not work well with [[clang::musttail]], and corrupt the src/dst pointers.
-        #define SKCMS_MUSTTAIL [[clang::musttail]]
-    #else
-        #define SKCMS_MUSTTAIL
+    #ifndef SKCMS_MUSTTAIL
+        #if __has_cpp_attribute(clang::musttail) && !__has_feature(memory_sanitizer) \
+                                                 && !__has_feature(address_sanitizer)
+            // Sanitizers do not work well with [[clang::musttail]], and corrupt src/dst pointers.
+            #define SKCMS_MUSTTAIL [[clang::musttail]]
+        #else
+            #define SKCMS_MUSTTAIL
+        #endif
     #endif
 #endif
 
