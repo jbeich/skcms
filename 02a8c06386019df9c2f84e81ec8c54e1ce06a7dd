@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afa1d29b_8180c82d",
+        "filename": "skcms.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 2332,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-11-20T21:01:00Z",
+      "side": 0,
+      "message": "^",
+      "revId": "02a8c06386019df9c2f84e81ec8c54e1ce06a7dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
