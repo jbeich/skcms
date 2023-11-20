@@ -42,17 +42,18 @@ rule compile_cc_hsw
               ($no_hsw && $cxx -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags $target_flags $
                                -DSKCMS_DISABLE_HSW -MD -MF $out.d -c $in -o $out) ||              $
                           $cxx -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags               $
-                               -march=haswell -MD -MF $out.d -c $in -o $out
+                               -march=x86-64 -mavx2 -mf16c -MD -MF $out.d -c $in -o $out
     depfile = $out.d
     deps    = gcc
     description = compile $out
 
 rule compile_cc_skx
-    command = ($disabled && touch $out) ||                                                        $
-              ($no_skx && $cxx -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags $target_flags $
-                               -DSKCMS_DISABLE_SKX -MD -MF $out.d -c $in -o $out) ||              $
-                          $cxx -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags               $
-                               -march=skylake-avx512 -MD -MF $out.d -c $in -o $out
+    command = ($disabled && touch $out) ||                                                         $
+              ($no_skx && $cxx -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags $target_flags  $
+                               -DSKCMS_DISABLE_SKX -MD -MF $out.d -c $in -o $out) ||               $
+                          $cxx -std=c++11 -g -Os $warnings_cc $cflags $extra_cflags                $
+                               -march=x86-64 -mavx512f -mavx512dq -mavx512cd -mavx512bw -mavx512vl $
+                               -MD -MF $out.d -c $in -o $out
     depfile = $out.d
     deps    = gcc
     description = compile $out
