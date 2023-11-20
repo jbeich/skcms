@@ -96,7 +96,10 @@ cc_library(
         "src/skcms_public.h",
     ],
     copts = select({
-        "@platforms//cpu:x86_64": ["-march=haswell"],
+        "@platforms//cpu:x86_64": [
+            "-mavx2",
+            "-mf16c",
+        ],
         "//conditions:default": [],
     }),
     # This header does not compile on its own and is meant to be included from skcms_Transform*.cc
@@ -114,7 +117,13 @@ cc_library(
         "src/skcms_public.h",
     ],
     copts = select({
-        "@platforms//cpu:x86_64": ["-march=skylake-avx512"],
+        "@platforms//cpu:x86_64": [
+            "-mavx512f",
+            "-mavx512dq",
+            "-mavx512cd",
+            "-mavx512bw",
+            "-mavx512vl",
+        ],
         "//conditions:default": [],
     }),
     # This header does not compile on its own and is meant to be included from skcms_Transform*.cc
