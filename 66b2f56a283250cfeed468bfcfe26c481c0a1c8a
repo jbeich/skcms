@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b409ea43_a9d2aaf2",
+        "filename": "src/skcms_internals.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-11-22T18:06:01Z",
+      "side": 1,
+      "message": "I realized I could pattern these after the SK_BUILD_FOR_xxxxxx macros.",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 0
+      },
+      "revId": "66b2f56a283250cfeed468bfcfe26c481c0a1c8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
