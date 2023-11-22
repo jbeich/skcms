@@ -28,10 +28,12 @@ extern "C" {
 
     #ifndef SKCMS_MUSTTAIL
         // Sanitizers do not work well with [[clang::musttail]], and corrupt src/dst pointers.
+        // Clang 18 runs into an ICE on Android with [[clang::musttail]]. (crbug.com/1504548)
         // Tail-calls are a fairly new, optional feature in wasm and won't work everywhere.
         #if __has_cpp_attribute(clang::musttail) && !__has_feature(memory_sanitizer) \
                                                  && !__has_feature(address_sanitizer) \
-                                                 && !defined(__EMSCRIPTEN_major__)
+                                                 && !defined(__EMSCRIPTEN_major__) \
+                                                 && !defined(__ANDROID__)
             #define SKCMS_MUSTTAIL [[clang::musttail]]
         #else
             #define SKCMS_MUSTTAIL
