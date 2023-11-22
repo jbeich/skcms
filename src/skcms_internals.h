@@ -27,13 +27,23 @@ extern "C" {
     #endif
 
     #ifndef SKCMS_MUSTTAIL
-        // Sanitizers do not work well with [[clang::musttail]], and corrupt src/dst pointers.
-        // Clang 18 runs into an ICE on Android with [[clang::musttail]]. (crbug.com/1504548)
-        // Tail-calls are a fairly new, optional feature in wasm and won't work everywhere.
+        // [[clang::musttail]] is great for performance, but it's not well supported and we run into
+        // a variety of problems when we use it. Fortunately, it's an optional feature that doesn't
+        // affect correctness, and usually the compiler will generate a tail-call even for us
+        // whether or not we force it to do so.
+        //
+        // Known limitations:
+        // - Sanitizers do not work well with [[clang::musttail]], and corrupt src/dst pointers.
+        //   (https://github.com/llvm/llvm-project/issues/70849)
+        // - Clang 18 runs into an ICE on Android with [[clang::musttail]].
+        //   (http://crbug.com/1504548)
+        // - Windows builds generate incorrect code with [[clang::musttail]] and crash mysteriously.
+        // - Wasm tail-calls were only introduced in 2023 and aren't a mainstream feature yet.
         #if __has_cpp_attribute(clang::musttail) && !__has_feature(memory_sanitizer) \
                                                  && !__has_feature(address_sanitizer) \
                                                  && !defined(__EMSCRIPTEN__) \
-                                                 && !defined(__ANDROID__)
+                                                 && !defined(ANDROID) && !defined(__ANDROID__) \
+                                                 && !defined(_WIN32) && !defined(__SYMBIAN32__)
             #define SKCMS_MUSTTAIL [[clang::musttail]]
         #else
             #define SKCMS_MUSTTAIL
