@@ -32,7 +32,7 @@ extern "C" {
         // Tail-calls are a fairly new, optional feature in wasm and won't work everywhere.
         #if __has_cpp_attribute(clang::musttail) && !__has_feature(memory_sanitizer) \
                                                  && !__has_feature(address_sanitizer) \
-                                                 && !defined(__EMSCRIPTEN_major__) \
+                                                 && !defined(__EMSCRIPTEN__) \
                                                  && !defined(__ANDROID__)
             #define SKCMS_MUSTTAIL [[clang::musttail]]
         #else
@@ -72,7 +72,7 @@ extern "C" {
 // If this isn't Clang, GCC, or Emscripten with SIMD support, we are in SKCMS_PORTABLE mode.
 #if !defined(SKCMS_PORTABLE) && !(defined(__clang__) || \
                                   defined(__GNUC__) || \
-                                  (defined(__EMSCRIPTEN_major__) && defined(__wasm_simd128__)))
+                                  (defined(__EMSCRIPTEN__) && defined(__wasm_simd128__)))
     #define SKCMS_PORTABLE 1
 #endif
 
