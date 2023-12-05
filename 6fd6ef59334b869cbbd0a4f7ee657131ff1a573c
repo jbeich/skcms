@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "635d74c8_d0c37b5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2023-12-05T17:05:48Z",
+      "side": 1,
+      "message": "Was the old code structured like this before the regressions? Curious if the indirect function calls in the loop give the same wins as one-big-switch (with inlining, etc).",
+      "revId": "6fd6ef59334b869cbbd0a4f7ee657131ff1a573c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
