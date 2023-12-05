@@ -16,6 +16,24 @@
       "message": "Was the old code structured like this before the regressions? Curious if the indirect function calls in the loop give the same wins as one-big-switch (with inlining, etc).",
       "revId": "6fd6ef59334b869cbbd0a4f7ee657131ff1a573c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ff7ebfa_5c4985f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-12-05T17:14:24Z",
+      "side": 1,
+      "message": "The structure was different, yes; with one-big-switch you do inline into one enormous function, but you are still paying the cost of an indirect jump since the switch is going to use a lookup table (plus the indirection is harder to predict, I suspect, because `lookup_table[op++]` is more involved than `*stages++`). \n\nI honestly don\u0027t think the switch-branching cost should be any different than a function call cost, assuming reasonable codegen, but it is possible that function calls will stack-spill in different ways that the switch did. Perf might not match its original levels; it could be better or it could be worse. It\u0027s hard to know for sure without trying it. I tested this locally and on my cloudtop, and the performance seemed very close to the timings from http://review.skia.org/784541 , but the platforms that we actually care about (RISC-V, Android 32, Windows) aren\u0027t ones that I can easily bench, and each one has unique codegen foibles. I think we should land and look at the actual numbers; if they are bad, I\u0027ll reassess.",
+      "parentUuid": "635d74c8_d0c37b5d",
+      "revId": "6fd6ef59334b869cbbd0a4f7ee657131ff1a573c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
