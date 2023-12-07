@@ -52,6 +52,24 @@
       "parentUuid": "5ff7ebfa_5c4985f9",
       "revId": "6fd6ef59334b869cbbd0a4f7ee657131ff1a573c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "adf47810_43b263da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2023-12-07T13:43:09Z",
+      "side": 1,
+      "message": "And unsurprisingly, your intuition was right--this code is very finicky and even tiny changes have surprising ripple effects. Reverted. I\u0027ll assemble a more conservative change.",
+      "parentUuid": "c9fd2227_ba3550bb",
+      "revId": "6fd6ef59334b869cbbd0a4f7ee657131ff1a573c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ],
   "submitRequirementResults": [
