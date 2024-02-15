@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87c46ddc_0a96e0ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2024-02-15T15:27:33Z",
+      "side": 1,
+      "message": "Ramin is forcing the build architecture in his builds via `--copt\u003d-march\u003dxxxxx`.\n\nThis isn\u0027t how we expect skcms to be built, but we allow for it. To make this work, one should also define `SKCMS_DISABLE_SKX` or `SKCMS_DISABLE_HSW` to match the forced arch setting.",
+      "revId": "236ec3e21d1ccf0de56879a70d87b0483e8625a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
