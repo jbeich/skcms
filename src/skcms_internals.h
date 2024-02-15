@@ -99,7 +99,26 @@ extern "C" {
     #if !defined(SKCMS_DISABLE_SKX)
         #define SKCMS_DISABLE_SKX 1
     #endif
-#endif
+#else
+
+// HSW needs __AVX__.
+#if !defined(__AVX__)
+    #undef SKCMS_FORCE_HSW
+    #if !defined(SKCMS_DISABLE_HSW)
+        #define SKCMS_DISABLE_HSW 1
+    #endif
+#endif  // !defined(__AVX__)
+
+// SKX needs __AVX512F__.
+#if !defined(__AVX512F__)
+    #undef SKCMS_FORCE_SKX
+    #if !defined(SKCMS_DISABLE_SKX)
+        #define SKCMS_DISABLE_SKX 1
+    #endif
+#endif  // !defined(__AVX512F__)
+
+#endif  // defined(SKCMS_PORTABLE) || !defined(__x86_64__) || defined(ANDROID)
+        // || defined(__ANDROID__)
 
 // ~~~~ Shared ~~~~
 typedef struct skcms_ICCTag {
