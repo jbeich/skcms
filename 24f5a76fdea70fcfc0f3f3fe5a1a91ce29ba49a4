@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "01c348e0_dd871854",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3304852
+      },
+      "writtenOn": "2024-02-15T15:13:40Z",
+      "side": 1,
+      "message": "Please also add Bug: 320945262",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 6
+      },
+      "revId": "24f5a76fdea70fcfc0f3f3fe5a1a91ce29ba49a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "67a8fd61_2c6a8724",
@@ -14,6 +37,24 @@
       "writtenOn": "2024-02-15T15:03:43Z",
       "side": 1,
       "message": "I don\u0027t think we want to do this - it seems entirely wrong. What problem are you trying to solve, exactly?",
+      "revId": "24f5a76fdea70fcfc0f3f3fe5a1a91ce29ba49a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf05a6d2_e0b4ba37",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3304852
+      },
+      "writtenOn": "2024-02-15T15:13:40Z",
+      "side": 1,
+      "message": "I am trying to fix the build issue for ChromeOS Tigerlake board.\n\nAnd the build command:\nblaze build --config\u003dchromiumos_x86_64 --copt\u003d-march\u003dtigerlake --copt\u003d-mno-avx512f //third_party/skia/HEAD/modules/skcms:skcms_public\n\nAnd the build log:\nhttps://fusion2.corp.google.com/invocations/b24de1b2-5f74-4d65-95ec-be3ccae37758/log",
+      "parentUuid": "67a8fd61_2c6a8724",
       "revId": "24f5a76fdea70fcfc0f3f3fe5a1a91ce29ba49a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
