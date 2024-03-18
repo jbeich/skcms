@@ -37,7 +37,7 @@ using U8  = V<uint8_t>;
     #define  USING_AVX
 #endif
 #if !defined(USING_AVX_F16C) && defined(USING_AVX) && defined(__F16C__)
-    #define  USING AVX_F16C
+    #define  USING_AVX_F16C
 #endif
 #if !defined(USING_AVX2)     && defined(USING_AVX) && defined(__AVX2__)
     #define  USING_AVX2
