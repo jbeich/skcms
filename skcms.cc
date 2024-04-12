@@ -91,9 +91,13 @@ static float exp2f_(float x) {
 
 // Not static, as it's used by some test tools.
 float powf_(float x, float y) {
-    assert (x >= 0);
-    return (x == 0) || (x == 1) ? x
-                                : exp2f_(log2f_(x) * y);
+    if (x <= 0.f) {
+        return 0.f;
+    }
+    if (x == 1.f) {
+        return 1.f;
+    }
+    return exp2f_(log2f_(x) * y);
 }
 
 static float expf_(float x) {
