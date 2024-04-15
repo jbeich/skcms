@@ -16,6 +16,23 @@
       "message": "This is failing a unit test for PQ TF eval",
       "revId": "fb7868d22a6062ed63785313de87dec643b63e80",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34648940_e8a0fdd8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-04-15T12:50:09Z",
+      "side": 1,
+      "message": "Looks like you\u0027re still hitting\n`expect(1.0000f \u003d\u003d skcms_TransferFunction_eval(\u0026pq, 1.0f)) failed at tests.c:1427`",
+      "revId": "fb7868d22a6062ed63785313de87dec643b63e80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
