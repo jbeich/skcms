@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "84679c47_ae5920eb",
+        "filename": "skcms.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 2460,
+      "author": {
+        "id": 9944
+      },
+      "writtenOn": "2024-06-04T16:03:32Z",
+      "side": 1,
+      "message": "Yea, I you are right.  I\u0027ll beef up the test too to look at all channels.  I didn\u0027t think anything of it when the test worked, thanks.",
+      "parentUuid": "5306e43c_ad217e5e",
+      "range": {
+        "startLine": 2460,
+        "startChar": 62,
+        "endLine": 2460,
+        "endChar": 63
+      },
+      "revId": "03605343f90a85b931c7fb1aac12a397f229bf59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "19f1dd5c_18cf9d29",
         "filename": "src/Transform_inl.h",
         "patchSetId": 3
@@ -60,6 +84,30 @@
       "writtenOn": "2024-06-04T16:01:29Z",
       "side": 1,
       "message": "The bits aren\u0027t packed consecutively for this format, right? It looks like the shifts are all multiples of 16, with 6 \"dead\" bits between each channel?",
+      "range": {
+        "startLine": 910,
+        "startChar": 0,
+        "endLine": 913,
+        "endChar": 28
+      },
+      "revId": "03605343f90a85b931c7fb1aac12a397f229bf59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5b8eb26_42b2006b",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 9944
+      },
+      "writtenOn": "2024-06-04T16:03:32Z",
+      "side": 1,
+      "message": "Yep, here\u0027s the format layout here: https://developer.apple.com/documentation/metal/mtlpixelformat/mtlpixelformatbgra10_xr?language\u003dobjc",
+      "parentUuid": "18d559cb_a3b684c2",
       "range": {
         "startLine": 910,
         "startChar": 0,
