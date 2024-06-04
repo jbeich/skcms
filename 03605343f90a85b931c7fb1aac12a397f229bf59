@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5306e43c_ad217e5e",
+        "filename": "skcms.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 2460,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-06-04T16:01:29Z",
+      "side": 1,
+      "message": "bgra10xr is 64-bit, right? So this needs to be 8?",
+      "range": {
+        "startLine": 2460,
+        "startChar": 62,
+        "endLine": 2460,
+        "endChar": 63
+      },
+      "revId": "03605343f90a85b931c7fb1aac12a397f229bf59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19f1dd5c_18cf9d29",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-06-04T16:01:29Z",
+      "side": 1,
+      "message": "Similarly, I think this needs to be doing a U64 load?",
+      "range": {
+        "startLine": 909,
+        "startChar": 0,
+        "endLine": 909,
+        "endChar": 36
+      },
+      "revId": "03605343f90a85b931c7fb1aac12a397f229bf59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18d559cb_a3b684c2",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-06-04T16:01:29Z",
+      "side": 1,
+      "message": "The bits aren\u0027t packed consecutively for this format, right? It looks like the shifts are all multiples of 16, with 6 \"dead\" bits between each channel?",
+      "range": {
+        "startLine": 910,
+        "startChar": 0,
+        "endLine": 913,
+        "endChar": 28
+      },
+      "revId": "03605343f90a85b931c7fb1aac12a397f229bf59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
