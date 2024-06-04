@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3f127cb_bbb6ef94",
+        "filename": "skcms.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 2460,
+      "author": {
+        "id": 9944
+      },
+      "writtenOn": "2024-06-04T16:08:14Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "84679c47_ae5920eb",
+      "range": {
+        "startLine": 2460,
+        "startChar": 62,
+        "endLine": 2460,
+        "endChar": 63
+      },
+      "revId": "03605343f90a85b931c7fb1aac12a397f229bf59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19f1dd5c_18cf9d29",
@@ -61,6 +85,30 @@
       "writtenOn": "2024-06-04T16:01:29Z",
       "side": 1,
       "message": "Similarly, I think this needs to be doing a U64 load?",
+      "range": {
+        "startLine": 909,
+        "startChar": 0,
+        "endLine": 909,
+        "endChar": 36
+      },
+      "revId": "03605343f90a85b931c7fb1aac12a397f229bf59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30dcd046_8fe158b2",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 9944
+      },
+      "writtenOn": "2024-06-04T16:08:14Z",
+      "side": 1,
+      "message": "Yep, and the shifts were wrong too.  They should be 16 like you mentioned below.",
+      "parentUuid": "19f1dd5c_18cf9d29",
       "range": {
         "startLine": 909,
         "startChar": 0,
