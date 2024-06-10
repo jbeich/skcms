@@ -422,8 +422,8 @@ static void test_FormatConversions_101010_xr(void) {
 
 static void test_FormatConversions_10101010_xr(void) {
     uint64_t src[2];
-    src[0] = 384LL | (894LL << 16) | (384LL << 32) | (639LL << 48);
-    src[1] = 384LL | (639LL << 16) | (384LL << 32) | (894LL << 48);
+    src[0] = (384ULL << (0 + 6)) | (894ULL << (16 + 6)) | (384ULL << (32 + 6)) | (639ULL << (48 + 6));
+    src[1] = (384ULL << (0 + 6)) | (639ULL << (16 + 6)) | (384ULL << (32 + 6)) | (894ULL << (48 + 6));
     uint32_t dst[2] = {0xffffffff, 0xffffffff};
     expect(skcms_Transform(&src, skcms_PixelFormat_BGRA_10101010_XR,
                            skcms_AlphaFormat_Unpremul, NULL, &dst,
