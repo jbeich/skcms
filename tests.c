@@ -440,6 +440,74 @@ static void test_FormatConversions_10101010_xr(void) {
     expect(((dst[1] >> 24) & 0xff) == 255);
 }
 
+static void test_FormatConversions_G8(void) {
+    // (257 % 4) != 0 (and same for dividing by 8 or 16), so if SIMD is used
+    // then using 257 pixels of input will hopefully exercise both the SIMD and
+    // non-SIMD code.
+    uint8_t src[1 * 257];
+    for (int i = 0; i < 257; i++) {
+        src[i] = (uint8_t)i;
+    }
+
+    uint8_t dst[4 * 257];
+    memset(dst, 0, 4 * 257);
+    expect(skcms_Transform(src, skcms_PixelFormat_G_8      , skcms_AlphaFormat_Unpremul, NULL,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, NULL,
+                           257));
+    for (int i = 0; i < 257; i++) {
+      expect(dst[i * 4 + 0] == (uint8_t)i);  // red = gray
+      expect(dst[i * 4 + 1] == (uint8_t)i);  // green = gray
+      expect(dst[i * 4 + 2] == (uint8_t)i);  // blue = gray
+      expect(dst[i * 4 + 3] == 0xFF);        // opaque
+    }
+
+    // Let's convert back the other way.
+    uint8_t back[1 * 257];
+    memset(back, 0, 257);
+    expect(skcms_Transform(dst,  skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, NULL,
+                           back, skcms_PixelFormat_G_8      , skcms_AlphaFormat_Unpremul, NULL,
+                           257));
+    for (int i = 0; i < 257; i++) {
+      expect(src[i] == back[i]);
+    }
+}
+
+static void test_FormatConversions_GA88(void) {
+    // (257 % 4) != 0 (and same for dividing by 8 or 16), so if SIMD is used
+    // then using 257 pixels of input will hopefully exercise both the SIMD and
+    // non-SIMD code.
+    uint8_t src[2 * 257];
+    for (int i = 0; i < 257; i++) {
+        // Using a different "gray" and "alpha" value will hopefully catch most
+        // potential LE-vs-BE confusion bugs.
+        src[i * 2 + 0] = (uint8_t)i;
+        src[i * 2 + 1] = (uint8_t)(i * 7);
+    }
+
+    uint8_t dst[4 * 257];
+    memset(dst, 0, 4 * 257);
+    expect(skcms_Transform(src, skcms_PixelFormat_GA_88    , skcms_AlphaFormat_Unpremul, NULL,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, NULL,
+                           257));
+    for (int i = 0; i < 257; i++) {
+      expect(dst[i * 4 + 0] == (uint8_t)i);  // red = gray
+      expect(dst[i * 4 + 1] == (uint8_t)i);  // green = gray
+      expect(dst[i * 4 + 2] == (uint8_t)i);  // blue = gray
+      expect(dst[i * 4 + 3] == src[i * 2 + 1]);
+    }
+
+    // Let's convert back the other way.
+    uint8_t back[2 * 257];
+    memset(back, 0, 257);
+    expect(skcms_Transform(dst,  skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, NULL,
+                           back, skcms_PixelFormat_GA_88    , skcms_AlphaFormat_Unpremul, NULL,
+                           257));
+    for (int i = 0; i < 257; i++) {
+      expect(src[i * 2 + 0] == back[i * 2 + 0]);
+      expect(src[i * 2 + 1] == back[i * 2 + 1]);
+    }
+}
+
 static void test_FormatConversions_half(void) {
     uint16_t src[] = {
         0x3c00,  // 1.0
@@ -1877,6 +1945,8 @@ int main(int argc, char** argv) {
     test_FormatConversions_161616LE();
     test_FormatConversions_16161616BE();
     test_FormatConversions_161616BE();
+    test_FormatConversions_G8();
+    test_FormatConversions_GA88();
     test_FormatConversions_half();
     test_FormatConversions_half_norm();
     test_FormatConversions_float();
