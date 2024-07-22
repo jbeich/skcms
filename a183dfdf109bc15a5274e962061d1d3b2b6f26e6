@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b943714f_1a7b3bf9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-22T23:55:36Z",
+      "side": 1,
+      "message": "@brianosman, can you PTAL?\n\nNote that this CL is **not** ready to land yet - the CQ seems to report some ASAN-related failures at https://skia-review.googlesource.com/c/skcms/+/880812?tab\u003dchecks - e.g. https://chromium-swarm.appspot.com/task?id\u003d6af59f8eb4b93910.\n\nQUESTION: Could you please help me figure out how to locally run `skcms` tests (i.e. `skcms/tests.c`) under ASAN, from `skcms` repo?  I assume this means using Bazel (since it seems that `skcms` doesn\u0027t have `gn` support in it).  I\u0027ve found https://skia.org/docs/dev/testing/xsan/ but I was unable to follow the instructions there (trouble with gcloud quota + the instructions seem `gn`-focused).",
+      "revId": "a183dfdf109bc15a5274e962061d1d3b2b6f26e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

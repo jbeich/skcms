@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f12f1e5_b04a5bdf",
+        "filename": "skcms.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 2449,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-22T23:55:36Z",
+      "side": 1,
+      "message": "I ended up not adding `// clang-format off` and similar directives, because I didn\u0027t see a `.clang-format` config file at the top of the `skcms` repo.  And running `git cl format` using default formatting config seems undesirable.  (I also note that `git cl format` required first setting `CHROMIUM_BUILDTOOLS_PATH`.)",
+      "range": {
+        "startLine": 2449,
+        "startChar": 53,
+        "endLine": 2449,
+        "endChar": 54
+      },
+      "revId": "690b0a751b309a09dbeea1414625b06a2760b5d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4b26ad3_66f49342",
+        "filename": "src/skcms_public.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-22T23:55:36Z",
+      "side": 1,
+      "message": "I guess we don\u0027t need to preserve `clang-format` results from the other CL, but it doesn\u0027t hurt, so let\u0027s keep those changes?",
+      "range": {
+        "startLine": 323,
+        "startChar": 82,
+        "endLine": 323,
+        "endChar": 83
+      },
+      "revId": "690b0a751b309a09dbeea1414625b06a2760b5d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
