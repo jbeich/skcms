@@ -70,6 +70,23 @@
       "parentUuid": "76de2d05_22c653db",
       "revId": "a183dfdf109bc15a5274e962061d1d3b2b6f26e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21adeb41_578a432a",
+        "filename": "tests.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-07-23T13:36:51Z",
+      "side": 1,
+      "message": "This isn\u0027t really necessary: The decision to use SIMD (or not) is made statically based on architecture and compile directives. For \"tail\" pixels, skcms copies the input into a sufficiently wide temp buffer, runs at the normal execution width, and then copies just the tail pixels from that temp buffer back to the real destination. (See the very end of `run_program` at the bottom of `Transform_inl.h`)\n\nFor testing purposes, all of the `.portable` builds force the scalar path.",
+      "revId": "a183dfdf109bc15a5274e962061d1d3b2b6f26e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
