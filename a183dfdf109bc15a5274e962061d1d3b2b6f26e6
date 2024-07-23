@@ -72,6 +72,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2af66327_48fe3fb9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-07-23T13:40:06Z",
+      "side": 1,
+      "message": "Yes, although I mis-spoke. It does configure things (and downloads some of the dependencies). But other dependencies (anything that\u0027s stored in CIPD?) are pre-loaded using the task system.",
+      "parentUuid": "d3e9c791_2cf3975e",
+      "revId": "a183dfdf109bc15a5274e962061d1d3b2b6f26e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21adeb41_578a432a",
