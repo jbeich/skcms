@@ -92,6 +92,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "85147961_99b33e4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-23T23:30:24Z",
+      "side": 1,
+      "message": "@brianosman, can you please help me find `infra/bots/bot.py`?\n\nFWIW even without any changes (I.e. at `2395877dc55fbd38ef9eae353efe507da1a9be75`) I run into some trouble building via `ninja`:\n\n- Many errors from `unsafe-buffer-usage` warning - e.g.: `./src/skcms_public.h:394:9: error: unsafe buffer access [-Werror,-Wunsafe-buffer-usage]`.  I can work around this by adding `-Wno-unsafe-buffer-usage` to `skia/ninja/clang`, but then I run into:\n\n- `em++: error: linker setting ignored during compilation: \u0027WASM\u0027 [-Wunused-command-line-argument] [-Werror]`",
+      "parentUuid": "2af66327_48fe3fb9",
+      "revId": "a183dfdf109bc15a5274e962061d1d3b2b6f26e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "21adeb41_578a432a",
         "filename": "tests.c",
         "patchSetId": 2
