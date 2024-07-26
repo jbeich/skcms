@@ -1262,7 +1262,7 @@ FINAL_STAGE(store_4444, NoCtx) {
                         | cast<U16>(to_fixed(a * 15) <<  0));
 }
 
-FINAL_STAGE(store_565, NoCtx) {
+FINAL_STAGE(store_565, NoCtx) {  // no-op change
     store<U16>(dst + 2*i, cast<U16>(to_fixed(r * 31) <<  0 )
                         | cast<U16>(to_fixed(g * 63) <<  5 )
                         | cast<U16>(to_fixed(b * 31) << 11 ));
