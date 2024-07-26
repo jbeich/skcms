@@ -440,6 +440,35 @@ static void test_FormatConversions_10101010_xr(void) {
     expect(((dst[1] >> 24) & 0xff) == 255);
 }
 
+static void test_FormatConversions_G8(void) {
+    uint8_t src[1 * 256];
+    for (int i = 0; i < 256; i++) {
+        src[i] = (uint8_t)i;
+    }
+
+    uint8_t dst[4 * 256];
+    memset(dst, 0, 4 * 256);
+    expect(skcms_Transform(src, skcms_PixelFormat_G_8      , skcms_AlphaFormat_Unpremul, NULL,
+                           dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, NULL,
+                           256));
+    for (int i = 0; i < 256; i++) {
+      expect(dst[i * 4 + 0] == (uint8_t)i);  // red = gray
+      expect(dst[i * 4 + 1] == (uint8_t)i);  // green = gray
+      expect(dst[i * 4 + 2] == (uint8_t)i);  // blue = gray
+      expect(dst[i * 4 + 3] == 0xFF);        // opaque
+    }
+
+    // Let's convert back the other way.
+    uint8_t back[1 * 256];
+    memset(back, 0, 1 * 256);
+    expect(skcms_Transform(dst,  skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, NULL,
+                           back, skcms_PixelFormat_G_8      , skcms_AlphaFormat_Unpremul, NULL,
+                           256));
+    for (int i = 0; i < 256; i++) {
+      expect(src[i] == back[i]);
+    }
+}
+
 static void test_FormatConversions_half(void) {
     uint16_t src[] = {
         0x3c00,  // 1.0
@@ -1877,6 +1906,7 @@ int main(int argc, char** argv) {
     test_FormatConversions_161616LE();
     test_FormatConversions_16161616BE();
     test_FormatConversions_161616BE();
+    test_FormatConversions_G8();
     test_FormatConversions_half();
     test_FormatConversions_half_norm();
     test_FormatConversions_float();
