@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "351fcf2b_d8a51c7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2024-07-26T22:27:59Z",
+      "side": 1,
+      "message": "LGTM overall but looks like tests aren\u0027t passing on Windows.",
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4875b70_dac506d2",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2024-07-26T22:27:59Z",
+      "side": 1,
+      "message": "nit: it feels strange to add in `\u003e\u003e 0` if you are not going to actually line up the line with the previous one with indentation:\n\n```\n    r \u003d g \u003d b \u003d cast\u003cF\u003e((u16 \u003e\u003e 0) \u0026 0xff) * (1 / 255.0f);\n            a \u003d cast\u003cF\u003e((u16 \u003e\u003e 8) \u0026 0xff) * (1 / 255.0f);\n```\n\nI think it would be much more consistent with the rest of the file to add the indentation.",
+      "range": {
+        "startLine": 842,
+        "startChar": 24,
+        "endLine": 842,
+        "endChar": 34
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4e401d3_5120a14b",
+        "filename": "src/skcms_public.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2024-07-26T22:27:59Z",
+      "side": 1,
+      "message": "nit: Seems unnecessary to call out PNG here; \"grayscale with alpha\" is sufficient to explain it.\n\nAlso, \"grayscale\" not \"greyscale\" (American English spellings please)",
+      "range": {
+        "startLine": 278,
+        "startChar": 33,
+        "endLine": 278,
+        "endChar": 80
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb213dfd_eceea747",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2024-07-26T22:27:59Z",
+      "side": 1,
+      "message": "`uint8_t dst[4 * 256] \u003d {0};`\n\n(Repeat for other memsets below as well)",
+      "range": {
+        "startLine": 449,
+        "startChar": 0,
+        "endLine": 451,
+        "endChar": 0
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
