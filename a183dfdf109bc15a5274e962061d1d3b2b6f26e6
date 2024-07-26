@@ -110,6 +110,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7c3c99fd_d961db59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-07-26T20:19:39Z",
+      "side": 1,
+      "message": "The bot script is here [1]. I suspect that you\u0027re using a newer clang than skcms uses on the bots. (We don\u0027t update that toolchain frequently). The emscripten stuff is also probably because it\u0027s looking for emscripten in a specific location. The easiest thing is to just build specific configurations that won\u0027t try to use emcc/NDK/etc...:\n\n`ninja -f ninja\\clang`\n\n[1] https://skia.googlesource.com/skcms/+/refs/heads/main/infra/bots/bot.py",
+      "parentUuid": "85147961_99b33e4b",
+      "revId": "a183dfdf109bc15a5274e962061d1d3b2b6f26e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "21adeb41_578a432a",
         "filename": "tests.c",
         "patchSetId": 2
