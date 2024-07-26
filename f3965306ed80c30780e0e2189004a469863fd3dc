@@ -20,6 +20,47 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d96a2b12_b982b383",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-26T23:11:09Z",
+      "side": 1,
+      "message": "\u003e LGTM overall but looks like tests aren\u0027t passing on Windows.\n\nAck.\n\nI have trouble reproing on my Windows cloud-top:\n\n* I downloaded `ninja.exe`\n* I edited `ninja\\msvs` to set `cl \u003d c:\\src\\chromium\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\clang-cl.exe`\n* This gives me: \"action RunAnalysis not compiled in\" error\n\nI thought that maybe I can use the bot environment for debugging, but the \"Debug\" button in the top-level corner of https://chromium-swarm.appspot.com/task?id\u003d6b09ec2ea49f4e10# gives me \"User unauthorized - try logging in with a different account\".\n\nLooking at the test output on the bot, there isn\u0027t much that would help.  https://chromium-swarm.appspot.com/task?id\u003d6b09ec2ea49f4e10# only says:\n\n```\n[89/95] compile out/msvs.analyze/tests.o\n[90/95] run out/msvs.fast/tests.exe\n[91/95] link out/msvs.analyze/tests.exe\n[92/95] run out/msvs.analyze/tests.exe\nFAILED: out/msvs.analyze/tests.ok \ncmd /c \"\"out/msvs.analyze/tests.exe\" \u003e \"out/msvs.analyze/tests.ok\"\"\n[93/95] run out/msvs.clang-fast/tests.exe\n[94/95] run out/msvs/tests.exe\n[95/95] run out/msvs.clang/tests.exe\nninja: build stopped: cannot make progress due to previous errors.\nHello from win32 in C:\\b\\s\\w\\ir!\nTraceback (most recent call last):\n  File \"skcms/infra/bots/bot.py\", line 93, in \u003cmodule\u003e\n    call(\u0027{ninja}\\\\ninja.exe -C skcms -f msvs.ninja -k 0\u0027.format(ninja\u003dninja))\n  File \"skcms/infra/bots/bot.py\", line 10, in call\n    subprocess.check_call(cmd, shell\u003dTrue)\n  File \"C:\\b\\s\\w\\ir\\python\\bin\\lib\\subprocess.py\", line 186, in check_call\n    raise CalledProcessError(retcode, cmd)\nsubprocess.CalledProcessError: Command \u0027ninja\\ninja.exe -C skcms -f msvs.ninja -k 0\u0027 returned non-zero exit status 1\n```",
+      "parentUuid": "351fcf2b_d8a51c7e",
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd5e15e7_b81b6f14",
+        "filename": "ninja/clang",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-26T23:11:09Z",
+      "side": 1,
+      "message": "Is the new addition worth keeping?",
+      "range": {
+        "startLine": 3,
+        "startChar": 83,
+        "endLine": 3,
+        "endChar": 84
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a4875b70_dac506d2",
         "filename": "src/Transform_inl.h",
         "patchSetId": 4
@@ -31,6 +72,30 @@
       "writtenOn": "2024-07-26T22:27:59Z",
       "side": 1,
       "message": "nit: it feels strange to add in `\u003e\u003e 0` if you are not going to actually line up the line with the previous one with indentation:\n\n```\n    r \u003d g \u003d b \u003d cast\u003cF\u003e((u16 \u003e\u003e 0) \u0026 0xff) * (1 / 255.0f);\n            a \u003d cast\u003cF\u003e((u16 \u003e\u003e 8) \u0026 0xff) * (1 / 255.0f);\n```\n\nI think it would be much more consistent with the rest of the file to add the indentation.",
+      "range": {
+        "startLine": 842,
+        "startChar": 24,
+        "endLine": 842,
+        "endChar": 34
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47259072_d3bec2a7",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-26T23:11:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4875b70_dac506d2",
       "range": {
         "startLine": 842,
         "startChar": 24,
@@ -64,6 +129,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89a2545b_9ab29d6d",
+        "filename": "src/skcms_public.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-26T23:11:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4e401d3_5120a14b",
+      "range": {
+        "startLine": 278,
+        "startChar": 33,
+        "endLine": 278,
+        "endChar": 80
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb213dfd_eceea747",
@@ -77,6 +166,30 @@
       "writtenOn": "2024-07-26T22:27:59Z",
       "side": 1,
       "message": "`uint8_t dst[4 * 256] \u003d {0};`\n\n(Repeat for other memsets below as well)",
+      "range": {
+        "startLine": 449,
+        "startChar": 0,
+        "endLine": 451,
+        "endChar": 0
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e80b23c1_675b8927",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-26T23:11:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb213dfd_eceea747",
       "range": {
         "startLine": 449,
         "startChar": 0,
