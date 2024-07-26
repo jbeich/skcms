@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "951be334_b2694d6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2024-07-26T23:36:47Z",
+      "side": 1,
+      "message": "Hopefully Brian can be of assistance. I haven\u0027t ever actually built skcms on Windows. Google results for `action RunAnalysis not compiled in` are spooky.",
+      "parentUuid": "d96a2b12_b982b383",
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cd5e15e7_b81b6f14",
         "filename": "ninja/clang",
         "patchSetId": 4
@@ -49,6 +67,30 @@
       "writtenOn": "2024-07-26T23:11:09Z",
       "side": 1,
       "message": "Is the new addition worth keeping?",
+      "range": {
+        "startLine": 3,
+        "startChar": 83,
+        "endLine": 3,
+        "endChar": 84
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2253c799_88e4514a",
+        "filename": "ninja/clang",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2024-07-26T23:36:47Z",
+      "side": 1,
+      "message": "Yes. `unsafe-buffer-usage` is ~impossible to satisfy in our code base.",
+      "parentUuid": "cd5e15e7_b81b6f14",
       "range": {
         "startLine": 3,
         "startChar": 83,
