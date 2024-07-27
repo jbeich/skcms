@@ -473,7 +473,7 @@ static void test_FormatConversions_GA88(void) {
         // Using a different "gray" and "alpha" value will hopefully catch most
         // potential LE-vs-BE confusion bugs.
         src[i * 2 + 0] = (uint8_t)i;
-        src[i * 2 + 1] = (uint8_t)(i * 7);
+        src[i * 2 + 1] = (uint8_t)(i + 10);
     }
 
     uint8_t dst[4 * 256] = {0};
