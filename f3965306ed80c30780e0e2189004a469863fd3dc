@@ -90,6 +90,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d38a5b44_7444c51a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-29T17:31:56Z",
+      "side": 1,
+      "message": "Yeah, I suspected something about signed integer overflow being UB, but:\n\n1. `7 * 255` won\u0027t overflow an `int` (OTOH maybe casting `int 256` to `uint8_t` _is_ UB?  I dunno...)\n2. But more importantly, changing the loop variable to `unsigned int` did not help - I.e. the following code would still trigger the problem:\n\n    ```\n        uint8_t src[2 * 256] \u003d {0};\n        for (unsigned int i \u003d 0; i \u003c 256; i++) {\n            // Using a different \"gray\" and \"alpha\" value will hopefully catch most\n            // potential LE-vs-BE confusion bugs.\n            src[i * 2 + 0] \u003d (uint8_t)i;\n            src[i * 2 + 1] \u003d (uint8_t)(i * 7);\n        }\n    ```\n\nSo my guess is that implicit casts that truncate are a problem.\n\nIt\u0027s a bit sad that `ninja -f ninja\\msvs.analyze` (as well as `out\\msvs.analyze\\tests.exe`) doesn\u0027t print any more details about the problem...",
+      "parentUuid": "e4085977_673d5598",
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd5e15e7_b81b6f14",
