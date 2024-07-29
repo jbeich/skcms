@@ -54,6 +54,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c034034_d9258286",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-29T17:10:30Z",
+      "side": 1,
+      "message": "I got a local repro after installing \"Build Tools for Visual Studio 2022\" from https://visualstudio.microsoft.com/downloads/ (hiding under \"Tools for Visual Studio\" dropdown).  (Side note: I could not figure out where to find/get `bin/sk.exe` mentioned in https://skia.org/docs/user/build/#windows as a way for getting the Visual Studio tools.)\n\nIt turned out that the problem was `(uint8_t)(i * 7)` in a new test.  The tests pass (at least locally) with an explicit truncation: `(uint8_t)((i * 7) % 256)`.\n\nPS. At `origin/main` I also saw the following warning: `C:\\src\\skcms\\iccdump.c(548) : warning C6200: Index \u0027138\u0027 is out of valid index range \u00270\u0027 to \u0027137\u0027 for non-stack buffer \u0027kSpectralHull\u0027.`.  I\u0027ve ignored it (temporarily disabling the warning via cmdline parameters passed via `ninja/msvs`).",
+      "parentUuid": "951be334_b2694d6e",
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd5e15e7_b81b6f14",
@@ -91,6 +109,30 @@
       "side": 1,
       "message": "Yes. `unsafe-buffer-usage` is ~impossible to satisfy in our code base.",
       "parentUuid": "cd5e15e7_b81b6f14",
+      "range": {
+        "startLine": 3,
+        "startChar": 83,
+        "endLine": 3,
+        "endChar": 84
+      },
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e576f3a4_1386bbc3",
+        "filename": "ninja/clang",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-29T17:10:30Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "2253c799_88e4514a",
       "range": {
         "startLine": 3,
         "startChar": 83,
