@@ -108,6 +108,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab7a8d7c_8f0baf6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-29T17:43:00Z",
+      "side": 1,
+      "message": "\u003e So my guess is that implicit casts that truncate are a problem.\n\nWell, it wasn\u0027t an _implicit_ cast.  But yeah - truncation when casting was a problem?\n\n\u003e maybe casting `int 256` to `uint8_t` is UB?\n\nAn internet stranger at \nhttps://www.reddit.com/r/C_Programming/comments/t2tvc5/comment/hyoo75j/?utm_source\u003dshare\u0026utm_medium\u003dweb3x\u0026utm_name\u003dweb3xcss\u0026utm_term\u003d1\u0026utm_content\u003dshare_button says that \"Casting from signed to unsigned outside the value range is implementation defined behavior\".\n\n\u003e It\u0027s a bit sad that `ninja -f ninja\\msvs.analyze` doesn\u0027t print any more details about the problem...\n\nRunning under WinDbg gives the following message: \"A cast to a smaller data type has caused a loss of data.  If this was intentional, you should mask the source of the cast with the appropriate bitmask.  For example:  ...char c \u003d (i \u0026 0xFF);..Changing the code in this way will not affect the quality of the resulting optimized code...\"",
+      "parentUuid": "d38a5b44_7444c51a",
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd5e15e7_b81b6f14",
