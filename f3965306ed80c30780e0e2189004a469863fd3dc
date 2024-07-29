@@ -72,6 +72,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4085977_673d5598",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2024-07-29T17:14:17Z",
+      "side": 1,
+      "message": "Oh no! I had strongly considered commenting on that overflowing multiply, but I couldn\u0027t find docs to prove that it was problematic. The cast doesn\u0027t retroactively make the signed overflow legal.",
+      "parentUuid": "1c034034_d9258286",
+      "revId": "f3965306ed80c30780e0e2189004a469863fd3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd5e15e7_b81b6f14",
