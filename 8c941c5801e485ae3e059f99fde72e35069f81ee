@@ -51,6 +51,24 @@
       "parentUuid": "3f27788f_8b51a249",
       "revId": "8c941c5801e485ae3e059f99fde72e35069f81ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dddb8e56_fb6ce9eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8704
+      },
+      "writtenOn": "2024-07-31T23:50:10Z",
+      "side": 1,
+      "message": "Ack.  And I think we may still need to use the new enum value here: https://skia-review.googlesource.com/c/skia/+/884236/7/experimental/rust_png/SkPngRustCodec.cpp#63",
+      "parentUuid": "80392faa_00616776",
+      "revId": "8c941c5801e485ae3e059f99fde72e35069f81ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
