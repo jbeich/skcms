@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3606f467_a2098fcb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-08-22T20:32:58Z",
+      "side": 1,
+      "message": "Nearly all of the profiles in our test corpus produce expected values for this function. Most of the -1 results come from fuzzer-generated profiles. Two CMYK printer profiles include the single-channel TRC tag. I\u0027ve re-read the spec, and I can\u0027t find any justification for including that, so I\u0027m inclined to leave this as-is. We could also just ignore the TRC information in the presence of A2B?",
+      "revId": "1dbe5620313c378e03d5fbdc85a7420afacdfe35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e459c91f_0eb44ffc",
+        "filename": "profiles/misc/ColorLogic_ISO_Coated_CMYK.icc.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-08-22T20:32:58Z",
+      "side": 1,
+      "message": "^",
+      "revId": "1dbe5620313c378e03d5fbdc85a7420afacdfe35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2f80718_2ae48346",
+        "filename": "profiles/misc/PrintOpen_ISO_Coated_CMYK.icc.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-08-22T20:32:58Z",
+      "side": 1,
+      "message": "^",
+      "revId": "1dbe5620313c378e03d5fbdc85a7420afacdfe35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
