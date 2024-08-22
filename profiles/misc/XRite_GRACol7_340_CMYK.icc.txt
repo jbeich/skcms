@@ -1,6 +1,7 @@
                 Size : 0x0034FB80 : 3472256
     Data color space : 0x434D594B : 'CMYK'
                  PCS : 0x4C616220 : 'Lab '
+ Input Channel Count :            : 4
            Tag count : 0x0000000E : 14
 
  Tag    : Type   : Size   : Offset

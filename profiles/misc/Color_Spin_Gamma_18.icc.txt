@@ -1,6 +1,7 @@
                 Size : 0x000001DA : 474
     Data color space : 0x52474220 : 'RGB '
                  PCS : 0x58595A20 : 'XYZ '
+ Input Channel Count :            : 3
            Tag count : 0x00000009 : 9
 
  Tag    : Type   : Size   : Offset
