@@ -1,6 +1,7 @@
                 Size : 0x00004288 : 17032
     Data color space : 0x52474220 : 'RGB '
                  PCS : 0x4C616220 : 'Lab '
+ Input Channel Count :            : 3
            Tag count : 0x00000006 : 6
 
  Tag    : Type   : Size   : Offset
