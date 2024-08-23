@@ -85,6 +85,24 @@
       "parentUuid": "6aeda5ab_f6d483d5",
       "revId": "1dbe5620313c378e03d5fbdc85a7420afacdfe35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed8d44ff_50b07802",
+        "filename": "skcms.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2024-08-23T16:47:43Z",
+      "side": 1,
+      "message": "Agreed. And I suspect the only time this situation would come up is for a monochrome printer profile. Hopefully we never see one of those attached to an image. :)",
+      "parentUuid": "c55c3f4d_ba036ab5",
+      "revId": "1dbe5620313c378e03d5fbdc85a7420afacdfe35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
