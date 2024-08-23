@@ -67,6 +67,24 @@
       "message": "According to the specification the `kTRC` (`grayTRCTag`) applies only to monochromatic inputs and outputs. I suppose this could be used somewhere to target a monochromatic output (like reducing the CMYK to grey for printing to a monochromatic printer), though I suppose one would need to dig through the data to see if it is used this way. It doesn\u0027t appear the appearance of an \"inapplicable\" TRC should affect (or invalidate) the number of channels?",
       "revId": "1dbe5620313c378e03d5fbdc85a7420afacdfe35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c55c3f4d_ba036ab5",
+        "filename": "skcms.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2024-08-23T16:19:17Z",
+      "side": 1,
+      "message": "Digging through these CMYK with `kTRC` profiles, it looks like these may have just been left over from some \"to gray\" profile.\n\nIn any event, this seems \"safe\" and probably usually works. We can always make -1\u0027s turn into not -1\u0027s later.",
+      "parentUuid": "6aeda5ab_f6d483d5",
+      "revId": "1dbe5620313c378e03d5fbdc85a7420afacdfe35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
