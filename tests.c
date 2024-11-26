@@ -1387,6 +1387,18 @@ static void test_Programmatic_sRGB(void) {
     expect(skcms_ApproximatelyEqualProfiles(&p, &srgb));
 }
 
+static void test_EqualityCheck(void) {
+    const skcms_ICCProfile* alpha = skcms_sRGB_profile();
+    const skcms_ICCProfile* beta = skcms_sRGB_profile();
+    const skcms_ICCProfile* gamma = skcms_XYZD50_profile();
+    const skcms_ICCProfile* delta = skcms_XYZD50_profile();
+
+    // This is pointer equality because we should cache calls to these profiles.
+    expect(alpha == beta);
+    expect(gamma == delta);
+    expect(alpha != gamma);
+}
+
 static void test_ExactlyEqual(void) {
     const skcms_ICCProfile* srgb = skcms_sRGB_profile();
     skcms_ICCProfile        copy = *srgb;
@@ -1950,6 +1962,7 @@ int main(int argc, char** argv) {
     test_AdaptToD50();
     test_PrimariesToXYZ();
     test_Programmatic_sRGB();
+    test_EqualityCheck();
     test_ExactlyEqual();
     test_GrayscaleAndRGBCanBeEqual();
     test_AliasedTransforms();
