@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a68a178c_e51d989d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2024-11-27T13:54:39Z",
+      "side": 1,
+      "message": "PTAL as I had to also fix the CQ/CI by updating node",
+      "revId": "c346633d7beb700d9ee1b4dc2a6c732f98bc5c3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
