@@ -15,6 +15,8 @@ $ bazel build //...
 $ bazel test //...
 ```
 
+To include debug symbols, add `--compilation_mode=dbg` to your commands.
+
 ### Building and testing on RBE
 
 Same as above, but add `--config=linux-rbe` to your `bazel` invocation, e.g.:
