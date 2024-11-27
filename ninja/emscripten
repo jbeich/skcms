@@ -1,7 +1,7 @@
 cc      = emcc
 cxx     = em++
-cflags  = -g3 -s WASM=1 -s ENVIRONMENT=node
-ldflags = -g3 -s WASM=1 -s ENVIRONMENT=node --embed-file profiles
+cflags  = -g3
+ldflags = -g3 --embed-file profiles
 exe     = .js
 out     = out/emscripten$mode
 
