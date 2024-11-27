@@ -47,12 +47,12 @@ elif 'linux' in sys.platform:
   # Get an Emscripten environment all set up.
   call('git clone https://github.com/emscripten-core/emsdk.git')
   os.chdir('emsdk')
-  call('./emsdk install 2.0.14')
-  call('./emsdk install node-15.14.0-64bit')
+  call('./emsdk install 3.1.72')
+  call('./emsdk install node-20.18.0-64bit')
   os.chdir('..')
 
   emscripten_sdk = os.path.realpath('emsdk')
-  node = emscripten_sdk + '/node/15.14.0_64bit/bin/node'
+  node = emscripten_sdk + '/node/20.18.0_64bit/bin/node'
 
   em_config = os.path.realpath(os.path.join('.', 'em_config'))
   with open(em_config, 'w') as f:
