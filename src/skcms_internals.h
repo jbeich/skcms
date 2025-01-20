@@ -12,6 +12,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <sys/types.h>  // implicitly includes endian.h
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,6 +106,47 @@ extern "C" {
         #define SKCMS_DISABLE_SKX 1
     #endif
 #endif
+
+#if !defined(SKCMS_CPU_BENDIAN) && !defined(SKCMS_CPU_LENDIAN)
+    #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        #define SKCMS_CPU_BENDIAN
+    #elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+        #define SKCMS_CPU_LENDIAN
+    #elif defined(__sparc) || defined(__sparc__) || \
+      defined(_POWER) || defined(__powerpc__) || \
+      defined(__ppc__) || defined(__hppa) || \
+      defined(__PPC__) || defined(__PPC64__) || \
+      defined(_MIPSEB) || defined(__ARMEB__) || \
+      defined(__s390__) || \
+      (defined(__sh__) && defined(__BIG_ENDIAN__)) || \
+      (defined(__ia64) && defined(__BIG_ENDIAN__))
+         #define SKCMS_CPU_BENDIAN
+    #else
+        #define SKCMS_CPU_LENDIAN
+    #endif
+#endif
+
+// Swaps endiannes to match current architecture.
+static inline uint16_t big_u16_to_native(uint16_t big_u16) {
+#if defined(SKCMS_CPU_BENDIAN)
+    return big_u16;
+#elif defined(_MSC_VER)
+    return _byteswap_ushort(big_u16);
+#else
+    return __builtin_bswap16(big_u16);
+#endif
+}
+
+// Swaps endiannes to match current architecture.
+static inline uint32_t big_u32_to_native(uint32_t big_u32) {
+#if defined(SKCMS_CPU_BENDIAN)
+    return big_u32;
+#elif defined(_MSC_VER)
+    return _byteswap_ulong(big_u32);
+#else
+    return __builtin_bswap32(big_u32);
+#endif
+}
 
 // ~~~~ Shared ~~~~
 typedef struct skcms_ICCTag {
