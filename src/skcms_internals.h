@@ -12,6 +12,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <sys/types.h>  // implicitly includes endian.h
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,6 +106,45 @@ extern "C" {
         #define SKCMS_DISABLE_SKX 1
     #endif
 #endif
+
+#if !defined(SKCMS_CPU_BENDIAN) && !defined(SKCMS_CPU_LENDIAN)
+    #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        #define SKCMS_CPU_BENDIAN
+    #elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+        #define SKCMS_CPU_LENDIAN
+    #elif defined(__sparc) || defined(__sparc__) || \
+      defined(_POWER) || defined(__powerpc__) || \
+      defined(__ppc__) || defined(__hppa) || \
+      defined(__PPC__) || defined(__PPC64__) || \
+      defined(_MIPSEB) || defined(__ARMEB__) || \
+      defined(__s390__) || \
+      (defined(__sh__) && defined(__BIG_ENDIAN__)) || \
+      (defined(__ia64) && defined(__BIG_ENDIAN__))
+         #define SKCMS_CPU_BENDIAN
+    #else
+        #define SKCMS_CPU_LENDIAN
+    #endif
+#endif
+
+static inline uint16_t native_to_big_u16_(uint16_t native) {
+#if SKCMS_CPU_BENDIAN
+    return native;
+#elif defined(_MSC_VER)
+    return _byteswap_ushort(native);
+#else
+    return __builtin_bswap16(native);
+#endif
+}
+
+static inline uint32_t native_to_big_u32_(uint32_t native) {
+#if SKCMS_CPU_BENDIAN
+    return native;
+#elif defined(_MSC_VER)
+    return _byteswap_ulong(native);
+#else
+    return __builtin_bswap32(native);
+#endif
+}
 
 // ~~~~ Shared ~~~~
 typedef struct skcms_ICCTag {
