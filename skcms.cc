@@ -298,6 +298,33 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
     return 0;
 }
 
+// Nota bene: all ICC profile data is stored in big-endian layout; to read
+// multi-octet values `read_big_*` methods are used; those methods handle
+// conversion to native endianness.
+
+// Reads an unsigned 16-bit integer stored in memory in big-endian layout.
+static uint16_t read_big_u16(const uint8_t* ptr) {
+    uint16_t be;
+    memcpy(&be, ptr, sizeof(be));
+    return big_u16_to_native(be);
+}
+
+// Reads an unsigned 32-bit integer stored in memory in big-endian layout.
+static uint32_t read_big_u32(const uint8_t* ptr) {
+    uint32_t be;
+    memcpy(&be, ptr, sizeof(be));
+    return big_u32_to_native(be);
+}
+
+// Reads a signed 32-bit integer stored in memory in big-endian layout.
+static int32_t read_big_i32(const uint8_t* ptr) {
+    return (int32_t)read_big_u32(ptr);
+}
+
+// Reads a 16.16 fixed point float stored in memory in big-endian layout.
+static float read_big_fixed(const uint8_t* ptr) {
+    return static_cast<float>(read_big_i32(ptr)) * (1.0f / 65536.0f);
+}
 
 static float eval_curve(const skcms_Curve* curve, float x) {
     if (curve->table_entries == 0) {
@@ -314,13 +341,10 @@ static float eval_curve(const skcms_Curve* curve, float x) {
         l = curve->table_8[lo] * (1/255.0f);
         h = curve->table_8[hi] * (1/255.0f);
     } else {
-        uint16_t be_l, be_h;
-        memcpy(&be_l, curve->table_16 + 2*lo, 2);
-        memcpy(&be_h, curve->table_16 + 2*hi, 2);
-        uint16_t le_l = ((be_l << 8) | (be_l >> 8)) & 0xffff;
-        uint16_t le_h = ((be_h << 8) | (be_h >> 8)) & 0xffff;
-        l = le_l * (1/65535.0f);
-        h = le_h * (1/65535.0f);
+        uint16_t u16_l = read_big_u16(curve->table_16 + 2*lo);
+        uint16_t u16_h = read_big_u16(curve->table_16 + 2*hi);
+        l = u16_l * (1/65535.0f);
+        h = u16_h * (1/65535.0f);
     }
     return l + (h-l)*t;
 }
@@ -375,34 +399,6 @@ enum {
     // XYZ is also a PCS signature, so it's defined in skcms.h
     // skcms_Signature_XYZ = 0x58595A20,
 };
-
-static uint16_t read_big_u16(const uint8_t* ptr) {
-    uint16_t be;
-    memcpy(&be, ptr, sizeof(be));
-#if defined(_MSC_VER)
-    return _byteswap_ushort(be);
-#else
-    return __builtin_bswap16(be);
-#endif
-}
-
-static uint32_t read_big_u32(const uint8_t* ptr) {
-    uint32_t be;
-    memcpy(&be, ptr, sizeof(be));
-#if defined(_MSC_VER)
-    return _byteswap_ulong(be);
-#else
-    return __builtin_bswap32(be);
-#endif
-}
-
-static int32_t read_big_i32(const uint8_t* ptr) {
-    return (int32_t)read_big_u32(ptr);
-}
-
-static float read_big_fixed(const uint8_t* ptr) {
-    return static_cast<float>(read_big_i32(ptr)) * (1.0f / 65536.0f);
-}
 
 // Maps to an in-memory profile so that fields line up to the locations specified
 // in ICC.1:2010, section 7.2
