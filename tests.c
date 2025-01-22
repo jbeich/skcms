@@ -406,8 +406,8 @@ static void test_FormatConversions_101010_xr(void) {
                            skcms_AlphaFormat_Unpremul, NULL, &dst,
                            skcms_PixelFormat_BGR_101010x_XR,
                            skcms_AlphaFormat_Unpremul, NULL, 1));
-    expect(((dst >> 0) & 0x3ff) == 895);
-    expect(((dst >> 10) & 0x3ff) == 639);
+    expect(((dst >> 0) & 0x3ff) == 894);
+    expect(((dst >> 10) & 0x3ff) == 638);
     expect(((dst >> 20) & 0x3ff) == 384);
 
     uint32_t dst2 = 0;
@@ -418,6 +418,17 @@ static void test_FormatConversions_101010_xr(void) {
     expect(((dst2 >> 0) & 0xff) == 255);
     expect(((dst2 >> 8) & 0xff) == 127);
     expect(((dst2 >> 16) & 0xff) == 0);
+
+    // 384 maps to a zero channel value in the BGR_101010x_XR format.
+    const uint64_t bgr10_xr_zero = 384;
+    src = (bgr10_xr_zero <<  0) |
+          (bgr10_xr_zero << 10) |
+          (bgr10_xr_zero << 20);
+    expect(skcms_Transform(&src, skcms_PixelFormat_BGR_101010x_XR,
+                           skcms_AlphaFormat_Unpremul, NULL, &dst,
+                           skcms_PixelFormat_BGRA_8888,
+                           skcms_AlphaFormat_Unpremul, NULL, 1));
+    expect(dst == 0xff000000);
 }
 
 static void test_FormatConversions_10101010_xr(void) {
@@ -432,12 +443,25 @@ static void test_FormatConversions_10101010_xr(void) {
     expect(((dst[0] >> 0) & 0xff) == 0);
     expect(((dst[0] >> 8) & 0xff) == 255);
     expect(((dst[0] >> 16) & 0xff) == 0);
-    expect(((dst[0] >> 24) & 0xff) == 127);
+    expect(((dst[0] >> 24) & 0xff) == 128);
 
     expect(((dst[1] >> 0) & 0xff) == 0);
-    expect(((dst[1] >> 8) & 0xff) == 127);
+    expect(((dst[1] >> 8) & 0xff) == 128);
     expect(((dst[1] >> 16) & 0xff) == 0);
     expect(((dst[1] >> 24) & 0xff) == 255);
+
+    // Convert a transparent black pixel with premultiplied alpha.
+    // 384 maps to a zero channel value in the BGRA_10101010_XR format.
+    const uint64_t bgra10_xr_zero = 384;
+    src[0] = (bgra10_xr_zero <<  (0+6)) |
+             (bgra10_xr_zero << (16+6)) |
+             (bgra10_xr_zero << (32+6)) |
+             (bgra10_xr_zero << (48+6));
+    expect(skcms_Transform(&src, skcms_PixelFormat_BGRA_10101010_XR,
+                           skcms_AlphaFormat_PremulAsEncoded, NULL, &dst,
+                           skcms_PixelFormat_BGRA_8888,
+                           skcms_AlphaFormat_Unpremul, NULL, 1));
+    expect(dst[0] == 0);
 }
 
 static void test_FormatConversions_G8(void) {
