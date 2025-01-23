@@ -33,6 +33,24 @@
       "message": "I\u0027d show the math here:\n```\n// 384 is documented to be zero, yadda yadda.\nint zero \u003d 384 \u003c\u003c 6;\ntransparent_black \u003d zero | zero \u003c\u003c 16 | ...`;\n```",
       "revId": "f55b2e644c45e2de43f58e4f2a12c1f4c1f57728",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6487e671_671566ad",
+        "filename": "tests.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 7708
+      },
+      "writtenOn": "2025-01-23T01:26:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7afb35ff_ca6aa384",
+      "revId": "f55b2e644c45e2de43f58e4f2a12c1f4c1f57728",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
