@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0b220aa_e01aa47d",
+        "filename": "tests.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2025-01-23T16:57:07Z",
+      "side": 1,
+      "message": "This could have a similar test confirming that 384 encodes to 0, right?",
+      "range": {
+        "startLine": 402,
+        "startChar": 12,
+        "endLine": 402,
+        "endChar": 44
+      },
+      "revId": "ba9fa7aa382ad9179ba09502cb3cbd2a020e4ea2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
