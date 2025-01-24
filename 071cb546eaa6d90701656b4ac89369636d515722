@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08f7f74b_d63144b5",
+        "filename": "tests.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2025-01-24T15:55:05Z",
+      "side": 1,
+      "message": "This has to be a `uint32_t`",
+      "range": {
+        "startLine": 423,
+        "startChar": 10,
+        "endLine": 423,
+        "endChar": 18
+      },
+      "revId": "071cb546eaa6d90701656b4ac89369636d515722",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
