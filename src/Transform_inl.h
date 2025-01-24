@@ -1309,6 +1309,13 @@ FINAL_STAGE(store_101010x_XR, NoCtx) {
                    | cast<U32>(to_fixed((b * 510) + 384)) << 20);
 }
 
+FINAL_STAGE(store_10101010_XR, NoCtx) {
+    store(dst + 8*i, cast<U64>(to_fixed((r * 510) + 384)) << ( 0+6)
+                   | cast<U64>(to_fixed((g * 510) + 384)) << (16+6)
+                   | cast<U64>(to_fixed((b * 510) + 384)) << (32+6)
+                   | cast<U64>(to_fixed((a * 510) + 384)) << (48+6));
+}
+
 FINAL_STAGE(store_1010102, NoCtx) {
     store(dst + 4*i, cast<U32>(to_fixed(r * 1023)) <<  0
                    | cast<U32>(to_fixed(g * 1023)) << 10
