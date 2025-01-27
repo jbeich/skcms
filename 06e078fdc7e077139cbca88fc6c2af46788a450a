@@ -46,6 +46,29 @@
       },
       "revId": "06e078fdc7e077139cbca88fc6c2af46788a450a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e32ac21_a432a1af",
+        "filename": "tests.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-01-27T16:39:56Z",
+      "side": 1,
+      "message": "Let\u0027s see if I understand what this test is doing (And some comments would help save readers in the future some mental math too)\n\nWe start with an opaque bright blue `rgba(0, 128, 255, 1.0)` [CSS notation] in BGRA format with 8 bits per channel (I had to remember to read the hex digits backwards because it\u0027s little endian). Because this is opaque the unpremulness (Not allowed in my local Scrabble club, FWIW) of the alpha format is irrelevent because premul/unpremul would be the same.\n\nWe then transform it (Treating src as an array of pixels of length 1) to a BGRA format with 10 bits of color per channel, which is available on Apple platforms (https://developer.apple.com/documentation/metal/mtlpixelformat/bgra10_xr). This format, probably for alignment reasons, is laid out to have 16 bits per channel (64 bits total) but the least-significant 6 bits per channel (e.g. 0-5) for Blue are padding (zeros, as per the spec).\n\nThis destination format spans the range of [-0.752941, 1.25098] instead of 8888\u0027s [0, 1.0] with 0 mapping to 384 and 1.0 mapping to 894. If we double the original 8 bit number and add 384, that\u0027s how to convert\n\nIn the expectations, we shift and mask of 10 bits at a time and compare the channels\nBlue was 255/255 so should be (255*2+384) \u003d 894 in the new colorspace\nGreen was 127/255 so should be (127*2+384) \u003d 638 in the new colorspace\nRed was 0/255 so should be 384\nAlpha is 255/255 so should be 894\n\nOk, so I agree with all the numbers, but maybe some extra comments or named constants (like bgra10_xr_zero below) could help with the readability.",
+      "range": {
+        "startLine": 435,
+        "startChar": 19,
+        "endLine": 435,
+        "endChar": 29
+      },
+      "revId": "06e078fdc7e077139cbca88fc6c2af46788a450a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
