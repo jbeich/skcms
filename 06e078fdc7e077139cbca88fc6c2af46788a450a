@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "413f5c42_798715fc",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2025-01-27T15:15:15Z",
+      "side": 1,
+      "message": "Why do we shift by 6 here? A comment might be in order.",
+      "range": {
+        "startLine": 1313,
+        "startChar": 65,
+        "endLine": 1313,
+        "endChar": 66
+      },
+      "revId": "06e078fdc7e077139cbca88fc6c2af46788a450a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
