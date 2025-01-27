@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8a65825_525fd71e",
+        "filename": "skcms.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-01-27T17:30:32Z",
+      "side": 1,
+      "message": "Let\u0027s take the time to add a comment to each of these along the lines of \"Read a 16 bit integer from the location in memory. ptr should be pointing to big endian encoded data and the returned value will be in the native big/little endian encodedness of the target architecture\" just so it\u0027s more clear what the inputs and outputs will be.",
+      "range": {
+        "startLine": 246,
+        "startChar": 16,
+        "endLine": 246,
+        "endChar": 28
+      },
+      "revId": "b13b63bc6cadde1607fff42e5b3268971e8dee99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8938946_c1c24393",
+        "filename": "skcms.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-01-27T17:30:32Z",
+      "side": 1,
+      "message": "Can you add a reminder comment that all ICC profile data is stored as big-endian?",
+      "revId": "b13b63bc6cadde1607fff42e5b3268971e8dee99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88975506_4bebbd69",
+        "filename": "src/skcms_internals.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-01-27T17:30:32Z",
+      "side": 1,
+      "message": "The naming here is a bit confusing to me based on how it\u0027s used. IIUC, the target data in ICC profiles is stored as big endian, and we want to read it into little-endian or big-endian based on the architecture. WDYT about `big_u16_to_native` as the name (drop the trailing underscore regardless - it\u0027s not in Skia\u0027s style)?\n\nhttps://www.color.org/icc32.pdf",
+      "range": {
+        "startLine": 129,
+        "startChar": 23,
+        "endLine": 129,
+        "endChar": 41
+      },
+      "revId": "b13b63bc6cadde1607fff42e5b3268971e8dee99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
