@@ -22,6 +22,30 @@
       },
       "revId": "06e078fdc7e077139cbca88fc6c2af46788a450a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e831cc8_ddaab225",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2025-01-27T16:07:43Z",
+      "side": 1,
+      "message": "Added comments here and in the load stage. The 10101010 format is actually a (10x6)x4 format in 64-bits, where the low 6 bits are padding.",
+      "parentUuid": "413f5c42_798715fc",
+      "range": {
+        "startLine": 1313,
+        "startChar": 65,
+        "endLine": 1313,
+        "endChar": 66
+      },
+      "revId": "06e078fdc7e077139cbca88fc6c2af46788a450a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
