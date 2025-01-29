@@ -34,6 +34,29 @@
       "parentUuid": "e756cb65_fe9f5407",
       "revId": "c8a3a431013068448b43af042b5c4251a87a7884",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb4b134c_e6abd18a",
+        "filename": "src/skcms_internals.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2025-01-29T14:40:57Z",
+      "side": 1,
+      "message": "Both Skia and skcms have a standing assumption that they are built with a native byte order of little endian (for instance see the implementations of `load_161616LE` and `load_161616BE` in Transform_inl.h.  You mention baseline transforms in a follow up CL, but it seems like what we\u0027d actually need to do is go through with a fine tooth comb and find all other places that need to be updated to support BE.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 6
+      },
+      "revId": "c8a3a431013068448b43af042b5c4251a87a7884",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
