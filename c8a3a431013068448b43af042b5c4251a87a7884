@@ -57,6 +57,30 @@
       },
       "revId": "c8a3a431013068448b43af042b5c4251a87a7884",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb0dbc93_b9cba16d",
+        "filename": "src/skcms_internals.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 18014
+      },
+      "writtenOn": "2025-01-29T16:08:05Z",
+      "side": 1,
+      "message": "Agree. I will try to setup a CI on github to build/run under big-endian. Hopefully tests will help pin-pointing the problems.\n\nThis (first) CL should fix the failures while loading valid ICC.",
+      "parentUuid": "bb4b134c_e6abd18a",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 6
+      },
+      "revId": "c8a3a431013068448b43af042b5c4251a87a7884",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
