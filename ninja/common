@@ -1,7 +1,7 @@
 builddir = $out
 disabled = false
-no_hsw = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv AVX2)    || (grep '^flags' /proc/cpuinfo | grep -vq avx2)
-no_skx = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv AVX512F) || (grep '^flags' /proc/cpuinfo | grep -vq avx512f)
+no_hsw = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv AVX2)    || (grep -E '^(flags|features)' /proc/cpuinfo | grep -vq avx2)
+no_skx = (uname | grep -q Darwin && sysctl machdep.cpu | grep -qv AVX512F) || (grep -E '^(flags|features)' /proc/cpuinfo | grep -vq avx512f)
 
 # Each compiler has enabled all the warnings it can.
 # Here we make them errors, and disable a few we don't want bothering us.
@@ -19,6 +19,7 @@ warnings_cc = $warnings $
            -Wno-c++98-compat-pedantic $
            -Wno-gnu-anonymous-struct $
            -Wno-old-style-cast $
+           -Wno-switch-default $
 
 rule compile_c
     command = ($disabled && touch $out) ||                                                $
