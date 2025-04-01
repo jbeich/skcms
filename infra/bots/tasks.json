@@ -76,7 +76,7 @@
         "clang_linux"
       ],
       "dimensions": [
-        "os:Linux",
+        "os:Ubuntu-24.04",
         "cpu:x86-64-Skylake_GCE",
         "gpu:none",
         "pool:Skia"
@@ -195,11 +195,10 @@
       ],
       "dimensions": [
         "pool:Skia",
-        "os:Debian-10.3",
+        "os:Ubuntu-24.04",
         "gpu:none",
         "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-highcpu-64",
-        "docker_installed:true"
+        "machine_type:n1-highcpu-64"
       ],
       "env_prefixes": {
         "PATH": [
@@ -243,11 +242,10 @@
       ],
       "dimensions": [
         "pool:Skia",
-        "os:Debian-10.3",
+        "os:Ubuntu-24.04",
         "gpu:none",
         "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-highcpu-64",
-        "docker_installed:true"
+        "machine_type:n1-highcpu-64"
       ],
       "env_prefixes": {
         "PATH": [
@@ -296,11 +294,10 @@
       ],
       "dimensions": [
         "pool:Skia",
-        "os:Debian-10.3",
+        "os:Ubuntu-24.04",
         "gpu:none",
         "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-highcpu-64",
-        "docker_installed:true"
+        "machine_type:n1-highcpu-64"
       ],
       "env_prefixes": {
         "ANDROID_NDK_HOME": [
@@ -352,11 +349,10 @@
       ],
       "dimensions": [
         "pool:Skia",
-        "os:Debian-10.3",
+        "os:Ubuntu-24.04",
         "gpu:none",
         "cpu:x86-64-Haswell_GCE",
-        "machine_type:n1-highcpu-64",
-        "docker_installed:true"
+        "machine_type:n1-highcpu-64"
       ],
       "env_prefixes": {
         "ANDROID_NDK_HOME": [
