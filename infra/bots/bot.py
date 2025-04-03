@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 
 import os
 import subprocess
@@ -13,8 +13,8 @@ def append(path, line):
   with open(path, 'a') as f:
     print >>f, line
 
-print "Hello from {platform} in {cwd}!".format(platform=sys.platform,
-                                               cwd=os.getcwd())
+print("Hello from {platform} in {cwd}!".format(platform=sys.platform,
+                                               cwd=os.getcwd()))
 
 if 'darwin' in sys.platform:
   # Get Xcode from CIPD using mac_toolchain tool.
