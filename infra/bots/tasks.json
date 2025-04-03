@@ -125,7 +125,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "max_attempts": 1,
