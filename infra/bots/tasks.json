@@ -58,9 +58,9 @@
           "version": "version:17"
         },
         {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:30"
+          "name": "skia/bots/clang_ubuntu_noble",
+          "path": "clang_ubuntu_noble",
+          "version": "version:3"
         },
         {
           "name": "infra/python/cpython/linux-amd64",
@@ -73,7 +73,7 @@
         "skcms/infra/bots/bot.py",
         "ninja",
         "ndk",
-        "clang_linux"
+        "clang_ubuntu_noble"
       ],
       "dimensions": [
         "os:Ubuntu-24.04",
@@ -106,7 +106,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:0cb1e51344de158f72524c384f324465aebbcef2"
         },
         {
           "name": "infra/python/cpython/mac-amd64",
@@ -125,7 +125,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "max_attempts": 1,
