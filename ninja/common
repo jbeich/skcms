@@ -11,6 +11,7 @@ warnings = -Werror $
            -Wno-double-promotion $
            -Wno-float-equal $
            -Wno-padded $
+           -Wno-pre-c11-compat $
 
 warnings_c = $warnings $
            -Wno-declaration-after-statement $
