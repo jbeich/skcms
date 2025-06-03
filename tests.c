@@ -1537,7 +1537,8 @@ static void test_PQ(void) {
     {
         // This PQ function maps [0,1] to [0,1].
         skcms_TransferFunction pq;
-        expect(skcms_TransferFunction_makePQ(&pq));
+        expect(skcms_TransferFunction_makePQish(&pq, -107/128.0f,         1.0f,   32/2523.0f
+                                                   , 2413/128.0f, -2392/128.0f, 8192/1305.0f));
 
         expect(0.0000f == skcms_TransferFunction_eval(&pq, 0.0f));
         expect(1.0000f == skcms_TransferFunction_eval(&pq, 1.0f));
@@ -1599,7 +1600,8 @@ static void test_PQ(void) {
 
 static void test_HLG(void) {
     skcms_TransferFunction enc, dec;
-    expect(skcms_TransferFunction_makeHLG(&dec));
+    expect(skcms_TransferFunction_makeHLGish(&dec, 2.0f, 2.0f
+                                                 , 1/0.17883277f, 0.28466892f, 0.55991073f));
     expect(skcms_TransferFunction_invert(&dec, &enc));
 
     // Spot check the lower half of the curve.
@@ -1740,7 +1742,8 @@ static void test_scaled_HLG(void) {
 static void test_PQ_invert(void) {
     skcms_TransferFunction pqA, invA, invB;
 
-    expect(skcms_TransferFunction_makePQ(&pqA));
+    expect(skcms_TransferFunction_makePQish(&pqA, -107/128.0f,         1.0f,   32/2523.0f
+                                                , 2413/128.0f, -2392/128.0f, 8192/1305.0f));
     // PQ's inverse is actually also PQish, so we can write out its expected value here.
     expect(skcms_TransferFunction_makePQish(&invA, 107/128.0f, 2413/128.0f, 1305/8192.0f
                                                  ,       1.0f, 2392/128.0f, 2523/  32.0f));
@@ -1788,7 +1791,8 @@ static void test_PQ_invert(void) {
 static void test_HLG_invert(void) {
     skcms_TransferFunction hlg, inv;
 
-    expect(skcms_TransferFunction_makeHLG(&hlg));
+    expect(skcms_TransferFunction_makeHLGish(&hlg, 2.0f, 2.0f
+                                                 , 1/0.17883277f, 0.28466892f, 0.55991073f));
     // Unlike PQ, we can't create HLG's inverse directly, only via _invert().
     expect(skcms_TransferFunction_invert(&hlg, &inv));
 
@@ -1811,6 +1815,85 @@ static void test_HLG_invert(void) {
 
     expect(skcms_AreApproximateInverses(&hlg_curve, &inv));
     expect(skcms_AreApproximateInverses(&inv_curve, &hlg));
+}
+
+static void test_PQ_v2(void) {
+    const float signal_100_nits = 0.508078421517399f;
+    const float value_100_nits = 0.0100f;
+    const float signal_203_nits = 0.580688881041611f;
+    const float value_203_nits = 0.0203f;
+    skcms_TransferFunction tf;
+    const float tol = 0.01f;
+    float y_expected = 0.f;
+    float y_actual = 0.f;
+
+    skcms_TransferFunction_makePQ(&tf, 203.f);
+    y_expected = value_100_nits;
+    y_actual = skcms_TransferFunction_eval(&tf, signal_100_nits);
+    expect(y_actual <= y_expected + tol);
+    expect(y_actual >= y_expected - tol);
+
+    y_expected = value_203_nits;
+    y_actual = skcms_TransferFunction_eval(&tf, signal_203_nits);
+    expect(y_actual <= y_expected + tol);
+    expect(y_actual >= y_expected - tol);
+
+    skcms_TransferFunction_makePQ(&tf, 100.f);
+    y_expected = value_100_nits;
+    y_actual = skcms_TransferFunction_eval(&tf, signal_100_nits);
+    expect(y_actual <= y_expected + tol);
+    expect(y_actual >= y_expected - tol);
+
+    y_expected = value_203_nits;
+    y_actual = skcms_TransferFunction_eval(&tf, signal_203_nits);
+    expect(y_actual <= y_expected + tol);
+    expect(y_actual >= y_expected - tol);
+
+    expect(!skcms_TransferFunction_isPQish(&tf));
+    expect(skcms_TransferFunction_isPQ(&tf));
+    expect(skcms_TransferFunction_getType(&tf) == skcms_TFType_PQ);
+}
+
+static void test_HLG_v2(void) {
+    const float white_before_ootf = 0.26479718562407867f;
+    const float tol = 0.01f;
+    float y_expected = 0.f;
+    float y_actual = 0.f;
+
+    skcms_TransferFunction tf;
+    skcms_TransferFunction_makeHLG(&tf, 203.f, 1000.f, 1.2f);
+    expect(tf.a == 203.f);
+    expect(tf.b == 1000.f);
+    expect(tf.c == 1.2f);
+
+    y_expected = 1/48.f;
+    y_actual = skcms_TransferFunction_eval(&tf, 0.25f);
+    expect(y_actual <= y_expected + tol);
+    expect(y_actual >= y_expected - tol);
+
+    y_expected = white_before_ootf;
+    y_actual = skcms_TransferFunction_eval(&tf, 0.75f);
+    expect(y_actual <= y_expected + tol);
+    expect(y_actual >= y_expected - tol);
+
+    skcms_TransferFunction_makeHLG(&tf, 314.f, 314.f, 1.f);
+    expect(tf.a == 314.f);
+    expect(tf.b == 314.f);
+    expect(tf.c == 1.f);
+
+    y_expected = 1/48.f;
+    y_actual = skcms_TransferFunction_eval(&tf, 0.25f);
+    expect(y_actual <= y_expected + tol);
+    expect(y_actual >= y_expected - tol);
+
+    y_expected = white_before_ootf;
+    y_actual = skcms_TransferFunction_eval(&tf, 0.75f);
+    expect(y_actual <= y_expected + tol);
+    expect(y_actual >= y_expected - tol);
+
+    expect(!skcms_TransferFunction_isHLGish(&tf));
+    expect(skcms_TransferFunction_isHLG(&tf));
+    expect(skcms_TransferFunction_getType(&tf) == skcms_TFType_HLG);
 }
 
 static void test_RGBA_8888_sRGB(void) {
@@ -2000,6 +2083,8 @@ int main(int argc, char** argv) {
     test_scaled_HLG();
     test_PQ_invert();
     test_HLG_invert();
+    test_PQ_v2();
+    test_HLG_v2();
     test_RGBA_8888_sRGB();
     test_ParseWithA2BPriority();
     test_B2A();
