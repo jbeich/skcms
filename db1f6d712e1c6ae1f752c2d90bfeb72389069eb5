@@ -16,6 +16,23 @@
       "message": "The real version!",
       "revId": "db1f6d712e1c6ae1f752c2d90bfeb72389069eb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c3add05_506faa2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-06-03T17:24:25Z",
+      "side": 1,
+      "message": "Looks like you\u0027ll need to update `tests.c`\n\n```\ntests.c:1540:49: error: too few arguments to function call, expected 2, have 1\n 1540 |         expect(skcms_TransferFunction_makePQ(\u0026pq));\n      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    ^\ntests.c:31:15: note: expanded from macro \u0027expect\u0027\n   31 |         if (!(cond)) {                                                                \\\n      |               ^~~~\n./src/skcms_public.h:102:16: note: \u0027skcms_TransferFunction_makePQ\u0027 declared here\n  102 | SKCMS_API void skcms_TransferFunction_makePQ(\n      |                ^\n  103 |     skcms_TransferFunction*,\n      |     ~~~~~~~~~~~~~~~~~~~~~~~~\n  104 |     float hdr_reference_white_luminance);\n      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n```",
+      "revId": "db1f6d712e1c6ae1f752c2d90bfeb72389069eb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
