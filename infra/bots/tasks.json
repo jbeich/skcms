@@ -162,7 +162,11 @@
         "win_toolchain",
         "clang_win"
       ],
-      "dimensions": ["os:Windows-11-22631.5039", "gpu:none", "pool:Skia"],
+      "dimensions": [
+        "os:Windows-11-22631",
+        "gpu:none",
+        "pool:Skia"
+      ],
       "max_attempts": 1,
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
