@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e40ad046_5b9a06c3",
+        "filename": "skcms.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-06-04T11:26:42Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "270988d0_83b56738",
+      "revId": "aef70e60c4e67b563bf181ddf73e40519ba984bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca60056d_f5a75fbc",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-06-04T09:45:06Z",
       "side": 1,
       "message": "In the future, it might be useful to add a function `skcms_TransferFunction_eval_inverse`, rather than requiring the \"invert then evaluate\" behavior (which requires that we add a PQ-inverse, if we want to support that).\n\nBut not for now.",
+      "revId": "aef70e60c4e67b563bf181ddf73e40519ba984bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cd35d51_038ad192",
+        "filename": "skcms.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1989,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-06-04T11:26:42Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "ca60056d_f5a75fbc",
       "revId": "aef70e60c4e67b563bf181ddf73e40519ba984bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
