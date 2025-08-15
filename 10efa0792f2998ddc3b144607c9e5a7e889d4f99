@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "824d7bd4_6ee94748",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2025-08-15T20:34:39Z",
+      "side": 1,
+      "message": "This is a lie and might be the issue. The inputs are half floats, not 16 bit integers. I think that with `__builtin_convertvector` this should be `__fp16` or something like that (applying this change to patch set 1 results in passing tests).",
+      "range": {
+        "startLine": 159,
+        "startChar": 12,
+        "endLine": 159,
+        "endChar": 19
+      },
+      "revId": "10efa0792f2998ddc3b144607c9e5a7e889d4f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
