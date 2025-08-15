@@ -46,6 +46,30 @@
       },
       "revId": "340eadac69027967b7e75df8b35ca856e21cf20f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc6cabb7_f4e45e15",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 3538120
+      },
+      "writtenOn": "2025-08-15T21:02:56Z",
+      "side": 1,
+      "message": "Trying it, if there are further failures we may have to figure out the availability conditions. And hope that someday we get c++23 so we can just say \"give me a 16 bit float please\".",
+      "parentUuid": "1302cbd9_6335e8d4",
+      "range": {
+        "startLine": 159,
+        "startChar": 12,
+        "endLine": 159,
+        "endChar": 18
+      },
+      "revId": "340eadac69027967b7e75df8b35ca856e21cf20f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
