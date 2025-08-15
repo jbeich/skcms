@@ -111,6 +111,30 @@
       },
       "revId": "6cc3b67c749f416d5f41eea65d19cfa2db3b5876",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e2684f3_c03277a2",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2025-08-15T20:42:28Z",
+      "side": 1,
+      "message": "Running locally in this case looks like `ninja -f ninja/clang.hsw`.",
+      "parentUuid": "c6b3ba37_82201654",
+      "range": {
+        "startLine": 160,
+        "startChar": 52,
+        "endLine": 160,
+        "endChar": 53
+      },
+      "revId": "6cc3b67c749f416d5f41eea65d19cfa2db3b5876",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
