@@ -22,6 +22,30 @@
       },
       "revId": "10efa0792f2998ddc3b144607c9e5a7e889d4f99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "724e5227_c96f3adf",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 3538120
+      },
+      "writtenOn": "2025-08-15T20:46:15Z",
+      "side": 1,
+      "message": "Yes, I just came to the same conclusion by fiddling around on godbolt. Changing this to `__fp16` (or `_Float16`) results in identical assembly between the two cases. In fact, the `I16` cast wasn\u0027t even relevant in the original code, it was literally a no-op.",
+      "parentUuid": "824d7bd4_6ee94748",
+      "range": {
+        "startLine": 159,
+        "startChar": 12,
+        "endLine": 159,
+        "endChar": 19
+      },
+      "revId": "10efa0792f2998ddc3b144607c9e5a7e889d4f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
