@@ -156,8 +156,9 @@ SI F F_from_Half(U16 half) {
 #elif defined(USING_AVX512F)
     return (F)_mm512_cvtph_ps((__m256i)half);
 #elif defined(USING_AVX_F16C)
-    typedef int16_t __attribute__((vector_size(16))) I16;
-    return __builtin_ia32_vcvtph2ps256((I16)half);
+    typedef int16_t __attribute__((vector_size(16), __aligned__(16))) I16;
+    typedef float __attribute__((vector_size(32))) F32;
+    return (F)__builtin_convertvector((I16)half, F32);
 #else
     U32 wide = cast<U32>(half);
     // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
