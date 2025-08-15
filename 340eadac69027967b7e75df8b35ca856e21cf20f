@@ -22,6 +22,30 @@
       },
       "revId": "340eadac69027967b7e75df8b35ca856e21cf20f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1302cbd9_6335e8d4",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2025-08-15T20:58:56Z",
+      "side": 1,
+      "message": "Looks like `_Float16` works? Not sure if there is any semantic, availability, or other difference.",
+      "parentUuid": "da3de137_f87863a0",
+      "range": {
+        "startLine": 159,
+        "startChar": 12,
+        "endLine": 159,
+        "endChar": 18
+      },
+      "revId": "340eadac69027967b7e75df8b35ca856e21cf20f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
