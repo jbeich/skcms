@@ -111,14 +111,9 @@ template <typename D, typename S>
 SI D cast(const S& v) {
 #if N == 1
     return (D)v;
-#elif defined(__clang__)
-    return __builtin_convertvector(v, D);
 #else
-    D d;
-    for (int i = 0; i < N; i++) {
-        d[i] = v[i];
-    }
-    return d;
+    return __builtin_convertvector(v, D);
+
 #endif
 }
 
