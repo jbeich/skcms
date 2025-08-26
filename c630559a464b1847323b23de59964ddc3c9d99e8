@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79def0c6_b9052bcc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-26T13:23:15Z",
+      "side": 1,
+      "message": "ptal -- this makes skcms_Transform not ignore CICP values",
+      "revId": "c630559a464b1847323b23de59964ddc3c9d99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
