@@ -64,6 +64,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5602858c_f3e1e10e",
+        "filename": "skcms.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 2619,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-26T17:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c324c613_5f76ba6b",
+      "range": {
+        "startLine": 2619,
+        "startChar": 0,
+        "endLine": 2619,
+        "endChar": 1
+      },
+      "revId": "c630559a464b1847323b23de59964ddc3c9d99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b74a4ee3_c64f5dab",
@@ -77,6 +101,30 @@
       "writtenOn": "2025-08-26T17:27:01Z",
       "side": 1,
       "message": "Does this return false if the destination is invalid?",
+      "range": {
+        "startLine": 2639,
+        "startChar": 7,
+        "endLine": 2639,
+        "endChar": 11
+      },
+      "revId": "c630559a464b1847323b23de59964ddc3c9d99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62c73d81_db3fbc93",
+        "filename": "skcms.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 2639,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-26T17:55:42Z",
+      "side": 1,
+      "message": "Yes, attempting to invert `skcms_TFType_Invalid` returns false. When I take care of the below TODO (which rejects non-sRGB-like transfer functions at the end), then I can make it more obvious.",
+      "parentUuid": "b74a4ee3_c64f5dab",
       "range": {
         "startLine": 2639,
         "startChar": 7,
@@ -110,6 +158,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc007645_4df3d17a",
+        "filename": "tests.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1901,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-26T17:55:42Z",
+      "side": 1,
+      "message": "Added a comment (it comes from the PQ curve, 203 nits). These 3 points are pretty much enough (it\u0027s unlikely anything else would hit these numbers and be anything else).",
+      "parentUuid": "473a2f6a_ebf995d9",
+      "range": {
+        "startLine": 1901,
+        "startChar": 29,
+        "endLine": 1901,
+        "endChar": 40
+      },
+      "revId": "c630559a464b1847323b23de59964ddc3c9d99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "545fd350_d73167bb",
@@ -123,6 +195,30 @@
       "writtenOn": "2025-08-26T17:27:01Z",
       "side": 1,
       "message": "Can this be a named constant to make sure it\u0027s more clear that this is the expected value (+/- some error)",
+      "range": {
+        "startLine": 1910,
+        "startChar": 11,
+        "endLine": 1910,
+        "endChar": 28
+      },
+      "revId": "c630559a464b1847323b23de59964ddc3c9d99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77e32ffc_66ba0907",
+        "filename": "tests.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1910,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-26T17:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "545fd350_d73167bb",
       "range": {
         "startLine": 1910,
         "startChar": 11,
@@ -156,6 +252,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a27d9e70_5d40acd4",
+        "filename": "tests.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1923,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-26T17:55:42Z",
+      "side": 1,
+      "message": "Oh, it was just cause 0.5 is a \"special\" number that happens to map to 1/12.\n\n(BTW, when I add OOTF support, it\u0027ll end up being 0.75, which is \"special\" in that context).",
+      "parentUuid": "227d9982_300e150c",
+      "range": {
+        "startLine": 1923,
+        "startChar": 29,
+        "endLine": 1923,
+        "endChar": 32
+      },
+      "revId": "c630559a464b1847323b23de59964ddc3c9d99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "997b8d0b_74907c3d",
@@ -169,6 +289,30 @@
       "writtenOn": "2025-08-26T17:27:01Z",
       "side": 1,
       "message": "Same comment about this being a named constant to aid readability.",
+      "range": {
+        "startLine": 1933,
+        "startChar": 12,
+        "endLine": 1933,
+        "endChar": 23
+      },
+      "revId": "c630559a464b1847323b23de59964ddc3c9d99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ae10fb0_71f6d1db",
+        "filename": "tests.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1933,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-26T17:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "997b8d0b_74907c3d",
       "range": {
         "startLine": 1933,
         "startChar": 12,
