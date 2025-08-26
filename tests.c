@@ -1896,6 +1896,50 @@ static void test_HLG_v2(void) {
     expect(skcms_TransferFunction_getType(&tf) == skcms_TFType_HLG);
 }
 
+static void test_PQ_CICP(void) {
+    // Represent using CICP.
+    float rgb[] = {0.0f,1.0f,0.58068888f};
+    skcms_ICCProfile src = *skcms_XYZD50_profile(),
+                     dst = *skcms_XYZD50_profile();
+    src.has_CICP = true;
+    src.CICP.transfer_characteristics = 16;
+
+    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src,
+                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst, 1));
+    expect(rgb[0] == 0.0f);
+    expect(10000.0f / 203.0f - 0.1f <= rgb[1] && rgb[1] <= 10000.0f / 203.0f + 0.1f);
+    expect(0.99f < rgb[2] && rgb[2] < 1.01f);
+
+    // And back.
+    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst,
+                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src, 1));
+    expect(0 <= rgb[0] && rgb[0] <= 1e-6);
+    expect(0.99f < rgb[1] && rgb[1] < 1.01f);
+    expect(0.580f < rgb[2] && rgb[2] < 0.581f);
+}
+
+static void test_HLG_CICP(void) {
+    // Represent using CICP.
+    float rgb[] = {0.0f,1.0f,0.5};
+    skcms_ICCProfile src = *skcms_XYZD50_profile(),
+                     dst = *skcms_XYZD50_profile();
+    src.has_CICP = true;
+    src.CICP.transfer_characteristics = 18;
+
+    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src,
+                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst, 1));
+    expect(rgb[0] == 0.0f);
+    expect(0.99f < rgb[1] && rgb[1] < 1.01f);
+    expect(1.0f / 12.0f - 0.01 < rgb[2] && rgb[2] < 1.0f / 12.0f + 0.01);
+
+    // And back.
+    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst,
+                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src, 1));
+    expect(0 <= rgb[0] && rgb[0] <= 1e-6);
+    expect(0.99f < rgb[1] && rgb[1] < 1.01f);
+    expect(0.49f < rgb[2] && rgb[2] < 0.51f);
+}
+
 static void test_RGBA_8888_sRGB(void) {
     // We'll convert sRGB to Display P3 two ways and test they're equivalent.
 
@@ -2085,6 +2129,8 @@ int main(int argc, char** argv) {
     test_HLG_invert();
     test_PQ_v2();
     test_HLG_v2();
+    test_PQ_CICP();
+    test_HLG_CICP();
     test_RGBA_8888_sRGB();
     test_ParseWithA2BPriority();
     test_B2A();
