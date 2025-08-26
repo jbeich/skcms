@@ -2601,23 +2601,83 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     return 0;
 }
 
+static bool has_pq_trc(const skcms_ICCProfile* profile) {
+    return profile->has_CICP
+        && profile->CICP.transfer_characteristics == 16;
+}
+
+static bool has_hlg_trc(const skcms_ICCProfile* profile) {
+    return profile->has_CICP
+        && profile->CICP.transfer_characteristics == 18;
+}
+
+// Set tf to be the PQ transfer function, scaled such that 1.0 will map to 10,000 / 203.
+static void set_reference_pq_ish_trc(skcms_TransferFunction* tf) {
+    // Initialize such that 1.0 maps to 1.0.
+    skcms_TransferFunction_makePQish(tf,
+        -107/128.0f, 1.0f, 32/2523.0f, 2413/128.0f, -2392/128.0f, 8192/1305.0f);
+ 
+    // Distribute scaling factor W by scaling A and B with X ^ (1/F):
+    // ((A + Bx^C) / (D + Ex^C))^F * W = ((A + Bx^C) / (D + Ex^C) * W^(1/F))^F
+    // See https://crbug.com/1058580#c32 for discussion.
+    const float w = 10000.0f / 203.0f;
+    const float ws = powf_(w, 1.0f / tf->f);
+    tf->a = ws * tf->a;
+    tf->b = ws * tf->b;
+}
+
+// Set tf to be the HLG inverse OETF, scaled such that 1.0 will map to 1.0.
+// While this is one version of HLG, there are many others. A better version
+// would be to use the 1,000 nit reference version, but that will require
+// adding opt-optical transform support.
+static void set_sdr_hlg_ish_trc(skcms_TransferFunction* tf) {
+    skcms_TransferFunction_makeHLGish(tf,
+        2.0f, 2.0f, 1/0.17883277f, 0.28466892f, 0.55991073f);
+    tf->f = 1.0f / 12.0f - 1.0f;
+}
+
 static bool prep_for_destination(const skcms_ICCProfile* profile,
                                  skcms_Matrix3x3* fromXYZD50,
                                  skcms_TransferFunction* invR,
                                  skcms_TransferFunction* invG,
                                  skcms_TransferFunction* invB) {
-    // skcms_Transform() supports B2A destinations...
+    // skcms_Transform() supports B2A destinations.
     if (profile->has_B2A) { return true; }
-    // ...and destinations with parametric transfer functions and an XYZD50 gamut matrix.
+
+    // All other formulations require an XYZD50 gamut matrix.
+    const bool has_xyzd50 =
+        profile->has_toXYZD50 &&
+        skcms_Matrix3x3_invert(&profile->toXYZD50, fromXYZD50);
+    if (!has_xyzd50) {
+      return false;
+    }
+
+    // CICP-specified PQ or HLG transfer functions take precedence.
+    if (has_pq_trc(profile)) {
+        skcms_TransferFunction trc_pq;
+        set_reference_pq_ish_trc(&trc_pq);
+        skcms_TransferFunction_invert(&trc_pq, invR);
+        skcms_TransferFunction_invert(&trc_pq, invG);
+        skcms_TransferFunction_invert(&trc_pq, invB);
+        return true;
+    }
+    if (has_hlg_trc(profile)) {
+        skcms_TransferFunction trc_hlg;
+        set_sdr_hlg_ish_trc(&trc_hlg);
+        skcms_TransferFunction_invert(&trc_hlg, invR);
+        skcms_TransferFunction_invert(&trc_hlg, invG);
+        skcms_TransferFunction_invert(&trc_hlg, invB);
+        return true;
+    }
+
+    // TODO: This should be changed to only support sRGB-ish transfer functions.
     return profile->has_trc
-        && profile->has_toXYZD50
         && profile->trc[0].table_entries == 0
         && profile->trc[1].table_entries == 0
         && profile->trc[2].table_entries == 0
         && skcms_TransferFunction_invert(&profile->trc[0].parametric, invR)
         && skcms_TransferFunction_invert(&profile->trc[1].parametric, invG)
-        && skcms_TransferFunction_invert(&profile->trc[2].parametric, invB)
-        && skcms_Matrix3x3_invert(&profile->toXYZD50, fromXYZD50);
+        && skcms_TransferFunction_invert(&profile->trc[2].parametric, invB);
 }
 
 bool skcms_Transform(const void*             src,
@@ -2677,6 +2737,10 @@ bool skcms_Transform(const void*             src,
             add_op_ctx(oa[i].op, oa[i].arg);
         }
     };
+
+    // If the source has a TRC that is specified by CICP and not the TRC
+    // entries, then store it here for future use.
+    skcms_TransferFunction src_cicp_trc;
 
     // These are always parametric curves of some sort.
     skcms_Curve dst_curves[3];
@@ -2787,9 +2851,20 @@ bool skcms_Transform(const void*             src,
             if (srcProfile->pcs == skcms_Signature_Lab) {
                 add_op(Op::lab_to_xyz);
             }
-
-        } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
-            add_curve_ops(srcProfile->trc, /*numChannels=*/3);
+        } else if (srcProfile->has_toXYZD50) {
+            if (has_pq_trc(srcProfile)) {
+                // Use the PQ TRC if indicated in CICP.
+                set_reference_pq_ish_trc(&src_cicp_trc);
+                add_op_ctx(Op::pq_rgb, &src_cicp_trc);
+            } else if (has_hlg_trc(srcProfile)) {
+                // Use the HLG TRC if indicated in CICP.
+                set_sdr_hlg_ish_trc(&src_cicp_trc);
+                add_op_ctx(Op::hlg_rgb, &src_cicp_trc);
+            } else if (srcProfile->has_trc) {
+                add_curve_ops(srcProfile->trc, /*numChannels=*/3);
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
