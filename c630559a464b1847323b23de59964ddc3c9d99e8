@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b51b3984_41da8a6d",
+        "filename": "skcms.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 2606,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-26T18:01:53Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "9f4f0455_b38eb5a3",
+      "range": {
+        "startLine": 2606,
+        "startChar": 53,
+        "endLine": 2606,
+        "endChar": 55
+      },
+      "revId": "c630559a464b1847323b23de59964ddc3c9d99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c324c613_5f76ba6b",
