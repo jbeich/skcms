@@ -16,6 +16,24 @@
       "message": "It looks like skcms doesn\u0027t have an MSVC build, but it looks like maybe it might want to at least build with MSVC? Skia\u0027s BUILD.gn for skcms appears to allow an MSVC build.",
       "revId": "02ca44da98eb3ef9edf16ea76b8baca318f51c3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8822b1e4_ec309c6d",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-26T13:20:43Z",
+      "side": 1,
+      "message": "I don\u0027t think we have the people power to set up an MSVC job atm.",
+      "parentUuid": "1948c35b_7d2df8f6",
+      "revId": "02ca44da98eb3ef9edf16ea76b8baca318f51c3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
