@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63c86fc3_3bd79541",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T09:53:58Z",
+      "side": 1,
+      "message": "Sorry for the back-to-back changes here.\n\nI was gearing up for the big slog of adding the OOTF steps before gamut transform, where the Y computation needs to be parameterized by the primaries, but then I realized that the OOTF can be applied in the XYZD50 color space, which significantly simplifies the pipeline.\n\nWith this change, the math of SkColorSpace transforms and skcms transforms are the same. Once this rolls, I\u0027ll probably add a test on the Skia side verifying this (and also doing more validation of the CICP behavior).",
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
