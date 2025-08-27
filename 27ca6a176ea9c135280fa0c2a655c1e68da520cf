@@ -184,6 +184,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "617dff67_0f288238",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1967,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T20:57:38Z",
+      "side": 1,
+      "message": "Gah, missed it! Fixed.",
+      "parentUuid": "20f4e0a0_ae77b7d1",
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4c70d86a_9f0077aa",
         "filename": "tests.c",
         "patchSetId": 4
