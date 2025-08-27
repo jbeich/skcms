@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "18f61ae5_9a8eecb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T18:05:55Z",
+      "side": 1,
+      "message": "Thanks, updated (but lost +1)",
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fadd186c_725d80e6",
@@ -31,6 +48,30 @@
       "writtenOn": "2025-08-27T16:56:16Z",
       "side": 1,
       "message": "I presume this was calculated by hand?",
+      "range": {
+        "startLine": 1899,
+        "startChar": 29,
+        "endLine": 1899,
+        "endChar": 46
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f76dfba_81629273",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1899,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T18:05:55Z",
+      "side": 1,
+      "message": "It was copied from `SkNamedGamut::kRec2020`. Added a comment about this\n\n(I think we\u0027ll probably want to move the various constants into skcms ... I recently advocated moving them into Skia, which might have been a mistake).",
+      "parentUuid": "fadd186c_725d80e6",
       "range": {
         "startLine": 1899,
         "startChar": 29,
@@ -64,6 +105,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "00f973ad_25eb709e",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1962,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T18:05:55Z",
+      "side": 1,
+      "message": "I wanted to, but compile failed :(. Darn C.\n\nI changed this to use `#defines` so it will work.",
+      "parentUuid": "31996f7b_f388b211",
+      "range": {
+        "startLine": 1962,
+        "startChar": 24,
+        "endLine": 1962,
+        "endChar": 25
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b4e804c4_64b61279",
@@ -81,6 +146,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "002ba5cc_7f9c012a",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1967,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T18:05:55Z",
+      "side": 1,
+      "message": "(done with `#define`)",
+      "parentUuid": "b4e804c4_64b61279",
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c70d86a_9f0077aa",
@@ -94,6 +177,30 @@
       "writtenOn": "2025-08-27T16:56:16Z",
       "side": 1,
       "message": "nit: space after , (here and below)",
+      "range": {
+        "startLine": 1976,
+        "startChar": 61,
+        "endLine": 1976,
+        "endChar": 62
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "149a6547_3d8ba711",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1976,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T18:05:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c70d86a_9f0077aa",
       "range": {
         "startLine": 1976,
         "startChar": 61,
@@ -127,6 +234,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "821aa6ee_a49b2a4f",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2000,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T18:05:55Z",
+      "side": 1,
+      "message": "(done with `#define`)",
+      "parentUuid": "1b5615cf_a387dcfe",
+      "range": {
+        "startLine": 2000,
+        "startChar": 31,
+        "endLine": 2000,
+        "endChar": 36
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "647ea73e_28cbbf90",
@@ -150,6 +281,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d9fbcfc_c0679313",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2009,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T18:05:55Z",
+      "side": 1,
+      "message": "For PQ, http://colorjs.io/apps/convert/ will get you the right numbers.\n\nUnfortunately colorjs.io uses the wrong formula for HLG, so I had to do that by hand (like yeah, with python). Hopefully I can get it updated.",
+      "parentUuid": "647ea73e_28cbbf90",
+      "range": {
+        "startLine": 2009,
+        "startChar": 37,
+        "endLine": 2009,
+        "endChar": 54
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ffd15d53_e498f03f",
@@ -163,6 +318,30 @@
       "writtenOn": "2025-08-27T16:56:16Z",
       "side": 1,
       "message": "num_test_colors * num_channels",
+      "range": {
+        "startLine": 2028,
+        "startChar": 25,
+        "endLine": 2028,
+        "endChar": 30
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb506d00_e3518f22",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2028,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2025-08-27T18:05:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ffd15d53_e498f03f",
       "range": {
         "startLine": 2028,
         "startChar": 25,
