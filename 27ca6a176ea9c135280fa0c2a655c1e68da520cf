@@ -16,6 +16,161 @@
       "message": "Sorry for the back-to-back changes here.\n\nI was gearing up for the big slog of adding the OOTF steps before gamut transform, where the Y computation needs to be parameterized by the primaries, but then I realized that the OOTF can be applied in the XYZD50 color space, which significantly simplifies the pipeline.\n\nWith this change, the math of SkColorSpace transforms and skcms transforms are the same. Once this rolls, I\u0027ll probably add a test on the Skia side verifying this (and also doing more validation of the CICP behavior).",
       "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fadd186c_725d80e6",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1899,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-27T16:56:16Z",
+      "side": 1,
+      "message": "I presume this was calculated by hand?",
+      "range": {
+        "startLine": 1899,
+        "startChar": 29,
+        "endLine": 1899,
+        "endChar": 46
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31996f7b_f388b211",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1962,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-27T16:56:16Z",
+      "side": 1,
+      "message": "suggestion: num_tests",
+      "range": {
+        "startLine": 1962,
+        "startChar": 24,
+        "endLine": 1962,
+        "endChar": 25
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4e804c4_64b61279",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1967,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-27T16:56:16Z",
+      "side": 1,
+      "message": "suggestion: add num_channels",
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c70d86a_9f0077aa",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1976,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-27T16:56:16Z",
+      "side": 1,
+      "message": "nit: space after , (here and below)",
+      "range": {
+        "startLine": 1976,
+        "startChar": 61,
+        "endLine": 1976,
+        "endChar": 62
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b5615cf_a387dcfe",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2000,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-27T16:56:16Z",
+      "side": 1,
+      "message": "suggestion: test_colors[num_profiles][num_test_colors * num_channels]",
+      "range": {
+        "startLine": 2000,
+        "startChar": 31,
+        "endLine": 2000,
+        "endChar": 36
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "647ea73e_28cbbf90",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2009,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-27T16:56:16Z",
+      "side": 1,
+      "message": "Did you break out a calculator or is there a reference impl to use? If the latter, it might be handy to reference here.",
+      "range": {
+        "startLine": 2009,
+        "startChar": 37,
+        "endLine": 2009,
+        "endChar": 54
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffd15d53_e498f03f",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2028,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-27T16:56:16Z",
+      "side": 1,
+      "message": "num_test_colors * num_channels",
+      "range": {
+        "startLine": 2028,
+        "startChar": 25,
+        "endLine": 2028,
+        "endChar": 30
+      },
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
