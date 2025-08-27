@@ -1896,19 +1896,55 @@ static void test_HLG_v2(void) {
     expect(skcms_TransferFunction_getType(&tf) == skcms_TFType_HLG);
 }
 
+// Copied from SkNamedGamut::kRec2020
+static const skcms_Matrix3x3 rec2020_to_xyzd50 = {{
+    {  0.673459f,   0.165661f,  0.125100f  },
+    {  0.279033f,   0.675338f,  0.0456288f },
+    { -0.00193139f, 0.0299794f, 0.797162f  },
+}};
+
+static skcms_ICCProfile skcms_Rec2100PQ_profile(void) {
+    skcms_ICCProfile profile = *skcms_XYZD50_profile();
+
+    profile.has_toXYZD50 = true;
+    profile.toXYZD50 = rec2020_to_xyzd50;
+
+    profile.has_CICP = true;
+    profile.CICP.color_primaries = 9;
+    profile.CICP.transfer_characteristics = 16;
+    profile.CICP.matrix_coefficients = 0;
+    profile.CICP.video_full_range_flag = 1;
+
+    return profile;
+}
+
+static skcms_ICCProfile skcms_Rec2100HLG_profile(void) {
+    skcms_ICCProfile profile = *skcms_XYZD50_profile();
+
+    profile.has_toXYZD50 = true;
+    profile.toXYZD50 = rec2020_to_xyzd50;
+
+    profile.has_CICP = true;
+    profile.CICP.color_primaries = 9;
+    profile.CICP.transfer_characteristics = 18;
+    profile.CICP.matrix_coefficients = 0;
+    profile.CICP.video_full_range_flag = 1;
+
+    return profile;
+}
+
 static void test_PQ_CICP(void) {
     // Represent using CICP.
     // The RGB values are the PQ signal values that map to 0 nits, 10000 nits, and 203 nits.
     float rgb[] = {0.0f,1.0f,0.58068888f};
     const float max_nits = 10000.0f / 203.0f;
 
-    skcms_ICCProfile src = *skcms_XYZD50_profile(),
+    skcms_ICCProfile src = skcms_Rec2100PQ_profile(),
                      dst = *skcms_XYZD50_profile();
-    src.has_CICP = true;
-    src.CICP.transfer_characteristics = 16;
+    dst.toXYZD50 = rec2020_to_xyzd50;
 
-    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src,
-                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst, 1));
+    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &src,
+                           rgb, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &dst, 1));
     expect(rgb[0] == 0.0f);
     expect(max_nits - 0.1f <= rgb[1] && rgb[1] <= max_nits + 0.1f);
     expect(0.99f < rgb[2] && rgb[2] < 1.01f);
@@ -1923,26 +1959,92 @@ static void test_PQ_CICP(void) {
 
 static void test_HLG_CICP(void) {
     // Represent using CICP.
-    // Use the minimum and maximum signals, and the value that maps to 1/12.
-    float rgb[] = {0.0f,1.0f,0.5f};
-    const float mid_value = 1.0f / 12.0f;
-    skcms_ICCProfile src = *skcms_XYZD50_profile(),
-                     dst = *skcms_XYZD50_profile();
-    src.has_CICP = true;
-    src.CICP.transfer_characteristics = 18;
+    const size_t num_tests = 3;
+    float signal_values[3] = {0.0f, 0.75f, 1.0f};
+    float linear_values[3] = {0.0f, 1.0f, 1000.0f / 203.0f};
+    const float eps = 0.01f;
 
-    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src,
-                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst, 1));
-    expect(rgb[0] == 0.0f);
-    expect(0.99f < rgb[1] && rgb[1] < 1.01f);
-    expect(mid_value - 0.01f < rgb[2] && rgb[2] < mid_value + 0.01);
+    for (size_t i = 0; i < num_tests; ++i) {
+        float rgb[3] = {
+            signal_values[i],
+            signal_values[i],
+            signal_values[i],
+        };
+        skcms_ICCProfile src = skcms_Rec2100HLG_profile(),
+                         dst = *skcms_XYZD50_profile();
+        dst.toXYZD50 = rec2020_to_xyzd50;
 
-    // And back.
-    expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst,
-                           rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src, 1));
-    expect(0 <= rgb[0] && rgb[0] <= 1e-6);
-    expect(0.99f < rgb[1] && rgb[1] < 1.01f);
-    expect(0.49f < rgb[2] && rgb[2] < 0.51f);
+        expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &src,
+                               rgb, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &dst, 1));
+        for (size_t c = 0; c < 3; ++c) {
+            expect(linear_values[i] - eps <= rgb[c] && rgb[c] <= linear_values[i] + eps);
+        }
+
+        // And back.
+        expect(skcms_Transform(rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &dst,
+                               rgb, skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &src, 1));
+        for (size_t c = 0; c < 3; ++c) {
+            expect(signal_values[i] - eps <= rgb[c] && rgb[c] <= signal_values[i] + eps);
+        }
+    }
+}
+
+static void test_PQ_HLG_SRGB_xform(void) {
+    #define NUM_PROFILES 3
+    #define NUM_TEST_COLORS 4
+    #define NUM_CHANNELS 3
+    // Test the conversion of four test colors between three color spaces.
+    skcms_ICCProfile profiles[NUM_PROFILES] = {
+        *skcms_sRGB_profile(),
+        skcms_Rec2100PQ_profile(),
+        skcms_Rec2100HLG_profile(),
+    };
+    const float test_colors[NUM_PROFILES][NUM_TEST_COLORS * NUM_CHANNELS] = {
+        // Test colors in sRGB. These colors come from the 8-bit representations on the right. For
+        // the last entry, the 8-bit color "overflows" to test the HDR range.
+        {
+            0.250980f, 0.752941f, 0.501961f, //  40, C0, 80
+            0.752941f, 0.501961f, 0.250980f, //  C0, 80, 40
+            0.501961f, 0.250980f, 0.752941f, //  80, 40, C0
+            1.501961f, 1.501961f, 1.501961f, // 17F,17F,17F
+        },
+        // Test colors in Rec2100PQ. Can computed from the above using
+        // http://colorjs.io/apps/convert/
+        {
+            0.427497f, 0.507680f, 0.438025f,
+            0.488329f, 0.436016f, 0.332192f,
+            0.408383f, 0.325747f, 0.505492f,
+            0.680125f, 0.680100f, 0.680094f,
+        },
+        // Test colors in Rec2100HLG, manually computed using reference definitions.
+        {
+            0.445885f, 0.635855f, 0.471461f,
+            0.608503f, 0.482343f, 0.269551f,
+            0.444920f, 0.277295f, 0.673327f,
+            0.898379f, 0.898336f, 0.898325f,
+        },
+    };
+    const float eps = 0.01f;
+
+    for (size_t src = 0; src < NUM_PROFILES; ++src) {
+        for (size_t dst = 0; dst < NUM_PROFILES; ++dst) {
+            float result[NUM_TEST_COLORS * NUM_CHANNELS];
+            expect(skcms_Transform(
+                test_colors[src],
+                skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &profiles[src],
+                result,
+                skcms_PixelFormat_RGB_fff,skcms_AlphaFormat_Unpremul, &profiles[dst],
+                NUM_TEST_COLORS));
+
+            for (size_t c = 0; c < NUM_TEST_COLORS * 3; ++c) {
+                expect(test_colors[dst][c] - eps <= result[c] &&
+                       result[c] <= test_colors[dst][c] + eps);
+            }
+        }
+    }
+    #undef NUM_PROFILES
+    #undef NUM_TEST_COLORS
+    #undef NUM_CHANNELS
 }
 
 static void test_RGBA_8888_sRGB(void) {
@@ -2136,6 +2238,7 @@ int main(int argc, char** argv) {
     test_HLG_v2();
     test_PQ_CICP();
     test_HLG_CICP();
+    test_PQ_HLG_SRGB_xform();
     test_RGBA_8888_sRGB();
     test_ParseWithA2BPriority();
     test_B2A();
