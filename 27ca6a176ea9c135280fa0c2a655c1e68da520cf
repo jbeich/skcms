@@ -200,6 +200,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4ab0863_7e442c73",
+        "filename": "tests.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1967,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2025-08-28T13:12:55Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "617dff67_0f288238",
+      "revId": "27ca6a176ea9c135280fa0c2a655c1e68da520cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c70d86a_9f0077aa",
