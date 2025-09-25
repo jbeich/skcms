@@ -1,0 +1,39 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "598c7846_06eaf642",
+        "filename": "src/skcms_internals.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 18014
+      },
+      "writtenOn": "2025-09-25T12:39:29Z",
+      "side": 1,
+      "message": "Not only RISCV problem:\n```\nD:\\a\\_temp\\msys64\\mingw64\\bin\\c++.exe -DFJXL_ENABLE_AVX512\u003d0 -DHWY_STATIC_DEFINE -DSKCMS_DISABLE_HSW -DSKCMS_DISABLE_SKX -DTOOLCHAIN_MISS_ASM_HWCAP_H -DTOOLCHAIN_MISS_SYS_AUXV_H -D__DATE__\u003d\\\"redacted\\\" -D__TIMESTAMP__\u003d\\\"redacted\\\" -D__TIME__\u003d\\\"redacted\\\" -Djxl_cms_EXPORTS -ID:/a/libjxl/libjxl -ID:/a/libjxl/libjxl/third_party/highway -ID:/a/libjxl/libjxl/third_party/skcms -ID:/a/libjxl/libjxl/build/lib/include -fno-rtti -O3 -DNDEBUG -std\u003dc++17 -fvisibility\u003dhidden -fno-keep-inline-dllexport \"-DHWY_DISABLED_TARGETS\u003d(HWY_AVX3|HWY_AVX3_SPR|HWY_AVX3_ZEN4|HWY_RVV|HWY_SSSE3|HWY_SVE|HWY_SVE_256|HWY_SVE2|HWY_SVE2_128)\" -fmacro-prefix-map\u003dD:/a/libjxl/libjxl\u003d. -funwind-tables -Wno-builtin-macro-redefined -Wall -fmerge-all-constants -fno-builtin-fwrite -fno-builtin-fread -Wextra -Wc++11-compat -Warray-bounds -Wformat-security -Wimplicit-fallthrough -Wno-register -Wno-unused-function -Wno-unused-parameter -Wnon-virtual-dtor -Woverloaded-virtual -Wvla -Wframe-larger-than\u003d5120 -Wno-cast-align -Wno-double-promotion -Wno-float-equal -Wno-format-nonliteral -Wno-shadow -Wno-sign-conversion -Wno-zero-as-null-pointer-constant -Wno-overloaded-virtual -DJPEGXL_ENABLE_SKCMS\u003d1 -Wno-psabi -Wno-maybe-uninitialized -MD -MT lib/CMakeFiles/jxl_cms.dir/__/third_party/skcms/src/skcms_TransformBaseline.cc.obj -MF lib\\CMakeFiles\\jxl_cms.dir\\__\\third_party\\skcms\\src\\skcms_TransformBaseline.cc.obj.d -o lib/CMakeFiles/jxl_cms.dir/__/third_party/skcms/src/skcms_TransformBaseline.cc.obj -c D:/a/libjxl/libjxl/third_party/skcms/src/skcms_TransformBaseline.cc\nIn file included from D:/a/libjxl/libjxl/third_party/skcms/src/skcms_TransformBaseline.cc:47:\nD:/a/libjxl/libjxl/third_party/skcms/src/Transform_inl.h: In function \u0027void skcms_private::baseline::Exec_load_a8(StageList, const void**, const char*, char*, F, F, F, F, int)\u0027:\nD:/a/libjxl/libjxl/third_party/skcms/src/Transform_inl.h:818:71: error: cannot tail-call: argument must be passed by copying\n  818 |         DECLARE_STAGE(name, arg, [[clang::musttail]] return (*list.fn)(list, ctx, src, dst, \\\n      |                                                             ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~\n  819 |                                                                        r, g, b, a, i))\n      |                                                                        ~~~~~~~~~~~~~~\n```",
+      "fixSuggestions": [
+        {
+          "fixId": "ae9f8e75_e4a534a2",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "src/skcms_internals.h",
+              "range": {
+                "startLine": 62,
+                "startChar": 0,
+                "endLine": 63,
+                "endChar": 0
+              },
+              "replacement": "        // Windows builds also seem to have issues with clang::musttail.\n        #if __has_cpp_attribute(clang::musttail) \u0026\u0026 !defined(__riscv) \u0026\u0026 !defined(_WIN32)\n"
+            }
+          ]
+        }
+      ],
+      "revId": "96d9171c94b937a1b5f0293de7309ac16311b722",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
