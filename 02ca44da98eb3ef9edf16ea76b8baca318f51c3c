@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "232cb4c3_e9d65c32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2025-09-30T15:30:05Z",
+      "side": 1,
+      "message": "I assume you mean at https://registry.bazel.build/modules/skcms ? I assume the Windows (msvc) build? More details would be needed to understand what might need to be done.",
+      "parentUuid": "1ab742c0_bc0683a5",
+      "revId": "02ca44da98eb3ef9edf16ea76b8baca318f51c3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1948c35b_7d2df8f6",
