@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "70c8b6e5_94d2b650",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18014
+      },
+      "writtenOn": "2025-09-30T16:58:42Z",
+      "side": 1,
+      "message": "Yes. I\u0027ve tried simple build repro in godbolt to find out which compilers work.\nWill check with MSVC as well.\nhttps://godbolt.org/z/K4Grj4sGK",
+      "parentUuid": "232cb4c3_e9d65c32",
+      "revId": "02ca44da98eb3ef9edf16ea76b8baca318f51c3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1948c35b_7d2df8f6",
         "filename": "src/Transform_inl.h",
         "patchSetId": 2
