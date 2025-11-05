@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ff9bcb6_5f43ee21",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2025-11-05T15:42:18Z",
+      "side": 1,
+      "message": "Can we add the defines to our GN build file also?\n\nIt\u0027d be nice to exercise the dll config in our component builds.",
+      "revId": "c16eb8ac3d61a440def6c9d43eb72df8acb9be4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "371abf12_6aea11f7",
+        "filename": "src/skcms_public.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2025-11-05T15:42:18Z",
+      "side": 1,
+      "message": "nit: line break",
+      "revId": "c16eb8ac3d61a440def6c9d43eb72df8acb9be4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
