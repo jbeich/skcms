@@ -81,6 +81,7 @@ cc_library(
         "src/skcms_public.h",
     ],
     hdrs = ["skcms.h"],
+    local_defines = ["SKCMS_IMPLEMENTATION=1"],
     deps = [":skcms_TransformBaseline"] +
            select({
                "@platforms//cpu:x86_64": [
@@ -100,11 +101,12 @@ cc_library(
         "src/skcms_internals.h",
         "src/skcms_public.h",
     ],
+    local_defines = ["SKCMS_IMPLEMENTATION=1"],
     # This header does not compile on its own and is meant to be included from skcms_Transform*.cc
     textual_hdrs = [
         "src/Transform_inl.h",
     ],
-              copts = SHARED_COPTS,
+    copts = SHARED_COPTS,
 )
 
 cc_library(
@@ -115,6 +117,7 @@ cc_library(
         "src/skcms_internals.h",
         "src/skcms_public.h",
     ],
+    local_defines = ["SKCMS_IMPLEMENTATION=1"],
     copts = SHARED_COPTS + select({
         "@platforms//cpu:x86_64": [
             "-mavx2",
@@ -136,6 +139,7 @@ cc_library(
         "src/skcms_internals.h",
         "src/skcms_public.h",
     ],
+    local_defines = ["SKCMS_IMPLEMENTATION=1"],
     copts = SHARED_COPTS + select({
         "@platforms//cpu:x86_64": [
             "-mavx512f",
