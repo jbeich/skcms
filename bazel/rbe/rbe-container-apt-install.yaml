@@ -1,0 +1,11 @@
+version: 1
+
+sources:
+  - channel: buster main
+    url: https://snapshot-cloudflare.debian.org/archive/debian/20210922T204450Z
+
+archs:
+  - amd64
+
+packages:
+  - clang
