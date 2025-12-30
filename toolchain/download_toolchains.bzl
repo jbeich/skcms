@@ -20,7 +20,7 @@ name_toolchain = {
     "ndk_linux_amd64": download_ndk_linux_amd64,
 }
 
-def download_toolchains_for_skcms(*args):
+def _download_toolchains_for_skcms(*args):
     """
     Point Bazel to the correct rules for downloading the different toolchains.
 
@@ -34,3 +34,14 @@ def download_toolchains_for_skcms(*args):
             fail("unrecognized toolchain name " + toolchain_name)
         download_toolchain = name_toolchain[toolchain_name]
         download_toolchain(name = toolchain_name)
+
+def _download_toolchains_for_skcms_impl(_ctx):
+    _download_toolchains_for_skcms(
+        "clang_linux_amd64",
+        "clang_mac",
+        "ndk_linux_amd64",
+    )
+
+download_toolchains_for_skcms = module_extension(
+    implementation = _download_toolchains_for_skcms_impl,
+)

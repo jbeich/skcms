@@ -9,6 +9,7 @@ cc_binary(
     deps = [
         ":fuzz_main",
         "//:skcms",
+        "//:skcms_internal_headers",
     ],
 )
 
@@ -18,6 +19,7 @@ cc_binary(
     deps = [
         ":fuzz_main",
         "//:skcms",
+        "//:skcms_internal_headers",
     ],
 )
 
@@ -27,5 +29,6 @@ cc_binary(
     deps = [
         ":fuzz_main",
         "//:skcms",
+        "//:skcms_internal_headers",
     ],
 )

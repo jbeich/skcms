@@ -9,6 +9,8 @@ It uses the usr subfolder of the built toolchain as a sysroot
 This is largely copied from Skia's clang toolchain.
 """
 
+# https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/cc/action_names.bzl
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 load(
     "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "action_config",
@@ -19,11 +21,8 @@ load(
     "variable_with_value",
 )
 
-# https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/cc/action_names.bzl
-load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
-
 # The location of the created clang toolchain.
-EXTERNAL_TOOLCHAIN = "external/clang_linux_amd64"
+EXTERNAL_TOOLCHAIN = "external/+download_toolchains_for_skcms+clang_linux_amd64"
 
 def _linux_amd64_toolchain_info(ctx):
     action_configs = _make_action_configs()

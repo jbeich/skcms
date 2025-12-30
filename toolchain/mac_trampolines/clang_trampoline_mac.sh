@@ -9,4 +9,4 @@
 
 set -euo pipefail
 
-external/clang_mac/bin/clang $@
+external/+download_toolchains_for_skcms+clang_mac/bin/clang $@
