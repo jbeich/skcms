@@ -54,10 +54,12 @@ build:remote --remote_timeout=3600
 # Use the RBE instance from the skia-rbe GCP project.
 build:remote --remote_instance_name=projects/skia-rbe/instances/default_instance
 
+# Default to Linux RBE configuration when using --config=remote.
+build:remote --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
+build:remote --extra_execution_platforms=@rbe_linux_toolchains//config:platform
+
 # Linux RBE configuration.
 build:linux-rbe --config=remote
-build:linux-rbe --extra_toolchains=@rbe_linux_toolchains//config:cc-toolchain
-build:linux-rbe --extra_execution_platforms=@rbe_linux_toolchains//config:platform
 # TODO(kjlubick, lovisolo) We should be building on RBE with the hermetic toolchain
 #   which requires updating the RBE image to have a new enough libtinfo.so.6
 build:linux-rbe --platforms=@rbe_linux_toolchains//config:platform

@@ -2,7 +2,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Path to the Android NDK from the point of view of the cc_toolchain rule.
 # Note how this matches the name in http_archive.
-NDK_PATH = "external/ndk_linux_amd64"
+NDK_PATH = "external/+download_toolchains_for_skcms+ndk_linux_amd64"
 
 def download_ndk_linux_amd64(name):
     """Downloads the Android NDK under external/ndk_linux_amd64."""
