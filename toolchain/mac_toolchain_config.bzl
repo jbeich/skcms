@@ -30,7 +30,7 @@ load(
 load(":clang_layering_check.bzl", "make_layering_check_features")
 
 # The location of the created clang toolchain.
-EXTERNAL_TOOLCHAIN = "external/clang_mac"
+EXTERNAL_TOOLCHAIN = "external/+download_toolchains_for_skcms+clang_mac"
 
 # Root of our symlinks. These symlinks are created in download_mac_toolchain.bzl
 XCODE_MACSDK_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK"
@@ -235,12 +235,6 @@ def _make_action_configs():
         tools = [ar_tool],
     )
 
-    objc_archive_action = action_config(
-        action_name = ACTION_NAMES.objc_archive,
-        flag_sets = common_archive_flags,
-        tools = [ar_tool],
-    )
-
     action_configs = [
         assemble_action,
         c_compile_action,
@@ -250,7 +244,6 @@ def _make_action_configs():
         cpp_link_nodeps_dynamic_library_action,
         cpp_link_static_library_action,
         linkstamp_compile_action,
-        objc_archive_action,
         objc_compile_action,
         objcpp_compile_action,
         preprocess_assemble_action,

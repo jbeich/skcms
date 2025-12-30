@@ -1,0 +1,47 @@
+"""Bazel module for skcms."""
+module(name = "skcms")
+
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_distroless", version = "0.6.1")
+bazel_dep(name = "rules_cc", version = "0.2.14")
+bazel_dep(name = "rules_oci", version = "2.2.7")
+
+download_toolchains_for_skcms = use_extension("//toolchain:download_toolchains.bzl", "download_toolchains_for_skcms")
+
+use_repo(
+    download_toolchains_for_skcms,
+    "clang_linux_amd64",
+    "clang_mac",
+    "ndk_linux_amd64",
+)
+
+local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "local_repository")
+
+local_repository(
+    name = "rbe_linux_toolchains",
+    path = "bazel/rbe/linux-bazel-4.2.1",
+)
+
+local_repository(
+    name = "rbe_windows_toolchains",
+    path = "bazel/rbe/windows-bazel-4.2.1",
+)
+
+# Dependencies for the rbe_container_skcms_linux image.
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "debian10",
+    # :latest as of 2025-12-30.
+    digest = "sha256:37452451e1e170e8a7b9f4a4925863a24dca1042d5a41aa46a2a25979ff30aa3",
+    image = "marketplace.gcr.io/google/debian10",
+    platforms = ["linux/amd64"],
+)
+use_repo(oci, "debian10")
+
+apt = use_extension("@rules_distroless//apt:extensions.bzl", "apt")
+apt.install(
+    name = "rbe-container-apt-install",
+    lock = "//bazel/rbe:rbe-container-apt-install.lock.json",
+    manifest = "//bazel/rbe:rbe-container-apt-install.yaml",
+)
+use_repo(apt, "rbe-container-apt-install")
