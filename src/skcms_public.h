@@ -293,6 +293,8 @@ SKCMS_API bool skcms_AreApproximateInverses(const skcms_Curve* curve,
 SKCMS_API bool skcms_TRCs_AreApproximateInverse(const skcms_ICCProfile* profile,
                                                 const skcms_TransferFunction* inv_tf);
 
+#ifndef SKCMS_EXCLUDE_PARSE
+
 // Parse an ICC profile and return true if possible, otherwise return false.
 // Selects an A2B profile (if present) according to priority list (each entry 0-2).
 // The buffer is not copied; it must remain valid as long as the skcms_ICCProfile will be used.
@@ -308,6 +310,7 @@ static inline bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* pr
                                       priority, sizeof(priority)/sizeof(*priority),
                                       profile);
 }
+#endif  // SKCMS_EXCLUDE_PARSE
 
 SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
                                       skcms_TransferFunction* approx,
