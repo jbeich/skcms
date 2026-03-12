@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0210073_ff549bf4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4159917
+      },
+      "writtenOn": "2026-03-12T11:25:55Z",
+      "side": 1,
+      "message": "This proposed change is to allow chromium reducing binary size by excluding skcms parsing from build once rust based ICC parsing is enabled by default",
+      "revId": "efc652b04077536a380b997b2f07eb914ed9f8e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
