@@ -559,6 +559,87 @@ int skcms_GetInputChannelCount(const skcms_ICCProfile* profile) {
     return dcs_count;
 }
 
+// If you pass f, we'll fit a possibly-non-zero value for *f.
+// If you pass nullptr, we'll assume you want *f to be treated as zero.
+static int fit_linear(const skcms_Curve* curve, int N, float tol,
+                      float* c, float* d, float* f = nullptr) {
+    assert(N > 1);
+    // We iteratively fit the first points to the TF's linear piece.
+    // We want the cx + f line to pass through the first and last points we fit exactly.
+    //
+    // As we walk along the points we find the minimum and maximum slope of the line before the
+    // error would exceed our tolerance.  We stop when the range [slope_min, slope_max] becomes
+    // emtpy, when we definitely can't add any more points.
+    //
+    // Some points' error intervals may intersect the running interval but not lie fully
+    // within it.  So we keep track of the last point we saw that is a valid end point candidate,
+    // and once the search is done, back up to build the line through *that* point.
+    const float dx = 1.0f / static_cast<float>(N - 1);
+
+    int lin_points = 1;
+
+    float f_zero = 0.0f;
+    if (f) {
+        *f = eval_curve(curve, 0);
+    } else {
+        f = &f_zero;
+    }
+
+
+    float slope_min = -INFINITY_;
+    float slope_max = +INFINITY_;
+    for (int i = 1; i < N; ++i) {
+        float x = static_cast<float>(i) * dx;
+        float y = eval_curve(curve, x);
+
+        float slope_max_i = (y + tol - *f) / x,
+              slope_min_i = (y - tol - *f) / x;
+        if (slope_max_i < slope_min || slope_max < slope_min_i) {
+            // Slope intervals would no longer overlap.
+            break;
+        }
+        slope_max = fminf_(slope_max, slope_max_i);
+        slope_min = fmaxf_(slope_min, slope_min_i);
+
+        float cur_slope = (y - *f) / x;
+        if (slope_min <= cur_slope && cur_slope <= slope_max) {
+            lin_points = i + 1;
+            *c = cur_slope;
+        }
+    }
+
+    // Set D to the last point that met our tolerance.
+    *d = static_cast<float>(lin_points - 1) * dx;
+    return lin_points;
+}
+
+void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
+    if (!profile || !profile->buffer || !tag) { return; }
+    if (idx > profile->tag_count) { return; }
+    const tag_Layout* tags = get_tag_table(profile);
+    tag->signature = read_big_u32(tags[idx].signature);
+    tag->size      = read_big_u32(tags[idx].size);
+    tag->buf       = read_big_u32(tags[idx].offset) + profile->buffer;
+    tag->type      = read_big_u32(tag->buf);
+}
+
+bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcms_ICCTag* tag) {
+    if (!profile || !profile->buffer || !tag) { return false; }
+    const tag_Layout* tags = get_tag_table(profile);
+    for (uint32_t i = 0; i < profile->tag_count; ++i) {
+        if (read_big_u32(tags[i].signature) == sig) {
+            tag->signature = sig;
+            tag->size      = read_big_u32(tags[i].size);
+            tag->buf       = read_big_u32(tags[i].offset) + profile->buffer;
+            tag->type      = read_big_u32(tag->buf);
+            return true;
+        }
+    }
+    return false;
+}
+
+#ifndef SKCMS_EXCLUDE_PARSE
+
 static bool read_to_XYZD50(const skcms_ICCTag* rXYZ, const skcms_ICCTag* gXYZ,
                            const skcms_ICCTag* bXYZ, skcms_Matrix3x3* toXYZ) {
     return read_tag_xyz(rXYZ, &toXYZ->vals[0][0], &toXYZ->vals[1][0], &toXYZ->vals[2][0]) &&
@@ -1182,60 +1263,6 @@ static bool read_tag_mba(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xy
     return true;
 }
 
-// If you pass f, we'll fit a possibly-non-zero value for *f.
-// If you pass nullptr, we'll assume you want *f to be treated as zero.
-static int fit_linear(const skcms_Curve* curve, int N, float tol,
-                      float* c, float* d, float* f = nullptr) {
-    assert(N > 1);
-    // We iteratively fit the first points to the TF's linear piece.
-    // We want the cx + f line to pass through the first and last points we fit exactly.
-    //
-    // As we walk along the points we find the minimum and maximum slope of the line before the
-    // error would exceed our tolerance.  We stop when the range [slope_min, slope_max] becomes
-    // emtpy, when we definitely can't add any more points.
-    //
-    // Some points' error intervals may intersect the running interval but not lie fully
-    // within it.  So we keep track of the last point we saw that is a valid end point candidate,
-    // and once the search is done, back up to build the line through *that* point.
-    const float dx = 1.0f / static_cast<float>(N - 1);
-
-    int lin_points = 1;
-
-    float f_zero = 0.0f;
-    if (f) {
-        *f = eval_curve(curve, 0);
-    } else {
-        f = &f_zero;
-    }
-
-
-    float slope_min = -INFINITY_;
-    float slope_max = +INFINITY_;
-    for (int i = 1; i < N; ++i) {
-        float x = static_cast<float>(i) * dx;
-        float y = eval_curve(curve, x);
-
-        float slope_max_i = (y + tol - *f) / x,
-              slope_min_i = (y - tol - *f) / x;
-        if (slope_max_i < slope_min || slope_max < slope_min_i) {
-            // Slope intervals would no longer overlap.
-            break;
-        }
-        slope_max = fminf_(slope_max, slope_max_i);
-        slope_min = fmaxf_(slope_min, slope_min_i);
-
-        float cur_slope = (y - *f) / x;
-        if (slope_min <= cur_slope && cur_slope <= slope_max) {
-            lin_points = i + 1;
-            *c = cur_slope;
-        }
-    }
-
-    // Set D to the last point that met our tolerance.
-    *d = static_cast<float>(lin_points - 1) * dx;
-    return lin_points;
-}
-
 // If this skcms_Curve holds an identity table, rewrite it as an identity skcms_TransferFunction.
 static void canonicalize_identity(skcms_Curve* curve) {
     if (curve->table_entries && curve->table_entries <= (uint32_t)INT_MAX) {
@@ -1324,31 +1351,6 @@ static bool read_cicp(const skcms_ICCTag* tag, skcms_CICP* cicp) {
     cicp->matrix_coefficients      = cicpTag->matrix_coefficients[0];
     cicp->video_full_range_flag    = cicpTag->video_full_range_flag[0];
     return true;
-}
-
-void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
-    if (!profile || !profile->buffer || !tag) { return; }
-    if (idx > profile->tag_count) { return; }
-    const tag_Layout* tags = get_tag_table(profile);
-    tag->signature = read_big_u32(tags[idx].signature);
-    tag->size      = read_big_u32(tags[idx].size);
-    tag->buf       = read_big_u32(tags[idx].offset) + profile->buffer;
-    tag->type      = read_big_u32(tag->buf);
-}
-
-bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcms_ICCTag* tag) {
-    if (!profile || !profile->buffer || !tag) { return false; }
-    const tag_Layout* tags = get_tag_table(profile);
-    for (uint32_t i = 0; i < profile->tag_count; ++i) {
-        if (read_big_u32(tags[i].signature) == sig) {
-            tag->signature = sig;
-            tag->size      = read_big_u32(tags[i].size);
-            tag->buf       = read_big_u32(tags[i].offset) + profile->buffer;
-            tag->type      = read_big_u32(tag->buf);
-            return true;
-        }
-    }
-    return false;
 }
 
 static bool usable_as_src(const skcms_ICCProfile* profile) {
@@ -1507,6 +1509,7 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
     return usable_as_src(profile);
 }
 
+#endif  // SKCMS_EXCLUDE_PARSE
 
 const skcms_ICCProfile* skcms_sRGB_profile() {
     static const skcms_ICCProfile sRGB_profile = {
