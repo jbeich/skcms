@@ -69,6 +69,24 @@
       "parentUuid": "9fc760c4_4a86a18a",
       "revId": "efc652b04077536a380b997b2f07eb914ed9f8e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1062650f_00e9caec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4159917
+      },
+      "writtenOn": "2026-03-13T19:12:37Z",
+      "side": 1,
+      "message": "I think that what is tracked most is the Android apk binary size as there are issues for distributing large apk (I also think that this is the reason while there is a CQ build that fails in apk increase is \u003e16KB)\n\nAdded details to comment. In my local tests it was ~10KB reduction, while enabling rust_icc is increasing ~23KB.",
+      "parentUuid": "707ff48c_e8ddd6bb",
+      "revId": "efc652b04077536a380b997b2f07eb914ed9f8e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
