@@ -190,9 +190,9 @@
           "version": "git_revision:ea71ae8f23ef18150e0be1e35f78bc3ccdf0bd92"
         },
         {
-          "name": "skia/bots/bazelisk",
+          "name": "skia/bots/bazelisk_linux_amd64_linux_amd64",
           "path": "bazelisk",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -246,9 +246,9 @@
           "version": "git_revision:ea71ae8f23ef18150e0be1e35f78bc3ccdf0bd92"
         },
         {
-          "name": "skia/bots/bazelisk",
+          "name": "skia/bots/bazelisk_linux_amd64",
           "path": "bazelisk",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -307,9 +307,9 @@
           "version": "version:17"
         },
         {
-          "name": "skia/bots/bazelisk",
+          "name": "skia/bots/bazelisk_linux_amd64",
           "path": "bazelisk",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -371,9 +371,9 @@
           "version": "version:17"
         },
         {
-          "name": "skia/bots/bazelisk",
+          "name": "skia/bots/bazelisk_linux_amd64",
           "path": "bazelisk",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
