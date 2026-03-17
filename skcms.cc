@@ -2757,6 +2757,14 @@ bool skcms_Transform(const void*             src,
 
     // These are always parametric curves of some sort.
     skcms_Curve dst_curves[3];
+
+    // Precomputed 8-bit TF lookup table, used if we detect a fused tf_rgb op.
+    struct TFTableCurve {
+        skcms_Curve  curve;
+        uint8_t      table_data[4097];
+    };
+    TFTableCurve dst_tf_table;
+
     dst_curves[0].table_entries =
     dst_curves[1].table_entries =
     dst_curves[2].table_entries = 0;
@@ -2968,12 +2976,31 @@ bool skcms_Transform(const void*             src,
             // Encode back to dst RGB using its parametric transfer functions.
             OpAndArg oa[3];
             int numOps = select_curve_ops(dst_curves, /*numChannels=*/3, oa);
-            for (int index = 0; index < numOps; ++index) {
-                assert(oa[index].op != Op::table_r &&
-                       oa[index].op != Op::table_g &&
-                       oa[index].op != Op::table_b &&
-                       oa[index].op != Op::table_a);
-                add_op_ctx(oa[index].op, oa[index].arg);
+
+            // If all three channels fuse into a single tf_rgb op, replace the expensive
+            // parametric evaluation with a fast precomputed 8-bit lookup table.
+            if (numOps == 1 && oa[0].op == Op::tf_rgb) {
+                const skcms_TransferFunction* tf =
+                    (const skcms_TransferFunction*)oa[0].arg;
+                for (int j = 0; j <= 4096; j++) {
+                    float x = j * (1.0f / 4096.0f);
+                    float y = skcms_TransferFunction_eval(tf, x);
+                    y = fmaxf_(0.0f, fminf_(1.0f, y));
+                    dst_tf_table.table_data[j] = (uint8_t)(y * 255.0f + 0.5f);
+                }
+                dst_tf_table.curve.table_entries = 4097;
+                dst_tf_table.curve.table_8       = dst_tf_table.table_data;
+                dst_tf_table.curve.table_16      = nullptr;
+
+                add_op_ctx(Op::table_rgb, &dst_tf_table.curve);
+            } else {
+                for (int index = 0; index < numOps; ++index) {
+                    assert(oa[index].op != Op::table_r &&
+                           oa[index].op != Op::table_g &&
+                           oa[index].op != Op::table_b &&
+                           oa[index].op != Op::table_a);
+                    add_op_ctx(oa[index].op, oa[index].arg);
+                }
             }
         }
     }

@@ -646,6 +646,16 @@ SI void sample_clut_8(const uint8_t* grid_8, I32 ix, F* r, F* g, F* b) {
     *b = cast<F>((rgb >> 16) & 0xff) * (1/255.0f);
 }
 
+// Like sample_clut_8 but for a stride-4 padded CLUT (r,g,b,0 per entry).
+// Uses gather_32 which compiles to a single instruction on ARM64.
+SI void sample_clut_8_s4(const uint8_t* grid_8, I32 ix, F* r, F* g, F* b) {
+    U32 rgb = gather_32(grid_8, ix);
+
+    *r = cast<F>((rgb >>  0) & 0xff) * (1/255.0f);
+    *g = cast<F>((rgb >>  8) & 0xff) * (1/255.0f);
+    *b = cast<F>((rgb >> 16) & 0xff) * (1/255.0f);
+}
+
 SI void sample_clut_8(const uint8_t* grid_8, I32 ix, F* r, F* g, F* b, F* a) {
     // TODO: don't forget to optimize gather_32().
     U32 rgba = gather_32(grid_8, ix);
@@ -682,9 +692,9 @@ SI void sample_clut_16(const uint8_t* grid_16, I32 ix, F* r, F* g, F* b, F* a) {
     *a = F_from_U16_BE(gather_16(grid_16, 4*ix+3));
 }
 
-static void clut(uint32_t input_channels, uint32_t output_channels,
-                 const uint8_t grid_points[4], const uint8_t* grid_8, const uint8_t* grid_16,
-                 F* r, F* g, F* b, F* a) {
+SI void clut(uint32_t input_channels, uint32_t output_channels,
+             const uint8_t grid_points[4], const uint8_t* grid_8, const uint8_t* grid_16,
+             F* r, F* g, F* b, F* a) {
 
     const int dim = (int)input_channels;
     assert (0 < dim && dim <= 4);
@@ -718,6 +728,91 @@ static void clut(uint32_t input_channels, uint32_t output_channels,
     *r = *g = *b = F0;
     if (output_channels == 4) {
         *a = F0;
+    }
+
+    // For 4D CLUTs, use tetrahedral interpolation (5 vertex samples vs 16 for multilinear).
+    // Both are valid ICC interpolation methods; tetrahedral is ~3x fewer table lookups.
+    if (dim == 4) {
+        // Per-dimension stride contributions (index difference between high and low grid point).
+        I32 s0 = index[4] - index[0],
+            s1 = index[5] - index[1],
+            s2 = index[6] - index[2],
+            s3 = index[7] - index[3];
+
+        // Fractional parts (weight[i+4] holds the high weight = fractional part for dimension i).
+        F t0 = weight[4],
+          t1 = weight[5],
+          t2 = weight[6],
+          t3 = weight[7];
+
+        // Base index: sum of all low-side index contributions.
+        I32 base = index[0] + index[1] + index[2] + index[3];
+
+        // Sort (t0,s0)..(t3,s3) descending by t using a 5-step sorting network,
+        // comparators: (0,2),(1,3),(0,1),(2,3),(1,2).
+        // swap_if_less: if ta < tb, swap both (ta↔tb) and (sa↔sb).
+        auto swap_if_less = [](F& ta, I32& sa, F& tb, I32& sb) {
+            auto c = (ta < tb);
+            F   na = if_then_else(c, tb, ta), nb = if_then_else(c, ta, tb);
+            I32 ma = if_then_else(c, sb, sa), mb = if_then_else(c, sa, sb);
+            ta = na; sa = ma;
+            tb = nb; sb = mb;
+        };
+        swap_if_less(t0, s0, t2, s2);
+        swap_if_less(t1, s1, t3, s3);
+        swap_if_less(t0, s0, t1, s1);
+        swap_if_less(t2, s2, t3, s3);
+        swap_if_less(t1, s1, t2, s2);
+        // Now t0 >= t1 >= t2 >= t3, s0..s3 carry the matching strides.
+
+        // Precompute all 5 vertex indices independently so the compiler can issue
+        // all gathers without a sequential ix dependency chain.
+        I32 ix0 = base,
+            ix1 = base + s0,
+            ix2 = base + s0 + s1,
+            ix3 = base + s0 + s1 + s2,
+            ix4 = base + s0 + s1 + s2 + s3;
+
+        // Sample all 5 vertices.
+        F R0,G0,B0,A0=F0, R1,G1,B1,A1=F0, R2,G2,B2,A2=F0, R3,G3,B3,A3=F0, R4,G4,B4,A4=F0;
+        if (output_channels == 3) {
+            if (grid_8) {
+                sample_clut_8(grid_8, ix0, &R0,&G0,&B0);
+                sample_clut_8(grid_8, ix1, &R1,&G1,&B1);
+                sample_clut_8(grid_8, ix2, &R2,&G2,&B2);
+                sample_clut_8(grid_8, ix3, &R3,&G3,&B3);
+                sample_clut_8(grid_8, ix4, &R4,&G4,&B4);
+            } else {
+                sample_clut_16(grid_16, ix0, &R0,&G0,&B0);
+                sample_clut_16(grid_16, ix1, &R1,&G1,&B1);
+                sample_clut_16(grid_16, ix2, &R2,&G2,&B2);
+                sample_clut_16(grid_16, ix3, &R3,&G3,&B3);
+                sample_clut_16(grid_16, ix4, &R4,&G4,&B4);
+            }
+        } else {
+            if (grid_8) {
+                sample_clut_8(grid_8, ix0, &R0,&G0,&B0,&A0);
+                sample_clut_8(grid_8, ix1, &R1,&G1,&B1,&A1);
+                sample_clut_8(grid_8, ix2, &R2,&G2,&B2,&A2);
+                sample_clut_8(grid_8, ix3, &R3,&G3,&B3,&A3);
+                sample_clut_8(grid_8, ix4, &R4,&G4,&B4,&A4);
+            } else {
+                sample_clut_16(grid_16, ix0, &R0,&G0,&B0,&A0);
+                sample_clut_16(grid_16, ix1, &R1,&G1,&B1,&A1);
+                sample_clut_16(grid_16, ix2, &R2,&G2,&B2,&A2);
+                sample_clut_16(grid_16, ix3, &R3,&G3,&B3,&A3);
+                sample_clut_16(grid_16, ix4, &R4,&G4,&B4,&A4);
+            }
+        }
+
+        // Tetrahedral weights and accumulation in a single FMA tree per channel,
+        // letting the compiler use full instruction-level parallelism.
+        F w0=1.0f-t0, w1=t0-t1, w2=t1-t2, w3=t2-t3, w4=t3;
+        *r = w0*R0 + w1*R1 + w2*R2 + w3*R3 + w4*R4;
+        *g = w0*G0 + w1*G1 + w2*G2 + w3*G3 + w4*G4;
+        *b = w0*B0 + w1*B1 + w2*B2 + w3*B3 + w4*B4;
+        *a = w0*A0 + w1*A1 + w2*A2 + w3*A3 + w4*A4;
+        return;
     }
 
     // We'll sample 2^dim == 1<<dim table entries per pixel,
@@ -772,6 +867,72 @@ static void clut(const skcms_B2A* b2a, F* r, F* g, F* b, F* a) {
     clut(b2a->input_channels, b2a->output_channels,
          b2a->grid_points, b2a->grid_8, b2a->grid_16,
          r,g,b,a);
+}
+
+// Tetrahedral interpolation for the specific case: 4 inputs, 3 outputs, stride-4 padded grid_8.
+// This mirrors the dim==4, output_channels==3, grid_8 hot path in clut() but uses
+// sample_clut_8_s4 (gather_32) instead of sample_clut_8 (gather_24).
+SI void clut_s4_4to3(const uint8_t* grid_8, const uint8_t grid_points[4],
+                     F* r, F* g, F* b, F a_in) {
+    I32 index[8];
+    F   weight[8];
+
+    const F inputs[] = { *r, *g, *b, a_in };
+    // We always have exactly 4 input channels (CMYK).
+    for (int i = 3, stride = 1; i >= 0; i--) {
+        F x = inputs[i] * (float)(grid_points[i] - 1);
+        I32 lo = cast<I32>(            x      );
+        I32 hi = cast<I32>(minus_1_ulp(x+1.0f));
+        index[i+0] = lo * stride;
+        index[i+4] = hi * stride;
+        stride *= grid_points[i];
+        F t = x - cast<F>(lo);
+        weight[i+0] = 1-t;
+        weight[i+4] = t;
+    }
+
+    I32 s0 = index[4] - index[0],
+        s1 = index[5] - index[1],
+        s2 = index[6] - index[2],
+        s3 = index[7] - index[3];
+
+    F t0 = weight[4],
+      t1 = weight[5],
+      t2 = weight[6],
+      t3 = weight[7];
+
+    I32 base = index[0] + index[1] + index[2] + index[3];
+
+    auto swap_if_less = [](F& ta, I32& sa, F& tb, I32& sb) {
+        auto c = (ta < tb);
+        F   na = if_then_else(c, tb, ta), nb = if_then_else(c, ta, tb);
+        I32 ma = if_then_else(c, sb, sa), mb = if_then_else(c, sa, sb);
+        ta = na; sa = ma;
+        tb = nb; sb = mb;
+    };
+    swap_if_less(t0, s0, t2, s2);
+    swap_if_less(t1, s1, t3, s3);
+    swap_if_less(t0, s0, t1, s1);
+    swap_if_less(t2, s2, t3, s3);
+    swap_if_less(t1, s1, t2, s2);
+
+    I32 ix0 = base,
+        ix1 = base + s0,
+        ix2 = base + s0 + s1,
+        ix3 = base + s0 + s1 + s2,
+        ix4 = base + s0 + s1 + s2 + s3;
+
+    F R0,G0,B0, R1,G1,B1, R2,G2,B2, R3,G3,B3, R4,G4,B4;
+    sample_clut_8_s4(grid_8, ix0, &R0,&G0,&B0);
+    sample_clut_8_s4(grid_8, ix1, &R1,&G1,&B1);
+    sample_clut_8_s4(grid_8, ix2, &R2,&G2,&B2);
+    sample_clut_8_s4(grid_8, ix3, &R3,&G3,&B3);
+    sample_clut_8_s4(grid_8, ix4, &R4,&G4,&B4);
+
+    F w0=1.0f-t0, w1=t0-t1, w2=t1-t2, w3=t2-t3, w4=t3;
+    *r = w0*R0 + w1*R1 + w2*R2 + w3*R3 + w4*R4;
+    *g = w0*G0 + w1*G1 + w2*G2 + w3*G3 + w4*G4;
+    *b = w0*B0 + w1*B1 + w2*B2 + w3*B3 + w4*B4;
 }
 
 struct NoCtx {};
@@ -1278,6 +1439,18 @@ STAGE(table_g, const skcms_Curve* curve) { g = table(curve, g); }
 STAGE(table_b, const skcms_Curve* curve) { b = table(curve, b); }
 STAGE(table_a, const skcms_Curve* curve) { a = table(curve, a); }
 
+STAGE(table_rgb, const skcms_Curve* curve) {
+    // Round-to-nearest single-entry lookup: half the gathers of the interpolating
+    // table() call.  Max rounding error ≤ 0.5/(n-1) ≈ 0.012% < 1 LSB for 8-bit output.
+    auto lookup = [=](F v) -> F {
+        F ix = max_(F0, min_(v, F1)) * (float)(curve->table_entries - 1) + 0.5f;
+        return F_from_U8(gather_8(curve->table_8, cast<I32>(ix)));
+    };
+    r = lookup(r);
+    g = lookup(g);
+    b = lookup(b);
+}
+
 STAGE(clut_A2B, const skcms_A2B* a2b) {
     clut(a2b, &r,&g,&b,a);
 
@@ -1285,6 +1458,13 @@ STAGE(clut_A2B, const skcms_A2B* a2b) {
         // CMYK is opaque.
         a = F1;
     }
+}
+
+STAGE(clut_A2B_s4, const skcms_private::PaddedCLUT* ctx) {
+    // Specialized path: 4-channel input (CMYK), 3-channel output, stride-4 padded grid_8.
+    // Uses gather_32 (1 ARM64 instruction/lane) instead of gather_24 (~5 instructions/lane).
+    clut_s4_4to3(ctx->grid_8, ctx->grid_points, &r, &g, &b, a);
+    a = F1;  // CMYK is always opaque.
 }
 
 STAGE(clut_B2A, const skcms_B2A* b2a) {
