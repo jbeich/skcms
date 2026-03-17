@@ -85,8 +85,10 @@ namespace skcms_private {
     M(table_g)            \
     M(table_b)            \
     M(table_a)            \
+    M(table_rgb)          \
                           \
     M(clut_A2B)           \
+    M(clut_A2B_s4)        \
     M(clut_B2A)
 
 #define SKCMS_STORE_OPS(M) \
@@ -140,6 +142,12 @@ enum class Op : int {
     };
     template <int N, typename T> using Vec = typename VecHelper<N, T>::V;
 #endif
+
+/** PaddedCLUT: stride-4 CLUT context for clut_A2B_s4 (4 inputs, 3 outputs, grid_8). */
+struct PaddedCLUT {
+    const uint8_t* grid_8;      // stride-4 padded CLUT data: {r,g,b,0} per entry
+    uint8_t        grid_points[4]; // grid point count per input dimension
+};
 
 /** Interface */
 
