@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41195475_ac939a42",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2026-04-02T21:46:31Z",
+      "side": 1,
+      "message": "I find the pagination discussion confusing, because paging is transparent to the application and is not something we normally have to think about.\n\nThe fundamental issue appears to be a buffer underflow, where we attempt to read before the beginning of a client-provided buffer.\n\n(whether or not we crash does depend on memory layout and which addresses are mapped;  but the trigger/root cause is an OOB read)",
+      "range": {
+        "startLine": 16,
+        "startChar": 15,
+        "endLine": 17,
+        "endChar": 24
+      },
+      "revId": "0d99e47b680c511549f91d08ee3a808327b48788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e00c1ea6_618e441f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2026-04-02T21:46:31Z",
+      "side": 1,
+      "message": "This and the original code seem to assume CLUT tables are part of a larger ICC profile buffer.  But per test, these are public structures where clients can pass in pointers to arbitrary CLUTs.\n\nIf clients control the allocation of these buffers, then all bets are off: CLUT buffers can be \"tight\", sized for the exact LUT payload, and then neither the original assumption nor the new one (that the size is 4-aligned) hold.\n\nPoking around, I think the crash is related to the recent moxcms work: historically, CLUTs were always part of a larger buffer, making the existing assumptions safe.  But with moxcms, the pointers are set from [separately allocated buffers](https://source.chromium.org/chromium/chromium/src/+/main:third_party/skia/rust/icc/FFI.cpp;drc\u003de4d0350f477005ae71691642ec0db96cce7e3266;l\u003d91):\n\n```\n   if (rust_a2b.grid_16) {\n       out_skcms-\u003egrid_16 \u003d rust_a2b.grid_data.data();\n   } else {\n       out_skcms-\u003egrid_8 \u003d rust_a2b.grid_data.data();\n   }\n```\n\nSo we can no longer make any assumptions about padding and alignment.",
+      "range": {
+        "startLine": 24,
+        "startChar": 19,
+        "endLine": 26,
+        "endChar": 0
+      },
+      "revId": "0d99e47b680c511549f91d08ee3a808327b48788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14ba7b84_78d41e00",
+        "filename": "tests.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2173,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2026-04-02T21:46:31Z",
+      "side": 1,
+      "message": "This is a nice way to repro the crash deterministically.\n\nA simpler test would be to just pass a separately-malloc\u0027ed grid, which should trip ASAN.",
+      "revId": "0d99e47b680c511549f91d08ee3a808327b48788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
