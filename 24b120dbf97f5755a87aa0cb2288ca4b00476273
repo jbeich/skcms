@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f39fcd56_995b5c87",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2026-04-02T21:58:37Z",
+      "side": 0,
+      "message": "I wonder if we could use masked loads instead.",
+      "revId": "24b120dbf97f5755a87aa0cb2288ca4b00476273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
