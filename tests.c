@@ -18,6 +18,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if !defined(_MSC_VER)
+    #include <sys/mman.h>
+    #include <unistd.h>
+#endif
+
 #if defined(_MSC_VER)
     #define DEBUGBREAK __debugbreak
 #elif defined(__clang__)
@@ -2139,6 +2144,77 @@ static void test_ParseWithA2BPriority(void) {
     free(ptr);
 }
 
+static void test_CLUT_PageBoundary(void) {
+#if !defined(_MSC_VER)
+    // This test ensures that skcms does not read memory before the provided CLUT buffer.
+    // In the past, skcms used a "junk byte" optimization to load 3-byte or 6-byte values
+    // by backing up the pointer by 1-2 bytes to perform an aligned 4-byte or 8-byte load.
+    //
+    // This optimization is dangerous if the buffer is allocated exactly at the start of
+    // a memory page, as backing up will access the previous page. If that page is
+    // unmapped (a common technique for detecting buffer overflows), it causes a crash.
+
+    // 1. Get the system's memory page size (usually 4KB, 16KB, or 64KB).
+    long pagesize = sysconf(_SC_PAGESIZE);
+
+    // 2. Allocate two contiguous pages of memory.
+    // [ Page 1 (valid) ] [ Page 2 (valid) ]
+    void* ptr = mmap(NULL, (size_t)2 * pagesize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (MAP_FAILED == ptr) {
+        return;
+    }
+
+    // Initialize Page 2 so it is actually allocated and mapped by the OS.
+    memset((char*)ptr + pagesize, 0, (size_t)pagesize);
+
+    // 3. Unmap the first page.
+    // [ ABYSS (unmapped) ] [ Page 2 (valid) ]
+    // Any access to Page 1 will now trigger an immediate Segmentation Fault.
+    munmap(ptr, (size_t)pagesize);
+
+    // 4. Place our CLUT data at the very beginning of the second page.
+    // This means Page 1 (the abyss) is immediately before 'grid'.
+    void* grid = (char*)ptr + pagesize;
+
+    skcms_ICCProfile profile;
+    skcms_Init(&profile);
+    profile.has_A2B = true;
+    profile.A2B.input_channels = 3;
+    profile.A2B.output_channels = 3;
+    profile.A2B.grid_points[0] = 2;
+    profile.A2B.grid_points[1] = 2;
+    profile.A2B.grid_points[2] = 2;
+
+    // Use identity-ish curves to focus the test on the CLUT sampling code.
+    for (int i = 0; i < 3; ++i) {
+        profile.A2B.input_curves[i].table_entries = 0;
+        profile.A2B.input_curves[i].parametric = *skcms_Identity_TransferFunction();
+        profile.A2B.output_curves[i].table_entries = 0;
+        profile.A2B.output_curves[i].parametric = *skcms_Identity_TransferFunction();
+    }
+
+    float src[3] = { 0, 0, 0 };
+    float dst[3];
+
+    // 5. Test 16-bit CLUT (uses gather_48).
+    // This used to crash on the old implementation which read the previous page.
+    profile.A2B.grid_16 = (const uint8_t*)grid;
+    profile.A2B.grid_8  = NULL;
+    expect(skcms_Transform(src, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, NULL, 1));
+
+    // 6. Test 8-bit CLUT (uses gather_24).
+    // This used to crash on the old implementation which read the previous page.
+    profile.A2B.grid_8  = (const uint8_t*)grid;
+    profile.A2B.grid_16 = NULL;
+    expect(skcms_Transform(src, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &profile,
+                           dst, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, NULL, 1));
+
+    // Cleanup Page 2.
+    munmap(grid, (size_t)pagesize);
+#endif
+}
+
 static void test_B2A(void) {
     void*  ptr;
     size_t len;
@@ -2242,6 +2318,7 @@ int main(int argc, char** argv) {
     test_RGBA_8888_sRGB();
     test_ParseWithA2BPriority();
     test_B2A();
+    test_CLUT_PageBoundary();
 
     test_Parse(regenTestData);
     test_sRGB_AllBytes();
