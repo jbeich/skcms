@@ -16,6 +16,24 @@
       "message": "I wonder if we could use masked loads instead.",
       "revId": "24b120dbf97f5755a87aa0cb2288ca4b00476273",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c151355_41fda4bd",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2026-04-03T15:12:19Z",
+      "side": 0,
+      "message": "IIUC, a mask can only turn the entire lane on or off at a time, but the lanes here are 32 bits (and 64 bits below). \n\nI was thinking of how SkRasterPipeline handles tail pixels, but that\u0027s tricky here since we could sample from the last pixel \"at any time\" during the calculation process. Thus, we\u0027d need to pipe in a mask through the entire clut -\u003e sample_clut_8/16 -\u003e gather24/48 chain which is quite complicated.\n\nIt would be so much nicer if we could rely on the buffer being slightly padded as per the spec. I\u0027m going to suggest to Sergio that we do that (and then land the change here to not read off the beginning).",
+      "parentUuid": "f39fcd56_995b5c87",
+      "revId": "24b120dbf97f5755a87aa0cb2288ca4b00476273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

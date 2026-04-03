@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "20d7cb2d_d6510344",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2026-04-03T15:12:19Z",
+      "side": 1,
+      "message": "That makes more sense. I was grasping at straws a bit why this would sometimes crash but not, but the moxcms context below clears that up a lot. I\u0027ll update the commit message.",
+      "parentUuid": "41195475_ac939a42",
+      "range": {
+        "startLine": 16,
+        "startChar": 15,
+        "endLine": 17,
+        "endChar": 24
+      },
+      "revId": "0d99e47b680c511549f91d08ee3a808327b48788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e00c1ea6_618e441f",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a1e34a7_564d09e1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2026-04-03T15:12:19Z",
+      "side": 1,
+      "message": "Acknowledged. See other comments",
+      "parentUuid": "e00c1ea6_618e441f",
+      "range": {
+        "startLine": 24,
+        "startChar": 19,
+        "endLine": 26,
+        "endChar": 0
+      },
+      "revId": "0d99e47b680c511549f91d08ee3a808327b48788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14ba7b84_78d41e00",
@@ -60,6 +108,24 @@
       "writtenOn": "2026-04-02T21:46:31Z",
       "side": 1,
       "message": "This is a nice way to repro the crash deterministically.\n\nA simpler test would be to just pass a separately-malloc\u0027ed grid, which should trip ASAN.",
+      "revId": "0d99e47b680c511549f91d08ee3a808327b48788",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81b01c9f_d10f89bd",
+        "filename": "tests.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2173,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2026-04-03T15:12:19Z",
+      "side": 1,
+      "message": "I attempted to get the xsan build to trigger on this, but couldn\u0027t, so I\u0027m going to keep this (and modify it to handle the overflow on the end if we need later).",
+      "parentUuid": "14ba7b84_78d41e00",
       "revId": "0d99e47b680c511549f91d08ee3a808327b48788",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
