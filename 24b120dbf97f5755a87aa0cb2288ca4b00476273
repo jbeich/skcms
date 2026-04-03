@@ -34,6 +34,24 @@
       "parentUuid": "f39fcd56_995b5c87",
       "revId": "24b120dbf97f5755a87aa0cb2288ca4b00476273",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8872a1e4_8512d085",
+        "filename": "src/Transform_inl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2026-04-03T16:42:31Z",
+      "side": 0,
+      "message": "https://review.skia.org/1202696 shows what we have to do to avoid overflows.\n\nLet\u0027s wait on the moxcms person to see if we can rely on the padding after.",
+      "parentUuid": "3c151355_41fda4bd",
+      "revId": "24b120dbf97f5755a87aa0cb2288ca4b00476273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
