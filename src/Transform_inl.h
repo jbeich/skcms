@@ -631,8 +631,10 @@ SI F table(const skcms_Curve* curve, F v) {
     return l + (h-l)*t;
 }
 
-SI void sample_clut_8(const uint8_t* grid_8, I32 ix, F* r, F* g, F* b) {
-    U32 rgb = gather_24(grid_8, ix);
+SI void sample_clut_8(const uint8_t* grid_8, I32 ix, I32 max_ix, U32 last_8, F* r, F* g, F* b) {
+    I32 safe_ix = if_then_else(ix == max_ix, (I32)F0, ix);
+    U32 rgb = gather_24(grid_8, safe_ix);
+    rgb = if_then_else(ix == max_ix, last_8, rgb);
 
     *r = cast<F>((rgb >>  0) & 0xff) * (1/255.0f);
     *g = cast<F>((rgb >>  8) & 0xff) * (1/255.0f);
@@ -649,22 +651,27 @@ SI void sample_clut_8(const uint8_t* grid_8, I32 ix, F* r, F* g, F* b, F* a) {
     *a = cast<F>((rgba >> 24) & 0xff) * (1/255.0f);
 }
 
-SI void sample_clut_16(const uint8_t* grid_16, I32 ix, F* r, F* g, F* b) {
+SI void sample_clut_16(const uint8_t* grid_16, I32 ix, I32 max_ix, F lr, F lg, F lb, F* r, F* g, F* b) {
+    I32 safe_ix = if_then_else(ix == max_ix, (I32)F0, ix);
 #if defined(__arm__) || defined(__loongarch_sx)
     // This is up to 2x faster on 32-bit ARM than the #else-case fast path.
-    *r = F_from_U16_BE(gather_16(grid_16, 3*ix+0));
-    *g = F_from_U16_BE(gather_16(grid_16, 3*ix+1));
-    *b = F_from_U16_BE(gather_16(grid_16, 3*ix+2));
+    *r = F_from_U16_BE(gather_16(grid_16, 3*safe_ix+0));
+    *g = F_from_U16_BE(gather_16(grid_16, 3*safe_ix+1));
+    *b = F_from_U16_BE(gather_16(grid_16, 3*safe_ix+2));
 #else
     // This strategy is much faster for 64-bit builds, and fine for 32-bit x86 too.
     U64 rgb;
-    gather_48(grid_16, ix, &rgb);
+    gather_48(grid_16, safe_ix, &rgb);
     rgb = swap_endian_16x4(rgb);
 
     *r = cast<F>((rgb >>  0) & 0xffff) * (1/65535.0f);
     *g = cast<F>((rgb >> 16) & 0xffff) * (1/65535.0f);
     *b = cast<F>((rgb >> 32) & 0xffff) * (1/65535.0f);
 #endif
+
+    *r = if_then_else(ix == max_ix, lr, *r);
+    *g = if_then_else(ix == max_ix, lg, *g);
+    *b = if_then_else(ix == max_ix, lb, *b);
 }
 
 SI void sample_clut_16(const uint8_t* grid_16, I32 ix, F* r, F* g, F* b, F* a) {
@@ -690,6 +697,7 @@ static void clut(uint32_t input_channels, uint32_t output_channels,
 
     // O(dim) work first: calculate index,weight from r,g,b,a.
     const F inputs[] = { *r,*g,*b,*a };
+    int num_entries = 1;
     for (int i = dim-1, stride = 1; i >= 0; i--) {
         // x is where we logically want to sample the grid in the i-th dimension.
         F x = inputs[i] * (float)(grid_points[i] - 1);
@@ -701,11 +709,31 @@ static void clut(uint32_t input_channels, uint32_t output_channels,
         index[i+0] = lo * stride;
         index[i+4] = hi * stride;
         stride *= grid_points[i];
+        num_entries = stride;
 
         // We'll interpolate between those two integer grid points by t.
         F t = x - cast<F>(lo);  // i.e. fract(x)
         weight[i+0] = 1-t;
         weight[i+4] = t;
+    }
+
+    I32 max_ix = (I32)F0 + (num_entries - 1);
+    uint32_t last_8 = 0;
+    F lr = F0, lg = F0, lb = F0;
+    if (output_channels == 3) {
+        if (grid_8) {
+            memcpy(&last_8, grid_8 + 3 * (num_entries - 1), 3);
+        } else {
+            uint64_t tmp = 0;
+            memcpy(&tmp, grid_16 + 6 * (num_entries - 1), 6);
+            auto decode_be = [](uint16_t v) {
+                uint16_t swapped = (uint16_t)((v >> 8) | (v << 8));
+                return (float)swapped * (1/65535.0f);
+            };
+            lr = F0 + decode_be((uint16_t)((tmp >>  0) & 0xffff));
+            lg = F0 + decode_be((uint16_t)((tmp >> 16) & 0xffff));
+            lb = F0 + decode_be((uint16_t)((tmp >> 32) & 0xffff));
+        }
     }
 
     *r = *g = *b = F0;
@@ -743,8 +771,8 @@ static void clut(uint32_t input_channels, uint32_t output_channels,
 
         F R,G,B,A=F0;
         if (output_channels == 3) {
-            if (grid_8) { sample_clut_8 (grid_8 ,ix, &R,&G,&B); }
-            else        { sample_clut_16(grid_16,ix, &R,&G,&B); }
+            if (grid_8) { sample_clut_8 (grid_8 ,ix, max_ix, (U32)F0 + last_8 , &R,&G,&B); }
+            else        { sample_clut_16(grid_16,ix, max_ix, lr,lg,lb, &R,&G,&B); }
         } else {
             if (grid_8) { sample_clut_8 (grid_8 ,ix, &R,&G,&B,&A); }
             else        { sample_clut_16(grid_16,ix, &R,&G,&B,&A); }
