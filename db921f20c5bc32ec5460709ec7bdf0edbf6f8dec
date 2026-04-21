@@ -24,6 +24,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f2dcd5e_d0d24bdc",
+        "filename": "skcms.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 4159917
+      },
+      "writtenOn": "2026-04-21T20:26:37Z",
+      "side": 1,
+      "message": "LGTM. I have not permissions to vote CodeReview +1 though",
+      "revId": "db921f20c5bc32ec5460709ec7bdf0edbf6f8dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d617653f_93ea7c5f",
