@@ -2215,6 +2215,70 @@ static void test_CLUT_PageBoundary(void) {
 #endif
 }
 
+// https://issues.oss-fuzz.com/issues/504261818
+static void test_CLUT_PageBoundary2(void) {
+#if !defined(_MSC_VER)
+    size_t pagesize = (size_t)sysconf(_SC_PAGESIZE);
+
+    // Allocate two contiguous pages of memory.
+    void* ptr = mmap(NULL, 2 * pagesize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (MAP_FAILED == ptr) {
+        return;
+    }
+
+    // Initialize Page 1 so it is actually allocated and mapped by the OS.
+    memset(ptr, 0, pagesize);
+    // Unmap Page 2
+    munmap((char*)ptr+pagesize, pagesize);
+
+    void*  data;
+    size_t len;
+    expect(load_file("profiles/fuzz/clut_overflow.icc", &data,&len));
+
+    expect(len == 544);
+
+
+    // Place our profile data at the end of the first page.
+    void* pData = (char*)ptr + pagesize - len;
+
+    memcpy(pData, data, len);
+
+    skcms_ICCProfile p;
+    expect(skcms_Parse(pData, len, &p));
+
+    skcms_ICCProfile srgb = *skcms_sRGB_profile();
+
+    // Same as fuzz_iccprofile_transform
+    for (int mode = 0; mode < 2; mode++) {
+        if (mode == 1) {
+            (void)skcms_MakeUsableAsDestination(&p);
+        }
+
+        uint8_t src[256],
+                dst[256];
+        for (skcms_AlphaFormat srcAlpha = skcms_AlphaFormat_Opaque;
+             srcAlpha <= skcms_AlphaFormat_PremulAsEncoded; ++srcAlpha) {
+            for (skcms_AlphaFormat dstAlpha = skcms_AlphaFormat_Opaque;
+                 dstAlpha <= skcms_AlphaFormat_PremulAsEncoded; ++dstAlpha) {
+                for (int i = 0; i < 256; i++) {
+                    src[i] = (uint8_t)i;
+                }
+                skcms_Transform(src, skcms_PixelFormat_RGBA_8888, srcAlpha, &srgb,
+                                dst, skcms_PixelFormat_RGBA_8888, dstAlpha, &p,
+                                64);
+
+                skcms_Transform(src, skcms_PixelFormat_RGBA_8888, srcAlpha, &p,
+                                dst, skcms_PixelFormat_RGBA_8888, dstAlpha, &srgb,
+                                64);
+            }
+        }
+    }
+
+    // Cleanup Page 1
+    munmap(ptr, pagesize);
+#endif
+}
+
 static void test_B2A(void) {
     void*  ptr;
     size_t len;
@@ -2319,6 +2383,7 @@ int main(int argc, char** argv) {
     test_ParseWithA2BPriority();
     test_B2A();
     test_CLUT_PageBoundary();
+    test_CLUT_PageBoundary2();
 
     test_Parse(regenTestData);
     test_sRGB_AllBytes();
