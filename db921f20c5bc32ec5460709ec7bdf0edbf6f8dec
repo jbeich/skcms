@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04a062f6_a62f1186",
+        "filename": "skcms.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2026-04-21T18:17:48Z",
+      "side": 1,
+      "message": "nit: we could name this `clut_size` or such, to avoid repeating the expression.",
+      "range": {
+        "startLine": 1047,
+        "startChar": 24,
+        "endLine": 1047,
+        "endChar": 78
+      },
+      "revId": "db921f20c5bc32ec5460709ec7bdf0edbf6f8dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d617653f_93ea7c5f",
+        "filename": "skcms.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1057,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2026-04-21T18:17:48Z",
+      "side": 1,
+      "message": "nit: line break",
+      "revId": "db921f20c5bc32ec5460709ec7bdf0edbf6f8dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
