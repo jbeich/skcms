@@ -2285,6 +2285,43 @@ static void test_CLUT_PageBoundary2(void) {
 #endif
 }
 
+static void test_CLUT_OutOfBoundsInput(void) {
+    void*  ptr;
+    size_t len;
+    expect(load_file("profiles/color.org/Upper_Left.icc", &ptr, &len));
+
+    skcms_ICCProfile profile;
+    expect(skcms_Parse(ptr, len, &profile));
+
+    // Create input float pixels containing negative, zero, normal, and very large values.
+    float src[] = {
+        -10.0f, -50.0f,  -1.0f, 1.0f,
+          0.0f,   0.5f,   1.0f, 1.0f,
+          2.0f,  10.0f, 100.0f, 1.0f,
+    };
+    uint8_t dst[12];
+
+    // This should run safely without crashing or out-of-bounds reads.
+    expect(skcms_Transform(
+            src, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+            dst, skcms_PixelFormat_RGBA_8888, skcms_AlphaFormat_Unpremul, &profile,
+            3));
+
+    // Test A2B path as well with out-of-bounds float inputs.
+    float src_a2b[] = {
+        -10.0f, -50.0f,  -1.0f, 1.0f,
+          0.0f,   0.5f,   1.0f, 1.0f,
+          2.0f,  10.0f, 100.0f, 1.0f,
+    };
+    float dst_a2b[12];
+    expect(skcms_Transform(
+            src_a2b, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, &profile,
+            dst_a2b, skcms_PixelFormat_RGBA_ffff, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+            3));
+
+    free(ptr);
+}
+
 static void test_B2A(void) {
     void*  ptr;
     size_t len;
@@ -2387,6 +2424,7 @@ int main(int argc, char** argv) {
     test_PQ_HLG_SRGB_xform();
     test_RGBA_8888_sRGB();
     test_ParseWithA2BPriority();
+    test_CLUT_OutOfBoundsInput();
     test_B2A();
     test_CLUT_PageBoundary();
     test_CLUT_PageBoundary2();
