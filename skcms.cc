@@ -369,9 +369,11 @@ enum {
     skcms_Signature_WTPT = 0x77747074,
 
     skcms_Signature_CICP = 0x63696370,
+    skcms_Signature_HAGC = 0x48414743,
 
     // Type signatures
     skcms_Signature_curv = 0x63757276,
+    skcms_Signature_hagc = 0x68616763,
     skcms_Signature_mft1 = 0x6D667431,
     skcms_Signature_mft2 = 0x6D667432,
     skcms_Signature_mAB  = 0x6D414220,
@@ -1378,6 +1380,28 @@ static bool read_cicp(const skcms_ICCTag* tag, skcms_CICP* cicp) {
     return true;
 }
 
+typedef struct {
+    uint8_t type                     [4];
+    uint8_t reserved                 [4];
+    uint8_t size_minus_one           [4];
+} HAGC_Layout;
+
+static bool read_hagc(const skcms_ICCTag* tag, skcms_HAGC* hagc) {
+    if (tag->type != skcms_Signature_hagc || tag->size < SAFE_SIZEOF(HAGC_Layout)) {
+        return false;
+    }
+
+    const HAGC_Layout* hagcTag = (const HAGC_Layout*)tag->buf;
+    uint32_t size_minus_one = read_big_u32(hagcTag->size_minus_one);
+    if (size_minus_one >= tag->size - SAFE_SIZEOF(HAGC_Layout)) {
+        return false;
+    }
+
+    hagc->size   = size_minus_one + 1;
+    hagc->buffer = tag->buf + sizeof(HAGC_Layout);
+    return true;
+}
+
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
     if (idx > profile->tag_count) { return; }
@@ -1405,7 +1429,8 @@ bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcm
 
 static bool usable_as_src(const skcms_ICCProfile* profile) {
     return profile->has_A2B
-       || (profile->has_trc && profile->has_toXYZD50);
+       || (profile->has_trc && profile->has_toXYZD50)
+       || profile->has_CICP;
 }
 
 bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
@@ -1557,6 +1582,15 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
         profile->has_CICP = true;
     }
 
+    skcms_ICCTag hagc_tag;
+    if (skcms_GetTagBySignature(profile, skcms_Signature_HAGC, &hagc_tag)) {
+        if (!read_hagc(&hagc_tag, &profile->HAGC)) {
+            // Malformed HAGC tag
+            return false;
+        }
+        profile->has_HAGC = true;
+    }
+
     return usable_as_src(profile);
 }
 
@@ -1649,12 +1683,14 @@ const skcms_ICCProfile* skcms_sRGB_profile() {
         },
 
         { 0, 0, 0, 0 },  // an empty CICP
+        { 0, nullptr },  // an empty HAGC
 
         true,  // has_trc
         true,  // has_toXYZD50
         false, // has_A2B
         false, // has B2A
         false, // has_CICP
+        false, // has_HAGC
     };
     return &sRGB_profile;
 }
@@ -1746,12 +1782,14 @@ const skcms_ICCProfile* skcms_XYZD50_profile() {
         },
 
         { 0, 0, 0, 0 },  // an empty CICP
+        { 0, nullptr },  // an empty HAGC
 
         true,  // has_trc
         true,  // has_toXYZD50
         false, // has_A2B
         false, // has B2A
         false, // has_CICP
+        false, // has_HAGC
     };
 
     return &XYZD50_profile;

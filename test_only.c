@@ -409,6 +409,18 @@ void dump_profile(const skcms_ICCProfile* profile, FILE* fp) {
                 profile->CICP.matrix_coefficients, profile->CICP.video_full_range_flag);
     }
 
+    if (profile->has_HAGC) {
+        fprintf(fp, "HAGC :");
+        for (uint32_t i = 0; i < profile->HAGC.size; ++i) {
+            if (i % 8 == 0 && i != 0) {
+                fprintf(fp, "\n      ");
+            }
+            fprintf(fp, " 0x%02x%s", profile->HAGC.buffer[i],
+                    (i + 1 < profile->HAGC.size) ? "," : "");
+        }
+        fprintf(fp, "\n");
+    }
+
     dump_transform_to_XYZD50(fp, profile);
     dump_transform_to_sRGBA (fp, profile);
     if (skcms_ApproximatelyEqualProfiles(profile, skcms_sRGB_profile())) {

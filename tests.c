@@ -765,6 +765,9 @@ static const char* profile_test_cases[] = {
     "profiles/misc/Rec2020_HLG_cicp.icc",
     "profiles/misc/Rec2020_PQ_cicp.icc",
 
+    // HDR profiles that include the 'HAGC' tag
+    "profiles/misc/Apple_pq_hagc_hdgm.icc",
+
     // fuzzer generated profiles that found parsing bugs
 
     // Bad tag table data - these should not parse
