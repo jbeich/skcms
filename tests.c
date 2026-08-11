@@ -761,6 +761,7 @@ static const char* profile_test_cases[] = {
     "profiles/misc/Calibrated_A2B_XYZ_Mismatch.icc",  // chromium:1055154
 
     // HDR profiles that include the new 'cicp' tag (from ICC 4.4.0)
+    "profiles/misc/Apple_macOS_27_beta_screenshot.icc",
     "profiles/misc/P3_PQ_cicp.icc",
     "profiles/misc/Rec2020_HLG_cicp.icc",
     "profiles/misc/Rec2020_PQ_cicp.icc",
@@ -2244,13 +2245,15 @@ static void test_CLUT_PageBoundary2(void) {
     memcpy(pData, data, len);
 
     skcms_ICCProfile p;
-    expect(!skcms_Parse(pData, len, &p));
+    expect(skcms_Parse(pData, len, &p));
+    expect(!p.has_B2A);
 
     // Back off by 2 bytes to provide the required slack.
     pData = (char*)ptr + pagesize - len - 2;
     memcpy(pData, data, len);
     free(data);
     expect(skcms_Parse(pData, len + 2, &p));
+    expect(p.has_B2A);
 
     skcms_ICCProfile srgb = *skcms_sRGB_profile();
 
