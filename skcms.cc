@@ -1405,7 +1405,8 @@ bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcm
 
 static bool usable_as_src(const skcms_ICCProfile* profile) {
     return profile->has_A2B
-       || (profile->has_trc && profile->has_toXYZD50);
+       || (profile->has_trc && profile->has_toXYZD50)
+       || profile->has_CICP;
 }
 
 bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
@@ -1522,11 +1523,12 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
         uint32_t sig = skcms_Signature_A2B0 + static_cast<uint32_t>(priority[i]);
         skcms_ICCTag tag;
         if (skcms_GetTagBySignature(profile, sig, &tag)) {
-            if (!read_a2b(&tag, &profile->A2B, pcs_is_xyz, endOfBuffer)) {
-                // Malformed A2B tag
-                return false;
+            if (read_a2b(&tag, &profile->A2B, pcs_is_xyz, endOfBuffer)) {
+                profile->has_A2B = true;
+            } else {
+                profile->has_A2B = false;
+                memset(&profile->A2B, 0, SAFE_SIZEOF(profile->A2B));
             }
-            profile->has_A2B = true;
             break;
         }
     }
@@ -1539,11 +1541,12 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
         uint32_t sig = skcms_Signature_B2A0 + static_cast<uint32_t>(priority[i]);
         skcms_ICCTag tag;
         if (skcms_GetTagBySignature(profile, sig, &tag)) {
-            if (!read_b2a(&tag, &profile->B2A, pcs_is_xyz, endOfBuffer)) {
-                // Malformed B2A tag
-                return false;
+            if (read_b2a(&tag, &profile->B2A, pcs_is_xyz, endOfBuffer)) {
+                profile->has_B2A = true;
+            } else {
+                profile->has_B2A = false;
+                memset(&profile->B2A, 0, SAFE_SIZEOF(profile->B2A));
             }
-            profile->has_B2A = true;
             break;
         }
     }
