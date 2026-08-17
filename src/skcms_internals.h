@@ -185,6 +185,10 @@ typedef union skcms_Curve skcms_Curve;
 void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
 bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
+bool skcms_ParseWithA2BPriority_internal(const void* buf, size_t len,
+                                         const int priority[], const int priorities,
+                                         skcms_ICCProfile* profile);
+
 float skcms_MaxRoundtripError(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf);
 
 // 252 of a random shuffle of all possible bytes.
