@@ -123,6 +123,54 @@ extern "C" {
 #endif
 
 // ~~~~ Shared ~~~~
+// A potential vulnerability exists where a large CLUT can cause an integer
+// overflow in skcms's transformation logic. Limit the total number of grid
+// points to a safe value. 350 million ensures that 6 * index will not overflow
+// a 32-bit signed integer (which is what AVX2/AVX-512 gather expects).
+#define SKCMS_MAX_GRID_POINTS 350000000
+
+// See https://crbug.com/492744328 for how this was determined.
+enum { kMaxTableEntries = 1 << 24 }; // 16,777,216
+
+// Additional ICC signature values that are only used internally
+enum {
+    // File signature
+    skcms_Signature_acsp = 0x61637370,
+
+    // Tag signatures
+    skcms_Signature_rTRC = 0x72545243,
+    skcms_Signature_gTRC = 0x67545243,
+    skcms_Signature_bTRC = 0x62545243,
+    skcms_Signature_kTRC = 0x6B545243,
+
+    skcms_Signature_rXYZ = 0x7258595A,
+    skcms_Signature_gXYZ = 0x6758595A,
+    skcms_Signature_bXYZ = 0x6258595A,
+
+    skcms_Signature_A2B0 = 0x41324230,
+    skcms_Signature_B2A0 = 0x42324130,
+
+    skcms_Signature_CHAD = 0x63686164,
+    skcms_Signature_WTPT = 0x77747074,
+
+    skcms_Signature_CICP = 0x63696370,
+
+    // Type signatures
+    skcms_Signature_curv = 0x63757276,
+    skcms_Signature_mft1 = 0x6D667431,
+    skcms_Signature_mft2 = 0x6D667432,
+    skcms_Signature_mAB  = 0x6D414220,
+    skcms_Signature_mBA  = 0x6D424120,
+    skcms_Signature_para = 0x70617261,
+    skcms_Signature_sf32 = 0x73663332,
+};
+
+// See ITU-T H.273 Table 3 for the full list of codes.
+enum {
+    kTransferCicpIdPQ  = 16,
+    kTransferCicpIdHLG = 18,
+};
+
 typedef struct skcms_ICCTag {
     uint32_t       signature;
     uint32_t       type;
