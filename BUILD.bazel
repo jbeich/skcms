@@ -69,6 +69,7 @@ cc_library(
     name = "skcms_public",
     srcs = [
         "skcms.cc",
+        "skcms_parse.cc",
     ],
     hdrs = ["skcms.h"],
     copts = SHARED_COPTS,
