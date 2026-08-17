@@ -35,12 +35,6 @@
 
 using namespace skcms_private;
 
-// A potential vulnerability exists where a large CLUT can cause an integer
-// overflow in skcms's transformation logic. Limit the total number of grid
-// points to a safe value. 350 million ensures that 6 * index will not overflow
-// a 32-bit signed integer (which is what AVX2/AVX-512 gather expects).
-#define SKCMS_MAX_GRID_POINTS 350000000
-
 static bool sAllowRuntimeCPUDetection = true;
 
 void skcms_DisableRuntimeCPUDetection() {
@@ -347,41 +341,6 @@ bool skcms_AreApproximateInverses(const skcms_Curve* curve, const skcms_Transfer
     return skcms_MaxRoundtripError(curve, inv_tf) < (1/512.0f);
 }
 
-// Additional ICC signature values that are only used internally
-enum {
-    // File signature
-    skcms_Signature_acsp = 0x61637370,
-
-    // Tag signatures
-    skcms_Signature_rTRC = 0x72545243,
-    skcms_Signature_gTRC = 0x67545243,
-    skcms_Signature_bTRC = 0x62545243,
-    skcms_Signature_kTRC = 0x6B545243,
-
-    skcms_Signature_rXYZ = 0x7258595A,
-    skcms_Signature_gXYZ = 0x6758595A,
-    skcms_Signature_bXYZ = 0x6258595A,
-
-    skcms_Signature_A2B0 = 0x41324230,
-    skcms_Signature_B2A0 = 0x42324130,
-
-    skcms_Signature_CHAD = 0x63686164,
-    skcms_Signature_WTPT = 0x77747074,
-
-    skcms_Signature_CICP = 0x63696370,
-
-    // Type signatures
-    skcms_Signature_curv = 0x63757276,
-    skcms_Signature_mft1 = 0x6D667431,
-    skcms_Signature_mft2 = 0x6D667432,
-    skcms_Signature_mAB  = 0x6D414220,
-    skcms_Signature_mBA  = 0x6D424120,
-    skcms_Signature_para = 0x70617261,
-    skcms_Signature_sf32 = 0x73663332,
-    // XYZ is also a PCS signature, so it's defined in skcms.h
-    // skcms_Signature_XYZ = 0x58595A20,
-};
-
 static uint16_t read_big_u16(const uint8_t* ptr) {
     uint16_t be;
     memcpy(&be, ptr, sizeof(be));
@@ -655,9 +614,6 @@ typedef struct {
     uint8_t value_count   [4];
     uint8_t variable      [1/*variable*/];  // value_count, 8.8 if 1, uint16 (n*65535) if > 1
 } curv_Layout;
-
-// See https://crbug.com/492744328 for how this was determined.
-static const uint32_t kMaxTableEntries = 1 << 24; // 16,777,216
 
 static bool read_curve_curv(const uint8_t* buf, uint32_t size,
                             skcms_Curve* curve, uint32_t* curve_size) {
@@ -1306,53 +1262,17 @@ static void canonicalize_identity(skcms_Curve* curve) {
 }
 
 static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz, const uint8_t* eob) {
-    bool ok = false;
-    if (tag->type == skcms_Signature_mft1) { ok = read_tag_mft1(tag, a2b); }
-    if (tag->type == skcms_Signature_mft2) { ok = read_tag_mft2(tag, a2b); }
-    if (tag->type == skcms_Signature_mAB ) { ok = read_tag_mab(tag, a2b, pcs_is_xyz, eob); }
-    if (!ok) {
-        return false;
-    }
-
-    if (a2b->input_channels > 0) { canonicalize_identity(a2b->input_curves + 0); }
-    if (a2b->input_channels > 1) { canonicalize_identity(a2b->input_curves + 1); }
-    if (a2b->input_channels > 2) { canonicalize_identity(a2b->input_curves + 2); }
-    if (a2b->input_channels > 3) { canonicalize_identity(a2b->input_curves + 3); }
-
-    if (a2b->matrix_channels > 0) { canonicalize_identity(a2b->matrix_curves + 0); }
-    if (a2b->matrix_channels > 1) { canonicalize_identity(a2b->matrix_curves + 1); }
-    if (a2b->matrix_channels > 2) { canonicalize_identity(a2b->matrix_curves + 2); }
-
-    if (a2b->output_channels > 0) { canonicalize_identity(a2b->output_curves + 0); }
-    if (a2b->output_channels > 1) { canonicalize_identity(a2b->output_curves + 1); }
-    if (a2b->output_channels > 2) { canonicalize_identity(a2b->output_curves + 2); }
-
-    return true;
+    if (tag->type == skcms_Signature_mft1) { return read_tag_mft1(tag, a2b); }
+    if (tag->type == skcms_Signature_mft2) { return read_tag_mft2(tag, a2b); }
+    if (tag->type == skcms_Signature_mAB ) { return read_tag_mab(tag, a2b, pcs_is_xyz, eob); }
+    return false;
 }
 
 static bool read_b2a(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xyz, const uint8_t* eob) {
-    bool ok = false;
-    if (tag->type == skcms_Signature_mft1) { ok = read_tag_mft1(tag, b2a); }
-    if (tag->type == skcms_Signature_mft2) { ok = read_tag_mft2(tag, b2a); }
-    if (tag->type == skcms_Signature_mBA ) { ok = read_tag_mba(tag, b2a, pcs_is_xyz, eob); }
-    if (!ok) {
-        return false;
-    }
-
-    if (b2a->input_channels > 0) { canonicalize_identity(b2a->input_curves + 0); }
-    if (b2a->input_channels > 1) { canonicalize_identity(b2a->input_curves + 1); }
-    if (b2a->input_channels > 2) { canonicalize_identity(b2a->input_curves + 2); }
-
-    if (b2a->matrix_channels > 0) { canonicalize_identity(b2a->matrix_curves + 0); }
-    if (b2a->matrix_channels > 1) { canonicalize_identity(b2a->matrix_curves + 1); }
-    if (b2a->matrix_channels > 2) { canonicalize_identity(b2a->matrix_curves + 2); }
-
-    if (b2a->output_channels > 0) { canonicalize_identity(b2a->output_curves + 0); }
-    if (b2a->output_channels > 1) { canonicalize_identity(b2a->output_curves + 1); }
-    if (b2a->output_channels > 2) { canonicalize_identity(b2a->output_curves + 2); }
-    if (b2a->output_channels > 3) { canonicalize_identity(b2a->output_curves + 3); }
-
-    return true;
+    if (tag->type == skcms_Signature_mft1) { return read_tag_mft1(tag, b2a); }
+    if (tag->type == skcms_Signature_mft2) { return read_tag_mft2(tag, b2a); }
+    if (tag->type == skcms_Signature_mBA ) { return read_tag_mba(tag, b2a, pcs_is_xyz, eob); }
+    return false;
 }
 
 typedef struct {
@@ -1557,7 +1477,35 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
         profile->has_CICP = true;
     }
 
-    return usable_as_src(profile);
+    if (!usable_as_src(profile)) {
+        return false;
+    }
+
+    if (profile->has_A2B) {
+        for (uint32_t c = 0; c < profile->A2B.input_channels; ++c) {
+            canonicalize_identity(&profile->A2B.input_curves[c]);
+        }
+        for (uint32_t c = 0; c < profile->A2B.matrix_channels; ++c) {
+            canonicalize_identity(&profile->A2B.matrix_curves[c]);
+        }
+        for (uint32_t c = 0; c < profile->A2B.output_channels; ++c) {
+            canonicalize_identity(&profile->A2B.output_curves[c]);
+        }
+    }
+
+    if (profile->has_B2A) {
+        for (uint32_t c = 0; c < profile->B2A.input_channels; ++c) {
+            canonicalize_identity(&profile->B2A.input_curves[c]);
+        }
+        for (uint32_t c = 0; c < profile->B2A.matrix_channels; ++c) {
+            canonicalize_identity(&profile->B2A.matrix_curves[c]);
+        }
+        for (uint32_t c = 0; c < profile->B2A.output_channels; ++c) {
+            canonicalize_identity(&profile->B2A.output_curves[c]);
+        }
+    }
+
+    return true;
 }
 
 
@@ -2659,10 +2607,6 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     assert(false);
     return 0;
 }
-
-// See ITU-T H.273 Table 3 for the full list of codes.
-const uint8_t kTransferCicpIdPQ = 16;
-const uint8_t kTransferCicpIdHLG = 18;
 
 static bool has_cicp_pq_trc(const skcms_ICCProfile* profile) {
     return profile->has_CICP
