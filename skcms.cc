@@ -646,7 +646,7 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
             curve->parametric.f = read_big_fixed(paraTag->variable + 24);
             break;
     }
-    return skcms_TransferFunction_isSRGBish(&curve->parametric);
+    return true;
 }
 
 typedef struct {
@@ -1289,7 +1289,8 @@ static int fit_linear(const skcms_Curve* curve, int N, float tol,
 }
 
 // If this skcms_Curve holds an identity table, rewrite it as an identity skcms_TransferFunction.
-static void canonicalize_identity(skcms_Curve* curve) {
+// If the curve is parametric, ensure that it does not have any undefined behavior.
+static bool canonicalize_and_validate_curve(skcms_Curve* curve) {
     if (curve->table_entries && curve->table_entries <= (uint32_t)INT_MAX) {
         int N = (int)curve->table_entries;
 
@@ -1302,7 +1303,14 @@ static void canonicalize_identity(skcms_Curve* curve) {
             curve->table_16      = nullptr;
             curve->parametric    = skcms_TransferFunction{1,1,0,0,0,0,0};
         }
+    } else if (curve->table_entries == 0) {
+        // The ICC spec says that behavior is undefined for parametric curves that fail these
+        // criteria, but we reject them here.
+        if (!skcms_TransferFunction_isSRGBish(&curve->parametric)) {
+            return false;
+        }
     }
+    return true;
 }
 
 static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz, const uint8_t* eob) {
@@ -1310,24 +1318,7 @@ static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz, c
     if (tag->type == skcms_Signature_mft1) { ok = read_tag_mft1(tag, a2b); }
     if (tag->type == skcms_Signature_mft2) { ok = read_tag_mft2(tag, a2b); }
     if (tag->type == skcms_Signature_mAB ) { ok = read_tag_mab(tag, a2b, pcs_is_xyz, eob); }
-    if (!ok) {
-        return false;
-    }
-
-    if (a2b->input_channels > 0) { canonicalize_identity(a2b->input_curves + 0); }
-    if (a2b->input_channels > 1) { canonicalize_identity(a2b->input_curves + 1); }
-    if (a2b->input_channels > 2) { canonicalize_identity(a2b->input_curves + 2); }
-    if (a2b->input_channels > 3) { canonicalize_identity(a2b->input_curves + 3); }
-
-    if (a2b->matrix_channels > 0) { canonicalize_identity(a2b->matrix_curves + 0); }
-    if (a2b->matrix_channels > 1) { canonicalize_identity(a2b->matrix_curves + 1); }
-    if (a2b->matrix_channels > 2) { canonicalize_identity(a2b->matrix_curves + 2); }
-
-    if (a2b->output_channels > 0) { canonicalize_identity(a2b->output_curves + 0); }
-    if (a2b->output_channels > 1) { canonicalize_identity(a2b->output_curves + 1); }
-    if (a2b->output_channels > 2) { canonicalize_identity(a2b->output_curves + 2); }
-
-    return true;
+    return ok;
 }
 
 static bool read_b2a(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xyz, const uint8_t* eob) {
@@ -1335,24 +1326,7 @@ static bool read_b2a(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xyz, c
     if (tag->type == skcms_Signature_mft1) { ok = read_tag_mft1(tag, b2a); }
     if (tag->type == skcms_Signature_mft2) { ok = read_tag_mft2(tag, b2a); }
     if (tag->type == skcms_Signature_mBA ) { ok = read_tag_mba(tag, b2a, pcs_is_xyz, eob); }
-    if (!ok) {
-        return false;
-    }
-
-    if (b2a->input_channels > 0) { canonicalize_identity(b2a->input_curves + 0); }
-    if (b2a->input_channels > 1) { canonicalize_identity(b2a->input_curves + 1); }
-    if (b2a->input_channels > 2) { canonicalize_identity(b2a->input_curves + 2); }
-
-    if (b2a->matrix_channels > 0) { canonicalize_identity(b2a->matrix_curves + 0); }
-    if (b2a->matrix_channels > 1) { canonicalize_identity(b2a->matrix_curves + 1); }
-    if (b2a->matrix_channels > 2) { canonicalize_identity(b2a->matrix_curves + 2); }
-
-    if (b2a->output_channels > 0) { canonicalize_identity(b2a->output_curves + 0); }
-    if (b2a->output_channels > 1) { canonicalize_identity(b2a->output_curves + 1); }
-    if (b2a->output_channels > 2) { canonicalize_identity(b2a->output_curves + 2); }
-    if (b2a->output_channels > 3) { canonicalize_identity(b2a->output_curves + 3); }
-
-    return true;
+    return ok;
 }
 
 typedef struct {
@@ -1408,9 +1382,9 @@ static bool usable_as_src(const skcms_ICCProfile* profile) {
        || (profile->has_trc && profile->has_toXYZD50);
 }
 
-bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
-                                const int priority[], const int priorities,
-                                skcms_ICCProfile* profile) {
+static bool skcms_ParseWithA2BPriority_internal(const void* buf, size_t len,
+                                                const int priority[], const int priorities,
+                                                skcms_ICCProfile* profile) {
     static_assert(SAFE_SIZEOF(header_Layout) == 132, "need to update header code");
 
     if (!profile) {
@@ -1557,7 +1531,65 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
         profile->has_CICP = true;
     }
 
-    return usable_as_src(profile);
+    return true;
+}
+
+bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
+                                const int priority[], const int priorities,
+                                skcms_ICCProfile* profile) {
+    if (!skcms_ParseWithA2BPriority_internal(buf, len, priority, priorities, profile)) {
+        return false;
+    }
+
+    if (!usable_as_src(profile)) {
+        return false;
+    }
+
+    if (profile->has_trc) {
+        for (int i = 0; i < 3; ++i) {
+            if (!canonicalize_and_validate_curve(&profile->trc[i])) {
+                return false;
+            }
+        }
+    }
+
+    if (profile->has_A2B) {
+        for (uint32_t i = 0; i < profile->A2B.input_channels; ++i) {
+            if (!canonicalize_and_validate_curve(&profile->A2B.input_curves[i])) {
+                return false;
+            }
+        }
+        for (uint32_t i = 0; i < profile->A2B.matrix_channels; ++i) {
+            if (!canonicalize_and_validate_curve(&profile->A2B.matrix_curves[i])) {
+                return false;
+            }
+        }
+        for (uint32_t i = 0; i < profile->A2B.output_channels; ++i) {
+            if (!canonicalize_and_validate_curve(&profile->A2B.output_curves[i])) {
+                return false;
+            }
+        }
+    }
+
+    if (profile->has_B2A) {
+        for (uint32_t i = 0; i < profile->B2A.input_channels; ++i) {
+            if (!canonicalize_and_validate_curve(&profile->B2A.input_curves[i])) {
+                return false;
+            }
+        }
+        for (uint32_t i = 0; i < profile->B2A.matrix_channels; ++i) {
+            if (!canonicalize_and_validate_curve(&profile->B2A.matrix_curves[i])) {
+                return false;
+            }
+        }
+        for (uint32_t i = 0; i < profile->B2A.output_channels; ++i) {
+            if (!canonicalize_and_validate_curve(&profile->B2A.output_curves[i])) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 
